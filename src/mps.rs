@@ -289,6 +289,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                     lower_enclosure: None,
                     upper_enclosure: None,
                     exact_coefficients: true,
+                    exact_coefficient_flags: vec![],
                     exact_integral: true,
                     name: t[1].into(),
                     lower: None,
@@ -487,6 +488,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             .collect();
         entries.sort_unstable_by_key(|p| p.0);
         let mut merged: Vec<(usize, f64)> = Vec::new();
+        let mut merged_exact = Vec::new();
         let mut first = 0;
         while first < entries.len() {
             let j = entries[first].0;
@@ -510,6 +512,9 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             if i == objective {
                 model.variables[j].objective_enclosure = enclose(value, exact_coefficient);
             }
+            if value != 0. {
+                merged_exact.push(exact_coefficient);
+            }
             merged.push((j, value));
             first = end;
         }
@@ -518,6 +523,9 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
         }
         merged.retain(|p| p.1 != 0.0);
         row.coefficients = merged;
+        if !row.exact_coefficients {
+            row.exact_coefficient_flags = merged_exact;
+        }
         if i == objective {
             for (j, a) in row.coefficients {
                 model.variables[j].objective = a;

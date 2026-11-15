@@ -30,6 +30,7 @@ fn row(lower: Option<f64>, upper: Option<f64>, coefficients: Vec<(usize, f64)>) 
         lower_enclosure: None,
         upper_enclosure: None,
         exact_coefficients: false,
+        exact_coefficient_flags: vec![],
         exact_integral: false,
         name: "row".into(),
         lower,

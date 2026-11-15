@@ -61,6 +61,7 @@ fn a_shift_that_cannot_preserve_absolute_row_precision_is_unresolved() {
 fn original_decimal_ill_conditioning_is_unresolved() {
     let prefix = "NAME test\nROWS\n N c\n";
     for body in [
+        "COLUMNS\n x c 0\nRHS\n rhs c 0\nBOUNDS\n FX b x 10000000000000001\nENDATA\n",
         "COLUMNS\n x c 0.1\n z c -100000000000\nRHS\n rhs c 0\nBOUNDS\n FX b x 1000000000000\n FX b z 1\nENDATA\n",
         " E forced\n E r\nCOLUMNS\n x c 0 forced 1\n x r 0.1\nRHS\n rhs forced 1000000000000 r 100000000000\nENDATA\n",
         " E r\nCOLUMNS\n x c 0 r 0.1\nRHS\n rhs r 100000000000\nBOUNDS\n FX b x 1000000000000\nENDATA\n",

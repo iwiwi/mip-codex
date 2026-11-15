@@ -89,6 +89,10 @@ pub struct Result {
     pub objective_rounding_all: bool,
     pub objective_grid: Option<Grid>,
     pub objective_bound_stats: ObjectiveBoundStats,
+    pub infeasibility_proof_calls: usize,
+    pub infeasibility_proof_trials: usize,
+    pub infeasibility_proof_failures: usize,
+    pub infeasibility_proof_seconds: f64,
     pub cut_proofs: Vec<cuts::Cut>,
     pub cut_stats: cuts::Stats,
     pub cut_rounds: usize,
@@ -169,6 +173,7 @@ fn shifted_bound(
     shift: &[f64],
     upper: bool,
     original_decimal: bool,
+    exact_shift: bool,
 ) -> f64 {
     let (mut bound, sign) = if upper {
         (row.upper.unwrap(), 1.)
@@ -185,7 +190,11 @@ fn shifted_bound(
             return f64::NAN;
         };
         bound = if upper { hi } else { lo };
-        let error = row.activity_error(shift);
+        let error = if exact_shift && row.exact_coefficients {
+            0.
+        } else {
+            row.activity_error(shift)
+        };
         if !error.is_finite() || error > 1e-9 {
             return f64::NAN;
         }
@@ -223,6 +232,7 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
             c.push(-sign * v.objective);
         }
     }
+    let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let rows = model
         .rows
         .iter()
@@ -252,11 +262,23 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
         }
         if row.upper.is_some() {
             a.push(coeff.clone());
-            b.push(shifted_bound(row, &shift, true, model.original_decimal));
+            b.push(shifted_bound(
+                row,
+                &shift,
+                true,
+                model.original_decimal,
+                exact_shift,
+            ));
         }
         if row.lower.is_some() {
             a.push(coeff.iter().map(|x| -x).collect());
-            b.push(shifted_bound(row, &shift, false, model.original_decimal));
+            b.push(shifted_bound(
+                row,
+                &shift,
+                false,
+                model.original_decimal,
+                exact_shift,
+            ));
         }
     }
     for j in 0..model.variables.len() {
@@ -331,6 +353,7 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -
     let mut rhs = Vec::new();
     let mut equality = Vec::new();
     let mut slack_upper = Vec::new();
+    let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let mut row_sources = Vec::new();
     for (source, row) in model.rows.iter().enumerate() {
         if row.lower.is_none() && row.upper.is_none() {
@@ -354,7 +377,13 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -
                     columns[k].push((i, row_sign * a * s));
                 }
             }
-            let bound = shifted_bound(row, &shift, row_sign > 0., model.original_decimal);
+            let bound = shifted_bound(
+                row,
+                &shift,
+                row_sign > 0.,
+                model.original_decimal,
+                exact_shift,
+            );
             rhs.push(bound);
             if track_rows {
                 row_sources.push((source, row_sign));
@@ -675,6 +704,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         .and_then(|_| Certifier::new(lp_model));
     let check_original_infeasibility = lp_model.needs_original_feasibility_check();
     let mut infeasibility_certifier = None;
+    let mut infeasibility_proof_calls = 0;
+    let mut infeasibility_proof_trials = 0;
+    let mut infeasibility_proof_failures = 0;
+    let mut infeasibility_proof_seconds = 0.;
     let mut objective_bound_stats = ObjectiveBoundStats::default();
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
@@ -815,6 +848,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         match answer {
             Ok(lp::Outcome::Infeasible) => {
                 if check_original_infeasibility {
+                    let proof_started = Instant::now();
+                    infeasibility_proof_calls += 1;
                     let proof = (|| {
                         let y = relaxation_witness.as_deref()?;
                         if y.len() != p.row_sources.len() {
@@ -848,18 +883,60 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                 upper[j] = Some(v.upper_enclosure?[1]);
                             }
                         }
+                        let mut active: Vec<_> = multipliers
+                            .iter()
+                            .enumerate()
+                            .filter(|(_, v)| **v != 0.)
+                            .map(|(j, v)| (j, v.abs()))
+                            .collect();
+                        active.sort_unstable_by(|a, b| b.1.total_cmp(&a.1));
                         for sign in [1., -1.] {
-                            let scaled: Vec<_> = multipliers.iter().map(|v| sign * v).collect();
+                            let mut scaled: Vec<_> = multipliers.iter().map(|v| sign * v).collect();
+                            infeasibility_proof_trials += 1;
                             if certifier
                                 .bound(&lower, &upper, &scaled)
                                 .is_some_and(|b| b > 0.)
                             {
                                 return Some(());
                             }
+                            // Multiplier perturbations only propose certificates; every trial is independently enclosed.
+                            for &(j, _) in active.iter().take(8) {
+                                let old = scaled[j];
+                                for change in [-2f64.powi(-32), 2f64.powi(-32)] {
+                                    scaled[j] = old * (1. + change);
+                                    infeasibility_proof_trials += 1;
+                                    if certifier
+                                        .bound(&lower, &upper, &scaled)
+                                        .is_some_and(|b| b > 0.)
+                                    {
+                                        return Some(());
+                                    }
+                                }
+                                scaled[j] = old;
+                            }
                         }
                         None
                     })();
+                    infeasibility_proof_seconds += proof_started.elapsed().as_secs_f64();
                     if proof.is_none() {
+                        infeasibility_proof_failures += 1;
+                        if let Some(path) = std::env::var_os("MIP_INFEASIBILITY_DUMP") {
+                            if let Some(y) = relaxation_witness.as_deref() {
+                                let mut multipliers = vec![0.; lp_model.rows.len()];
+                                for (&v, &(i, s)) in y.iter().zip(&p.row_sources) {
+                                    multipliers[i] += s * v;
+                                }
+                                if let Ok(file) = std::fs::File::create(path) {
+                                    let _ = serde_json::to_writer(
+                                        file,
+                                        &serde_json::json!({"model":lp_model,"lower":node.lower,"upper":node.upper,"multipliers":multipliers}),
+                                    );
+                                }
+                            }
+                            if std::env::var_os("MIP_LP_TRACE").is_some() {
+                                eprintln!("Original infeasibility certificate unavailable");
+                            }
+                        }
                         stack.push(node);
                         status = "numerical_error".into();
                         break;
@@ -1447,6 +1524,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         objective_rounding_all: limits.objective_rounding_all,
         objective_grid,
         objective_bound_stats,
+        infeasibility_proof_calls,
+        infeasibility_proof_trials,
+        infeasibility_proof_failures,
+        infeasibility_proof_seconds,
         cut_proofs: prepared.cuts,
         cut_stats: prepared.stats,
         cut_rounds: prepared.rounds,

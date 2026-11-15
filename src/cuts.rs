@@ -371,6 +371,7 @@ impl Pool {
                             lower_enclosure: None,
                             upper_enclosure: Some([rhs as f64, rhs as f64]),
                             exact_coefficients: true,
+                            exact_coefficient_flags: vec![],
                             exact_integral: true,
                             name: format!("__cover_{}", self.seen.len()),
                             lower: None,
@@ -468,6 +469,7 @@ fn rounding_row(model: &Model, source: &Row, upper: bool, d: i64) -> Option<Row>
     Some(Row {
         name: String::new(),
         exact_coefficients: true,
+        exact_coefficient_flags: vec![],
         exact_integral: true,
         lower: None,
         upper: Some(rhs as f64),

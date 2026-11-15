@@ -6,7 +6,7 @@ from benchmark_common import sha256,require_solver_origin
 from validate_solution import absolute_checker
 root=Path(__file__).resolve().parents[1];binary=root/'target/release/mip-codex';checker=absolute_checker()
 assert checker.is_file();info=require_solver_origin(root,binary)
-out=root/'artifacts/exact-transformation-gmp';out.mkdir(exist_ok=True)
+out=root/os.environ.get('MIP_TRANSFORMATION_DIR','artifacts/exact-transformation-gmp');out.mkdir(exist_ok=True)
 meta=dict(build_info=info,binary_sha256=sha256(binary),checker_sha256=sha256(checker),git_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip())
 (out/'experiment.json').write_text(json.dumps(meta,indent=2)+'\n')
 records=[]
@@ -19,7 +19,7 @@ for model in sorted((root/'tests/fixtures/exact-transformation').glob('*.mps')):
     r=json.loads((directory/'stdout.log').read_text());(directory/'result.json').write_text(json.dumps(r,indent=2)+'\n')
     try:
         assert completed.returncode==0,completed.returncode
-        if model.stem in ('unrepresentable-shift','product-overflow','decimal-objective','decimal-row','serialized-point','rounded-coefficient'):
+        if model.stem in ('unrepresentable-shift','product-overflow','decimal-objective','decimal-row','serialized-point','rounded-coefficient','rounded-fixed-bound'):
             assert r['status']=='numerical_error' and r['values']is None
             record=dict(model=model.name,engine=engine,status='unresolved',reason='original decimal or absolute transformation precision unavailable')
         else:

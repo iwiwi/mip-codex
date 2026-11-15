@@ -21,6 +21,8 @@ pub struct Row {
     #[serde(default)]
     pub exact_coefficients: bool,
     #[serde(default)]
+    pub exact_coefficient_flags: Vec<bool>,
+    #[serde(default)]
     pub lower_enclosure: Option<[f64; 2]>,
     #[serde(default)]
     pub upper_enclosure: Option<[f64; 2]>,
@@ -66,8 +68,11 @@ pub(crate) fn add_error(total: &mut f64, term: f64) {
     }
 }
 impl Row {
-    pub(crate) fn coefficient_error(&self, value: f64) -> f64 {
-        if self.exact_coefficients || self.exact_integral {
+    pub(crate) fn coefficient_error(&self, index: usize, value: f64) -> f64 {
+        if self.exact_coefficients
+            || self.exact_integral
+            || self.exact_coefficient_flags.get(index) == Some(&true)
+        {
             0.
         } else {
             point_error(value)
@@ -77,8 +82,8 @@ impl Row {
     }
     pub(crate) fn activity_error(&self, x: &[f64]) -> f64 {
         let mut error = 0.;
-        for &(j, a) in &self.coefficients {
-            let da = self.coefficient_error(a);
+        for (index, &(j, a)) in self.coefficients.iter().enumerate() {
+            let da = self.coefficient_error(index, a);
             let dx = point_error(x[j]);
             for (a, b) in [(da, x[j].abs()), (a.abs(), dx), (da, dx)] {
                 if a != 0. && b != 0. {
@@ -137,7 +142,28 @@ impl Model {
                 && upper.is_none_or(|b| value <= b + tolerance)
         };
         for (v, &value) in self.variables.iter().zip(x) {
-            if !bounds(value, v.lower, v.upper)
+            let (lower, upper) = if self.original_decimal {
+                let lower = match v.lower {
+                    Some(_) => Some(
+                        v.lower_enclosure.ok_or_else(|| {
+                            format!("variable {} lower precision unavailable", v.name)
+                        })?[1],
+                    ),
+                    None => None,
+                };
+                let upper = match v.upper {
+                    Some(_) => Some(
+                        v.upper_enclosure.ok_or_else(|| {
+                            format!("variable {} upper precision unavailable", v.name)
+                        })?[0],
+                    ),
+                    None => None,
+                };
+                (lower, upper)
+            } else {
+                (v.lower, v.upper)
+            };
+            if !bounds(value, lower, upper)
                 || (integer && v.integer && (value - value.round()).abs() > tolerance)
             {
                 return Err(format!("variable {} violates domain", v.name));
