@@ -1,5 +1,5 @@
-//! Bounded-variable revised primal simplex. Optimization logic is original Rust;
-//! faer is used solely for general-purpose sparse LU factorizations/solves.
+//! 有界変数の改訂単体法。最適化の処理は本リポジトリのRustで実装。
+//! faerは汎用の疎LU分解と線形方程式の解法だけに使用する。
 use crate::lp::Outcome;
 use faer::{
     Col,

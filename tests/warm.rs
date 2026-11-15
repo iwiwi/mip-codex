@@ -128,9 +128,13 @@ fn repeated_random_rhs_and_bound_changes_match_cold_solver() {
     for _case in 0..100 {
         let n = 8 + random(&mut seed, 9) as usize;
         let m = 3 + random(&mut seed, 6) as usize;
-        let costs = (0..n)
+        let mut costs = (0..n)
             .map(|_| random(&mut seed, 11) as f64 - 5.)
             .collect::<Vec<_>>();
+        // 目的が一定の面でdual beta=0が続く退化も含める。
+        if _case % 3 == 0 {
+            costs.fill(0.0);
+        }
         let upper = (0..n)
             .map(|_| 2. + random(&mut seed, 4) as f64)
             .collect::<Vec<_>>();
@@ -173,6 +177,7 @@ fn repeated_random_rhs_and_bound_changes_match_cold_solver() {
             child.rhs[i] += (random(&mut seed, 5) as f64 - 2.) * 0.25;
             let warm = minimize_warm(&child, 100000, None, state.as_deref());
             let cold = minimize(&child, 100000, None);
+            assert!(warm.stats.dual_pivots <= 64.max(4 * m) + 1);
             successful += warm.stats.warm_successes;
             dual_pivots += warm.stats.dual_pivots;
             dual_flips += warm.stats.dual_flips;

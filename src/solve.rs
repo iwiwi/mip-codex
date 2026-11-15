@@ -25,7 +25,7 @@ impl Default for Limits {
             pivots: usize::MAX,
             dense_bytes: 256 * 1024 * 1024,
             engine: Engine::Revised,
-            warm_start: false,
+            warm_start: true,
         }
     }
 }
@@ -425,7 +425,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     }
     Result {
         lp_engine: format!("{:?}", limits.engine),
-        lp_warm_start: limits.warm_start,
+        lp_warm_start: limits.warm_start && matches!(limits.engine, Engine::Revised),
         lp_warm_attempts: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.warm_attempts),
         lp_warm_successes: matches!(limits.engine, Engine::Revised)
