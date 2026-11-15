@@ -50,7 +50,7 @@ impl Builder<'_> {
         if self.seen.contains(&group) {
             return None;
         }
-        if self.groups.len() >= 20000
+        if self.groups.len() >= self.graph.n.saturating_mul(4).clamp(64, 20000)
             || (self.members + group.len())
                 .checked_mul(16)?
                 .checked_add((self.groups.len() + 1) * 128)?
@@ -80,19 +80,32 @@ impl Builder<'_> {
                 self.partial = true;
                 break;
             }
-            let v = (0..self.graph.n)
-                .filter(|&v| candidate[v / 64] & (1 << (v % 64)) != 0)
-                .max_by_key(|&v| {
-                    (
-                        candidate
-                            .iter()
-                            .zip(&self.conflict[v])
-                            .map(|(a, b)| (a & b).count_ones())
-                            .sum::<u32>(),
-                        std::cmp::Reverse(v),
-                    )
-                })
-                .unwrap();
+            // Inspect a bounded set of high global-degree candidates, ranking
+            // them by their current degree without scanning every vertex.
+            let mut v = first(&candidate).unwrap();
+            let mut best_degree = 0;
+            let mut inspected = 0;
+            'sample: for (word, &mask) in candidate.iter().enumerate().rev() {
+                let mut bits = mask;
+                while bits != 0 {
+                    let bit = 63 - bits.leading_zeros() as usize;
+                    bits &= !(1u64 << bit);
+                    let u = word * 64 + bit;
+                    let degree = candidate
+                        .iter()
+                        .zip(&self.conflict[u])
+                        .map(|(a, b)| (a & b).count_ones())
+                        .sum::<u32>();
+                    if inspected == 0 || degree > best_degree || (degree == best_degree && u < v) {
+                        v = u;
+                        best_degree = degree;
+                    }
+                    inspected += 1;
+                    if inspected == 16 {
+                        break 'sample;
+                    }
+                }
+            }
             group.push(v);
             for (a, &b) in candidate.iter_mut().zip(&self.conflict[v]) {
                 *a &= b;
@@ -102,7 +115,9 @@ impl Builder<'_> {
     }
     fn enumerate(&mut self, group: &mut Vec<usize>, mut p: Vec<u64>, mut x: Vec<u64>) {
         self.calls += 1;
-        if Instant::now() >= self.deadline || self.groups.len() >= 20000 {
+        if Instant::now() >= self.deadline
+            || self.groups.len() >= self.graph.n.saturating_mul(4).clamp(64, 20000)
+        {
             self.partial = true;
             return;
         }
@@ -155,7 +170,9 @@ impl Builder<'_> {
             group.pop();
             clear(&mut p, v);
             x[v / 64] |= 1 << (v % 64);
-            if Instant::now() >= self.deadline || self.groups.len() >= 20000 {
+            if Instant::now() >= self.deadline
+                || self.groups.len() >= self.graph.n.saturating_mul(4).clamp(64, 20000)
+            {
                 self.partial = true;
                 return;
             }
@@ -309,6 +326,12 @@ pub(super) fn improve(
     }
     for v in 0..graph.n {
         if Instant::now() >= construction {
+            break;
+        }
+        builder.grow(vec![v]);
+    }
+    for v in 0..graph.n {
+        if Instant::now() >= construction {
             builder.partial = true;
             break;
         }
@@ -323,7 +346,7 @@ pub(super) fn improve(
         }
         builder.enumerate(&mut vec![v], p, x);
     }
-    let base = builder.groups.clone();
+    let base = builder.groups[..base_count].to_vec();
     for group in base {
         if Instant::now() >= construction {
             break;
@@ -345,16 +368,30 @@ pub(super) fn improve(
             );
         }
     }
-    for v in 0..graph.n {
-        if Instant::now() >= construction {
-            break;
-        }
-        builder.grow(vec![v]);
-    }
     out.stats.generated = builder.groups.len();
     out.stats.enumeration_calls = builder.calls;
     out.stats.enumeration_partial = builder.partial;
     let groups = builder.groups;
+    if let Ok(path) = std::env::var("MIP_GRAPH_CLIQUE_DUMP") {
+        if let Ok(file) = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(path)
+        {
+            let original_groups: Vec<Vec<_>> = groups
+                .iter()
+                .map(|g| g.iter().map(|&v| graph.order[v]).collect())
+                .collect();
+            let _ = serde_json::to_writer(
+                file,
+                &serde_json::json!({
+                    "vertices": graph.n, "groups": original_groups, "base_count": base_count,
+                    "purpose": "diagnostic candidates only; no native weights used in Rust"
+                }),
+            );
+        }
+    }
+
     let mut counts = vec![0u32; groups.len()];
     for c in &mut counts[..base_count] {
         *c = 1;
