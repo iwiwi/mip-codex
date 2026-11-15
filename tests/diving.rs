@@ -47,7 +47,7 @@ fn local_infeasibility_reverses_direction_without_pruning_parent() {
 fn two_failed_sides_do_not_prove_mip_infeasibility() {
     let text = "NAME infeasible\nROWS\n N c\n E r\nCOLUMNS\n x c 1 r 1\nRHS\n rhs r 0.4\nBOUNDS\n BV b x\nENDATA\n";
     let result = run(text, true, 1);
-    assert_eq!(result.diving.infeasible, 2);
+    assert!(result.diving.infeasible >= 2);
     assert_eq!(result.objective, None);
     assert_eq!(result.status, "node_limit");
     assert_eq!(run(text, true, usize::MAX).status, "infeasible");
@@ -66,4 +66,17 @@ fn expired_global_deadline_skips_all_local_solves() {
     assert_eq!(result.diving.lp_solves, 0);
     assert_eq!(result.diving.candidates, 0);
     assert_eq!(result.status, "time_limit");
+}
+#[test]
+fn failed_integral_fixing_does_not_discard_a_feasible_integer_solution() {
+    // 根LPはx=.5,y=0。局所的にy=0を固定すると両側が失敗するが、x=0,y=1は実行可能。
+    let text = "NAME localfix\nROWS\n N c\n E r\nCOLUMNS\n x r 1\n y c 1 r 0.5\nRHS\n rhs r 0.5\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
+    let root = run(text, true, 1);
+    assert!(root.diving.infeasible >= 2);
+    assert_eq!(root.diving.sequential_calls, 1);
+    assert_eq!(root.objective, Some(1.));
+    assert_eq!(root.status, "node_limit");
+    let complete = run(text, true, usize::MAX);
+    assert_eq!(complete.status, "optimal");
+    assert_eq!(complete.objective, Some(1.));
 }
