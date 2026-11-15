@@ -7,6 +7,7 @@ pub struct Stats {
     pub local: Option<LocalStats>,
     pub root_initial_upper: usize,
     pub root_variants: usize,
+    pub root_variant_uppers: Vec<usize>,
     pub root_color_seconds: f64,
     pub vertices: usize,
     pub conflict_edges: usize,
@@ -398,6 +399,7 @@ pub fn solve_with_options(
             if let Some(colors) = alternate_root_colors(&graph, mode, end) {
                 search.stats.root_variants += 1;
                 let upper = colors.iter().copied().max().unwrap_or(0);
+                search.stats.root_variant_uppers.push(upper);
                 if upper < search.stats.root_upper {
                     let mut order: Vec<_> = (0..graph.n).collect();
                     order.sort_unstable_by_key(|&v| (colors[v], v));
@@ -715,6 +717,11 @@ fn alternate_root_colors(graph: &Graph, mode: usize, deadline: Instant) -> Optio
     if n % 64 != 0 {
         remaining[graph.words - 1] = (1 << (n % 64)) - 1;
     }
+    let degree: Vec<usize> = graph
+        .compatible
+        .iter()
+        .map(|r| r.iter().map(|b| b.count_ones() as usize).sum())
+        .collect();
     if mode == 0 {
         let mut color = 0;
         while first(&remaining).is_some() {
@@ -736,7 +743,10 @@ fn alternate_root_colors(graph: &Graph, mode: usize, deadline: Instant) -> Optio
                             .map(|(&a, &b)| (a & !b).count_ones() as usize)
                             .sum();
                         if choice.is_none_or(|(score, old)| {
-                            common > score || (common == score && v < old)
+                            common > score
+                                || (common == score
+                                    && (degree[v], graph.order[v])
+                                        < (degree[old], graph.order[old]))
                         }) {
                             choice = Some((common, v));
                         }
@@ -765,7 +775,7 @@ fn alternate_root_colors(graph: &Graph, mode: usize, deadline: Instant) -> Optio
             }
             let v = (0..n)
                 .filter(|&v| colors[v] == 0)
-                .max_by_key(|&v| (saturation[v], degree[v], std::cmp::Reverse(v)))?;
+                .max_by_key(|&v| (saturation[v], degree[v], std::cmp::Reverse(graph.order[v])))?;
             let color = used[v].iter().enumerate().find_map(|(k, &bits)| {
                 (bits != u64::MAX).then(|| k * 64 + (!bits).trailing_zeros() as usize)
             })?;
