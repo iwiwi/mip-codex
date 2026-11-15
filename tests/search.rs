@@ -83,6 +83,7 @@ fn all_search_orders_match_binary_enumeration() {
                 &model,
                 &Limits {
                     box_primal: false,
+                    binary_graph: false,
                     objective_rounding: false,
                     rins: false,
                     strong_branching: false,
@@ -151,6 +152,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
             &model,
             &Limits {
                 box_primal: false,
+                binary_graph: false,
                 objective_rounding: false,
                 rins: false,
                 strong_branching: false,

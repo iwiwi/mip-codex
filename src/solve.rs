@@ -50,7 +50,7 @@ impl Default for Limits {
             propagation: false,
             primal_repair: true,
             box_primal: true,
-            binary_graph: false,
+            binary_graph: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,

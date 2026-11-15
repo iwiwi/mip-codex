@@ -14,6 +14,7 @@ fn verified_candidate_does_not_replace_open_node_bound() {
             &model,
             &Limits {
                 box_primal: false,
+                binary_graph: false,
                 objective_rounding: false,
                 rins: false,
                 strong_branching: false,
@@ -46,6 +47,7 @@ fn local_proof_is_not_promoted_to_global_infeasibility() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -68,6 +70,7 @@ fn zero_deadline_does_not_start_a_probe() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,

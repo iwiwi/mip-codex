@@ -72,6 +72,7 @@ fn all_rules_orders_and_objective_senses_preserve_optimum() {
                     &m,
                     &Limits {
                         box_primal: false,
+                        binary_graph: false,
                         objective_rounding: false,
                         rins: false,
                         strong_branching: false,

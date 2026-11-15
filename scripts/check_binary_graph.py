@@ -8,10 +8,10 @@ from validate_solution import validate
 from verify_cover_cuts import validate_cut_proofs
 root=Path(__file__).resolve().parents[1];binary=root/'target/release/mip-codex';info=require_solver_origin(root,binary)
 out=root/os.environ.get('MIP_GRAPH_DIR','artifacts/binary-graph-enumeration');out.mkdir(parents=True,exist_ok=True)
-(out/'experiment.json').write_text(json.dumps(dict(build_info=info,binary_sha256=sha256(binary),seed=2026111510),indent=2)+'\n')
+(out/'experiment.json').write_text(json.dumps(dict(build_info=info,binary_sha256=sha256(binary),seed=2026111510,offset_profile="dyadic_eighths"),indent=2)+'\n')
 rng=random.Random(2026111510);records=[]
 for case in range(int(sys.argv[1])if len(sys.argv)>1 else 200):
- n=rng.randint(3,10);maximize=case%2==1;weight=rng.randint(1,4);offset=rng.randint(-7,7)
+ n=rng.randint(3,10);maximize=case%2==1;weight=rng.randint(1,4);offset=rng.randint(-56,56)/8
  constraints=[];edges=set()
  for a in range(n):
   for b in range(a+1,n):

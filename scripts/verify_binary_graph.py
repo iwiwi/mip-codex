@@ -3,6 +3,8 @@
 import gzip,itertools
 from decimal import Decimal
 from fractions import Fraction
+from pathlib import Path
+from benchmark_common import sha256
 
 def maximize_sense(path):
  opener=gzip.open if str(path).endswith('.gz')else open
@@ -71,7 +73,7 @@ def verify(model_path,result,exact):
  assert result['lp_solves']==0
  exact_bound=offset+coeff[0]*upper;reported=Fraction(result['dual_bound'])
  assert reported>=exact_bound if maximize else reported<=exact_bound
- return dict(valid=True,vertices=n,conflict_edges=len(edges),root_coloring_valid=True,
+ return dict(valid=True,checker_sha256=sha256(Path(__file__)),vertices=n,conflict_edges=len(edges),root_coloring_valid=True,
              root_upper=root_upper,upper=upper,best=best,
              final_bound_source='root coloring/trivial cardinality'if upper==root_upper else'internal completed branches and remaining-prefix coloring; not independently replayed',
              independent_optimality=best==root_upper)
