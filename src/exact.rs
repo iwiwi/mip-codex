@@ -13,7 +13,7 @@ impl Default for Sum {
         }
     }
 }
-fn parts(value: f64) -> Option<(bool, u64, i32)> {
+pub(crate) fn parts(value: f64) -> Option<(bool, u64, i32)> {
     let bits = value.to_bits();
     let e = ((bits >> 52) & 0x7ff) as i32;
     if e == 0x7ff {
@@ -251,7 +251,7 @@ enum Accumulated {
     Pair(f64, f64),
     Wide(Sum),
 }
-fn two_sum(a: f64, b: f64) -> Option<(f64, f64)> {
+pub(crate) fn two_sum(a: f64, b: f64) -> Option<(f64, f64)> {
     let value = a + b;
     let z = value - a;
     let error = (a - (value - z)) + (b - z);
