@@ -1,0 +1,43 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+error[E0277]: `?` couldn't convert the error to `std::string::String`
+  --> src/main.rs:26:62
+   |
+ 3 | fn run() -> Result<(), String> {
+   |             ------------------ expected `std::string::String` because of this
+...
+26 |             limits.graph_local_seconds = value.parse::<f64>()?;
+   |                                                --------------^ the trait `From<ParseFloatError>` is not implemented for `std::string::String`
+   |                                                |
+   |                                                this can't be annotated with `?` because it has type `Result<_, ParseFloatError>`
+   |
+   = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+   = help: `std::string::String` implements trait `From<T>`:
+             From<&mut str>
+             From<&std::string::String>
+             From<&str>
+             From<Box<str>>
+             From<Cow<'_, str>>
+             From<char>
+
+error[E0277]: `?` couldn't convert the error to `std::string::String`
+  --> src/main.rs:32:63
+   |
+ 3 | fn run() -> Result<(), String> {
+   |             ------------------ expected `std::string::String` because of this
+...
+32 |             limits.graph_local_passes = value.parse::<usize>()?;
+   |                                               ----------------^ the trait `From<ParseIntError>` is not implemented for `std::string::String`
+   |                                               |
+   |                                               this can't be annotated with `?` because it has type `Result<_, ParseIntError>`
+   |
+   = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+   = help: `std::string::String` implements trait `From<T>`:
+             From<&mut str>
+             From<&std::string::String>
+             From<&str>
+             From<Box<str>>
+             From<Cow<'_, str>>
+             From<char>
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `mip-codex` (bin "mip-codex") due to 2 previous errors
