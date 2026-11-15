@@ -66,10 +66,11 @@ def create(args):
     for path in ('Cargo.toml', 'Cargo.lock'):
         shutil.copy2(REPO/path, snapshot/path)
     shutil.copytree(REPO/'tools/glpk-benchmark', snapshot/'tools/glpk-benchmark')
-    shutil.copytree(REPO/'third_party/miplib-checker', snapshot/'third_party/miplib-checker', ignore=shutil.ignore_patterns('bin', 'obj'))
+    shutil.copytree(REPO/'third_party/miplib-checker', snapshot/'third_party/miplib-checker', ignore=shutil.ignore_patterns('bin', 'obj', 'obj-absolute'))
     binaries = {'mip-codex': REPO/'target/release/mip-codex',
                 'glpk-benchmark': REPO/'target/glpk-benchmark',
-                'solchecker': REPO/'third_party/miplib-checker/bin/solchecker'}
+                'solchecker': REPO/'third_party/miplib-checker/bin/solchecker',
+                'solchecker-absolute': REPO/'third_party/miplib-checker/bin/solchecker-absolute'}
     for name, path in binaries.items():
         shutil.copy2(path, snapshot/'bin'/name)
     python = str(REPO/'.venv/bin/python')

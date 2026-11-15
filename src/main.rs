@@ -23,6 +23,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_LP_WARM_START must be 0 or 1".into()),
             };
         }
+        if let Ok(propagation) = std::env::var("MIP_PROPAGATION") {
+            limits.propagation = match propagation.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_PROPAGATION must be 0 or 1".into()),
+            };
+        }
         if let Some(s) = args.get(3) {
             limits.seconds = s.parse().map_err(|_| "invalid seconds")?;
         }

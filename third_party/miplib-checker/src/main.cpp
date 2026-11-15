@@ -93,7 +93,11 @@ int main (int argc, char const *argv[])
    }
    std::cout << "Integrality tolerance: " << intTolerance.toString() << std::endl;
    std::cout << "Linear tolerance: " << linearTolerance.toString() << std::endl;
+#ifdef MIPLIB_ABSOLUTE
+   std::cout << "Objective tolerance: 1e-8*(1+abs(computed objective))" << std::endl;
+#else
    std::cout << "Objective tolerance: " << linearTolerance.toString() << std::endl;
+#endif
    std::cout << std::endl;
    //std::cout << "SolverStatus: " << solverStatus << std::endl;
    //std::cout << "ExactStatus: " << exactStatus << std::endl;

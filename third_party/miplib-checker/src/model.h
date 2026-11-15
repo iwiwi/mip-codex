@@ -456,6 +456,9 @@ public:
    std::string objName; //< name of the objective function
    ObjSense objSense; //< optimization direction
    bool hasObjectiveValue; //< do we have the objective value of the solution as reported by the solver?
+#ifdef MIPLIB_ABSOLUTE
+   Rational objectiveOffset; //< 元MPSの目的行RHSの負値
+#endif
    Rational objectiveValue; //< objective value of the solution as reported by the solver
    // \}
 protected:

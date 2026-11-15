@@ -72,3 +72,29 @@ fn limits_do_not_claim_infeasibility() {
         assert_eq!(r.dual_bound, None);
     }
 }
+#[test]
+fn propagation_preserves_optimum_and_saves_lp_calls() {
+    let model = mps::parse(std::io::Cursor::new(
+        "NAME prop\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 2\n y c -1 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n",
+    )).unwrap();
+    let cold = solve(
+        &model,
+        &Limits {
+            propagation: false,
+            ..Limits::default()
+        },
+    );
+    let prop = solve(
+        &model,
+        &Limits {
+            propagation: true,
+            ..Limits::default()
+        },
+    );
+    assert_eq!(cold.status, "optimal");
+    assert_eq!(prop.status, "optimal");
+    assert_eq!(cold.objective, Some(-1.));
+    assert_eq!(prop.objective, cold.objective);
+    assert_eq!(prop.dual_bound, cold.dual_bound);
+    assert!(prop.lp_solves < cold.lp_solves);
+}

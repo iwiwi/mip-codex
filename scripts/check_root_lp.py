@@ -9,6 +9,7 @@ import sys
 import tempfile
 import highspy
 
+os.environ['MIP_PROPAGATION'] = '0'  # compare original continuous LP relaxations
 root=Path(__file__).resolve().parents[1]
 rng=random.Random(2026111502)
 count=int(sys.argv[1]) if len(sys.argv)>1 else 100

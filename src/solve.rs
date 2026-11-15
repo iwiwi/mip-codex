@@ -1,5 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{lp, model::Model, revised};
+use crate::{lp, model::Model, propagate, revised};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -16,6 +16,7 @@ pub struct Limits {
     pub dense_bytes: usize,
     pub engine: Engine,
     pub warm_start: bool,
+    pub propagation: bool,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -26,12 +27,21 @@ impl Default for Limits {
             dense_bytes: 256 * 1024 * 1024,
             engine: Engine::Revised,
             warm_start: true,
+            propagation: false,
         }
     }
 }
 #[derive(Serialize, Debug)]
 pub struct Result {
     pub lp_engine: String,
+    pub propagation: bool,
+    pub propagation_calls: usize,
+    pub propagation_rows: usize,
+    pub propagation_tightenings: usize,
+    pub propagation_pruned: usize,
+    pub propagation_budget_hits: usize,
+    pub fixed_leaves: usize,
+    pub lp_solves: usize,
     pub lp_warm_start: bool,
     pub lp_warm_attempts: Option<usize>,
     pub lp_warm_successes: Option<usize>,
@@ -56,6 +66,7 @@ struct Node {
     upper: Vec<Option<f64>>,
     bound: f64,
     warm: Option<Arc<revised::WarmStart>>,
+    changed: Option<usize>,
 }
 struct Standard {
     sparse: Option<revised::Problem>,
@@ -258,8 +269,14 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         upper,
         bound: f64::NEG_INFINITY,
         warm: None,
+        changed: None,
     }];
     let mut nodes = 0;
+    let mut lp_solves = 0;
+    let mut fixed_leaves = 0;
+    let mut propagator = limits
+        .propagation
+        .then(|| propagate::Propagator::new(model));
     let mut lp_stats = revised::Stats::default();
     let mut incumbent = f64::INFINITY;
     let mut best = None;
@@ -281,6 +298,46 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             status = s.into();
             break;
         }
+        nodes += 1;
+        if let Some(p) = &mut propagator {
+            match p.propagate(
+                &mut node.lower,
+                &mut node.upper,
+                node.changed,
+                Some(deadline),
+            ) {
+                propagate::Status::Infeasible => continue,
+                propagate::Status::TimeLimit => {
+                    stack.push(node);
+                    status = "time_limit".into();
+                    break;
+                }
+                propagate::Status::Stable | propagate::Status::Limited => {}
+            }
+            if node
+                .lower
+                .iter()
+                .zip(&node.upper)
+                .all(|(l, u)| l.zip(*u).is_some_and(|(l, u)| l == u))
+            {
+                let x: Vec<_> = node.lower.iter().map(|v| v.unwrap()).collect();
+                if model.check(&x, true, 1e-6).is_ok() {
+                    let value = sign * model.objective(&x);
+                    if !value.is_finite() {
+                        stack.push(node);
+                        status = "numerical_error".into();
+                        break;
+                    }
+                    fixed_leaves += 1;
+                    terminal_bound = terminal_bound.min(value);
+                    if value < incumbent {
+                        incumbent = value;
+                        best = Some(x);
+                    }
+                    continue;
+                }
+            }
+        }
         let relaxation = match limits.engine {
             Engine::Dense => standard_dense(model, &node, limits.dense_bytes),
             Engine::Revised => standard_sparse(model, &node, limits.dense_bytes),
@@ -294,7 +351,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             }
             Relaxation::Ready(p) => p,
         };
-        nodes += 1;
+        lp_solves += 1;
         let mut next_warm = None;
         let (answer, relaxation_dual) = if let Some(sparse) = &p.sparse {
             let answer = if limits.warm_start {
@@ -361,10 +418,12 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     .max_by(|a, b| a.1.total_cmp(&b.1));
                 if let Some((j, _)) = branch {
                     let mut up = node.clone();
+                    up.changed = Some(j);
                     up.upper[j] = Some(
                         up.upper[j].map_or(original[j].floor(), |v| v.min(original[j].floor())),
                     );
                     let mut down = node;
+                    down.changed = Some(j);
                     down.lower[j] = Some(
                         down.lower[j].map_or(original[j].ceil(), |v| v.max(original[j].ceil())),
                     );
@@ -423,7 +482,16 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     if status == "optimal" && gap.is_some_and(|g| g > 1e-7) {
         status = "numerical_error".into();
     }
+    let propagation_stats = propagator.map_or_else(propagate::Stats::default, |p| p.stats);
     Result {
+        propagation: limits.propagation,
+        propagation_calls: propagation_stats.calls,
+        propagation_rows: propagation_stats.rows,
+        propagation_tightenings: propagation_stats.tightenings,
+        propagation_pruned: propagation_stats.pruned,
+        propagation_budget_hits: propagation_stats.budget_hits,
+        fixed_leaves,
+        lp_solves,
         lp_engine: format!("{:?}", limits.engine),
         lp_warm_start: limits.warm_start && matches!(limits.engine, Engine::Revised),
         lp_warm_attempts: matches!(limits.engine, Engine::Revised)
