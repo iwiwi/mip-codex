@@ -3,6 +3,7 @@
 import hashlib
 import itertools
 import json
+import os
 from pathlib import Path
 import random
 import subprocess
@@ -15,7 +16,7 @@ root = Path(__file__).resolve().parents[1]
 rng = random.Random(20261115)
 count = int(sys.argv[1]) if len(sys.argv)>1 else 500
 failed = 0
-outdir = root/'artifacts/synthetic'
+outdir = root/os.environ.get('MIP_SYNTHETIC_DIR','artifacts/synthetic')
 outdir.mkdir(exist_ok=True)
 for case in range(count):
     n=rng.randint(1,5)

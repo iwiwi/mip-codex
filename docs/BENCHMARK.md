@@ -27,3 +27,23 @@
 - 独立Python検査器は元MPSをHiGHS readerで再読込し、制約活動をmath.fsumで計算。絶対制約・変数境界・整数性許容誤差1e-6、目的値誤差1e-8*(1+abs(obj))。最適化は呼ばない。HiGHS readerのsmall_matrix_valueを1e-12に設定。既定1e-9ではmomentum1の7係数が省かれるため。全入力のRust readerとの照合を記録。
 - CLIのoptimal/infeasibleは数値的探索結果を表す。LP非有界の場合はMILP非有界を断定せずunbounded_relaxationで停止。時間・ノード・反復・資源・数値異常を別statusにする。
 - 参考仕様: https://ergo-code.github.io/HiGHS/dev/options/definitions/ ; https://www.scipopt.org/doc/html/PARAMETERS.php
+
+## 疎LP採用の比較 (2026-11-15)
+
+実装commit ff6c959を固定し、ソース領域cleanで計測。`MIP_BENCH_SOLVERS=rust-dense,rust-revised,highs,scip,glpk`で同一バイナリのLP方式を切替。各5秒/1コア/16GiB、逐次実行。既定ノード・LP反復上限を撤廃し時間制限まで探索する (明示上限は指定可能)。
+
+最終smoke: artifacts/smoke-20261115-025135。全15runの最適性証明0、返却14解は独立検査で全て合格。
+
+| 開発問題 | 密表Rust primal | 疎Rust primal | HiGHS | SCIP | GLPK |
+|---|---:|---:|---:|---:|---:|
+| pk1 | 46 | 29 | 約15 | 19 | 18 |
+| mad | 解なし | 0.4938 | 0.208 | 0.386 | 0.1712 |
+| markshare_4_0 | 約20 | 4 | 約5 | 約5 | 7 |
+
+疎版の探索ノードは順に12275/11567/333944、密表版470/5/8688。LP経路が異なるためノード数だけで速度倍率を断定しない。
+
+大きめの開発3問: artifacts/smoke-20261115-025252。密表の30n20b8は表メモリ推定でresource_limit、50v-10/binkar10_1は根LP中に時間切れ。疎版は3問全てで有限双対境界 (約1.56640765/2879.06568685/6637.18802694) を得て探索し、5秒で74/713/70ノード。6runともprimalなし。30n20b8の疎版最大RSSは約57.4 MiB。
+
+追加の根LP照合: 上記6問の根LPはHiGHS relaxationと一致 (artifacts/revised-miplib-root-check.jsonl)。合成根LP200問では目的値が3エンジンで一致し、LP計算時間のみの幾何平均比は密表/疎=21.24。合成・小規模開発測定を全MIPLIBの成績に外挿しない。
+
+採用: 疎エンジンを既定にする。理由は全検証で誤答/数値異常なし、密表より規模と解品質を改善したため。比較ソルバー全体への優位性は未達成。ノード間基底再利用、前処理、カット等は今後の課題。

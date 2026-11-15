@@ -1,26 +1,38 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{lp, model::Model};
+use crate::{lp, model::Model, revised};
 use serde::Serialize;
 use std::time::Instant;
+#[derive(Clone, Copy, Debug)]
+pub enum Engine {
+    Dense,
+    Revised,
+}
+
 #[derive(Clone)]
 pub struct Limits {
     pub seconds: f64,
     pub nodes: usize,
     pub pivots: usize,
     pub dense_bytes: usize,
+    pub engine: Engine,
 }
 impl Default for Limits {
     fn default() -> Self {
         Self {
             seconds: 60.0,
-            nodes: 100_000,
-            pivots: 100_000,
+            nodes: usize::MAX,
+            pivots: usize::MAX,
             dense_bytes: 256 * 1024 * 1024,
+            engine: Engine::Revised,
         }
     }
 }
 #[derive(Serialize, Debug)]
 pub struct Result {
+    pub lp_engine: String,
+    pub lp_pivots: Option<usize>,
+    pub lp_flips: Option<usize>,
+    pub lp_refactors: Option<usize>,
     pub status: String,
     pub objective: Option<f64>,
     pub dual_bound: Option<f64>,
@@ -36,6 +48,7 @@ struct Node {
     bound: f64,
 }
 struct Standard {
+    sparse: Option<revised::Problem>,
     a: Vec<Vec<f64>>,
     b: Vec<f64>,
     c: Vec<f64>,
@@ -47,7 +60,7 @@ enum Relaxation {
     Infeasible,
     ResourceLimit,
 }
-fn standard(model: &Model, node: &Node, limit: usize) -> Relaxation {
+fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
     let mut shift = vec![];
     let mut terms = vec![];
     let mut c = vec![];
@@ -120,9 +133,100 @@ fn standard(model: &Model, node: &Node, limit: usize) -> Relaxation {
         }
     }
     Relaxation::Ready(Standard {
+        sparse: None,
         a,
         b,
         c,
+        shift,
+        terms,
+    })
+}
+fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
+    let mut shift = Vec::new();
+    let mut terms = Vec::new();
+    let mut costs = Vec::new();
+    let mut upper = Vec::new();
+    let sign = if model.maximize { -1.0 } else { 1.0 };
+    for (j, v) in model.variables.iter().enumerate() {
+        let lo = node.lower[j];
+        let up = node.upper[j];
+        if lo.zip(up).is_some_and(|(l, u)| l > u) {
+            return Relaxation::Infeasible;
+        }
+        if let Some(l) = lo {
+            shift.push(l);
+            terms.push(vec![(costs.len(), 1.0)]);
+            costs.push(sign * v.objective);
+            upper.push(up.map_or(f64::INFINITY, |u| u - l));
+        } else if let Some(u) = up {
+            shift.push(u);
+            terms.push(vec![(costs.len(), -1.0)]);
+            costs.push(-sign * v.objective);
+            upper.push(f64::INFINITY);
+        } else {
+            shift.push(0.0);
+            terms.push(vec![(costs.len(), 1.0), (costs.len() + 1, -1.0)]);
+            costs.push(sign * v.objective);
+            costs.push(-sign * v.objective);
+            upper.extend([f64::INFINITY; 2]);
+        }
+    }
+    let nonzeros = model
+        .rows
+        .iter()
+        .map(|r| r.coefficients.len())
+        .sum::<usize>();
+    let estimate =
+        (nonzeros as u128) * 48 + (model.rows.len() as u128) * 2048 + (costs.len() as u128) * 128;
+    if estimate > limit as u128 {
+        return Relaxation::ResourceLimit;
+    }
+    let mut columns = vec![vec![]; costs.len()];
+    let mut rhs = Vec::new();
+    let mut equality = Vec::new();
+    let mut slack_upper = Vec::new();
+    for row in &model.rows {
+        if row.lower.is_none() && row.upper.is_none() {
+            continue;
+        }
+        let i = rhs.len();
+        let mut offset = 0.0;
+        let row_sign = if row.upper.is_some() { 1.0 } else { -1.0 };
+        for &(j, a) in &row.coefficients {
+            offset += a * shift[j];
+            for &(k, s) in &terms[j] {
+                columns[k].push((i, row_sign * a * s));
+            }
+        }
+        let bound = if let Some(u) = row.upper {
+            u - offset
+        } else {
+            offset - row.lower.unwrap()
+        };
+        rhs.push(bound);
+        equality.push(row.lower.zip(row.upper).is_some_and(|(l, u)| l == u));
+        slack_upper.push(
+            row.lower
+                .zip(row.upper)
+                .map_or(f64::INFINITY, |(l, u)| u - l),
+        );
+        if row.lower.zip(row.upper).is_some_and(|(l, u)| l > u) {
+            return Relaxation::Infeasible;
+        }
+    }
+    let p = revised::Problem {
+        columns,
+        rhs,
+        costs,
+        upper,
+        equality,
+        slack_upper,
+    };
+    Relaxation::Ready(Standard {
+        sparse: Some(p),
+        a: vec![],
+        b: vec![],
+        c: vec![],
         shift,
         terms,
     })
@@ -145,6 +249,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         bound: f64::NEG_INFINITY,
     }];
     let mut nodes = 0;
+    let mut lp_stats = revised::Stats::default();
     let mut incumbent = f64::INFINITY;
     let mut best = None;
     let mut status = "optimal".to_string();
@@ -165,7 +270,11 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             status = s.into();
             break;
         }
-        let p = match standard(model, &node, limits.dense_bytes) {
+        let relaxation = match limits.engine {
+            Engine::Dense => standard_dense(model, &node, limits.dense_bytes),
+            Engine::Revised => standard_sparse(model, &node, limits.dense_bytes),
+        };
+        let p = match relaxation {
             Relaxation::Infeasible => continue,
             Relaxation::ResourceLimit => {
                 stack.push(node);
@@ -175,7 +284,18 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             Relaxation::Ready(p) => p,
         };
         nodes += 1;
-        let answer = lp::minimize_until(&p.a, &p.b, &p.c, limits.pivots, Some(deadline));
+        let (answer, relaxation_dual) = if let Some(sparse) = &p.sparse {
+            let answer = revised::minimize(sparse, limits.pivots, Some(deadline));
+            lp_stats.pivots += answer.stats.pivots;
+            lp_stats.flips += answer.stats.flips;
+            lp_stats.refactors += answer.stats.refactors;
+            (Ok(answer.outcome), answer.dual)
+        } else {
+            (
+                lp::minimize_until(&p.a, &p.b, &p.c, limits.pivots, Some(deadline)),
+                None,
+            )
+        };
         match answer {
             Ok(lp::Outcome::Infeasible) => continue,
             Ok(lp::Outcome::Optimal { x, .. }) => {
@@ -190,7 +310,24 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     status = "numerical_error".into();
                     break;
                 }
-                let bound = sign * model.objective(&original);
+                let objective = sign * model.objective(&original);
+                if !objective.is_finite() {
+                    stack.push(node);
+                    status = "numerical_error".into();
+                    break;
+                }
+                let bound = if let Some(dual) = relaxation_dual {
+                    let constant = model.offset
+                        + model
+                            .variables
+                            .iter()
+                            .zip(&p.shift)
+                            .map(|(v, s)| v.objective * s)
+                            .sum::<f64>();
+                    (dual + sign * constant).min(objective)
+                } else {
+                    objective
+                };
                 // Small negative roundoff in a child must not decrease inherited bounds.
                 node.bound = node.bound.max(bound);
                 if node.bound >= incumbent {
@@ -269,6 +406,10 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         status = "numerical_error".into();
     }
     Result {
+        lp_engine: format!("{:?}", limits.engine),
+        lp_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.pivots),
+        lp_flips: matches!(limits.engine, Engine::Revised).then_some(lp_stats.flips),
+        lp_refactors: matches!(limits.engine, Engine::Revised).then_some(lp_stats.refactors),
         status,
         objective,
         dual_bound,

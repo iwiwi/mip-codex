@@ -2,4 +2,5 @@
 pub mod lp;
 pub mod model;
 pub mod mps;
+pub mod revised;
 pub mod solve;
