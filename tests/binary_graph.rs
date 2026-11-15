@@ -68,14 +68,22 @@ fn exact_search_and_interruption_bounds_match_enumeration_and_root_coloring() {
             .max()
             .unwrap();
         let model = model(n, &edges, case % 2 == 0);
-        for limit in [0, 1, 2, 3, 7, usize::MAX] {
-            let r = binary_graph::solve(
+        for (limit, local) in [0, 1, 2, 3, 7, usize::MAX]
+            .into_iter()
+            .flat_map(|limit| [false, true].map(|local| (limit, local)))
+        {
+            let r = binary_graph::solve_with_local(
                 &model,
                 512 * 1024 * 1024,
                 Instant::now() + Duration::from_secs(1),
                 limit,
+                local,
             )
             .unwrap();
+            if let Some(local) = &r.stats.local {
+                assert!(local.best >= local.initial);
+                assert_eq!(local.validation_failures, 0);
+            }
             assert!(model.check(&r.point, true, 1e-9).is_ok());
             assert_eq!(r.point.iter().sum::<f64>() as usize, r.stats.best);
             assert!(r.stats.best <= expected && expected <= r.stats.upper);

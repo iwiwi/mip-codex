@@ -4,6 +4,7 @@ use crate::model::Model;
 use std::time::Instant;
 #[derive(Debug, Default, serde::Serialize)]
 pub struct Stats {
+    pub local: Option<LocalStats>,
     pub vertices: usize,
     pub conflict_edges: usize,
     pub nodes: usize,
@@ -325,6 +326,15 @@ impl Search<'_> {
     }
 }
 pub fn solve(model: &Model, memory: usize, deadline: Instant, limit: usize) -> Option<Answer> {
+    solve_with_local(model, memory, deadline, limit, false)
+}
+pub fn solve_with_local(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+) -> Option<Answer> {
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -366,6 +376,19 @@ pub fn solve(model: &Model, memory: usize, deadline: Instant, limit: usize) -> O
     };
     search.stats.first_seconds = Some(started.elapsed().as_secs_f64());
     let root = search.color(&all);
+    if local
+        && root.is_some()
+        && search.best.len() < search.stats.root_upper
+        && Instant::now() < deadline
+    {
+        let allocation =
+            (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(0.25);
+        let local_deadline =
+            deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
+        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline);
+        search.best = seed;
+        search.stats.local = Some(stats);
+    }
     if search.best.len() < search.stats.root_upper {
         if let Some(root) = root {
             search.expand(all, &mut vec![], Some(root));
@@ -397,4 +420,251 @@ pub fn solve(model: &Model, memory: usize, deadline: Instant, limit: usize) -> O
         status,
         stats: search.stats,
     })
+}
+
+#[derive(Default, Debug, serde::Serialize)]
+pub struct LocalStats {
+    pub initial: usize,
+    pub best: usize,
+    pub iterations: usize,
+    pub pair_swaps: usize,
+    pub neutral_swaps: usize,
+    pub perturbations: usize,
+    pub additions: usize,
+    pub validation_failures: usize,
+    pub seconds: f64,
+}
+fn adjacent(graph: &Graph, a: usize, b: usize) -> bool {
+    graph.compatible[a][b / 64] & (1 << (b % 64)) != 0
+}
+fn strict_clique(graph: &Graph, vertices: &[usize]) -> bool {
+    let mut seen = vec![false; graph.n];
+    for (k, &v) in vertices.iter().enumerate() {
+        if v >= graph.n || seen[v] || vertices[..k].iter().any(|&u| !adjacent(graph, u, v)) {
+            return false;
+        }
+        seen[v] = true;
+    }
+    true
+}
+struct LocalState {
+    selected: Vec<bool>,
+    mask: Vec<u64>,
+    counts: Vec<usize>,
+}
+impl LocalState {
+    fn new(graph: &Graph, vertices: &[usize]) -> Self {
+        let mut state = Self {
+            selected: vec![false; graph.n],
+            mask: vec![0; graph.words],
+            counts: vec![0; graph.n],
+        };
+        for &v in vertices {
+            state.change(graph, v, true);
+        }
+        state
+    }
+    fn change(&mut self, graph: &Graph, v: usize, add: bool) {
+        debug_assert_ne!(self.selected[v], add);
+        debug_assert!(!add || self.counts[v] == 0);
+        self.selected[v] = add;
+        if add {
+            self.mask[v / 64] |= 1 << (v % 64)
+        } else {
+            clear(&mut self.mask, v)
+        }
+        for (word, &compatible) in graph.compatible[v].iter().enumerate() {
+            let mut bits = !compatible;
+            while bits != 0 {
+                let j = word * 64 + bits.trailing_zeros() as usize;
+                bits &= bits - 1;
+                if j >= graph.n || j == v {
+                    continue;
+                }
+                if add {
+                    self.counts[j] += 1
+                } else {
+                    self.counts[j] -= 1
+                }
+            }
+        }
+    }
+    fn vertices(&self) -> Vec<usize> {
+        self.selected
+            .iter()
+            .enumerate()
+            .filter_map(|(j, &b)| b.then_some(j))
+            .collect()
+    }
+    fn augment(&mut self, graph: &Graph, stats: &mut LocalStats) {
+        for v in 0..graph.n {
+            if !self.selected[v] && self.counts[v] == 0 {
+                self.change(graph, v, true);
+                stats.additions += 1;
+            }
+        }
+    }
+    fn one_conflict(&self, graph: &Graph, u: usize) -> Option<usize> {
+        self.mask
+            .iter()
+            .zip(&graph.compatible[u])
+            .enumerate()
+            .find_map(|(k, (&selected, &compatible))| {
+                let bits = selected & !compatible;
+                (bits != 0).then(|| 64 * k + bits.trailing_zeros() as usize)
+            })
+    }
+}
+fn improve_seed(graph: &Graph, initial: &[usize], deadline: Instant) -> (Vec<usize>, LocalStats) {
+    let started = Instant::now();
+    let mut stats = LocalStats {
+        initial: initial.len(),
+        best: initial.len(),
+        ..LocalStats::default()
+    };
+    if !strict_clique(graph, initial) {
+        stats.validation_failures += 1;
+        stats.best = 0;
+        return (vec![], stats);
+    }
+    let mut best = initial.to_vec();
+    let mut state = LocalState::new(graph, initial);
+    let mut groups = vec![Vec::new(); graph.n];
+    let mut tabu = vec![0usize; graph.n];
+    let mut rng = 0x9e3779b97f4a7c15u64;
+    let mut stale = 0;
+    for iteration in 0..graph.n.saturating_mul(8).min(50000) {
+        if Instant::now() >= deadline {
+            break;
+        }
+        stats.iterations += 1;
+        state.augment(graph, &mut stats);
+        for group in &mut groups {
+            group.clear();
+        }
+        for u in 0..graph.n {
+            if !state.selected[u] && state.counts[u] == 1 {
+                if let Some(v) = state.one_conflict(graph, u) {
+                    groups[v].push(u);
+                }
+            }
+        }
+        let mut pair = None;
+        let mut work = 0usize;
+        'pairs: for (v, group) in groups.iter().enumerate() {
+            for a in 0..group.len() {
+                for b in a + 1..group.len() {
+                    work += 1;
+                    if work & 255 == 0 && Instant::now() >= deadline {
+                        break 'pairs;
+                    }
+                    if adjacent(graph, group[a], group[b]) {
+                        pair = Some((v, group[a], group[b]));
+                        break 'pairs;
+                    }
+                }
+            }
+        }
+        if let Some((v, a, b)) = pair {
+            state.change(graph, v, false);
+            state.change(graph, a, true);
+            state.change(graph, b, true);
+            stats.pair_swaps += 1;
+        } else {
+            if Instant::now() >= deadline {
+                break;
+            }
+            let preferred = if iteration % 16 == 15 { 2 } else { 1 };
+            let mut candidates: Vec<_> = (0..graph.n)
+                .filter(|&u| {
+                    !state.selected[u] && state.counts[u] == preferred && tabu[u] <= iteration
+                })
+                .collect();
+            if candidates.is_empty() {
+                candidates = (0..graph.n)
+                    .filter(|&u| {
+                        !state.selected[u]
+                            && state.counts[u] > 0
+                            && state.counts[u] <= 3
+                            && tabu[u] <= iteration
+                    })
+                    .collect();
+            }
+            if candidates.is_empty() {
+                break;
+            }
+            rng ^= rng << 13;
+            rng ^= rng >> 7;
+            rng ^= rng << 17;
+            let u = candidates[rng as usize % candidates.len()];
+            let removed: Vec<_> = state
+                .selected
+                .iter()
+                .enumerate()
+                .filter_map(|(v, &chosen)| (chosen && !adjacent(graph, u, v)).then_some(v))
+                .collect();
+            for &v in &removed {
+                state.change(graph, v, false);
+                tabu[v] = iteration + 7;
+            }
+            state.change(graph, u, true);
+            if removed.len() == 1 {
+                stats.neutral_swaps += 1
+            } else {
+                stats.perturbations += 1
+            }
+        }
+        state.augment(graph, &mut stats);
+        let candidate = state.vertices();
+        if candidate.len() > best.len() {
+            if !strict_clique(graph, &candidate) {
+                stats.validation_failures += 1;
+                state = LocalState::new(graph, &best);
+                continue;
+            }
+            best = candidate;
+            stats.best = best.len();
+            stale = 0;
+        } else {
+            stale += 1;
+        }
+        if stale >= 64 {
+            state = LocalState::new(graph, &best);
+            stale = 0;
+        }
+    }
+    stats.seconds = started.elapsed().as_secs_f64();
+    (best, stats)
+}
+
+#[cfg(test)]
+mod local_tests {
+    use super::*;
+    #[test]
+    fn pair_exchange_improves_a_feasible_seed_and_invalid_seeds_fail_closed() {
+        let graph = Graph {
+            n: 3,
+            words: 1,
+            compatible: vec![vec![0], vec![4], vec![2]],
+            order: vec![0, 1, 2],
+        };
+        assert!(!strict_clique(&graph, &[0, 0]));
+        assert!(!strict_clique(&graph, &[0, 1]));
+        assert!(strict_clique(&graph, &[1, 2]));
+        let (best, stats) = improve_seed(
+            &graph,
+            &[0],
+            Instant::now() + std::time::Duration::from_secs(1),
+        );
+        assert_eq!(best, vec![1, 2]);
+        assert!(stats.pair_swaps > 0);
+        assert_eq!(stats.validation_failures, 0);
+        let (best, stats) = improve_seed(
+            &graph,
+            &[0, 1],
+            Instant::now() + std::time::Duration::from_secs(1),
+        );
+        assert!(best.is_empty());
+        assert_eq!(stats.validation_failures, 1);
+    }
 }

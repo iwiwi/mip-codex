@@ -386,3 +386,7 @@ graph-deadline-polling（コア3d18c03a）はcolorのInstant::nowを間引き、
 sorrell7をBenchmark外explorationへ追加（hash記録済み）。既知値はコード/停止条件に渡さず15秒で旧404万→新795万節点、両方primal-168/dual-449。掲載値-198未達。通常240問の集計には混ぜない。今後は汎用の主解改良も試す。
 
 native v2は22/720、strict optimal15、errors1（17:33時点）。020-glpk/cbs-ctaが元問題検査不合格、行違反約1.449。直接APIの完全binary64十進点でも絶対検査不合格なので保存精度だけの問題ではない。補助完全十進点の公式checkerは32桁assertで判定不能、通常JSON点の公式checkerはConstraints0。全raw保持、比較設定/snapshotは変更しない。coordinator PID556757/session89978継続。全Rust最終版はNov19中に固定する計画。
+
+## 2026-11-15 18:05 UTC: 競合構造上の局所探索
+
+b45eeaf8を採用候補とした。sorrell7の15秒主解-168→-187を追加3回で再現、下界-449は不変。native同条件はHS-186/-236、SCIP-152/-670.6667、GLPK-21/-1024で、下界ではHSが強い。全保存点の元MPS検査成功。固定18問はprimal/dual/status一致、162Rust・最終1200CLI全列挙・32数値回帰成功。詳細はGRAPH_LOCAL_SEARCH_RESULTS.md。全件native継続、Rust snapshotはcreate-only。次は根の良い彩色を汎用Rust実装へ移し、既存の根prefix上界証明との整合を確かめる。
