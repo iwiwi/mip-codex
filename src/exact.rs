@@ -127,6 +127,29 @@ impl Sum {
         ))
     }
 }
+/// 有限f64積和の正確な符号と一度丸めから、隣接値による包含区間を作る。
+pub(crate) fn dot_enclosure(terms: impl Iterator<Item = (f64, f64)>) -> Option<[f64; 2]> {
+    let mut sum = Sum::default();
+    for (a, b) in terms {
+        sum.product(a, b)?;
+    }
+    let sign = sum.sign();
+    if sign == Ordering::Equal {
+        return Some([0., 0.]);
+    }
+    let value = sum.rounded()?;
+    let lo = if sign == Ordering::Greater {
+        value.next_down().max(0.)
+    } else {
+        value.next_down()
+    };
+    let hi = if sign == Ordering::Less {
+        value.next_up().min(0.)
+    } else {
+        value.next_up()
+    };
+    (lo.is_finite() && hi.is_finite()).then_some([lo, hi])
+}
 pub(crate) fn sum(terms: impl Iterator<Item = f64>) -> Option<f64> {
     let mut total = Sum::default();
     for x in terms {
@@ -200,5 +223,24 @@ mod tests {
             );
             assert_eq!(actual, Some(case.sign.cmp(&0)), "fixture {i}");
         }
+    }
+}
+
+#[cfg(test)]
+mod enclosure_tests {
+    use super::*;
+    #[test]
+    fn exact_zero_and_products_below_smallest_subnormal_are_enclosed() {
+        let tiny = f64::from_bits(1);
+        assert_eq!(dot_enclosure([(tiny, tiny)].into_iter()), Some([0., tiny]));
+        assert_eq!(
+            dot_enclosure([(-tiny, tiny)].into_iter()),
+            Some([-tiny, 0.])
+        );
+        assert_eq!(
+            dot_enclosure([(f64::MAX, f64::MAX), (-f64::MAX, f64::MAX)].into_iter()),
+            Some([0., 0.])
+        );
+        assert_eq!(dot_enclosure([(f64::MAX, f64::MAX)].into_iter()), None);
     }
 }

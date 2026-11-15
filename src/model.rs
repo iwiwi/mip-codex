@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 /// None denotes an absent bound, never a NaN or a sentinel magnitude.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Variable {
+    #[serde(default)]
+    pub objective_enclosure: Option<[f64; 2]>,
     /// 元入力の境界定数を外側から囲む有限区間。Noneは証明情報なし。
     #[serde(default)]
     pub lower_enclosure: Option<[f64; 2]>,
@@ -31,6 +33,8 @@ pub struct Row {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Model {
+    #[serde(default)]
+    pub offset_enclosure: Option<[f64; 2]>,
     pub name: String,
     pub maximize: bool,
     pub offset: f64,

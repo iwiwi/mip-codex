@@ -128,7 +128,7 @@ with (output/'results.jsonl').open('w') as summary:
                 if solver in ('rust-prop', 'rust-no-prop'):
                     assert parsed['propagation'] == (solver == 'rust-prop'), 'unexpected propagation mode'
                 result.update({k:v for k,v in parsed.items() if k!='values'})
-                if 'cut_proofs' in parsed:
+                if 'cut_proofs' in parsed or parsed.get('objective_grid') is not None:
                     cut_check=validate_cut_proofs(path,parsed)
                     (directory/'cut-validation.json').write_text(json.dumps(cut_check)+'\n')
                     result['cut_validation']=cut_check

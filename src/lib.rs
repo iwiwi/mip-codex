@@ -18,3 +18,5 @@ pub mod search;
 
 pub mod cuts;
 pub mod rins;
+
+pub mod objective_bound;

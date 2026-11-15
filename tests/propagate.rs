@@ -10,6 +10,7 @@ fn variable(name: &str, lower: Option<f64>, upper: Option<f64>, integer: bool) -
         lower,
         upper,
         integer,
+        objective_enclosure: None,
         objective: 0.,
     }
 }
@@ -17,6 +18,7 @@ fn model(variables: Vec<Variable>, rows: Vec<Row>) -> Model {
     Model {
         name: "propagation".into(),
         maximize: false,
+        offset_enclosure: None,
         offset: 0.,
         variables,
         rows,

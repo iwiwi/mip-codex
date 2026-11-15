@@ -9,8 +9,8 @@ from pathlib import Path
 import sys
 from benchmark_common import atomic_json, sha256
 
-def exact_model(path):
-    rows={}; variables={}; rhs={}; ranges={}; vectors={}; section=''; integer=False; ended=False
+def exact_model(path, include_objective=False):
+    rows={}; variables={}; rhs={}; ranges={}; vectors={}; section=''; integer=False; ended=False; objective_name=None
     opener=gzip.open if str(path).endswith('.gz') else open
     number=lambda s:Fraction(s.replace('D','E').replace('d','e'))
     with opener(path,'rt') as stream:
@@ -23,11 +23,15 @@ def exact_model(path):
             if not t:continue
             if not line[0].isspace():
                 section=t[0]
+                if section=='OBJNAME' and len(t)==2:objective_name=t[1]
                 if section=='ENDATA':ended=True;break
                 if section not in ['NAME','ROWS','COLUMNS','RHS','RANGES','BOUNDS','OBJSENSE','OBJNAME']:
                     raise ValueError('unsupported MPS section')
                 continue
-            if section=='ROWS':
+            if section=='OBJNAME':
+                if len(t)!=1:raise ValueError('invalid OBJNAME')
+                objective_name=t[0]
+            elif section=='ROWS':
                 if len(t)!=2 or t[0] not in ['N','L','G','E'] or t[1] in rows:raise ValueError('invalid row')
                 rows[t[1]]=dict(kind=t[0],coefficients={})
             elif section=='COLUMNS':
@@ -83,17 +87,51 @@ def exact_model(path):
             elif r>=0:up=b+r
             else:lo=b+r
         constraints.append(dict(name=name,lower=lo,upper=up,coefficients=row['coefficients']))
+    if include_objective:
+        objective_name=objective_name or next((name for name,row in rows.items() if row['kind']=='N'),None)
+        if objective_name not in rows or rows[objective_name]['kind']!='N':raise ValueError('missing objective')
+        return list(variables),variables,constraints,rows[objective_name]['coefficients'],-rhs.get(objective_name,Fraction(0))
     return list(variables),variables,constraints
+
+def verify_objective_grid(names,variables,rows,objective,offset,proof):
+    if not isinstance(proof,dict) or type(proof.get('step'))!=int or type(proof.get('offset'))!=int:
+        raise AssertionError('invalid objective grid schema')
+    if offset.denominator!=1 or proof['offset']!=offset:raise AssertionError('objective grid offset mismatch')
+    known={name for name,var in variables.items() if var['integer']}
+    implications=proof.get('implied')
+    if not isinstance(implications,list):raise AssertionError('objective grid implications must be a list')
+    for implication in implications:
+        j=implication['variable'];i=implication['source_row']
+        if type(j)!=int or j<0 or j>=len(names) or type(i)!=int or i<0 or i>=len(rows):raise AssertionError('bad implied-integer index')
+        name=names[j];row=rows[i]
+        if name in known or implication['source_name']!=row['name']:raise AssertionError('repeated or wrong implied-integer source')
+        if row['lower'] is None or row['lower']!=row['upper'] or row['lower'].denominator!=1:raise AssertionError('implied integrality requires an integer equality')
+        if abs(row['coefficients'].get(name,Fraction(0)))!=1:raise AssertionError('implied integrality requires unit coefficient')
+        for column,a in row['coefficients'].items():
+            if a.denominator!=1 or (a and column!=name and column not in known):raise AssertionError('unproved integer term in equality')
+        known.add(name)
+    step=0
+    for name,c in objective.items():
+        if not c:continue
+        if c.denominator!=1 or name not in known:raise AssertionError('objective has an unproved integer term')
+        step=math.gcd(step,abs(c.numerator))
+    if step<=0 or proof['step']!=step:raise AssertionError('objective grid gcd mismatch')
+    return dict(objective_grid_valid=True,objective_step=step,implied_integer_variables=len(implications))
+
 
 def validate_cut_proofs(model_path,result):
     cuts=result.get('cut_proofs',[])
+    grid=result.get('objective_grid')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts:return dict(metadata,valid=True)
-    try:names,variables,rows=exact_model(model_path)
+    if not cuts and grid is None:return dict(metadata,valid=True)
+    try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
     try:
+        if grid is not None:
+            metadata['objective_grid_valid']=False
+            metadata.update(verify_objective_grid(names,variables,rows,objective,offset,grid))
         for cut in cuts:
             proof=cut['proof'];i=proof['source_row'];cover=proof['cover'];side=proof['upper_side']
             if type(i)!=int or i<0 or i>=len(rows):raise AssertionError('bad source index')

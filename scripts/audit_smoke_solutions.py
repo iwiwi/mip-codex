@@ -31,7 +31,7 @@ for run in args.runs:
         assert sha256(model) == original['sha256']
         destination = args.output/run.name/name/result.parent.name
         destination.mkdir(parents=True, exist_ok=True)
-        if 'cut_proofs' in value:
+        if 'cut_proofs' in value or value.get('objective_grid') is not None:
             cut_check=validate_cut_proofs(model,value)
             atomic_json(destination/'cut-validation.json',cut_check)
             cut_records.append(dict(run=run.name,name=name,solver=result.parent.name,solution_sha256=sha256(result),validation=cut_check))

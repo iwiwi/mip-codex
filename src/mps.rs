@@ -162,6 +162,7 @@ pub fn read(path: impl AsRef<Path>) -> Result<Model, String> {
 }
 pub fn parse(reader: impl BufRead) -> Result<Model, String> {
     let mut model = Model {
+        offset_enclosure: Some([0., 0.]),
         name: String::new(),
         maximize: false,
         offset: 0.0,
@@ -274,6 +275,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                     let j = model.variables.len();
                     columns.insert(t[0].to_string(), j);
                     model.variables.push(Variable {
+                        objective_enclosure: Some([0., 0.]),
                         lower_enclosure: Some([0., 0.]),
                         upper_enclosure: None,
                         name: t[0].into(),
@@ -426,6 +428,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
         return Err("objective must be a free row".into());
     }
     model.offset = -rhs[objective];
+    model.offset_enclosure = enclose(model.offset, rhs_tokens[objective].is_none());
     for (j, v) in model.variables.iter_mut().enumerate() {
         if v.integer && !explicit_bound[j] {
             v.upper = Some(1.0);
@@ -457,6 +460,12 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 decimal_sum(entries[first..end].iter().map(|p| (p.1, p.2.as_deref())))?
             };
             row.exact_integral &= value.abs() <= (1u64 << 52) as f64 && value.fract() == 0.;
+            if i == objective {
+                let exact = entries[first..end].iter().all(|p| p.2.is_none())
+                    && value.abs() <= (1u64 << 52) as f64
+                    && value.fract() == 0.;
+                model.variables[j].objective_enclosure = enclose(value, exact);
+            }
             merged.push((j, value));
             first = end;
         }
