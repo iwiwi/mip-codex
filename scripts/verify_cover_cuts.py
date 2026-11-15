@@ -108,9 +108,15 @@ def validate_cut_proofs(model_path,result):
             for name,a in source['coefficients'].items():
                 if a==0:continue
                 var=variables[name]
-                if not var['integer'] or var['lower'] is None or var['upper'] is None or math.ceil(var['lower'])<0 or math.floor(var['upper'])>1:
-                    raise AssertionError('source has a nonbinary column')
+                binary=(var['integer'] and var['lower'] is not None and var['upper'] is not None
+                        and math.ceil(var['lower'])>=0 and math.floor(var['upper'])<=1)
                 a*=sign
+                if not binary:
+                    if name in selected:raise AssertionError('cover includes a nonbinary column')
+                    column_bound=var['lower'] if a>0 else var['upper']
+                    if column_bound is None:raise AssertionError('projection requires a finite bound')
+                    minimum+=a*column_bound
+                    continue
                 if name in selected:
                     found.add(name);c=1 if a>0 else -1;negative+=int(c<0)
                     coeff.append([indices[name],Fraction(c)])

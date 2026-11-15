@@ -4,6 +4,8 @@ use mip_codex::{
 };
 fn variable(name: &str, lower: Option<f64>, upper: Option<f64>, integer: bool) -> Variable {
     Variable {
+        lower_enclosure: None,
+        upper_enclosure: None,
         name: name.into(),
         lower,
         upper,
@@ -22,6 +24,8 @@ fn model(variables: Vec<Variable>, rows: Vec<Row>) -> Model {
 }
 fn row(lower: Option<f64>, upper: Option<f64>, coefficients: Vec<(usize, f64)>) -> Row {
     Row {
+        lower_enclosure: None,
+        upper_enclosure: None,
         exact_integral: false,
         name: "row".into(),
         lower,

@@ -44,6 +44,8 @@ fn all_search_orders_match_binary_enumeration() {
                 .iter()
                 .enumerate()
                 .map(|(j, c)| Variable {
+                    lower_enclosure: None,
+                    upper_enclosure: None,
                     name: format!("x{j}"),
                     lower: Some(0.),
                     upper: Some(1.),
@@ -56,6 +58,8 @@ fn all_search_orders_match_binary_enumeration() {
                 .zip(&rhs)
                 .enumerate()
                 .map(|(i, (a, b))| Row {
+                    lower_enclosure: None,
+                    upper_enclosure: None,
                     exact_integral: false,
                     name: format!("r{i}"),
                     lower: None,
@@ -73,6 +77,7 @@ fn all_search_orders_match_binary_enumeration() {
             let result = solve(
                 &model,
                 &Limits {
+                    cover_cuts: false,
                     search: strategy,
                     primal_repair: false,
                     primal_probe: false,
@@ -108,6 +113,8 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
         offset: 0.,
         variables: (0..70)
             .map(|j| Variable {
+                lower_enclosure: None,
+                upper_enclosure: None,
                 name: format!("x{j}"),
                 lower: Some(0.),
                 upper: Some(1.),
@@ -116,6 +123,8 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
             })
             .collect(),
         rows: vec![Row {
+            lower_enclosure: None,
+            upper_enclosure: None,
             exact_integral: false,
             name: "half".into(),
             lower: Some(35.5),
@@ -127,6 +136,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
         let result = solve(
             &model,
             &Limits {
+                cover_cuts: false,
                 search: strategy,
                 nodes: 130,
                 primal_repair: false,

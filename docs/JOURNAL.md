@@ -187,3 +187,17 @@
 - 新機能の採用は任意coverだけ、既定は無効を維持。入力の誤最適/誤非有界の修正は採用。原MPS Fractionの3反例検査は全成功、RHS省略のGMP構文制限ログは未検証として保存し合格に混ぜない。次は混合行・非整数係数・lifting等の一般化または強分枝で、実MIPLIBでも下界を強化する。全240最終Rust比較と全体優位は未達成。
 
 - 08:04 UTC baseline49/720、旧primary最適19、errors3、kernel coordinator生存。PR14で入力の相殺修正と証明付き任意coverを採用。coverは実MIPLIB信号不足と極小問題時間悪化から既定無効を維持。
+
+## 2026-11-15: 混合coverとRANGES端点 (PR15準備)
+- mixed-cover-cuts branch。元MPSの係数/行辺/変数境界を包含する外向き区間を保持し、有限な連続・一般整数項をbox最小値で射影。二値部分から弱めたpackingを生成し、原行で全cover変数を強制した最小活動量がRHS上界を超えることを整数または区間演算で再証明する。外部検査は元十進MPSのFractionによる別実装。未知/無限境界は必要な方向で棄却。
+- 新しい真の誤最適反例: E行 x、RHS10000000000000001、RANGES -10000000000000000。真の下辺1を旧f64加算が0に消し、旧版optimal0,x0を返す。元MPS GMP絶対検査は違反1 (float診断は誤って合格)。元十進で端点を合計して一度丸め、上下辺をbounded slackで再現できない範囲を二本の行へ分割し、修正版optimal1,x1とGMP合格を確認。beforeバイナリ/入力hashと全ログを保存。
+- 試作Python検査器でcolumn boundをrow RHSの変数boundに上書きするバグを追加してしまった。5単体テストが検出。初期混合1000例の468検査失敗と初期smokeのinvalid_cut_proofは保持し、修正後の再実行だけを証明の根拠とする。fixed auditは初期36run/67cut全合格、26主解もGMP/公式双方合格。
+- 最初の混合cover比較082521/082522は2主解改善/1悪化/15同等。元のuncut根からも同じ潜り予算で再探索する試作d902641 (083541/083543) は18問すべて同じ主解で追加LP/時間だけ増加し棄却。三角形のcut本数>=3という試験期待も誤りで、有効cut2本でも最適整数点と根下界は正しいため性質を検査する回帰に変更。
+- 7982a83は補助repair/divingも有効cutを含む同じLPモデル/基底で解くよう整合化。probeは多様性のため原問題/cut無効を維持し、主解しか本体へ返さない。最新084302/084303: 18問各off/on、全36時間制限/最適証明0。主解2改善/1悪化/15同等。binkar6920.290013→6794.860025、gmu40 -1860472.4551→-1882493.1696、markshare2→4悪化。30n下界1.5664076456→2.0297169811。5問題に計67cut (整数49/区間18、射影49)。元MPS Fraction全67cut有効、26返却解GMP絶対/公式全合格 (mixed-cover-consistent-audit)。
+- 現候補101 Rustテスト、混合cut1000/純二値1000/通常小1000/中規模200は失敗0。MPS reader変更e2ee111時点の全240行列照合も失敗0 (以後reader不変)。性能holdoutは調整に使わない。初期のテスト失敗/試作も全保存。
+- 2改善と30n下界向上を採用理由としてcover既定有効へ変更中。markshare悪化を隠さない。機能分離試験はcover無効を明記。既定化後の回帰、新規8問×4solver各5秒、最終監査、AI資源/PR/mergeを残作業とする。全体優位・全240 Rust評価は未達成。
+
+- 既定化source7e979b6: 101 Rust回帰、通常小1000/混合cut1000/中規模200が全成功。RANGES反例を新バイナリで再測定しoptimal1/元MPS GMP合格。8問×4solverの新5秒比較はmixed-cover-default-smoke-launch.logで実行中 (CPU0、1thread/16GiB)、完了までバイナリを変更しない。
+- 08:49 UTC baseline62/720、旧primary最適24/errors5、coordinator生存。新しいGLPK errorはex10の原MPS reader拒否 (69612行missing row type、driver exit3) とbuildingenergyの3660秒watchdog kill。snapshot改変/隠蔽/再試行はせず全結果へ計上する。保存解51件の新GMP別監査は50合格/既知cbs-cta GLPK不正1/未検証0。buildingenergy HS/SCIPは旧checker時間切れから保存解再監査で合格を回収。
+
+- 最終source7e979b6の新規8問×4solver5秒 (084917) は全32run時間制限/証明0。28返却解GMP絶対27合格/既知HiGHS pk1不正1/未検証0、公式28合格。Rust7解は双方合格、全51cutもFraction有効。主解/下界は最終対照と一致。新規比較を含む全表をBENCHMARKとmixed-cover-default-summary.jsonへ保存。PR15で混合cover既定化とRANGES誤最適修正を採用予定。次は整数行の丸めcutで下界強化を試す。

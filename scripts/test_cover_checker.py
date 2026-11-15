@@ -20,6 +20,17 @@ class Covers(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             p=Path(directory)/'model.mps';p.write_text(MODEL.replace('rhs r 3','rhs r 4.00000000000000000000001'))
             self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[CUT]))['valid'])
+    def test_projection_of_fractional_continuous_box(self):
+        model=MODEL.replace(' x obj -1 r 2',' x obj -1 r 0.2').replace(' y obj -1 r 2',' y obj -1 r 0.2\n z r 1').replace('rhs r 3','rhs r 0.4').replace(' BV b y',' BV b y\n LO b z 0.1\n UP b z 1')
+        with tempfile.TemporaryDirectory() as directory:
+            p=Path(directory)/'model.mps';p.write_text(model)
+            self.assertTrue(validate_cut_proofs(p,dict(cut_proofs=[CUT]))['valid'])
+            # 厳密にはx=1,y=0,z=.1が可能。丸めによる単独変数cutは不可。
+            p.write_text(model.replace('rhs r 0.4','rhs r 0.3'))
+            single=copy.deepcopy(CUT);single['proof']['cover']=[0];single['row']['coefficients']=[[0,1]];single['row']['upper']=0
+            self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[single]))['valid'])
+            p.write_text(model.replace(' UP b z 1',' PL b z').replace(' z r 1',' z r -1'))
+            self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[CUT]))['valid'])
     def test_empty_cuts_need_no_parser(self):
         self.assertTrue(validate_cut_proofs('/does/not/exist',dict(cut_proofs=[]))['valid'])
     def test_invalid_cut_blocks_infeasible_claim_without_primal(self):

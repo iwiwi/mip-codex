@@ -1,0 +1,70 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz'...
+Problem: mad
+Objective: F52
+53 rows, 220 columns, 3027 non-zeros
+200 integer variables, all of which are binary
+3338 records were read
+2 free rows were removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-084917/mad.mps.gz/glpk/model.glp'...
+3164 lines were written
+GLPK Integer Optimizer 5.0
+51 rows, 220 columns, 2808 non-zeros
+200 integer variables, all of which are binary
+Preprocessing...
+40 rows, 210 columns, 2400 non-zeros
+200 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  4.000e-04  max|aij| =  1.000e+00  ratio =  2.500e+03
+GM: min|aij| =  1.457e-01  max|aij| =  6.862e+00  ratio =  4.709e+01
+EQ: min|aij| =  2.127e-02  max|aij| =  1.000e+00  ratio =  4.701e+01
+2N: min|aij| =  1.562e-02  max|aij| =  1.656e+00  ratio =  1.060e+02
+Constructing initial basis...
+Size of triangular part is 40
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+40 rows, 210 columns, 2400 non-zeros
+      0: obj =   1.387778781e-17 inf =   5.570e+01 (10)
+     43: obj =  -1.228671648e-16 inf =   1.242e-15 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 29
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 200 + 0 = 200 vertices
++    43: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Solution found by heuristic: 2.2184
+Pass 1
+Pass 2
+Solution found by heuristic: 1.7568
+Pass 1
+Pass 2
+Solution found by heuristic: 1.574
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 2;
+Cuts on level 65: gmi = 2;
++   372: >>>>>   1.248000000e+00 >=   0.000000000e+00 100.0% (66; 0)
+Cuts on level 83: gmi = 4;
++   826: >>>>>   1.247200000e+00 >=   0.000000000e+00 100.0% (138; 14)
+Cuts on level 73: gmi = 7;
++  3085: >>>>>   6.696000000e-01 >=   0.000000000e+00 100.0% (416; 21)
+Cuts on level 46: gmi = 9;
++  3630: >>>>>   6.632000000e-01 >=   0.000000000e+00 100.0% (351; 214)
+Cuts on level 52: gmi = 12; mir = 1;
++  8322: >>>>>   4.726000000e-01 >=   0.000000000e+00 100.0% (829; 235)
+Cuts on level 49: gmi = 9; mir = 2;
++ 24775: >>>>>   3.512000000e-01 >=   0.000000000e+00 100.0% (2004; 570)
++ 62533: mip =   3.512000000e-01 >=   0.000000000e+00 100.0% (4683; 1450)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-084917/mad.mps.gz/glpk/solution.raw'...
+280 lines were written
