@@ -42,6 +42,7 @@ with (output/'results.jsonl').open('w') as summary:
                 'rust-fractional': ('fractional', 'down'),
                 'rust-nearest': ('fractional', 'nearest'),
                 'rust-pseudocost': ('pseudocost', 'down'),
+                'rust-pseudocost-nearest': ('pseudocost', 'nearest'),
                 'rust-pseudocost-estimate': ('pseudocost', 'estimate'),
             }
             if solver in branching_modes:
