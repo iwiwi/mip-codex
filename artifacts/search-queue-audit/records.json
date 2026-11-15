@@ -1,0 +1,3458 @@
+[
+  {
+    "run": "smoke-20261115-070950",
+    "name": "50v-10.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "a41531c203de5650ad6af1b02837fb0bf932470eff8c6e595c6b65eff67c2187",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/50v-10.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3559.3000042289473,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3559.3000042289473,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 8e-14,
+      "exact": {
+        "objective": "177965000211447369/50000000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "1/12500000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "50v-10.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "283f7e70312d5b990c181f3ea17942b0840702fea0638ee2ef6d007123305b0d",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/50v-10.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3761.9099930077778,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3761.9099930077778,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 8e-14,
+      "exact": {
+        "objective": "94047749825194447/25000000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "1/12500000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "50v-10.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "a20d6676783a4f5efb463e416fbed728ec612b866f865bf08ea87a6fa51dde9c",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/50v-10.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 4.547473508864641e-13,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "50v-10.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "8ea7c013953b62a43dd59baac1c003191058014f9407af183e1d8f7374d83b8e",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/50v-10.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 4.547473508864641e-13,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "50v-10.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "baa72edac1619d22fe45be719d2778024e1e5d431601daeeabe621bf5849d47e",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/50v-10.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3557.8899750858554,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3557.8899750858554,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 1.2e-13,
+      "exact": {
+        "objective": "44473624688573191/12500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "3/25000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/50v-10.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "4212becc904687d06a7bbca14d55afaf8ebb7bc383745b508173f779db8d2deb",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/binkar10_1.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7115.610041,
+        "bound_violation": 2.2731802551412267e-16,
+        "row_violation": 2.2731802551412267e-16,
+        "integer_violation": 0.0,
+        "objective_error": 6.366462912410498e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7115.610041,
+      "bound_violation": 2.2731802551412267e-16,
+      "row_violation": 2.563919562770244e-16,
+      "integer_violation": 0.0,
+      "objective_error": 6.022212831380213e-12,
+      "exact": {
+        "objective": "22236281378124999930584901936834932229794983456428460011/3125000000000000000000000000000000000000000000000000",
+        "bound_violation": "22731802551412267/100000000000000000000000000000000",
+        "row_violation": "25639195627702441/100000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18819415098063165067770205016543571539989/3125000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "23d22c70fd74c945af7af4b3e33b1d422599a7c99267f5c565990b1f3236f410",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/binkar10_1.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7115.610041,
+        "bound_violation": 2.2731802551412267e-16,
+        "row_violation": 2.2731802551412267e-16,
+        "integer_violation": 0.0,
+        "objective_error": 6.366462912410498e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7115.610041,
+      "bound_violation": 2.2731802551412267e-16,
+      "row_violation": 2.563919562770244e-16,
+      "integer_violation": 0.0,
+      "objective_error": 6.022212831380213e-12,
+      "exact": {
+        "objective": "22236281378124999930584901936834932229794983456428460011/3125000000000000000000000000000000000000000000000000",
+        "bound_violation": "22731802551412267/100000000000000000000000000000000",
+        "row_violation": "25639195627702441/100000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18819415098063165067770205016543571539989/3125000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "fcd69c0bf0109afd4c6ba8b7544dc61118f3f2d93be71d1230bcd0c20283335f",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/binkar10_1.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 6920.290013,
+        "bound_violation": 8.881784197001252e-16,
+        "row_violation": 8.881784197001252e-16,
+        "integer_violation": 0.0,
+        "objective_error": 3.637978807091713e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 6920.290013,
+      "bound_violation": 8.881784197001252e-16,
+      "row_violation": 8.881784197001252e-16,
+      "integer_violation": 0.0,
+      "objective_error": 3.569639877334487e-12,
+      "exact": {
+        "objective": "3460145006499999965180061332756401157194826998062844658823/500000000000000000000000000000000000000000000000000000",
+        "bound_violation": "2220446049250313/2500000000000000000000000000000",
+        "row_violation": "2220446049250313/2500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1784819938667243598842805173001937155341177/500000000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "95963a339d4bf7b5c50c8e6d2036ea2baa49a3c18a24489358d5e287f3a2887f",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/binkar10_1.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7115.610041,
+        "bound_violation": 2.2731802551412267e-16,
+        "row_violation": 2.2731802551412267e-16,
+        "integer_violation": 0.0,
+        "objective_error": 6.366462912410498e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7115.610041,
+      "bound_violation": 2.2731802551412267e-16,
+      "row_violation": 2.563919562770244e-16,
+      "integer_violation": 0.0,
+      "objective_error": 6.022212831380213e-12,
+      "exact": {
+        "objective": "22236281378124999930584901936834932229794983456428460011/3125000000000000000000000000000000000000000000000000",
+        "bound_violation": "22731802551412267/100000000000000000000000000000000",
+        "row_violation": "25639195627702441/100000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18819415098063165067770205016543571539989/3125000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "ecbf0fda8c8c4f29344c647ae5a47643c6a753c2cdf326591bc273f6ed693e48",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/binkar10_1.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7115.610041,
+        "bound_violation": 2.2731802551412267e-16,
+        "row_violation": 2.2731802551412267e-16,
+        "integer_violation": 0.0,
+        "objective_error": 6.366462912410498e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7115.610041,
+      "bound_violation": 2.2731802551412267e-16,
+      "row_violation": 2.563919562770244e-16,
+      "integer_violation": 0.0,
+      "objective_error": 6.022212831380213e-12,
+      "exact": {
+        "objective": "22236281378124999930584901936834932229794983456428460011/3125000000000000000000000000000000000000000000000000",
+        "bound_violation": "22731802551412267/100000000000000000000000000000000",
+        "row_violation": "25639195627702441/100000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18819415098063165067770205016543571539989/3125000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/binkar10_1.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "gmu-35-40.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "528c148b14bb8d66ae8cf24f502fd10c0038a7e2a39edc27071f435f1172e631",
+    "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/gmu-35-40.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/gmu-35-40.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/gmu-35-40.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -933357.2996,
+        "bound_violation": 0.0,
+        "row_violation": 1.7053025658242404e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -933357.2996,
+      "bound_violation": 0.0,
+      "row_violation": 2e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-2333393249/2500",
+        "bound_violation": "0",
+        "row_violation": "1/5000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/gmu-35-40.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/gmu-35-40.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "gmu-35-50.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "e76670744fdc76c743e1ecb28298fee6011f171566696007fc8004e9c1e4cbb7",
+    "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/gmu-35-50.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/gmu-35-50.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/gmu-35-50.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -112379.8182,
+        "bound_violation": 4.854726723390183e-14,
+        "row_violation": 4.854726723390183e-14,
+        "integer_violation": 0.0,
+        "objective_error": 1.4551915228366852e-11,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -112379.8182,
+      "bound_violation": 4.854726723390183e-14,
+      "row_violation": 4.854726723390183e-14,
+      "integer_violation": 0.0,
+      "objective_error": 2e-11,
+      "exact": {
+        "objective": "-561899091/5000",
+        "bound_violation": "4854726723390183/100000000000000000000000000000",
+        "row_violation": "4854726723390183/100000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/50000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/gmu-35-50.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/gmu-35-50.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "mad.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "2cde925a1c0fc05561025334470e195cad20069fc5307316c02375e271bbbce3",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/mad.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1.287999999999999,
+        "bound_violation": 3.0131452888326746e-17,
+        "row_violation": 2.737221753250363e-15,
+        "integer_violation": 3.7323148938575457e-16,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1.287999999999999,
+      "bound_violation": 3.0131452888326746e-17,
+      "row_violation": 2.7480114264472395e-15,
+      "integer_violation": 3.7323148938575457e-16,
+      "objective_error": 2.35e-17,
+      "exact": {
+        "objective": "2575999999999997953/2000000000000000000",
+        "bound_violation": "15065726444163373/500000000000000000000000000000000",
+        "row_violation": "54960228528944791856789/20000000000000000000000000000000000000",
+        "integer_violation": "37323148938575457/100000000000000000000000000000000",
+        "objective_error": "47/2000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "mad.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "e96f93dabe67904e300f274773dec4da464bf7d07c75cc2bc77daa665647ffc7",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/mad.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1.071,
+        "bound_violation": 0.0,
+        "row_violation": 8.955509944730267e-17,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1.071,
+      "bound_violation": 0.0,
+      "row_violation": 9e-17,
+      "integer_violation": 0.0,
+      "objective_error": 1.48e-16,
+      "exact": {
+        "objective": "267749999999999963/250000000000000000",
+        "bound_violation": "0",
+        "row_violation": "9/100000000000000000",
+        "integer_violation": "0",
+        "objective_error": "37/250000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "mad.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "4239052b5ebe248bdb9b12aebd2b572262a76512f21d722569a877341800918e",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/mad.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.3765999999999997,
+        "bound_violation": 0.0,
+        "row_violation": 1.192622389734055e-16,
+        "integer_violation": 0.0,
+        "objective_error": 5.551115123125783e-17,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.3765999999999997,
+      "bound_violation": 0.0,
+      "row_violation": 1.6e-16,
+      "integer_violation": 0.0,
+      "objective_error": 3.3e-17,
+      "exact": {
+        "objective": "376599999999999693/1000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/6250000000000000",
+        "integer_violation": "0",
+        "objective_error": "33/1000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "mad.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "c6e823128c07daba1e7a06a37c454c53fbf1c8aae17f2e1279ee805441bde5b0",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/mad.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1.2467999999999997,
+        "bound_violation": 0.0,
+        "row_violation": 1.2663481374630692e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1.2467999999999997,
+      "bound_violation": 0.0,
+      "row_violation": 1.1e-16,
+      "integer_violation": 0.0,
+      "objective_error": 1.2e-17,
+      "exact": {
+        "objective": "155849999999999961/125000000000000000",
+        "bound_violation": "0",
+        "row_violation": "11/100000000000000000",
+        "integer_violation": "0",
+        "objective_error": "3/250000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "mad.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "20deb167c87c182b11fdebb570ac2127aec84ab94280d10563f2c4de3b68876d",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/mad.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.6491999999999998,
+        "bound_violation": 0.0,
+        "row_violation": 4.0852737859253807e-16,
+        "integer_violation": 0.0,
+        "objective_error": 1.1102230246251565e-16,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.6491999999999998,
+      "bound_violation": 0.0,
+      "row_violation": 4.26e-16,
+      "integer_violation": 0.0,
+      "objective_error": 4.47e-17,
+      "exact": {
+        "objective": "6491999999999997447/10000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "213/500000000000000000",
+        "integer_violation": "0",
+        "objective_error": "447/10000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/mad.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "f088550b0db666174757fb8404855a326ed7c3bff180768e6fe9956c99ae753c",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/markshare_4_0.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3.000000000000007,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3.000000000000007,
+      "bound_violation": 0.0,
+      "row_violation": 6e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "3000000000000007/1000000000000000",
+        "bound_violation": "0",
+        "row_violation": "3/500000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "29da3bb9e963d60b7b6972f985482e7a0ca2103d68e2f586a9a5e14a095ca377",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/markshare_4_0.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "3",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "08b27e6bb82651ef46f28e5b527258edb07c58820f246bad836d80380dcf68d9",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/markshare_4_0.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1.9999999999998406,
+        "bound_violation": 8.670841822322473e-14,
+        "row_violation": 1.1368683772161603e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1.9999999999998408,
+      "bound_violation": 8.670841822322473e-14,
+      "row_violation": 8.73e-14,
+      "integer_violation": 0.0,
+      "objective_error": 9.158177677527e-17,
+      "exact": {
+        "objective": "199999999999984069158177677527/100000000000000000000000000000",
+        "bound_violation": "8670841822322473/100000000000000000000000000000",
+        "row_violation": "873/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "9158177677527/100000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "ebc88c3e70083dff59d659f7e3dbb46cb3f7940a2f1d868ee3c4ecba89c8ac4d",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/markshare_4_0.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1.999999999999998,
+        "bound_violation": 1.1102230246251565e-15,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1.999999999999998,
+      "bound_violation": 1.1102230246251565e-15,
+      "row_violation": 1.1102230246251565e-15,
+      "integer_violation": 0.0,
+      "objective_error": 8.97769753748435e-17,
+      "exact": {
+        "objective": "3999999999999996179553950749687/2000000000000000000000000000000",
+        "bound_violation": "2220446049250313/2000000000000000000000000000000",
+        "row_violation": "2220446049250313/2000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "179553950749687/2000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "8681c0c53603a2b1a7a5eb788ca92bc74aa494ac70441e075902f179109feb10",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/markshare_4_0.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1.9999999999995688,
+        "bound_violation": 1.554312234475219e-14,
+        "row_violation": 2.2737367544323206e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1.9999999999995688,
+      "bound_violation": 1.554312234475219e-14,
+      "row_violation": 2.816e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.687765524781e-17,
+      "exact": {
+        "objective": "199999999999956885687765524781/100000000000000000000000000000",
+        "bound_violation": "1554312234475219/100000000000000000000000000000",
+        "row_violation": "11/39062500000000",
+        "integer_violation": "0",
+        "objective_error": "5687765524781/100000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/markshare_4_0.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "pk1.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "1426e8ab0883ef304639c5b66fd2c59f29c2f05b39025a35fecb8e3d627bbda5",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/pk1.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 12.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.7763568394002505e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 12.0,
+      "bound_violation": 0.0,
+      "row_violation": 3.2e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "12",
+        "bound_violation": "0",
+        "row_violation": "1/312500000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "pk1.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "4820c8e3113f94907be1f608dcf2406a4b250f0cc435ec9a7007bab8843c7fb6",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/pk1.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 23.999999999999964,
+        "bound_violation": 0.0,
+        "row_violation": 1.4210854715202004e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 23.999999999999964,
+      "bound_violation": 0.0,
+      "row_violation": 3.9e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "5999999999999991/250000000000000",
+        "bound_violation": "0",
+        "row_violation": "39/1000000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "pk1.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "9976562a43f4a17183d0ba8f6479afda744c4d1c6c7394886e9f3a3d58c88240",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/pk1.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 17.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 17.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "17",
+        "bound_violation": "0",
+        "row_violation": "1/500000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "pk1.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "90e79689ff8b08e16777084a53ac989f0bc440dce3c3c105d02971bcc4190aaf",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/pk1.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 22.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 22.0,
+      "bound_violation": 0.0,
+      "row_violation": 9e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "22",
+        "bound_violation": "0",
+        "row_violation": "9/1000000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070950",
+    "name": "pk1.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "55cf00d5939f68fb0d3d4889b9163fcf6b2b1b7d9a64e735c3a63c5acc9d667c",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070950/pk1.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 12.999999999999998,
+        "bound_violation": 0.0,
+        "row_violation": 5.329070518200751e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 12.999999999999998,
+      "bound_violation": 0.0,
+      "row_violation": 1.33e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "6499999999999999/500000000000000",
+        "bound_violation": "0",
+        "row_violation": "133/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070950/pk1.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "5b40b79c9e3ab8873f795613af73e15244c8ea63cd3c201f72f9df347e2beccd",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/beasleyC3.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "f3a4539316a04f530d09da3a584dcc7e10246b8450ad683956a720afff9c2317",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/beasleyC3.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "e81f92a2224756751d3e6bfc9257092d773c5b651a79761cab49c60a06585db1",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/beasleyC3.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "9bbbf425e8e7fcbe71b1187a1de1a7ea56957ce8ddb9ea873665672ed752da78",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/beasleyC3.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "767b7e82d08f0fecee6cbab215e7ae621a2d3300d258f8b27839c40bff4ef6ba",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/beasleyC3.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/beasleyC3.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "76805a78393773c93e52634b9d0cd7c61cc1d2bbc1d65d43afab5e8eee34e14a",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/bppc4-08.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 72.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 72.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "72",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "89e5f7748a52ff2087fff62be49b7b6fc1f95a1c60c9239d58fff69bb40211ac",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/bppc4-08.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 72.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 72.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "72",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "18c079c0406d51cb021e28e80fd9ef747a3592035e05137d8054ee541733d6f8",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/bppc4-08.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 72.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 72.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "72",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "124e434ecf047a4651a1056654eaa6cc56dcc9a10d8ea75163ea701426e35ecf",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/bppc4-08.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 72.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 72.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "72",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "2092986817b6905c580a4f58250f52efc67ff5b7266fa6d223bd1d8c7c1024db",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/bppc4-08.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 72.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 72.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "72",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/bppc4-08.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "f1024c7ea080ac840eb49179729a817bb190e8eba8a23cd68037aa256ac2a4e4",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/gen-ip002.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4733.0091747,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4733.0091747,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-47330091747/10000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "f1c2cc1837dc52d3df6958b79bb8a6ac8231304cfc605b8d2dfe3ef5a5587010",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/gen-ip002.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4736.6441894,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4736.6441894,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-23683220947/5000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "c78035a142a2c13a2ddcac705d4406e992f984b63d8c121be071c2b6e3c11536",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/gen-ip002.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4703.11042375,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4703.11042375,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-3762488339/800000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "0868969aa6e9c0f3796725d769a4b3fb1b03bc116edea76f403e594d0b9d4440",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/gen-ip002.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4745.5721628,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4745.5721628,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-11863930407/2500000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "74f22beb2a420c3dc5d920063883d6e96c8cecf02b49029c23024bdd20813de6",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/gen-ip002.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4755.1207626000005,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4755.1207626,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 5e-13,
+      "exact": {
+        "objective": "-23775603813/5000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "1/2000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/gen-ip002.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "mc11.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "0bf54acea57a8c053bccc7f7ae065f06ecf602fbe2662f4a96ffa810c0d208da",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/mc11.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "mc11.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "a59dfba240022eb466d2de2571348915cdaceffcdd3a954a73636517f68d3055",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/mc11.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "mc11.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "42090bee5f3c948da274c74ad45329a4978afb68b2660a8fcb5c9e6e6c7b4e43",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/mc11.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "mc11.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "e7e2d5425b4f60b892a4d0582b0a2be1972af1a99b7ab8c6ee6a685bcf1d64dd",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/mc11.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "mc11.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "9de05dc5de856ab42f457fd588e9651096e92eef7cef74ddb04ec9c4784a1d1a",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/mc11.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/mc11.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "n5-3.mps.gz",
+    "solver": "rust-best",
+    "solution_sha256": "985edbc54f0f5b37db4eaee980b989008c82d4fd32ca2d124eaeb6a9f5b23ed6",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/n5-3.mps.gz/rust-best/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-best"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-best/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "n5-3.mps.gz",
+    "solver": "rust-best-estimate",
+    "solution_sha256": "dc9c960bb36564cdfe8ee687806d8526968565fb2999e82bb6307f5cf2cfa94d",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/n5-3.mps.gz/rust-best-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-best-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-best-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "n5-3.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "b6868575528f0fc34d312cb231a9bb68337540070c0e0199561130dfe8b3a46f",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/n5-3.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "n5-3.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "f2dcecbba9a012a7d71a59f592a737fa53c4f40b94774707704ffa9293b38618",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/n5-3.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "n5-3.mps.gz",
+    "solver": "rust-hybrid-estimate",
+    "solution_sha256": "c4d2d13c6f3df2185c1ecd8909912e76620d1787eec6c6a478b4f2025b412e78",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/n5-3.mps.gz/rust-hybrid-estimate/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-hybrid-estimate"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 9465.0,
+        "bound_violation": 1.4727971928449635e-13,
+        "row_violation": 2.0250467969162855e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 9465.0,
+      "bound_violation": 1.4727971928449635e-13,
+      "row_violation": 2.0250467969162855e-13,
+      "integer_violation": 0.0,
+      "objective_error": 4.991435847118045e-13,
+      "exact": {
+        "objective": "946499999999999950085641528819552287/100000000000000000000000000000000",
+        "bound_violation": "2945594385689927/20000000000000000000000000000",
+        "row_violation": "4050093593832571/20000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "49914358471180447713/100000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/n5-3.mps.gz/rust-hybrid-estimate/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust-depth",
+    "solution_sha256": "1f581f1731025b76289df0ce5d98080ffe671679e371c7f2449e12815855be52",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/pg5_34.mps.gz/rust-depth/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/pg5_34.mps.gz/rust-depth"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -13829.286850934148,
+        "bound_violation": 0.0,
+        "row_violation": 4.263256414560601e-14,
+        "integer_violation": 0.0,
+        "objective_error": 5.4569682106375694e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -13829.286850934148,
+      "bound_violation": 0.0,
+      "row_violation": 5.952e-14,
+      "integer_violation": 0.0,
+      "objective_error": 5.755818e-12,
+      "exact": {
+        "objective": "-6914643425467073877909/500000000000000000",
+        "bound_violation": "0",
+        "row_violation": "93/1562500000000000",
+        "integer_violation": "0",
+        "objective_error": "2877909/500000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/pg5_34.mps.gz/rust-depth/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-070952",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust-hybrid",
+    "solution_sha256": "1e6186b40a618b99ada9d337846514019db4377ee67589b646ce2178604bd420",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261115-070952/pg5_34.mps.gz/rust-hybrid/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/search-queue-audit/smoke-20261115-070952/pg5_34.mps.gz/rust-hybrid"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -13829.286850934148,
+        "bound_violation": 0.0,
+        "row_violation": 4.263256414560601e-14,
+        "integer_violation": 0.0,
+        "objective_error": 5.4569682106375694e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -13829.286850934148,
+      "bound_violation": 0.0,
+      "row_violation": 5.952e-14,
+      "integer_violation": 0.0,
+      "objective_error": 5.755818e-12,
+      "exact": {
+        "objective": "-6914643425467073877909/500000000000000000",
+        "bound_violation": "0",
+        "row_violation": "93/1562500000000000",
+        "integer_violation": "0",
+        "objective_error": "2877909/500000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/search-queue-audit/smoke-20261115-070952/pg5_34.mps.gz/rust-hybrid/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+]
