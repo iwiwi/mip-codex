@@ -58,7 +58,7 @@ impl Default for Limits {
             graph_local_search: true,
             graph_root_coloring: true,
             graph_root_prefix: true,
-            graph_local_diversify: false,
+            graph_local_diversify: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
