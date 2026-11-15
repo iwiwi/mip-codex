@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/artifacts/aggregate-cuts-extra-audit.py", line 16, in <module>
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4)as pool:records=list(pool.map(check,jobs))
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/mip-codex/artifacts/aggregate-cuts-extra-audit.py", line 14, in check
+    strict=json.loads((dest/'strict-validation.json').read_text());official=json.loads((dest/'official-validation.json').read_text());proof=json.loads((dest/'proof.json').read_text());assert a.returncode==b.returncode==0 and strict['valid']and official['valid']and proof['valid']
+                                                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

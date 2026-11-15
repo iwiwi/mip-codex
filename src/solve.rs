@@ -28,6 +28,7 @@ pub struct Limits {
     pub graph_local_diversify: bool,
     pub graph_adaptive_local: bool,
     pub graph_cover_local: bool,
+    pub aggregate_cuts: bool,
     pub graph_fractional_cover: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
@@ -68,6 +69,7 @@ impl Default for Limits {
             graph_local_diversify: true,
             graph_adaptive_local: true,
             graph_cover_local: true,
+            aggregate_cuts: true,
             graph_fractional_cover: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
@@ -94,6 +96,7 @@ impl Default for Limits {
 pub struct Result {
     pub binary_graph_enabled: bool,
     pub graph_cover_local_enabled: bool,
+    pub aggregate_cuts_enabled: bool,
     pub graph_fractional_cover_enabled: bool,
     pub binary_graph: Option<crate::binary_graph::Stats>,
     pub branching: String,
@@ -867,7 +870,8 @@ fn prepare_cuts(
     let mut prepared = CutPreparation::default();
     if !matches!(limits.engine, Engine::Revised)
         || !((limits.cover_cuts && cuts::applicable(model))
-            || (limits.rounding_cuts && cuts::rounding_applicable(model)))
+            || (limits.rounding_cuts && cuts::rounding_applicable(model))
+            || (limits.aggregate_cuts && cuts::aggregate_applicable(model)))
         || Instant::now() >= deadline
     {
         return prepared;
@@ -919,6 +923,14 @@ fn prepare_cuts(
         } else {
             vec![]
         };
+        if limits.aggregate_cuts && generated.len() < 32 {
+            generated.extend(pool.separate_aggregate(
+                model,
+                &point,
+                32 - generated.len(),
+                cut_deadline,
+            ));
+        }
         if limits.cover_cuts && generated.len() < 32 {
             generated.extend(pool.separate(model, &point, 32 - generated.len(), cut_deadline));
         }
@@ -978,6 +990,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 return Result {
                     binary_graph_enabled: true,
                     graph_cover_local_enabled: limits.graph_cover_local,
+                    aggregate_cuts_enabled: limits.aggregate_cuts,
                     graph_fractional_cover_enabled: limits.graph_fractional_cover,
                     nodes: answer.stats.nodes,
                     first_primal_seconds: answer.stats.first_seconds,
@@ -1399,6 +1412,27 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     stack.push(node);
                     status = "numerical_error".into();
                     break;
+                }
+                if nodes == 1 {
+                    if let Some(path) = std::env::var_os("MIP_ROOT_LP_DUMP") {
+                        if let Ok(file) = std::fs::OpenOptions::new()
+                            .write(true)
+                            .create_new(true)
+                            .open(path)
+                        {
+                            let names: Vec<_> = model.variables.iter().map(|v| &v.name).collect();
+                            let _ = serde_json::to_writer(
+                                file,
+                                &serde_json::json!({
+                                    "purpose": "diagnostic LP relaxation point, not an integer solution",
+                                    "names": names, "point": &original,
+                                    "objective": model.objective(&original),
+                                    "standard_dual": relaxation_dual,
+                                    "multipliers": relaxation_witness.as_ref(), "row_sources": &p.row_sources
+                                }),
+                            );
+                        }
+                    }
                 }
                 let objective = sign * model.objective(&original);
                 if !objective.is_finite() {
@@ -2000,6 +2034,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     Result {
         binary_graph_enabled: limits.binary_graph,
         graph_cover_local_enabled: limits.graph_cover_local,
+        aggregate_cuts_enabled: limits.aggregate_cuts,
         graph_fractional_cover_enabled: limits.graph_fractional_cover,
         defer_infeasibility_enabled: limits.defer_infeasibility,
         joint_infeasibility_enabled: limits.joint_infeasibility,

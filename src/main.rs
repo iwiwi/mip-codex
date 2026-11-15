@@ -22,6 +22,13 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(value) = std::env::var("MIP_AGGREGATE_CUTS") {
+            limits.aggregate_cuts = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_AGGREGATE_CUTS must be 0 or 1".into()),
+            };
+        }
         if let Ok(value) = std::env::var("MIP_FEASIBILITY_PUMP") {
             limits.feasibility_pump = match value.as_str() {
                 "0" => false,

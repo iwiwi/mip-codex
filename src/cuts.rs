@@ -3,10 +3,14 @@
 //! https://scipopt.org/download/slides/SCIP-cuttingPlanes.pdf
 //! 外部実装のコード移植は行わず、単純な貪欲選択と独立の整数証明検査を実装。
 use crate::model::{Model, Row};
+mod aggregate;
+pub use aggregate::applicable as aggregate_applicable;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, time::Instant};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Proof {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub aggregation: Vec<RowWeight>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub divisor: Option<i64>,
     pub source_row: usize,
@@ -15,12 +19,24 @@ pub struct Proof {
     pub cover: Vec<usize>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct RowWeight {
+    pub source_row: usize,
+    pub source_name: String,
+    pub upper_side: bool,
+    pub weight: u64,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cut {
     pub row: Row,
     pub proof: Proof,
 }
 #[derive(Default, Debug, Serialize)]
 pub struct Stats {
+    pub aggregate_calls: usize,
+    pub aggregate_pairs: usize,
+    pub aggregate_work: usize,
+    pub aggregate_added: usize,
+    pub aggregate_seconds: f64,
     pub rounding_calls: usize,
     pub rounding: usize,
     pub rounding_projected: usize,
@@ -178,6 +194,9 @@ fn lower_product(a: [f64; 2], b: [f64; 2]) -> Option<f64> {
 fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
     if cut.proof.divisor.is_some() {
         return rounding_verify(model, cut).then_some(ProofKind::Rounding);
+    }
+    if !cut.proof.aggregation.is_empty() {
+        return None;
     }
     let Some(row) = model.rows.get(cut.proof.source_row) else {
         return None;
@@ -379,6 +398,7 @@ impl Pool {
                             coefficients,
                         },
                         proof: Proof {
+                            aggregation: vec![],
                             divisor: None,
                             source_row: i,
                             source_name: row.name.clone(),
@@ -485,10 +505,31 @@ fn rounding_verify(model: &Model, cut: &Cut) -> bool {
     if cut.proof.source_name != source.name || !cut.proof.cover.is_empty() {
         return false;
     }
+    let combined;
+    let source = if cut.proof.aggregation.is_empty() {
+        source
+    } else {
+        let first = &cut.proof.aggregation[0];
+        if first.source_row != cut.proof.source_row
+            || first.source_name != cut.proof.source_name
+            || first.upper_side != cut.proof.upper_side
+        {
+            return false;
+        }
+        let Some(row) = aggregate::source(model, &cut.proof.aggregation) else {
+            return false;
+        };
+        combined = row;
+        &combined
+    };
     let Some(row) = rounding_row(
         model,
         source,
-        cut.proof.upper_side,
+        cut.proof
+            .aggregation
+            .is_empty()
+            .then_some(cut.proof.upper_side)
+            .unwrap_or(true),
         cut.proof.divisor.unwrap_or(0),
     ) else {
         return false;
@@ -585,6 +626,7 @@ impl Pool {
                     let cut = Cut {
                         row,
                         proof: Proof {
+                            aggregation: vec![],
                             divisor: Some(d),
                             source_row: i,
                             source_name: source.name.clone(),

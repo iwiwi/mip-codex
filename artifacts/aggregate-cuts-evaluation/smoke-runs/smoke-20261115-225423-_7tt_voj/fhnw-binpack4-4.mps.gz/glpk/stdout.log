@@ -1,0 +1,52 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/fhnw-binpack4-4.mps.gz'...
+Problem: fhnw-binpack4-4
+Objective: OBJ
+621 rows, 520 columns, 2332 non-zeros
+481 integer variables, all of which are binary
+4055 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-225423-_7tt_voj/fhnw-binpack4-4.mps.gz/glpk/model.glp'...
+4135 lines were written
+GLPK Integer Optimizer 5.0
+620 rows, 520 columns, 2332 non-zeros
+481 integer variables, all of which are binary
+Preprocessing...
+78 hidden covering inequaliti(es) were detected
+565 rows, 420 columns, 1792 non-zeros
+381 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  5.600e+02  ratio =  5.600e+02
+GM: min|aij| =  7.983e-01  max|aij| =  1.253e+00  ratio =  1.569e+00
+EQ: min|aij| =  6.374e-01  max|aij| =  1.000e+00  ratio =  1.569e+00
+2N: min|aij| =  4.141e-01  max|aij| =  1.406e+00  ratio =  3.396e+00
+Constructing initial basis...
+Size of triangular part is 565
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+565 rows, 420 columns, 1792 non-zeros
+      0: obj =   0.000000000e+00 inf =   1.277e+03 (378)
+    385: obj =   0.000000000e+00 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 84
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 3 + 39 = 42 vertices
++   385: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 95; mir = 54;
++ 56476: mip =     not found yet >=   0.000000000e+00        (60; 3361)
++113790: mip =     not found yet >=   0.000000000e+00        (85; 6634)
++113790: mip =     not found yet >=   0.000000000e+00        (85; 6634)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-225423-_7tt_voj/fhnw-binpack4-4.mps.gz/glpk/solution.raw'...
+1149 lines were written
