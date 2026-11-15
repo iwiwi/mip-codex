@@ -1,0 +1,11 @@
+NAME ranged
+ROWS
+ N obj
+ E r
+COLUMNS
+ x obj 1 r 1
+RHS
+ rhs r 10000000000000001
+RANGES
+ range r -10000000000000000
+ENDATA
