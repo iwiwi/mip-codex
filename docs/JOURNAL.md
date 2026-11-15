@@ -215,3 +215,8 @@
 - 最終108 Rust回帰とPython7回帰、projected混合1000/二値1000/通常小1000/中規模200は失敗0。新混合profileは連続2列の整数boxと整数係数を持つ。丸め106本を含む全cutを元MPS Fractionで確認。小13本/二値686本の丸めcutも全有効。
 - 純二値1000の同じ入力・原解検査でcover有効、repair/diving/probe無効を比較。丸めoff nodes3676/LP5424/合計solve秒0.203432092/cut2969、on nodes3414/LP5144/0.237046726/cut3513 (丸め686)。探索量は減るが時間は悪化。既定化の根拠にしない。
 - 次は小数RHSでも原係数が整数であることを区別するメタデータを検討し、丸めの適用行を増やす。また強分枝/信頼度分枝も候補。全240 Rust最終比較を開始する時間予算は維持する。
+
+## 2026-11-15: 根の予算付き強分枝 (試作)
+- PR16をedf67c2へmerge。root-strong-branching branch。cutの適用拡大だけでは18問に信号が薄いため、根の分枝選択を試す。最大fractionalの8候補について両側を自作warm LPで試し、各256pivot/全体5%最大.1秒に制限。両側がoptimalで点を原モデル照合できた候補だけ、目的改善のlog積スコアで選ぶ。成功した局所LPから擬似コストを学習するが、局所infeasible/下界/主解を主探索の枝刈り・証明・incumbentへ渡さない。probe側は明示的に無効。分枝前に既存repair/diving/probeを終えるため、既存の根主解機会を先に確保する。
+- MIP_STRONG_BRANCHING=0/1、既定無効。LP/ピボット/warm統計は総数へ含め、strong専用候補数/optimal/infeasible/limited/秒/分枝変更数も出す。数学的背景はSCIPのbranch_relpscost.h説明を参照 (https://scipopt.org/scip/doc/html/branch__relpscost_8h.php)、外部のコード移植は行わない。
+- 112 Rust回帰が成功。根ノード1で両側infeasibleでも本体node_limit/下界不変、両側optimalでも親下界とincumbent不変、期限0で呼び出し0、80二値問題のmin/max全列挙一致を追加。syntheticと18問性能は未測定。正しさだけで既定化しない。

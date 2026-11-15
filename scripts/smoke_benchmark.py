@@ -53,7 +53,9 @@ with (output/'results.jsonl').open('w') as summary:
                 'rust-best-estimate': ('best', 'estimate'),
                 'rust-hybrid-estimate': ('hybrid', 'estimate'),
             }
-            if solver in ('rust-rounding', 'rust-no-rounding'):
+            if solver in ('rust-strong', 'rust-no-strong'):
+                run_env.update(MIP_STRONG_BRANCHING='1' if solver=='rust-strong' else '0', MIP_ROUNDING_CUTS='0', MIP_COVER_CUTS='1', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
+            elif solver in ('rust-rounding', 'rust-no-rounding'):
                 run_env.update(MIP_ROUNDING_CUTS='1' if solver=='rust-rounding' else '0', MIP_COVER_CUTS='1', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
             elif solver in queue_modes:
                 search, order = queue_modes[solver]
@@ -75,7 +77,7 @@ with (output/'results.jsonl').open('w') as summary:
                 run_env['MIP_LP_ENGINE']='revised'
                 run_env['MIP_LP_WARM_START']='1' if solver=='rust-warm' else '0'
             elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
-            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE','MIP_COVER_CUTS','MIP_ROUNDING_CUTS']})+'\n')
+            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_STRONG_BRANCHING']})+'\n')
             if solver.startswith('rust'):
                 assert hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest() == meta['binary_sha256'], 'solver binary changed during smoke run'
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
@@ -102,6 +104,8 @@ with (output/'results.jsonl').open('w') as summary:
                 if solver in ('rust-probe', 'rust-no-probe'):
                     assert parsed['primal_probe'] == (solver == 'rust-probe')
                     assert parsed['search_strategy'] == 'DepthFirst' and parsed['child_order'] == 'Down'
+                if solver in ('rust-strong', 'rust-no-strong'):
+                    assert parsed['strong_branching'] == (solver == 'rust-strong')
                 if solver in ('rust-rounding', 'rust-no-rounding'):
                     assert parsed['rounding_cuts_enabled'] == (solver == 'rust-rounding')
                 if solver in queue_modes:
