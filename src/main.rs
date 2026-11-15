@@ -2,8 +2,13 @@ use mip_codex::mps;
 use std::io::{self, Write};
 fn run() -> Result<(), String> {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() < 3 || !["inspect", "dump", "solve"].contains(&args[1].as_str()) {
-        return Err("usage: mip-codex inspect|dump|solve FILE.mps[.gz] [SECONDS] [NODES]".into());
+    if args.len() < 3
+        || !["inspect", "dump", "objective-proof", "solve"].contains(&args[1].as_str())
+    {
+        return Err(
+            "usage: mip-codex inspect|dump|objective-proof|solve FILE.mps[.gz] [SECONDS] [NODES]"
+                .into(),
+        );
     }
     let model = mps::read(&args[2])?;
     let mut out = io::BufWriter::new(io::stdout().lock());
@@ -126,6 +131,10 @@ fn run() -> Result<(), String> {
         }
         let result = mip_codex::solve::solve(&model, &limits);
         serde_json::to_writer(&mut out, &result).map_err(|e| e.to_string())?;
+    } else if args[1] == "objective-proof" {
+        let proof = mip_codex::objective_bound::Grid::from_model(&model);
+        serde_json::to_writer(&mut out, &serde_json::json!({"objective_grid":proof}))
+            .map_err(|e| e.to_string())?;
     } else if args[1] == "dump" {
         serde_json::to_writer(&mut out, &model).map_err(|e| e.to_string())?;
     } else {

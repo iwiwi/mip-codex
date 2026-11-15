@@ -45,7 +45,7 @@ impl Default for Limits {
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
-            cover_rounds: 4,
+            cover_rounds: 2,
             rounding_cuts: false,
             strong_branching: true,
             rins: true,
