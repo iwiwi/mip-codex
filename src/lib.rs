@@ -26,3 +26,5 @@ pub const BUILD_SOURCE_DIRECTORY: &str = env!("CARGO_MANIFEST_DIR");
 
 /// Rustソース/Cargo設定のFNV64。計測記録のSHA256とは別のcache取り違え検出用。
 pub const BUILD_SOURCE_FINGERPRINT: &str = env!("MIP_SOURCE_FINGERPRINT");
+
+pub mod integer_propagate;

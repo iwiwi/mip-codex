@@ -330,3 +330,7 @@ source directoryだけでなく同一rootの旧revisionも拒否するため、b
 ## 2026-11-15 14:10 UTC：厳密Pair/FMAの評価
 
 別worktree/実targetでPoint/Pair/Wideを実装。和だけの初期版は18問のprimal全同等、markshare35.640→36.131sで不採用。通常Point経路の余計な演算を省き、最下位積bitがsubnormal下限以上と保証できる場合だけFMAの厳密残差を利用。最終50fe377dはRust147、Fraction3600bit fixture、合成2700、根LP300、十進回帰22件を通過。18問のprimal全同等。固定37,993節点のgenは3回中央値3.634→3.127s、CPU交換でも3.632→3.143s。ただし数値エラーの未解決節点で止まる状態は変えない。markshare目的約1の同じ証明は35.737→35.293s、CPU交換35.777→35.248sと小改善。保存68点/286cutsは独立検査全合格。反復で同名引数を重複して出力先衝突した診断runも保存し、個別3回で再測定した。詳細docs/PAIR_ACCUMULATOR_RESULTS.md、全データartifacts/pair-accumulator-evaluation（移動hash台帳あり）。一般的な大幅MIP高速化とは主張しない。
+
+### 整数伝播checkpointの再開時に保持した旧記録
+
+整数伝播の純粋なdomain1000例全列挙、free列/負係数/等式/元十進拒否/時間切れの4試験が成功。主探索への統合前に、既存の大きな目的係数の変数間相殺を調査し、固定x=y=z=1、費用1e16/1/-1e16で旧mainが誤optimal0、原MPS GMPでは目的1/目的誤差1と確認した。伝播の統合は保留し、この既存数値不具合を別branchで先に修正する。診断は旧main001cbc5eのcompiled source fingerprint19a8a69a7a6e183fを持つbinaryで行い、性能記録には使わない。

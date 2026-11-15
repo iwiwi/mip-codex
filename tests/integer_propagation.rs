@@ -1,0 +1,159 @@
+use mip_codex::{integer_propagate::IntegerPropagator, mps, propagate::Status};
+fn bounds(model: &mip_codex::model::Model) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
+    (
+        model.variables.iter().map(|v| v.lower).collect(),
+        model.variables.iter().map(|v| v.upper).collect(),
+    )
+}
+#[test]
+fn free_integer_column_gets_exact_floor_and_ceil_from_both_sides() {
+    for sign in [1, -1] {
+        let text = format!(
+            "NAME exact\nROWS\n N c\n L hi\n G lo\nCOLUMNS\n x c 0 hi {}\n x lo {}\n y hi 1 lo 1\nRHS\n rhs hi 3 lo -1\nBOUNDS\n LI b x 0\n FR b x\n LI b y 2\n UP b y 2\nENDATA\n",
+            2 * sign,
+            2 * sign
+        );
+        let model = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let (mut lo, mut up) = bounds(&model);
+        let mut p = IntegerPropagator::new(&model, 1 << 20).unwrap();
+        assert_eq!(p.propagate(&mut lo, &mut up, None, None), Status::Stable);
+        assert_eq!(
+            (lo[0], up[0]),
+            if sign == 1 {
+                (Some(-1.), Some(0.))
+            } else {
+                (Some(0.), Some(1.))
+            }
+        );
+        assert!(p.stats.tightenings >= 2);
+    }
+}
+#[test]
+fn decimal_provenance_memory_and_unbounded_continuous_guards_fail_open() {
+    for (coefficient, rhs, bound) in [
+        ("1.0000000000000000000001", "1", "0"),
+        ("1", "1.000000000000000000001", "0"),
+        ("1", "1", "0.000000000000000000001"),
+    ] {
+        let text = format!(
+            "NAME unknown\nROWS\n N c\n L r\nCOLUMNS\n x c 0 r {coefficient}\nRHS\n rhs r {rhs}\nBOUNDS\n LI b x {bound}\n UP b x 3\nENDATA\n"
+        );
+        let model = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let mut p = IntegerPropagator::new(&model, 1 << 20).unwrap();
+        assert_eq!(p.stats.inequalities, 0);
+        let (mut lo, mut up) = bounds(&model);
+        let before = (lo.clone(), up.clone());
+        assert_eq!(p.propagate(&mut lo, &mut up, None, None), Status::Stable);
+        assert_eq!((lo, up), before);
+        assert!(IntegerPropagator::new(&model, 0).is_none());
+    }
+    let model=mps::parse(std::io::Cursor::new("NAME continuous\nROWS\n N c\n E r\nCOLUMNS\n x c 0 r 1\n y r 1\nRHS\n rhs r 0\nBOUNDS\n BV b x\n FR b y\nENDATA\n")).unwrap();
+    let p = IntegerPropagator::new(&model, 1 << 20).unwrap();
+    assert_eq!(p.stats.inequalities, 0);
+}
+#[test]
+fn incremental_equality_propagation_and_deadline_preserve_parent_bounds() {
+    let model=mps::parse(std::io::Cursor::new("NAME eq\nROWS\n N c\n E r\nCOLUMNS\n x c 0 r 1\n y r 1\nRHS\n rhs r 1\nBOUNDS\n BV b x\n BV b y\nENDATA\n")).unwrap();
+    let mut p = IntegerPropagator::new(&model, 1 << 20).unwrap();
+    let (mut lo, mut up) = bounds(&model);
+    let before = (lo.clone(), up.clone());
+    assert_eq!(
+        p.propagate(&mut lo, &mut up, None, Some(std::time::Instant::now())),
+        Status::TimeLimit
+    );
+    assert_eq!((lo.clone(), up.clone()), before);
+    assert_eq!(p.propagate(&mut lo, &mut up, None, None), Status::Stable);
+    let parent = (lo.clone(), up.clone());
+    lo[0] = Some(1.);
+    assert_eq!(p.propagate(&mut lo, &mut up, Some(0), None), Status::Stable);
+    assert_eq!(up[1], Some(0.));
+    assert_eq!(parent, before);
+    lo[1] = Some(1.);
+    assert_eq!(
+        p.propagate(&mut lo, &mut up, Some(1), None),
+        Status::Infeasible
+    );
+}
+#[test]
+fn thousand_small_domains_keep_every_exact_feasible_integer_point() {
+    let mut seed = 2026111518u64;
+    let mut next = |n: u64| {
+        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        (seed >> 32) % n
+    };
+    let mut tightened = 0;
+    let mut pruned = 0;
+    for case in 0..1000 {
+        let n = 1 + next(5) as usize;
+        let m = 1 + next(6) as usize;
+        let a: Vec<Vec<i64>> = (0..m)
+            .map(|_| (0..n).map(|_| next(9) as i64 - 4).collect())
+            .collect();
+        let b: Vec<_> = (0..m).map(|_| next(19) as i64 - 9).collect();
+        let kind: Vec<_> = (0..m)
+            .map(|_| match next(3) {
+                0 => 'L',
+                1 => 'G',
+                _ => 'E',
+            })
+            .collect();
+        let mut text = String::from("NAME enumerate\nROWS\n N c\n");
+        for i in 0..m {
+            text += &format!(" {} r{i}\n", kind[i]);
+        }
+        text += "COLUMNS\n";
+        for j in 0..n {
+            text += &format!(" x{j} c 0\n");
+            for i in 0..m {
+                text += &format!(" x{j} r{i} {}\n", a[i][j]);
+            }
+        }
+        text += "RHS\n";
+        for i in 0..m {
+            text += &format!(" rhs r{i} {}\n", b[i]);
+        }
+        text += "BOUNDS\n";
+        for j in 0..n {
+            text += &format!(" LI b x{j} -2\n UP b x{j} 2\n");
+        }
+        text += "ENDATA\n";
+        let model = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let (mut lo, mut up) = bounds(&model);
+        let mut p = IntegerPropagator::new(&model, 1 << 20).unwrap();
+        let status = p.propagate(&mut lo, &mut up, None, None);
+        tightened += p.stats.tightenings;
+        pruned += p.stats.pruned;
+        let mut feasible = 0;
+        for code in 0..5usize.pow(n as u32) {
+            let mut value = code;
+            let x: Vec<i64> = (0..n)
+                .map(|_| {
+                    let v = (value % 5) as i64 - 2;
+                    value /= 5;
+                    v
+                })
+                .collect();
+            if (0..m).all(|i| {
+                let activity = a[i].iter().zip(&x).map(|(a, x)| a * x).sum::<i64>();
+                match kind[i] {
+                    'L' => activity <= b[i],
+                    'G' => activity >= b[i],
+                    _ => activity == b[i],
+                }
+            }) {
+                feasible += 1;
+                assert_ne!(status, Status::Infeasible, "case{case}");
+                assert!(
+                    (0..n).all(|j| lo[j].is_none_or(|l| x[j] as f64 >= l)
+                        && up[j].is_none_or(|u| x[j] as f64 <= u)),
+                    "case{case}, point{x:?}, {lo:?}/{up:?}"
+                );
+            }
+        }
+        if status == Status::Infeasible {
+            assert_eq!(feasible, 0, "case{case}");
+        }
+    }
+    assert!(tightened > 500);
+    assert!(pruned > 100);
+}
