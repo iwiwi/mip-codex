@@ -352,3 +352,11 @@ source8395126、smoke-20261115-110437/110438。18開発問、8問5秒/10問2秒�
 4ソルバー比較はRustの既定版111318 (a0c6ea4) とnativeの103709を対応させる。nativeは同機械/5秒/1thread/16GiBの既測定を明示再利用。全32run時間制限/証明0。Rust7主解全有効。nativeを含む28主解中GMP27有効、既知のHiGHS pk1だけ無効、公式相対検査は28有効。具体値はartifacts/objective-domain-four-solver-comparison.json。例えばmarkshare主解はRust4/HiGHS約5/SCIP約5/GLPK8だが、binkarは6794.86/6751.21/6749.29/6846.46でRustはHiGHS/SCIPに劣る。30nの下界51はGLPK110に劣り、Rust主解はまだ無い。局所改善を全体優位とは扱わない。
 
 11:04 UTCの全件native baselineは90/720完了、旧primary最適37、error8。新GMP再監査は保存73解中72有効、cbs-cta GLPKの1解だけ無効、未検証0。新errorはchromaticindex512-7 GLPKのwatchdog3660秒。固定snapshotの結果/ログは変更しない。
+
+## 混合強分枝候補と実行不能hint
+
+source d9e9c41で18開発問4設定 (113501/113503、8×5秒+10×2秒、1thread/16GiB、CPU0/1) を比較。全72run時間制限/証明0、主解全同等。併用だけ30n下界51→51.7547169811。56主解GMP/公式有効、268cut/72目的証明全有効。小1000/二値1000/中規模200も失敗0。Rust138回帰。30n60秒 (113850、CPU4) はclassic51/併用51.7547、両方主解なし。LP549→390は異なる探索の同時間枠であり、高速化とは扱わない。詳細docs/STRONG_OBJECTIVE.md。
+
+既定8e95f9e fresh8×5秒 (114252、CPU0) は主解と下界改善を再現。4ソルバー参照はnative103709の同条件測定を明示再利用する。Rust7主解は元MPSへ監査。30n下界51.7547はGLPK110に劣る。Rustの主解はまだ無い。binkar6794.86はHiGHS6751.21/SCIP6749.29に劣り、GLPK6846.46を上回る。比較全値はartifacts/strong-objective-four-solver-comparison.json。全体優位は未達成。
+
+11:43 UTCの全件native baselineは99/720完了、旧primary最適41/error8、生存確認。稼働snapshot/CPU8..15は変更していない。
