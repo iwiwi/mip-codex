@@ -1400,6 +1400,27 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     status = "numerical_error".into();
                     break;
                 }
+                if nodes == 1 {
+                    if let Some(path) = std::env::var_os("MIP_ROOT_LP_DUMP") {
+                        if let Ok(file) = std::fs::OpenOptions::new()
+                            .write(true)
+                            .create_new(true)
+                            .open(path)
+                        {
+                            let names: Vec<_> = model.variables.iter().map(|v| &v.name).collect();
+                            let _ = serde_json::to_writer(
+                                file,
+                                &serde_json::json!({
+                                    "purpose": "diagnostic LP relaxation point, not an integer solution",
+                                    "names": names, "point": &original,
+                                    "objective": model.objective(&original),
+                                    "standard_dual": relaxation_dual,
+                                    "multipliers": relaxation_witness.as_ref(), "row_sources": &p.row_sources
+                                }),
+                            );
+                        }
+                    }
+                }
                 let objective = sign * model.objective(&original);
                 if !objective.is_finite() {
                     stack.push(node);
