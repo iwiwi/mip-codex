@@ -121,3 +121,30 @@ source6a6f961のablationはartifacts/smoke-20261115-044736。各5秒CPU0/1thread
 下界の弱さは残る。50v-10のdualはRust2879.065687に対しHiGHS3224.774951、SCIP3217.921879、GLPK3083.301177。binkarもRust6637.188027に対し他3solverは6703以上。30n20b8はRust1.56640765、GLPK111、他2solverは有限dualなし。最終primalだけで総合優位と扱わない。全体優位は未達成。
 
 返却20解の再監査は新primary19/20、公式相対20/20。HiGHS pk1は前回と同じ厳密行違反1.000000008e-6で不合格、検証済primalから除外。Rust返却5解は双方合格。全raw値と共通gap (分母max(1,abs(primal)))、不合格/主解なしをartifacts/repair-final-summary.jsonへ保存。49 Rustテストと最終1000小問題+200中規模照合は失敗0。
+
+## 擬似コスト分枝・子ノード順 (2026-11-15)
+
+source6d138a2で4方式を比較。全方式でwarm/主解修復有効、伝播無効、1thread/RLIMIT_AS16GiB。6開発問はCPU0/各5秒 (smoke-20261115-045604)、追加12開発問はCPU1/各2秒 (smoke-20261115-045745)。追加12問は既存6問を除くdevelopmentの圧縮サイズ100000bytes以下から固定seed2026111503で測定前に抽出し、選択条件・入力hashをbranching-extra-selection.jsonへ保存。CPU/時間が違う2系列を時間倍率として混ぜない。
+
+| 問題 | fractional/down | fractional/nearest | pseudocost/down | pseudocost/estimate |
+|---|---:|---:|---:|---:|
+| pk1 | 約20 | 約17 | 約20 | 約17 |
+| mad | 0.2576 | 0.6628 | 0.2218 | 0.6356 |
+| markshare_4_0 | 約2 | 約2 | 約2 | 約2 |
+| 30n20b8 | なし | なし | なし | なし |
+| 50v-10 | 3777.599989 | 3777.599989 | 3777.599989 | 3777.599989 |
+| binkar10_1 | 6944.740016 | 7186.600012 | 6904.630026 | 7498.210051 |
+
+下界は同じ。pseudocost/downの改善はmad・binkarで、nearest/estimateは改善と悪化が混在。追加12問ではpseudocost/downがgen-ip002を-4702.724985→-4703.110424へ改善し、他の主解の得られた5問は同等。n5-3/mc11/beasleyC3/pg5_34/bppc4-08の同方式primalは10425/13548/955/-13829.286851/117。nearestはbppc4-08を80へ改善する一方でgen-ip002を悪化、estimateはn5-3/gen-ip002/pg5_34を改善するが、coreのmad/binkarで悪化するため既定にはしない。
+
+全72runはtime_limit64件、numerical_error8件、証明0。追加群のgmu-35-50とgmu-35-40は全4方式で根LPのnumerical_error。mcsched/csched008/timtab1/fhnw-binpack4-4は全方式主解なし。この失敗を集計から除かない。gmu-35-50はrevised rootで176pivot後に数値エラー、denseは30秒で時間切れ。独立HiGHS rootは両問ともoptimalで、目的値-2608070.315743009/-2406943.556342883。LPの数値処理を次に調べる。
+
+返却44解 (core20+extra24) は新GMP絶対/公式相対とも全合格。52 Rustテスト、新3探索方式それぞれ1000小問題照合、estimateの中規模200、最終採用downの中規模200も成功。最終1000+200は採用後の既定ソースで再実行。raw/status/hash/検証はartifacts/branching-*と2つのsmokeに保存。
+
+採用: 擬似コスト分枝を既定有効、floor側先行を維持 (source2f505c7)。主解が得られた11問では3改善・8同等、残り5問は主解なし、2問は数値エラー。学習値は順位だけに使い、下界や棄却には使わない。オプションMIP_BRANCHING=fractional、MIP_CHILD_ORDER=down|nearest|estimateで対照実験可能。
+
+比較3solverは直前の同条件5秒測定smoke-20261115-044926 (本変更で参照solver/共有依存は変更なし) を参照。madのRust0.2218はHiGHS0.208より悪いがSCIP0.4208/GLPK0.3512より良い。binkarのRust6904.63は改善しても他3solver (約6749〜6846) に及ばない。今回その3solverを再測定したとは扱わず、全体優位は未達成。
+
+## baselineの不合格を検出
+
+05:00 UTC時点で22/720完了、うちcbs-cta/GLPKがinvalid_solution。nativeはobjective0/optimalと報告したが、元行c5862のupper0に対しactivity1.44935807712805。浮動小数点絶対、新GMP絶対、公式相対で不合格。保存native solution.rawをGLPK自身のread_mip/check_kktで読み直してもPB最大違反1.44935807712805 (row5862) を再現し、名前変換/JSON検査だけの不一致ではないことを確認。最適化は再実行せず、native statusと生ログを残して検証済primal/最適には数えない。baseline snapshotは変更せず、他ケースは継続。監査ソース・結果はartifacts/branching-baseline-invalid-audit。

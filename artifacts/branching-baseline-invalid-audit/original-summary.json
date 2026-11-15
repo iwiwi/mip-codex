@@ -1,0 +1,151 @@
+{
+  "job_id": "020-glpk",
+  "name": "cbs-cta.mps.gz",
+  "split": "development",
+  "solver": "glpk",
+  "cpu": 12,
+  "input_sha256": "4f688482bbf0702ff0176fc027ee13967c1a8dbf8f243f8b2cebbb35bef534fa",
+  "status": "invalid_solution",
+  "execution": {
+    "exit_code": 0,
+    "watchdog": false,
+    "recovered": false,
+    "boot_changed": false,
+    "resource": {
+      "user_seconds": 3012.42,
+      "system_seconds": 0.29,
+      "max_rss_kib": 92188,
+      "exit_code": 0
+    },
+    "wall_seconds": 3385.520602296,
+    "finished_utc": "2026-11-15T04:59:39Z"
+  },
+  "resources_after_solver": {
+    "memory_events": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0,
+      "sock_throttled": 0
+    },
+    "memory.peak": 108265472,
+    "memory.current": 10924032,
+    "cpu.stat": {
+      "usage_usec": 3383257613,
+      "user_usec": 3267707694,
+      "system_usec": 115549918,
+      "nice_usec": 0,
+      "core_sched.force_idle_usec": 0,
+      "nr_periods": 33858,
+      "nr_throttled": 2740,
+      "throttled_usec": 2220102,
+      "nr_bursts": 0,
+      "burst_usec": 0
+    }
+  },
+  "version": "5.0",
+  "return_code": 0,
+  "objective": 0,
+  "dual_bound": 0,
+  "dual_bound_age_seconds": 0,
+  "objective_offset_before": 0,
+  "objective_offset_after": 0,
+  "seconds": 3385.151711507001,
+  "nodes_created": 157589,
+  "integer_tolerance": 1e-05,
+  "objective_tolerance": 1e-07,
+  "nodes": null,
+  "options": {
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/baseline-v1-20261115/snapshot/bin/glpk-benchmark",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/cbs-cta.mps.gz",
+      "3600.0",
+      "/home/ubuntu/mip-codex/artifacts/runs/baseline-v1-20261115/cases/020-glpk",
+      "16384"
+    ],
+    "presolve": true,
+    "fpump": true,
+    "cuts": true,
+    "mip_gap": 0.0
+  },
+  "dual_bound_source": "last_callback_or_optimal",
+  "gap": null,
+  "solver_status": "optimal",
+  "native_primal_bound": 0,
+  "native_gap": 0.0,
+  "primal_bound": null,
+  "verified_optimal": false,
+  "validation_execution": {
+    "exit_code": 0,
+    "watchdog": false,
+    "recovered": false,
+    "boot_changed": false,
+    "resource": {
+      "user_seconds": 4.4,
+      "system_seconds": 0.04,
+      "max_rss_kib": 63768,
+      "exit_code": 0
+    },
+    "wall_seconds": 5.096284653000112,
+    "finished_utc": "2026-11-15T04:59:44Z"
+  },
+  "strict_validation": {
+    "valid": false,
+    "objective": 0.0,
+    "bound_violation": 5.009326287108706e-13,
+    "row_violation": 1.44935807712805,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "reader": "HiGHS 1.16.0"
+  },
+  "official_validation": {
+    "valid": false,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/baseline-v1-20261115/snapshot/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/cbs-cta.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/baseline-v1-20261115/cases/020-glpk/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": false,
+    "objective": true
+  },
+  "result_sha256": "90e9c9a917cd9c96d918fb8836eadc8770540ab099df746eb0fa6ac5a729c67f",
+  "solution_sha256": "90e9c9a917cd9c96d918fb8836eadc8770540ab099df746eb0fa6ac5a729c67f",
+  "cgroup_resources": {
+    "memory_events": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0,
+      "sock_throttled": 0
+    },
+    "memory.peak": 108265472,
+    "memory.current": 17117184,
+    "cpu.stat": {
+      "usage_usec": 3388304195,
+      "user_usec": 3272492514,
+      "system_usec": 115811681,
+      "nice_usec": 0,
+      "core_sched.force_idle_usec": 0,
+      "nr_periods": 33909,
+      "nr_throttled": 2746,
+      "throttled_usec": 2224573,
+      "nr_bursts": 0,
+      "burst_usec": 0
+    }
+  },
+  "finished_utc": "2026-11-15T04:59:44Z"
+}
