@@ -336,3 +336,13 @@ source directoryだけでなく同一rootの旧revisionも拒否するため、b
 整数伝播の全節点/根限定はPR27で未マージとして閉じた。Rust155/両方式それぞれ合成2700/十進回帰22/最終56点280cuts全有効だが、全節点はmad主解とmarkshare証明時間、根限定は30n/mcsched下界が悪化した。コード・全列挙・生ログはexact-integer-propagation branchとPR27に保持する。
 
 同じ秒にsmokeを開始すると出力先が衝突するプロトコル不具合だけをunique-smoke-runsへcherry-pick。mkdtempで一意なディレクトリを作り、Rustコア/設定は変更しない。既存preflight8テスト合格。同秒の2並行0秒run(143630)が異なる保存先に成功し、両方探索0/time_limit。artifacts/unique-smoke-evaluationに保存。次は根で固定された列のLP省略を検討する。
+
+## 2026-11-15 15:51 UTC：大整数出力と比較の保存経路を修正
+
+Rustの内部整数と短いJSON十進値の違いを修正。149テスト/3600oracle/2700合成/300根LP/240入力metadata・構造検査/22変換を通過。巨大整数10解、固定18問等28解・140cutsは独立検査全有効。18問primal同一、markshare同じ探索量で35.31→35.62秒。高速化とは主張しない。
+
+比較側もHiGHS/SCIP巨大整数とGLPK15桁raw解の精度損失を確認し、完全整数JSONとGLPK直接API sidecarに統一。native8問×3×5秒は24件完走、21主解中20がGMP絶対有効、全21が公式相対検査有効。HiGHS pk1の行違反1.000000008e-6は絶対基準超過としてそのまま不合格。保存経路修正で全誤差が消えるとはしない。
+
+旧baseline-v1は159/720完了でsuperseded。159結果・snapshotと8中断ジョブのcgroup資源記録を保持し、coordinatorの同一性を確認して停止、全case cgroupの空を確認。中断を算法のタイムアウトに数えない。baseline-v2を同一CPU8..15/1thread/16GiB/3600秒で新規開始。新driver hash329ec481ab751fa1b9cb540b5a986fb41b2b0a299d2bb707960cfdbd66ceffd4。旧snapshotは変更していない。最終Rust全240測定はNov19 UTC中までに固定する。
+
+次はroot-fixed-columns別worktreeで固定列省略のrelease検査と比較。152テストは通過しているが未採用。データと移動hashはartifacts/serialization-evaluation。

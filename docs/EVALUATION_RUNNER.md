@@ -16,7 +16,7 @@ GLPK比較driverは汎用APIを使う独立Cプログラム (GPL-3.0-or-later)�
 
 ## 検査とstatus
 
-primaryは元MPSをHiGHS readerで独立に読み、math.fsumで全行活動を計算するPython検査。変数境界・制約・整数性の絶対許容誤差1e-6、目的値1e-8*(1+abs(obj))。native optimalかつprimary合格かつ数値gap<=1e-7だけをverified_optimalとする。statusとnative primal/dualを残し、不合格のnative primalを検証済みprimalに混ぜない。gapは共通式abs(primal-dual)/max(1,abs(primal))。
+primaryは元MPSと保存JSONの十進数をGMP有理数で読み、全行を絶対誤差で検査する。HiGHS reader/math.fsumの診断も残すが、primary判定には使わない。変数境界・制約・整数性の絶対許容誤差1e-6、目的値1e-8*(1+abs(obj))。native optimalかつprimary合格かつ数値gap<=1e-7だけをverified_optimalとする。statusとnative primal/dualを残し、不合格のnative primalを検証済みprimalに混ぜない。gapは共通式abs(primal-dual)/max(1,abs(primal))。
 
 公式MIPLIB checkerも独立したMPS reader/GMP有理数で検査する。linear=1e-6/int=1e-6を明示。公式checkerのlinear/boundはpos/neg活動とsideでスケールする相対検査なので、primaryの絶対検査と区別して両方保存する。exit codeだけで合格とせずCheck SOLの全項目を確認。形式未対応や検査失敗/timeoutは解の誤りと区別する。最適性証明の厳密有理検証はこれらのprimal checkerでは行わない。
 
@@ -45,7 +45,7 @@ coordinatorが停止した場合も、同じsnapshotのrunを再実行する。c
 
 完全な出力はartifacts/runs内に保存する (大容量のためgitignore)。experiments以下にconfig・進捗・集計・結果/解のSHA indexをcommitし、PRコメントに結果とAI資源量を報告する。最終的に圧縮archiveとhashを作成し、専用リポジトリ内で取得可能にする。
 
-比較3ソルバー×240問×1時間を8枠で回す最悪平均90時間 (コア固定による偏りと検査時間は別)。Rust全240問も最悪平均30時間。最終Rust版は遅くとも2026-11-20 UTC中に固定し、再測定・検査・報告の余裕を確保する。期限は2026-11-22 14:59 UTC。
+比較3ソルバー×240問×1時間を8枠で回す最悪平均90時間 (コア固定による偏りと検査時間は別)。Rust全240問も最悪平均30時間。保存精度更新後の再測定を考慮し、最終Rust版は遅くとも2026-11-19 UTC中に固定し、再測定・検査・報告の余裕を確保する。期限は2026-11-22 14:59 UTC。
 
 出典: https://miplib.zib.de/download.html (testscript v1.0.4)、https://www.scipopt.org/doc-10.0.0/html/FAQ.php (相対実行可能性許容誤差)、https://www.ibm.com/docs/en/cofz/12.9.0?topic=extensions-objective-sense-name-offset-in-mps-files (負RHSの目的定数規約)。
 
