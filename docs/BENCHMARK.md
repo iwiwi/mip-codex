@@ -47,3 +47,9 @@
 追加の根LP照合: 上記6問の根LPはHiGHS relaxationと一致 (artifacts/revised-miplib-root-check.jsonl)。合成根LP200問では目的値が3エンジンで一致し、LP計算時間のみの幾何平均比は密表/疎=21.24。合成・小規模開発測定を全MIPLIBの成績に外挿しない。
 
 採用: 疎エンジンを既定にする。理由は全検証で誤答/数値異常なし、密表より規模と解品質を改善したため。比較ソルバー全体への優位性は未達成。ノード間基底再利用、前処理、カット等は今後の課題。
+
+## 長時間baseline v1開始
+
+2026-11-15 UTC、全240問×3比較ソルバーの720ケースを開始。固定条件とv0からの変更理由・再開方法はdocs/EVALUATION_RUNNER.md。snapshot source commit c431aa9、ソースclean。config・依存・機械・保存時点の進捗はexperiments/baseline-v1-20261115。
+
+最終評価はcgroup合計16GiBを加え、GLPK cuts/FPを公式testscriptに合わせ有効化したv1で統一する。以前の5秒smokeを同じ系列に混ぜない。全体成績・誤答/未検証の監査は完了後に行う。
