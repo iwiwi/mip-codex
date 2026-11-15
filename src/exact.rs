@@ -248,10 +248,33 @@ mod enclosure_tests {
 
 enum Accumulated {
     Point(f64),
+    Pair(f64, f64),
     Wide(Sum),
+}
+fn two_sum(a: f64, b: f64) -> Option<(f64, f64)> {
+    let value = a + b;
+    let z = value - a;
+    let error = (a - (value - z)) + (b - z);
+    (value.is_finite() && error.is_finite()).then_some((value, error))
+}
+#[inline]
+fn add_pair(point: f64, tail: f64, value: f64) -> Option<(f64, f64)> {
+    let (next, residue) = two_sum(point, value)?;
+    if tail == 0. {
+        return Some((next, residue));
+    }
+    if residue == 0. {
+        return two_sum(next, tail);
+    }
+    let (low, discarded) = two_sum(tail, residue)?;
+    if discarded != 0. {
+        return None;
+    }
+    two_sum(next, low)
 }
 fn accumulated(terms: impl Iterator<Item = (f64, f64)>) -> Option<Accumulated> {
     let mut point = 0.;
+    let mut tail = 0.;
     let mut wide: Option<Sum> = None;
     for (a, b) in terms {
         if a == 0. || b == 0. {
@@ -273,27 +296,50 @@ fn accumulated(terms: impl Iterator<Item = (f64, f64)>) -> Option<Accumulated> {
                     && a.abs() <= (1u64 << 52) as f64
                     && b.abs() <= (1u64 << 52) as f64
                     && p.abs() <= (1u64 << 52) as f64));
-        if exact_product {
-            let next = point + p;
-            let z = next - point;
-            let residue = (point - (next - z)) + (p - z);
-            if next.is_finite() && residue == 0. {
-                point = next;
+        let product_error = if exact_product {
+            Some(0.)
+        } else {
+            // Every bit of the exact product must be representable down to 2^-1074.
+            // Under this sufficient condition the fused residual is exact, not rounded away.
+            let (_, _, ae) = parts(a)?;
+            let (_, _, be) = parts(b)?;
+            (p.is_finite() && ae + be >= -1074).then(|| a.mul_add(b, -p))
+        };
+        if let Some(error) = product_error {
+            if let Some((hi, lo)) = add_pair(point, tail, p).and_then(|(hi, lo)| {
+                if error == 0. {
+                    Some((hi, lo))
+                } else {
+                    add_pair(hi, lo, error)
+                }
+            }) {
+                point = hi;
+                tail = lo;
                 continue;
             }
         }
-        // TwoSumで無損失と証明できたprefixだけpointに保持し、以後は元の積を累算する。
+        // The pair stores an exact real sum, never an approximate compensation.
         let mut sum = Sum::default();
         sum.product(point, 1.)?;
+        sum.product(tail, 1.)?;
         sum.product(a, b)?;
         wide = Some(sum);
     }
-    Some(wide.map_or(Accumulated::Point(point), Accumulated::Wide))
+    Some(wide.map_or_else(
+        || {
+            if tail == 0. {
+                Accumulated::Point(point)
+            } else {
+                Accumulated::Pair(point, tail)
+            }
+        },
+        Accumulated::Wide,
+    ))
 }
 /// 各積も丸めずに累算し、最後の一度だけ最近接へ丸める。
 pub(crate) fn dot(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> {
     match accumulated(terms)? {
-        Accumulated::Point(v) => Some(v),
+        Accumulated::Point(v) | Accumulated::Pair(v, _) => Some(v),
         Accumulated::Wide(s) => s.rounded(),
     }
 }
@@ -301,6 +347,11 @@ pub(crate) fn dot(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> {
 pub(crate) fn dot_bounds(terms: impl Iterator<Item = (f64, f64)>) -> Option<[f64; 2]> {
     let mut sum = match accumulated(terms)? {
         Accumulated::Point(v) => return Some([v, v]),
+        Accumulated::Pair(v, e) => {
+            let lo = if e < 0. { v.next_down() } else { v };
+            let hi = if e > 0. { v.next_up() } else { v };
+            return (lo.is_finite() && hi.is_finite()).then_some([lo, hi]);
+        }
         Accumulated::Wide(s) => s,
     };
     let value = sum.rounded()?;
@@ -325,6 +376,7 @@ pub(crate) fn dot_lower(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> 
 pub(crate) fn dot_error(terms: impl Iterator<Item = (f64, f64)>) -> Option<(f64, f64)> {
     let mut sum = match accumulated(terms)? {
         Accumulated::Point(v) => return Some((v, 0.)),
+        Accumulated::Pair(v, e) => return Some((v, e.abs().next_up())),
         Accumulated::Wide(s) => s,
     };
     let value = sum.rounded()?;
@@ -369,8 +421,14 @@ mod value_tests {
     }
     #[test]
     fn nearest_tight_bounds_and_fast_enclosures_match_fraction_oracle() {
-        let cases: Vec<Case> =
+        let mut cases: Vec<Case> =
             serde_json::from_str(include_str!("../tests/fixtures/exact-dot-values.json")).unwrap();
+        cases.extend(
+            serde_json::from_str::<Vec<Case>>(include_str!(
+                "../tests/fixtures/exact-fma-values.json"
+            ))
+            .unwrap(),
+        );
         let mut fast = 0;
         for (i, c) in cases.iter().enumerate() {
             let terms = || {
@@ -399,5 +457,38 @@ mod value_tests {
             }
         }
         assert!(fast > 200, "{fast}");
+    }
+}
+
+#[cfg(test)]
+mod pair_tests {
+    use super::*;
+    #[test]
+    fn a_pair_preserves_a_halfway_bit_and_can_collapse_after_cancellation() {
+        let terms = [(1e16, 1.), (1., 1.)];
+        assert!(matches!(
+            accumulated(terms.into_iter()),
+            Some(Accumulated::Pair(_, _))
+        ));
+        assert_eq!(dot(terms.into_iter()), Some(1e16));
+        assert_eq!(dot_bounds(terms.into_iter()), Some([1e16, 1e16 + 2.]));
+        assert_eq!(
+            dot([(1e16, 1.), (1., 1.), (1., 1.)].into_iter()),
+            Some(1e16 + 2.)
+        );
+        assert!(matches!(
+            accumulated([(1e16, 1.), (1., 1.), (-1e16, 1.)].into_iter()),
+            Some(Accumulated::Point(1.))
+        ));
+    }
+    #[test]
+    fn a_third_separated_component_falls_back_without_losing_either_tail() {
+        let prefix = [(1e300, 1.), (1., 1.), (1e-300, 1.)];
+        assert!(matches!(
+            accumulated(prefix.into_iter()),
+            Some(Accumulated::Wide(_))
+        ));
+        let terms = prefix.into_iter().chain([(-1e300, 1.), (-1., 1.)]);
+        assert_eq!(dot(terms), Some(1e-300));
     }
 }

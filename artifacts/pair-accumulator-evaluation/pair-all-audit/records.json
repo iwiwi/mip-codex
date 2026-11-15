@@ -1,0 +1,3586 @@
+[
+  {
+    "run": "main-smoke-20261115-135707",
+    "name": "50v-10.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "bb37f47a414062987fd95aff57a6510cff75fc925874812b32a894cfbf4c70c0",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135707/50v-10.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135707/50v-10.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 2e-13,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135707/50v-10.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135707",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "f57e5fe09cf1d23d3012613eef572c592cbc916dadaccfd7aeb5f540a487cc08",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135707/binkar10_1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135707/binkar10_1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7109.280002,
+        "bound_violation": 3.885780586188048e-16,
+        "row_violation": 4.440892098500626e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7109.280002,
+      "bound_violation": 3.885780586188048e-16,
+      "row_violation": 4e-16,
+      "integer_violation": 0.0,
+      "objective_error": 3.43466947960236e-14,
+      "exact": {
+        "objective": "177732000050000000858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000",
+        "bound_violation": "242861286636753/625000000000000000000000000000",
+        "row_violation": "1/2500000000000000",
+        "integer_violation": "0",
+        "objective_error": "858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135707/binkar10_1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135707",
+    "name": "gmu-35-40.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "2d429ef8c0038cb29ed5d010e431ebc95afd8bbd75d7c124fadc18819044f6e1",
+    "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135707/gmu-35-40.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135707/gmu-35-40.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2286363.6614,
+        "bound_violation": 0.0,
+        "row_violation": 1.2789769243681803e-12,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2286363.6614,
+      "bound_violation": 0.0,
+      "row_violation": 1.3e-12,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-11431818307/5000",
+        "bound_violation": "0",
+        "row_violation": "13/10000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135707/gmu-35-40.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135707",
+    "name": "gmu-35-50.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "f6bba438af0758cee5c012fa2d118f6a121065120ed8afdc68f5c28f184f7259",
+    "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135707/gmu-35-50.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135707/gmu-35-50.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -394066.8738,
+        "bound_violation": 0.0,
+        "row_violation": 5.684341886080802e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -394066.8738,
+      "bound_violation": 0.0,
+      "row_violation": 5e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-1970334369/5000",
+        "bound_violation": "0",
+        "row_violation": "1/20000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135707/gmu-35-50.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135707",
+    "name": "mad.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "dd5acd7b9292ddad5d54df8a388514e51cba1d76e0bfbe81c4b9ae20a7a56d30",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135707/mad.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135707/mad.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37659999999999794,
+        "bound_violation": 0.0,
+        "row_violation": 1.2468324983583301e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37659999999999794,
+      "bound_violation": 0.0,
+      "row_violation": 1.28e-15,
+      "integer_violation": 0.0,
+      "objective_error": 1e-17,
+      "exact": {
+        "objective": "37659999999999793/100000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/781250000000000",
+        "integer_violation": "0",
+        "objective_error": "1/100000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135707/mad.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135707",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "9d2277981495679b11d6920bbb95de539e6cf3d9fcf7bfaaff66f1905f715879",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135707/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135707/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 4.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 4.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-16,
+      "integer_violation": 0.0,
+      "objective_error": 2e-16,
+      "exact": {
+        "objective": "19999999999999999/5000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/5000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135707/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135707",
+    "name": "pk1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "5a1a4ad3521fc634fb63e29cd66c94d2797b0aca2a6a5d2f133a9aebc59d6999",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135707/pk1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135707/pk1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 20.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 20.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "20",
+        "bound_violation": "0",
+        "row_violation": "1/500000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135707/pk1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135715",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "45c1ca8c4ed1279ecb8e03b6bc5439baf4eb8ec6c7007dfab579bd514248f0ae",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135715/beasleyC3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135715/beasleyC3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135715/beasleyC3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135715",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "e019d523c20743525900759dc05827a709fc1059d521c0a4b62e5e63aa994c0e",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135715/bppc4-08.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135715/bppc4-08.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 65.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 65.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "65",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135715/bppc4-08.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135715",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "9485a9bacadcac0dfdad80dd4b1095b98a9c91c3e960652b0cbd7338b006f800",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135715/gen-ip002.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135715/gen-ip002.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4729.7692539,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4729.7692539,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-47297692539/10000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135715/gen-ip002.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135715",
+    "name": "mc11.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "153448c134d815c68b8e43eefb1843ef9c5c11eed9f75783d3734d8c39e41ecf",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135715/mc11.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135715/mc11.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135715/mc11.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135715",
+    "name": "n5-3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "5cf4446c2c5ab8375d58778cfb761d14557ef033669817fae75348520e9097fc",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135715/n5-3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135715/n5-3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135715/n5-3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135715",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "b273843a9a035f7a1776b162f86e214e5a908bffbe2e0dc54884c304438b9cd3",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135715/pg5_34.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135715/pg5_34.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -14069.74417895944,
+        "bound_violation": 0.0,
+        "row_violation": 4.440892098500626e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -14069.74417895944,
+      "bound_violation": 0.0,
+      "row_violation": 8.57e-14,
+      "integer_violation": 0.0,
+      "objective_error": 9.1165e-14,
+      "exact": {
+        "objective": "-2813948835791887981767/200000000000000000",
+        "bound_violation": "0",
+        "row_violation": "857/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18233/200000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135715/pg5_34.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-135723",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "b798a63c8320ea6f9b1160c48976f8627d1ea765faebc3a3bdd6330f5d7949bd",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-135723/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-135723/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.9999999999999206,
+        "bound_violation": 8.104628079763643e-15,
+        "row_violation": 1.1368683772161603e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.9999999999999206,
+      "bound_violation": 8.104628079763643e-15,
+      "row_violation": 7.13e-14,
+      "integer_violation": 0.0,
+      "objective_error": 4.628079763643e-18,
+      "exact": {
+        "objective": "999999999999920595371920236357/1000000000000000000000000000000",
+        "bound_violation": "8104628079763643/1000000000000000000000000000000",
+        "row_violation": "713/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "4628079763643/1000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-135723/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135707",
+    "name": "50v-10.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "5f831df4ce0f6bb3e860451b742ed69bfdc8e837670538b84a692ca418f316ab",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135707/50v-10.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135707/50v-10.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 2e-13,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135707/50v-10.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135707",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "91c49e4198c8189c4788029b74bc4877cb1d412153acf9e502c7e91b32c64ce8",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135707/binkar10_1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135707/binkar10_1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7109.280002,
+        "bound_violation": 3.885780586188048e-16,
+        "row_violation": 4.440892098500626e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7109.280002,
+      "bound_violation": 3.885780586188048e-16,
+      "row_violation": 4e-16,
+      "integer_violation": 0.0,
+      "objective_error": 3.43466947960236e-14,
+      "exact": {
+        "objective": "177732000050000000858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000",
+        "bound_violation": "242861286636753/625000000000000000000000000000",
+        "row_violation": "1/2500000000000000",
+        "integer_violation": "0",
+        "objective_error": "858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135707/binkar10_1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135707",
+    "name": "gmu-35-40.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "cc0e58f6cb14b27882f53733e9e230acdfa8cc6ce99341247a3406d254063d37",
+    "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135707/gmu-35-40.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135707/gmu-35-40.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2286363.6614,
+        "bound_violation": 0.0,
+        "row_violation": 1.2789769243681803e-12,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2286363.6614,
+      "bound_violation": 0.0,
+      "row_violation": 1.3e-12,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-11431818307/5000",
+        "bound_violation": "0",
+        "row_violation": "13/10000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135707/gmu-35-40.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135707",
+    "name": "gmu-35-50.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "09d12002fa81dc87731de49177b71e90ff61ce29d08f8c0a224849d26dfae276",
+    "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135707/gmu-35-50.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135707/gmu-35-50.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -394066.8738,
+        "bound_violation": 0.0,
+        "row_violation": 5.684341886080802e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -394066.8738,
+      "bound_violation": 0.0,
+      "row_violation": 5e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-1970334369/5000",
+        "bound_violation": "0",
+        "row_violation": "1/20000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135707/gmu-35-50.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135707",
+    "name": "mad.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "2d09d6025946fbd8befe0ecf6f9278a12591fe3f0eb33b888215cad40e4c1bc9",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135707/mad.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135707/mad.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37659999999999794,
+        "bound_violation": 0.0,
+        "row_violation": 1.2468324983583301e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37659999999999794,
+      "bound_violation": 0.0,
+      "row_violation": 1.28e-15,
+      "integer_violation": 0.0,
+      "objective_error": 1e-17,
+      "exact": {
+        "objective": "37659999999999793/100000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/781250000000000",
+        "integer_violation": "0",
+        "objective_error": "1/100000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135707/mad.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135707",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "4cc1b0b3dc864e3c738b537fb3a89f9c8574d94523c5d5c74e7cba63f1f1425a",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135707/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135707/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 4.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 4.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-16,
+      "integer_violation": 0.0,
+      "objective_error": 2e-16,
+      "exact": {
+        "objective": "19999999999999999/5000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/5000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135707/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135707",
+    "name": "pk1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "29c8e16dd3f1288fdf20e1a44111dacf398a1f2ae92624c71f871a3abee3c41c",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135707/pk1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135707/pk1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 20.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 20.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "20",
+        "bound_violation": "0",
+        "row_violation": "1/500000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135707/pk1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135715",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "086816a5d92070ac3861469674898562614ebc75356a6d5615db9d94a7ad83b6",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135715/beasleyC3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135715/beasleyC3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135715/beasleyC3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135715",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "28242cc66b39dd874b1c045ea2bca21a09c57f23b9566856b0c13894fa30e28a",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135715/bppc4-08.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135715/bppc4-08.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 65.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 65.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "65",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135715/bppc4-08.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135715",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "b88402524670fc1549c9768a848e05343dae333140a60ca25983a27337abab96",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135715/gen-ip002.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135715/gen-ip002.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4729.7692539,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4729.7692539,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-47297692539/10000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135715/gen-ip002.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135715",
+    "name": "mc11.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "e45d66fd97014c0284345bfe6c00256274b87fc61d118c38c430ef7336d5aee7",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135715/mc11.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135715/mc11.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135715/mc11.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135715",
+    "name": "n5-3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "8f47d04a96345837b7b6341c818225ece5d621c101fecca0509bfa91f01212c6",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135715/n5-3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135715/n5-3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135715/n5-3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135715",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "2fc8f6f67ac2bb4143a6aa1e11905480c71ae78c2f0918a45140d97385a2b486",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135715/pg5_34.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135715/pg5_34.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -14069.74417895944,
+        "bound_violation": 0.0,
+        "row_violation": 4.440892098500626e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -14069.74417895944,
+      "bound_violation": 0.0,
+      "row_violation": 8.57e-14,
+      "integer_violation": 0.0,
+      "objective_error": 9.1165e-14,
+      "exact": {
+        "objective": "-2813948835791887981767/200000000000000000",
+        "bound_violation": "0",
+        "row_violation": "857/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18233/200000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135715/pg5_34.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-135723",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "581dc3c26507ad67f44050e5c27abed68f1c702ba112fd99c2241804c5468db4",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-135723/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-135723/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.9999999999999206,
+        "bound_violation": 8.104628079763643e-15,
+        "row_violation": 1.1368683772161603e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.9999999999999206,
+      "bound_violation": 8.104628079763643e-15,
+      "row_violation": 7.13e-14,
+      "integer_violation": 0.0,
+      "objective_error": 4.628079763643e-18,
+      "exact": {
+        "objective": "999999999999920595371920236357/1000000000000000000000000000000",
+        "bound_violation": "8104628079763643/1000000000000000000000000000000",
+        "row_violation": "713/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "4628079763643/1000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-135723/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140159",
+    "name": "50v-10.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "42d143be30d8d06c6a257866b3cce2fc7e9ce5cfcb5b731ee477fc8557300aff",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140159/50v-10.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140159/50v-10.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 2e-13,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140159/50v-10.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140159",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "a7fe8bc1d8456e82a4c6735712df7e223eff2c83f91bd6750a7f98009502bc24",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140159/binkar10_1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140159/binkar10_1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7109.280002,
+        "bound_violation": 3.885780586188048e-16,
+        "row_violation": 4.440892098500626e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7109.280002,
+      "bound_violation": 3.885780586188048e-16,
+      "row_violation": 4e-16,
+      "integer_violation": 0.0,
+      "objective_error": 3.43466947960236e-14,
+      "exact": {
+        "objective": "177732000050000000858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000",
+        "bound_violation": "242861286636753/625000000000000000000000000000",
+        "row_violation": "1/2500000000000000",
+        "integer_violation": "0",
+        "objective_error": "858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140159/binkar10_1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140159",
+    "name": "gmu-35-40.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "01e49ca8e20228335eb60876ce6d40ae99b1d010c079738e25cfa8c1750b1126",
+    "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140159/gmu-35-40.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140159/gmu-35-40.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2286363.6614,
+        "bound_violation": 0.0,
+        "row_violation": 1.2789769243681803e-12,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2286363.6614,
+      "bound_violation": 0.0,
+      "row_violation": 1.3e-12,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-11431818307/5000",
+        "bound_violation": "0",
+        "row_violation": "13/10000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140159/gmu-35-40.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140159",
+    "name": "gmu-35-50.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "5a1b6c11ed89e3ec0ede86023c4de39a812f7f9ccc6a141d228481e92bbc3214",
+    "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140159/gmu-35-50.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140159/gmu-35-50.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -394066.8738,
+        "bound_violation": 0.0,
+        "row_violation": 5.684341886080802e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -394066.8738,
+      "bound_violation": 0.0,
+      "row_violation": 5e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-1970334369/5000",
+        "bound_violation": "0",
+        "row_violation": "1/20000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140159/gmu-35-50.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140159",
+    "name": "mad.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "c66785b359f18984dd468a8f162dc4f4b416a0f6d3e6c4bbbaf4cd4660353f0a",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140159/mad.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140159/mad.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37659999999999794,
+        "bound_violation": 0.0,
+        "row_violation": 1.2468324983583301e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37659999999999794,
+      "bound_violation": 0.0,
+      "row_violation": 1.28e-15,
+      "integer_violation": 0.0,
+      "objective_error": 1e-17,
+      "exact": {
+        "objective": "37659999999999793/100000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/781250000000000",
+        "integer_violation": "0",
+        "objective_error": "1/100000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140159/mad.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140159",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "4ee2820530a6793217d7a0237e74fd94cda60c9d837c6c87d2739f9d8560e0de",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140159/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140159/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 4.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 4.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-16,
+      "integer_violation": 0.0,
+      "objective_error": 2e-16,
+      "exact": {
+        "objective": "19999999999999999/5000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/5000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140159/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140159",
+    "name": "pk1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "decb462b67f9523dc4242e3e656415200e157872b4bb3ace3dbbcb1135c05e1e",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140159/pk1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140159/pk1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 20.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 20.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "20",
+        "bound_violation": "0",
+        "row_violation": "1/500000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140159/pk1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140207",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "617950e410994a5be2a9f6cdcb35c726d48d4ad3e214b890807e60c0d5a71547",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140207/beasleyC3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140207/beasleyC3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140207/beasleyC3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140207",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "a8088babb876cb4a4bd98d49d71b4e8b02ca160bba6fa553f5d8cdf5bfff4d1e",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140207/bppc4-08.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140207/bppc4-08.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 65.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 65.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "65",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140207/bppc4-08.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140207",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "1709c7a30c62e20ad27098f0932f52f2d49529b56b63506c7fbd6c39562998d8",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140207/gen-ip002.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140207/gen-ip002.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4729.7692539,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4729.7692539,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-47297692539/10000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140207/gen-ip002.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140207",
+    "name": "mc11.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "4790803f52c09e33998caf17c6749e0ffa5a1c44b2ac1ca2f1baeb706fabe2fe",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140207/mc11.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140207/mc11.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140207/mc11.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140207",
+    "name": "n5-3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "efd12c50ff559b42e49a0962b04d9ad48ee278fb8d5964759ae2d926f9c0830f",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140207/n5-3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140207/n5-3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140207/n5-3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140207",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "36206d72362d3d0bb10ebd767c0a941097d816aec65f5b9949c3f9986ac0a2fd",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140207/pg5_34.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140207/pg5_34.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -14069.74417895944,
+        "bound_violation": 0.0,
+        "row_violation": 4.440892098500626e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -14069.74417895944,
+      "bound_violation": 0.0,
+      "row_violation": 8.57e-14,
+      "integer_violation": 0.0,
+      "objective_error": 9.1165e-14,
+      "exact": {
+        "objective": "-2813948835791887981767/200000000000000000",
+        "bound_violation": "0",
+        "row_violation": "857/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18233/200000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140207/pg5_34.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "main-smoke-20261115-140214",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "ce2602fe40bf6ffcce3155c2e2e2979f8f92796d51595056740135c20ba992d6",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/main-smoke-20261115-140214/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/main-smoke-20261115-140214/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.9999999999999206,
+        "bound_violation": 8.104628079763643e-15,
+        "row_violation": 1.1368683772161603e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.9999999999999206,
+      "bound_violation": 8.104628079763643e-15,
+      "row_violation": 7.13e-14,
+      "integer_violation": 0.0,
+      "objective_error": 4.628079763643e-18,
+      "exact": {
+        "objective": "999999999999920595371920236357/1000000000000000000000000000000",
+        "bound_violation": "8104628079763643/1000000000000000000000000000000",
+        "row_violation": "713/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "4628079763643/1000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/main-smoke-20261115-140214/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140159",
+    "name": "50v-10.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "dc2f36ebf8fdcbabc4162207230a932cd51c284d7821db4f197fc600656d9391",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140159/50v-10.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140159/50v-10.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 2e-13,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140159/50v-10.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140159",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "d0a832a76b2630ad0cbfff58d5f4e89da2ccf9bf5b2f0763c8d5ad69f27e4912",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140159/binkar10_1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140159/binkar10_1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7109.280002,
+        "bound_violation": 3.885780586188048e-16,
+        "row_violation": 4.440892098500626e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7109.280002,
+      "bound_violation": 3.885780586188048e-16,
+      "row_violation": 4e-16,
+      "integer_violation": 0.0,
+      "objective_error": 3.43466947960236e-14,
+      "exact": {
+        "objective": "177732000050000000858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000",
+        "bound_violation": "242861286636753/625000000000000000000000000000",
+        "row_violation": "1/2500000000000000",
+        "integer_violation": "0",
+        "objective_error": "858667369900590074924801070762524111/25000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140159/binkar10_1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140159",
+    "name": "gmu-35-40.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "966432bcf5e69880a5d6a3eef63d88b519a8eb559fd3d9d7af3d098ecea9d330",
+    "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140159/gmu-35-40.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140159/gmu-35-40.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2286363.6614,
+        "bound_violation": 0.0,
+        "row_violation": 1.2789769243681803e-12,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2286363.6614,
+      "bound_violation": 0.0,
+      "row_violation": 1.3e-12,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-11431818307/5000",
+        "bound_violation": "0",
+        "row_violation": "13/10000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-40.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140159/gmu-35-40.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140159",
+    "name": "gmu-35-50.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "4b7f87ae8421b769c526cef8321a0e4bf4198a61a53193bf427eeef1d1fc40a8",
+    "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140159/gmu-35-50.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140159/gmu-35-50.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -394066.8738,
+        "bound_violation": 0.0,
+        "row_violation": 5.684341886080802e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -394066.8738,
+      "bound_violation": 0.0,
+      "row_violation": 5e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-1970334369/5000",
+        "bound_violation": "0",
+        "row_violation": "1/20000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gmu-35-50.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140159/gmu-35-50.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140159",
+    "name": "mad.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "73318f5667d5618074fc0c095234ec7a72c69fa084acb932b5ebe2a8ede0bccc",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140159/mad.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140159/mad.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37659999999999794,
+        "bound_violation": 0.0,
+        "row_violation": 1.2468324983583301e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37659999999999794,
+      "bound_violation": 0.0,
+      "row_violation": 1.28e-15,
+      "integer_violation": 0.0,
+      "objective_error": 1e-17,
+      "exact": {
+        "objective": "37659999999999793/100000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/781250000000000",
+        "integer_violation": "0",
+        "objective_error": "1/100000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mad.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140159/mad.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140159",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "5bc16172b0c8a2c564c85e3280592a5db2e6bed4229c498461ee6ed33da11b3d",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140159/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140159/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 4.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 4.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-16,
+      "integer_violation": 0.0,
+      "objective_error": 2e-16,
+      "exact": {
+        "objective": "19999999999999999/5000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/5000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140159/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140159",
+    "name": "pk1.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "eb5519c6f1ce07b2a7435d90a951b1367f4158f723b2263292b8d4f66cf70980",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140159/pk1.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140159/pk1.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 20.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 20.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "20",
+        "bound_violation": "0",
+        "row_violation": "1/500000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140159/pk1.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140207",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "c3d4d932e50ee5c57316ba88aed12af6c0b77f015af7e8d0a65594c2cd997453",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140207/beasleyC3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140207/beasleyC3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140207/beasleyC3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140207",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "11d80d523b470efe0556e71e9bf0eb8560999def9569e50009294067ab3a7e69",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140207/bppc4-08.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140207/bppc4-08.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 65.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 65.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "65",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140207/bppc4-08.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140207",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "6b49abd9a79a9ff6301b104bb14b880c9d8f6cbfd50549dabe7dfbe674673c40",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140207/gen-ip002.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140207/gen-ip002.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4729.7692539,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4729.7692539,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-47297692539/10000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140207/gen-ip002.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140207",
+    "name": "mc11.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "297e30fa2ae40332bb91f4acf273ad7513066f0b67715fec53b9026716724da5",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140207/mc11.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140207/mc11.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140207/mc11.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140207",
+    "name": "n5-3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "f32705048a05d7617b59090d7479bf039ca697471bfb32ee7af41e29118397cc",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140207/n5-3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140207/n5-3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140207/n5-3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140207",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "7ed2c18d4212080b02c15b4809362a4b9085621de88269b1ad62720829a9e742",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140207/pg5_34.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140207/pg5_34.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -14069.74417895944,
+        "bound_violation": 0.0,
+        "row_violation": 4.440892098500626e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -14069.74417895944,
+      "bound_violation": 0.0,
+      "row_violation": 8.57e-14,
+      "integer_violation": 0.0,
+      "objective_error": 9.1165e-14,
+      "exact": {
+        "objective": "-2813948835791887981767/200000000000000000",
+        "bound_violation": "0",
+        "row_violation": "857/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "18233/200000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140207/pg5_34.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-140214",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "a9a629783a182fe5bccebe9dda006082f0cb83cb6bc1fc7d188beb85e7b86c1a",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/artifacts/smoke-20261115-140214/markshare_4_0.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/pair-all-audit/smoke-20261115-140214/markshare_4_0.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.9999999999999206,
+        "bound_violation": 8.104628079763643e-15,
+        "row_violation": 1.1368683772161603e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.9999999999999206,
+      "bound_violation": 8.104628079763643e-15,
+      "row_violation": 7.13e-14,
+      "integer_violation": 0.0,
+      "objective_error": 4.628079763643e-18,
+      "exact": {
+        "objective": "999999999999920595371920236357/1000000000000000000000000000000",
+        "bound_violation": "8104628079763643/1000000000000000000000000000000",
+        "row_violation": "713/10000000000000000",
+        "integer_violation": "0",
+        "objective_error": "4628079763643/1000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/pair-accumulator-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/pair-all-audit/smoke-20261115-140214/markshare_4_0.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+]

@@ -326,3 +326,7 @@ source directoryだけでなく同一rootの旧revisionも拒否するため、b
 最終ソース922e7cd4：Rust145、Fraction1200fixture、合成2700、純粋根LP300、全240行列/格子が通過。桁落ち回帰22件は8有効点/14未解決/誤答0。最終18問+mark60の14点はGMP絶対/公式とも全合格、70cuts/19runsの格子も合格。保存済み旧18問とのprimalは3改善/4悪化/11同等で速度改善とは扱わない。markshare約1の証明は35.750s（旧30.417s、同じ1,486,619節点）で負担増。gen-ip002は1節点の未証明infeasibleで数値停止が残る。比較native8問の21点中HiGHS pk1のみ絶対行違反1.000000008e-6、公式は全点合格。
 
 詳細 docs/EXACT_TRANSFORMATION_RESULTS.md と docs/EXACT_TRANSFORMATION_PLAN.md。全生ログ/失敗を保存。固定snapshotはartifacts/runs/exact-sums-922e7cd4-20261115（createのみ、coordinator実行なし）。次のPair accumulatorは別worktree/別の実targetで開始し、source/binaryの混在を避ける。計画 docs/EXACT_ACCUMULATOR_NEXT.md。その後checked i128整数伝播checkpointも継続評価する。全Rust本測定は11月19日頃までに開始する期限を維持。
+
+## 2026-11-15 14:10 UTC：厳密Pair/FMAの評価
+
+別worktree/実targetでPoint/Pair/Wideを実装。和だけの初期版は18問のprimal全同等、markshare35.640→36.131sで不採用。通常Point経路の余計な演算を省き、最下位積bitがsubnormal下限以上と保証できる場合だけFMAの厳密残差を利用。最終50fe377dはRust147、Fraction3600bit fixture、合成2700、根LP300、十進回帰22件を通過。18問のprimal全同等。固定37,993節点のgenは3回中央値3.634→3.127s、CPU交換でも3.632→3.143s。ただし数値エラーの未解決節点で止まる状態は変えない。markshare目的約1の同じ証明は35.737→35.293s、CPU交換35.777→35.248sと小改善。保存68点/286cutsは独立検査全合格。反復で同名引数を重複して出力先衝突した診断runも保存し、個別3回で再測定した。詳細docs/PAIR_ACCUMULATOR_RESULTS.md、全データartifacts/pair-accumulator-evaluation（移動hash台帳あり）。一般的な大幅MIP高速化とは主張しない。
