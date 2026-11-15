@@ -43,6 +43,16 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PROPAGATION must be 0 or 1".into()),
             };
         }
+        if let Ok(value) = std::env::var("MIP_INTEGER_PROPAGATION") {
+            limits.integer_propagation = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_INTEGER_PROPAGATION must be 0 or 1".into()),
+            };
+        }
+        if limits.integer_propagation && limits.propagation {
+            return Err("choose only one of MIP_INTEGER_PROPAGATION and MIP_PROPAGATION".into());
+        }
         if let Ok(repair) = std::env::var("MIP_PRIMAL_REPAIR") {
             limits.primal_repair = match repair.as_str() {
                 "0" => false,

@@ -1,6 +1,9 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
 use crate::objective_bound::{Certifier, Grid};
-use crate::{branching, cuts, heuristic, lp, model::Model, propagate, revised, rins, search};
+use crate::{
+    branching, cuts, heuristic, integer_propagate, lp, model::Model, propagate, revised, rins,
+    search,
+};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -18,6 +21,7 @@ pub struct Limits {
     pub engine: Engine,
     pub warm_start: bool,
     pub propagation: bool,
+    pub integer_propagation: bool,
     pub primal_repair: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
@@ -44,6 +48,7 @@ impl Default for Limits {
             engine: Engine::Revised,
             warm_start: true,
             propagation: false,
+            integer_propagation: false,
             primal_repair: true,
             lp_diving: true,
             primal_probe: true,
@@ -110,6 +115,8 @@ pub struct Result {
     pub repair_work: usize,
     pub lp_engine: String,
     pub propagation: bool,
+    pub integer_propagation_enabled: bool,
+    pub integer_propagation_stats: integer_propagate::Stats,
     pub propagation_calls: usize,
     pub propagation_rows: usize,
     pub propagation_tightenings: usize,
@@ -718,6 +725,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut propagator = limits
         .propagation
         .then(|| propagate::Propagator::new(model));
+    let mut integer_propagator = (limits.integer_propagation && !limits.propagation)
+        .then(|| integer_propagate::IntegerPropagator::new(model, limits.dense_bytes))
+        .flatten()
+        .filter(|p| p.stats.inequalities != 0);
     let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
     let mut diving = DivingStats::default();
     let mut probe = ProbeStats::default();
@@ -805,6 +816,22 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     }
                     continue;
                 }
+            }
+        }
+        if let Some(p) = &mut integer_propagator {
+            match p.propagate(
+                &mut node.lower,
+                &mut node.upper,
+                node.changed,
+                Some(deadline),
+            ) {
+                propagate::Status::Infeasible => continue,
+                propagate::Status::TimeLimit => {
+                    stack.push(node);
+                    status = "time_limit".into();
+                    break;
+                }
+                propagate::Status::Stable | propagate::Status::Limited => {}
             }
         }
         let relaxation = match limits.engine {
@@ -1497,6 +1524,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         status = "numerical_error".into();
     }
     let propagation_stats = propagator.map_or_else(propagate::Stats::default, |p| p.stats);
+    let integer_propagation_stats =
+        integer_propagator.map_or_else(integer_propagate::Stats::default, |p| p.stats);
     let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
         branching: format!("{:?}", limits.branching),
@@ -1544,6 +1573,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         repair_lp_candidates,
         repair_work: repair_stats.work,
         propagation: limits.propagation,
+        integer_propagation_enabled: limits.integer_propagation && !limits.propagation,
+        integer_propagation_stats,
         propagation_calls: propagation_stats.calls,
         propagation_rows: propagation_stats.rows,
         propagation_tightenings: propagation_stats.tightenings,

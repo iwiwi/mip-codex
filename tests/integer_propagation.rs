@@ -157,3 +157,46 @@ fn thousand_small_domains_keep_every_exact_feasible_integer_point() {
     assert!(tightened > 500);
     assert!(pruned > 100);
 }
+
+fn solver_limits(engine: mip_codex::solve::Engine) -> mip_codex::solve::Limits {
+    mip_codex::solve::Limits {
+        engine,
+        integer_propagation: true,
+        cover_cuts: false,
+        rounding_cuts: false,
+        primal_repair: false,
+        primal_probe: false,
+        lp_diving: false,
+        rins: false,
+        strong_branching: false,
+        ..mip_codex::solve::Limits::default()
+    }
+}
+#[test]
+fn exact_domain_contradiction_prunes_before_lp_but_fixed_feasible_leaf_still_uses_lp() {
+    use mip_codex::solve::{Engine, solve};
+    for rhs in [1, 2] {
+        let model=mps::parse(std::io::Cursor::new(format!("NAME integrate\nROWS\n N c\n E r\nCOLUMNS\n x c -1 r 2\nRHS\n rhs r {rhs}\nBOUNDS\n LI b x 0\n UP b x 5\nENDATA\n"))).unwrap();
+        for engine in [Engine::Dense, Engine::Revised] {
+            let r = solve(&model, &solver_limits(engine));
+            assert_eq!(r.fixed_leaves, 0);
+            if rhs == 1 {
+                assert_eq!(r.status, "infeasible");
+                assert_eq!(r.lp_solves, 0);
+                assert_eq!(r.integer_propagation_stats.pruned, 1);
+            } else {
+                assert_eq!(r.status, "optimal");
+                assert_eq!(r.objective, Some(-1.));
+                assert_eq!(r.lp_solves, 1);
+                assert_eq!(r.integer_propagation_stats.tightenings, 2);
+            }
+        }
+    }
+}
+#[test]
+fn no_eligible_rows_skip_per_node_propagation_work() {
+    let model=mps::parse(std::io::Cursor::new("NAME skip\nROWS\n N c\n E r\nCOLUMNS\n x c 0 r 1\n y r 1\nRHS\n rhs r 0\nBOUNDS\n BV b x\n FR b y\nENDATA\n")).unwrap();
+    let r = mip_codex::solve::solve(&model, &solver_limits(mip_codex::solve::Engine::Revised));
+    assert_eq!(r.status, "optimal");
+    assert_eq!(r.integer_propagation_stats.calls, 0);
+}

@@ -132,6 +132,8 @@ with (output/'results.jsonl').open('w') as summary:
                     assert parsed['strong_branching'] == (solver == 'rust-strong')
                 if solver in ('rust-rounding', 'rust-no-rounding'):
                     assert parsed['rounding_cuts_enabled'] == (solver == 'rust-rounding')
+                if solver.startswith('rust') and 'MIP_INTEGER_PROPAGATION' in run_env:
+                    assert parsed.get('integer_propagation_enabled') == (run_env['MIP_INTEGER_PROPAGATION']=='1'), 'unexpected integer propagation mode'
                 if solver in queue_modes:
                     search, order = queue_modes[solver]
                     assert parsed['search_strategy'] == {'depth':'DepthFirst','best':'BestBound','hybrid':'Hybrid'}[search]

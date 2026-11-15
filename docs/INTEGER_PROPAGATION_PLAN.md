@@ -7,3 +7,15 @@
 連続変数の不変な非有界方向が最小活動量を無限にするsideは、integer変数の境界を導けないため事前に省く。変数から行へのincidenceとqueueで影響部分を更新、作業予算とdeadlineで止める。既存float伝播との併用は行わず、新flagの初期既定はfalse。記憶量見積もり超過なら補助機能を省略する。
 
 既存float伝播の固定leaf高速経路は流用せず、導いたdomainを通常の自作LP/main探索へ渡す。新しい実行不能はchecked整数演算の原行矛盾だけ。小domainの全列挙で、すべての実行可能点を保持することと矛盾判定を照合する。元十進のprovenance拒否、負係数/RHS、等式、free列、overflow、incremental、予算を検査する。合成小/二値/中規模と18開発問対照の後に採用を判断する。
+
+
+## PR26後の再開・探索への統合
+
+main4c6c3497へcheckpointをrebaseし、JOURNALの衝突は新旧両記録を保持して解消。
+Limits.integer_propagation（初期既定false）、MIP_INTEGER_PROPAGATION=0/1、Resultのenabled/statsを追加する。
+旧MIP_PROPAGATIONとのCLI併用は拒否し、直接APIでも旧伝播がonなら新伝播を使わない。
+元Modelの証明済み整数行だけをcacheし、eligible inequalityが0なら節点ごとの呼出自体を省く。
+旧float伝播の固定leaf高速経路の**後**へ別処理として配置し、新伝播で全変数が固定されても通常LPへ渡す。
+予算/deadlineで中断しても既に導いた厳密なdomainだけを保ち、未知/overflowはfail-open。
+根整数矛盾2x=1はLP前に証明し、2x=2の固定実行可能leafはDense/Revisedとも通常LPを通す統合回帰を追加。
+次は既定off/onで合成2700、十進数回帰、18開発問対照を測定し、採用を判断する。
