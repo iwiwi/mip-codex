@@ -1,0 +1,54 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/graph20-20-1rand.mps.gz'...
+Problem: graph20-20-1rand
+Objective: profit
+5588 rows, 2183 columns, 19314 non-zeros
+2183 integer variables, all of which are binary
+28500 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-162928-w_vul_e_/graph20-20-1rand.mps.gz/glpk/model.glp'...
+32638 lines were written
+GLPK Integer Optimizer 5.0
+5587 rows, 2183 columns, 19277 non-zeros
+2183 integer variables, all of which are binary
+Preprocessing...
+185 hidden packing inequaliti(es) were detected
+2405 hidden covering inequaliti(es) were detected
+5180 rows, 2146 columns, 17760 non-zeros
+2146 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 5180
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+5180 rows, 2146 columns, 17760 non-zeros
+*     0: obj =   0.000000000e+00 inf =   0.000e+00 (37)
+*  2095: obj =  -3.700000000e+01 inf =   7.602e-16 (0) 11
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 4810
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 1591 + 370 = 1961 vertices
++  2095: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: -5
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
++  2441: mip =  -5.000000000e+00 >=  -3.700000000e+01 640.0% (1; 0)
+Cuts on level 0: gmi = 35;
++  5020: mip =  -5.000000000e+00 >=  -3.700000000e+01 640.0% (45; 0)
++  7166: mip =  -5.000000000e+00 >=  -3.700000000e+01 640.0% (90; 0)
++  7166: mip =  -5.000000000e+00 >=  -3.700000000e+01 640.0% (90; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-162928-w_vul_e_/graph20-20-1rand.mps.gz/glpk/solution.raw'...
+7779 lines were written

@@ -1,0 +1,55 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261115-162928-w_vul_e_/supportcase10.mps.gz/highs/options.txt
+Number of BV entries in BOUNDS section is 14770
+MIP supportcase10 has 165684 rows; 14770 cols; 555082 nonzeros; 14770 integer variables (14770 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 1e+00]
+Presolving model
+165684 rows, 14770 cols, 555082 nonzeros 0s
+105236 rows, 8980 cols, 361339 nonzeros 0s
+105209 rows, 8955 cols, 361283 nonzeros 0s
+Presolve reductions: rows 105209(-60475); columns 8955(-5815); nonzeros 361283(-193799) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   105209 rows
+   8955 cols (8955 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   361283 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ u       0       0         0   0.00%   -inf            70                 Large        0      0      0         0     4.3s
+ J       0       0         0   0.00%   -inf            8                  Large        0      0      0         0     5.0s
+         0       0         0   0.00%   0               8                100.00%        0      0     29      8483    15.0s
+
+Solving report
+  Model             supportcase10
+  Status            Time limit reached
+  Primal bound      8
+  Dual bound        0
+  Gap               100%
+  P-D integral      15.01
+  Solution status   feasible
+                    8 (objective)
+  Timing            15.01
+                    4.25 (Presolve)
+                    10.77 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     8483
+                    0 (strong br.)
+                    0 (separation)
+                    0 (heuristics)
