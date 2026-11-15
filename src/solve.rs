@@ -1,5 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{heuristic, lp, model::Model, propagate, revised};
+use crate::{branching, heuristic, lp, model::Model, propagate, revised};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -18,6 +18,8 @@ pub struct Limits {
     pub warm_start: bool,
     pub propagation: bool,
     pub primal_repair: bool,
+    pub branching: branching::Rule,
+    pub child_order: branching::Order,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -30,11 +32,17 @@ impl Default for Limits {
             warm_start: true,
             propagation: false,
             primal_repair: true,
+            branching: branching::Rule::Fractional,
+            child_order: branching::Order::Down,
         }
     }
 }
 #[derive(Serialize, Debug)]
 pub struct Result {
+    pub branching: String,
+    pub child_order: String,
+    pub pseudocost_updates: usize,
+    pub pseudocost_selections: usize,
     pub primal_repair: bool,
     pub repair_calls: usize,
     pub repair_candidates: usize,
@@ -78,6 +86,7 @@ struct Node {
     bound: f64,
     warm: Option<Arc<revised::WarmStart>>,
     changed: Option<usize>,
+    edge: Option<branching::Edge>,
 }
 struct Standard {
     sparse: Option<revised::Problem>,
@@ -281,7 +290,9 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         bound: f64::NEG_INFINITY,
         warm: None,
         changed: None,
+        edge: None,
     }];
+    let mut costs = branching::Costs::new(model.variables.len());
     let mut nodes = 0;
     let mut lp_solves = 0;
     let mut fixed_leaves = 0;
@@ -408,6 +419,9 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     status = "numerical_error".into();
                     break;
                 }
+                if let Some(edge) = node.edge {
+                    costs.observe(edge, objective);
+                }
                 let bound = if let Some(dual) = relaxation_dual {
                     let constant = model.offset
                         + model
@@ -425,14 +439,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                 if node.bound >= incumbent {
                     continue;
                 }
-                let branch = model
-                    .variables
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, v)| v.integer)
-                    .map(|(j, _)| (j, (original[j] - original[j].round()).abs()))
-                    .filter(|(_, f)| *f > 1e-7)
-                    .max_by(|a, b| a.1.total_cmp(&b.1));
+                let branch = costs.select(model, &original, limits.branching);
                 if branch.is_some() && (nodes == 1 || nodes % 256 == 0) {
                     if let Some(h) = &mut repair {
                         let allocation = if nodes == 1 { 0.05 } else { 0.001 };
@@ -522,19 +529,37 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                         continue;
                     }
                 }
-                if let Some((j, _)) = branch {
+                if let Some(j) = branch {
+                    let prefer_up = costs.prefer_up(j, original[j], limits.child_order);
                     let mut up = node.clone();
                     up.changed = Some(j);
+                    up.edge = Some(branching::Edge {
+                        variable: j,
+                        up: false,
+                        distance: original[j] - original[j].floor(),
+                        parent_objective: objective,
+                    });
                     up.upper[j] = Some(
                         up.upper[j].map_or(original[j].floor(), |v| v.min(original[j].floor())),
                     );
                     let mut down = node;
                     down.changed = Some(j);
+                    down.edge = Some(branching::Edge {
+                        variable: j,
+                        up: true,
+                        distance: original[j].ceil() - original[j],
+                        parent_objective: objective,
+                    });
                     down.lower[j] = Some(
                         down.lower[j].map_or(original[j].ceil(), |v| v.max(original[j].ceil())),
                     );
-                    stack.push(down);
-                    stack.push(up);
+                    if prefer_up {
+                        stack.push(up);
+                        stack.push(down);
+                    } else {
+                        stack.push(down);
+                        stack.push(up);
+                    }
                 } else {
                     let mut rounded = original;
                     for (j, v) in model.variables.iter().enumerate() {
@@ -592,6 +617,10 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     let propagation_stats = propagator.map_or_else(propagate::Stats::default, |p| p.stats);
     let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
+        branching: format!("{:?}", limits.branching),
+        child_order: format!("{:?}", limits.child_order),
+        pseudocost_updates: costs.updates,
+        pseudocost_selections: costs.selections,
         primal_repair: limits.primal_repair,
         repair_calls: repair_stats.calls,
         repair_candidates: repair_stats.candidates,

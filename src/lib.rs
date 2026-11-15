@@ -7,3 +7,5 @@ pub mod revised;
 pub mod solve;
 
 pub mod heuristic;
+
+pub mod branching;
