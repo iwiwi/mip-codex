@@ -1,0 +1,41 @@
+{
+  "case": "/home/ubuntu/mip-codex/artifacts/runs/baseline-v2-20261115/cases/020-glpk",
+  "result_sha256": "b009df142c80a23357a17de194893d368adc0eab2df3d540e2fc35385e02ed55",
+  "api_sidecar_sha256": "763626712e6f898874a23397874d807c0800781ccdc65f5bb3f521acdd989cbc",
+  "exact_point_sha256": "ad84ffd04e3498999092f6830b28814dd355e1d076f02c92fe582c2665d3f64a",
+  "checks": [
+    {
+      "kind": "absolute",
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker-absolute",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/cbs-cta.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/glpk-cbs-api-diagnosis/exact-api-bits.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "exit_code": 0,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "check": [
+        "Check SOL: Integrality 1 Constraints 0 Objective 1"
+      ],
+      "exact_row_violation": [
+        "Exact row violation: 6527328496080293/4503599627370496"
+      ]
+    },
+    {
+      "kind": "official",
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/cbs-cta.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/glpk-cbs-api-diagnosis/exact-api-bits.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "exit_code": -6,
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "check": [],
+      "exact_row_violation": []
+    }
+  ],
+  "note": "API binary64の全桁十進値で再検査。探索や比較設定の再実行/変更はしない。"
+}
