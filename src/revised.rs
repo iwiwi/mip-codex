@@ -239,12 +239,7 @@ impl Simplex {
         self.stats.refactors += 1;
         self.recompute()
     }
-    fn refine_ratio(
-        &mut self,
-        d: &[f64],
-        direction: f64,
-        entering: usize,
-    ) -> Option<(f64, Option<usize>)> {
+    fn refine_basic_point(&mut self) -> bool {
         self.stats.refinement_attempts += 1;
         let mut rows = vec![Vec::new(); self.rhs.len()];
         for (j, col) in self.columns.iter().enumerate() {
@@ -269,43 +264,38 @@ impl Simplex {
             }
             Some((residual, score))
         };
-        let (mut residual, old_score) = evaluate(&self.x)?;
+        let Some((mut residual, old_score)) = evaluate(&self.x) else {
+            return false;
+        };
         let mut point = self.x.clone();
         for _ in 0..3 {
             if self
                 .deadline
                 .is_some_and(|deadline| Instant::now() >= deadline)
             {
-                return None;
+                return false;
             }
             let correction = self.factor.forward(&residual);
             self.stats.refinement_steps += 1;
             for (i, &j) in self.basis.iter().enumerate() {
                 point[j] += correction[i];
             }
-            let (next, score) = evaluate(&point)?;
+            let Some((next, score)) = evaluate(&point) else {
+                return false;
+            };
             if score <= old_score
                 && self
                     .basis
                     .iter()
                     .all(|&j| point[j] >= -FEAS && point[j] <= self.upper[j] + FEAS)
             {
-                if let Ok(step) = primal_ratio(
-                    &self.basis,
-                    &point,
-                    &self.upper,
-                    d,
-                    direction,
-                    self.upper[entering],
-                ) {
-                    self.x = point;
-                    self.stats.refinement_successes += 1;
-                    return Some(step);
-                }
+                self.x = point;
+                self.stats.refinement_successes += 1;
+                return true;
             }
             residual = next;
         }
-        None
+        false
     }
     fn ratio_diagnostic(&self, d: &[f64], direction: f64, entering: usize) {
         let trace = std::env::var_os("MIP_LP_TRACE").is_some();
@@ -387,6 +377,23 @@ impl Simplex {
     }
     /// Validate primal and bounded-variable dual residuals independently of pricing.
     fn certificate(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        if self
+            .basis
+            .iter()
+            .any(|&j| self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7)
+        {
+            if !self.factor.updates.is_empty() {
+                self.refactor()?;
+            }
+            if self
+                .basis
+                .iter()
+                .any(|&j| self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7)
+                && !self.refine_basic_point()
+            {
+                return Err(numerical());
+            }
+        }
         let mut residual = self.rhs.clone();
         for j in 0..self.columns.len() {
             if !self.x[j].is_finite() || self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7 {
@@ -691,8 +698,16 @@ impl Simplex {
                 Err(()) => {
                     if self.factor.updates.is_empty() {
                         self.ratio_diagnostic(&d, direction, j);
-                        if let Some(step) = self.refine_ratio(&d, direction, j) {
-                            step
+                        if self.refine_basic_point() {
+                            primal_ratio(
+                                &self.basis,
+                                &self.x,
+                                &self.upper,
+                                &d,
+                                direction,
+                                self.upper[j],
+                            )
+                            .map_err(|_| numerical())?
                         } else {
                             return Err(numerical());
                         }
@@ -1285,7 +1300,7 @@ mod saved_ratio_diagnostic {
     fn refinement_recovers_an_inaccurate_basis_point_without_moving_nonbasics() {
         let mut s = refinement_example(false);
         assert!(primal_ratio(&s.basis, &s.x, &s.upper, &[1., 0.], 1., 1.).is_err());
-        assert!(s.refine_ratio(&[1., 0.], 1., 2).is_some());
+        assert!(s.refine_basic_point());
         assert_eq!(s.x[2], 0.);
         assert!(s.x[0].abs() < FEAS);
         assert!((s.x[1] - 1.).abs() < FEAS);
@@ -1295,12 +1310,12 @@ mod saved_ratio_diagnostic {
     fn refinement_does_not_clip_a_truly_infeasible_basis_or_mutate_on_expiry() {
         let mut s = refinement_example(true);
         let point = s.x.clone();
-        assert!(s.refine_ratio(&[1., 0.], 1., 2).is_none());
+        assert!(!s.refine_basic_point());
         assert_eq!(s.x, point);
         let mut s = refinement_example(false);
         let point = s.x.clone();
         s.deadline = Some(Instant::now());
-        assert!(s.refine_ratio(&[1., 0.], 1., 2).is_none());
+        assert!(!s.refine_basic_point());
         assert_eq!(s.x, point);
         assert_eq!(s.stats.refinement_steps, 0);
     }
