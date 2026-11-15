@@ -2121,3 +2121,73 @@ fn candidate_respects_bound(
         true
     }
 }
+
+#[cfg(test)]
+mod cold_failure_diagnostic {
+    use super::*;
+    #[test]
+    #[ignore = "saved development dumps via MIP_PROOF_DUMP_DIR"]
+    fn cold_lp_on_saved_unproved_nodes() {
+        let dir = std::env::var("MIP_PROOF_DUMP_DIR").unwrap();
+        let mut paths: Vec<_> = std::fs::read_dir(dir)
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .filter(|p| p.extension().is_some_and(|s| s == "json"))
+            .collect();
+        paths.sort();
+        for path in paths {
+            let d: serde_json::Value =
+                serde_json::from_reader(std::fs::File::open(&path).unwrap()).unwrap();
+            let model: Model = serde_json::from_value(d["model"].clone()).unwrap();
+            let lower = serde_json::from_value(d["lower"].clone()).unwrap();
+            let upper = serde_json::from_value(d["upper"].clone()).unwrap();
+            let node = Node {
+                certified_bound: None,
+                lower,
+                upper,
+                bound: f64::NEG_INFINITY,
+                warm: None,
+                changed: None,
+                edge: None,
+            };
+            let Relaxation::Ready(p) =
+                standard_sparse(&model, &node, 512 * 1024 * 1024, true, true)
+            else {
+                panic!("failed to rebuild saved LP")
+            };
+            let answer = revised::minimize(
+                p.sparse.as_ref().unwrap(),
+                100000,
+                Some(Instant::now() + std::time::Duration::from_secs(5)),
+            );
+            let mut weights = vec![0.; model.rows.len()];
+            if let Some(y) = answer.witness.as_ref() {
+                for (&v, &(i, s)) in y.iter().zip(&p.row_sources) {
+                    weights[i] += v * s;
+                }
+            }
+            let c = Certifier::feasibility(&model).unwrap();
+            let bound = c.bound(&node.lower, &node.upper, &weights);
+            let opposite: Vec<_> = weights.iter().map(|v| -v).collect();
+            let inverse = c.bound(&node.lower, &node.upper, &opposite);
+            let joint = c.joint_positive_bound(&node.lower, &node.upper, &weights, None);
+            let (outcome, point_valid) = match &answer.outcome {
+                lp::Outcome::Infeasible => ("infeasible", None),
+                lp::Outcome::Optimal { x, .. } => {
+                    let original: Vec<_> = p
+                        .terms
+                        .iter()
+                        .enumerate()
+                        .map(|(j, t)| p.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                        .collect();
+                    ("optimal", Some(model.check(&original, false, 1e-6).is_ok()))
+                }
+                _ => ("other", None),
+            };
+            println!(
+                "{}",
+                serde_json::json!({"file":path.file_name().unwrap().to_string_lossy(),"outcome":outcome,"point_valid":point_valid,"bound":bound,"inverse":inverse,"joint":joint,"pivots":answer.stats.pivots})
+            );
+        }
+    }
+}
