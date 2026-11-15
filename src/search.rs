@@ -149,3 +149,72 @@ mod tests {
         assert!(q.best_pops > 0 && q.transfers > 0);
     }
 }
+
+/// A constant-size conservative summary of regions whose LP infeasibility was not proved.
+/// Individual regions are not retried or claimed pruned; the entire summary can be
+/// removed only when its minimum inherited bound cannot improve the incumbent.
+pub(crate) struct DeferredBounds {
+    pub observed: usize,
+    pub pending: usize,
+    pub pruned: usize,
+    pub minimum: f64,
+}
+impl Default for DeferredBounds {
+    fn default() -> Self {
+        Self {
+            observed: 0,
+            pending: 0,
+            pruned: 0,
+            minimum: f64::INFINITY,
+        }
+    }
+}
+impl DeferredBounds {
+    pub fn record(&mut self, bound: f64) {
+        assert!(!bound.is_nan());
+        self.observed += 1;
+        self.pending += 1;
+        self.minimum = self.minimum.min(bound);
+    }
+    pub fn prune(&mut self, incumbent: f64) {
+        if self.pending != 0 && incumbent.is_finite() && self.minimum >= incumbent {
+            self.pruned += self.pending;
+            self.pending = 0;
+            self.minimum = f64::INFINITY;
+        }
+    }
+}
+#[cfg(test)]
+mod deferred_tests {
+    use super::DeferredBounds;
+    #[test]
+    fn unresolved_regions_hold_the_global_bound_until_all_are_prunable() {
+        let mut d = DeferredBounds::default();
+        d.record(-10.);
+        d.record(-2.);
+        d.prune(f64::INFINITY);
+        assert_eq!(d.pending, 2);
+        d.prune(-3.);
+        assert_eq!(d.minimum, -10.);
+        assert_eq!(d.pending, 2);
+        d.prune(-10.);
+        assert_eq!(d.pending, 0);
+        assert_eq!(d.pruned, 2);
+        assert_eq!(d.minimum, f64::INFINITY);
+        d.record(-5.);
+        assert_eq!(d.minimum, -5.);
+        assert_eq!(d.observed, 3);
+        d.prune(-6.);
+        assert_eq!(d.pruned, 3);
+        assert_eq!(d.pending, 0);
+    }
+    #[test]
+    fn unbounded_inherited_lower_bound_cannot_be_dropped() {
+        let mut d = DeferredBounds::default();
+        d.record(f64::NEG_INFINITY);
+        d.record(10.);
+        d.prune(0.);
+        assert_eq!(d.minimum, f64::NEG_INFINITY);
+        assert_eq!(d.pending, 2);
+    }
+}

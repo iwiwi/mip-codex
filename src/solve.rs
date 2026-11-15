@@ -27,6 +27,7 @@ pub struct Limits {
     pub graph_root_prefix: bool,
     pub graph_local_diversify: bool,
     pub graph_adaptive_local: bool,
+    pub defer_infeasibility: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -61,6 +62,7 @@ impl Default for Limits {
             graph_root_prefix: true,
             graph_local_diversify: true,
             graph_adaptive_local: true,
+            defer_infeasibility: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -138,6 +140,13 @@ pub struct Result {
     pub propagation_budget_hits: usize,
     pub fixed_leaves: usize,
     pub lp_solves: usize,
+    pub defer_infeasibility_enabled: bool,
+    pub deferred_infeasibilities: usize,
+    pub deferred_infeasibilities_pending: usize,
+    pub deferred_infeasibilities_pruned: usize,
+    pub deferred_infeasibility_bound: Option<f64>,
+    pub deferred_infeasibility_unbounded: bool,
+    pub lp_search_termination: Option<String>,
     pub fixed_columns_enabled: bool,
     pub lp_workspace_bytes: usize,
     pub root_fixed_columns: usize,
@@ -937,6 +946,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     }
     let mut status = "optimal".to_string();
     let mut terminal_bound = f64::INFINITY;
+    let mut deferred = search::DeferredBounds::default();
     while let Some(mut node) = stack.pop() {
         if node.bound >= incumbent {
             continue;
@@ -1139,6 +1149,17 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                 for (&v, &(i, s)) in y.iter().zip(&p.row_sources) {
                                     multipliers[i] += s * v;
                                 }
+                                let path = if limits.defer_infeasibility {
+                                    static SERIAL: std::sync::atomic::AtomicU64 =
+                                        std::sync::atomic::AtomicU64::new(0);
+                                    let serial =
+                                        SERIAL.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                                    let mut path = path;
+                                    path.push(format!(".node-{nodes}.failure-{serial}.json"));
+                                    path
+                                } else {
+                                    path
+                                };
                                 if let Ok(file) = std::fs::File::create(path) {
                                     let _ = serde_json::to_writer(
                                         file,
@@ -1149,6 +1170,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             if std::env::var_os("MIP_LP_TRACE").is_some() {
                                 eprintln!("Original infeasibility certificate unavailable");
                             }
+                        }
+                        if limits.defer_infeasibility {
+                            deferred.record(node.bound);
+                            continue;
                         }
                         stack.push(node);
                         status = "numerical_error".into();
@@ -1699,7 +1724,16 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             }
         }
     }
-    let internal_dual = stack.min_bound(terminal_bound.min(incumbent));
+    deferred.prune(incumbent);
+    let lp_search_termination = Some(if status == "optimal" {
+        "active_search_complete".into()
+    } else {
+        status.clone()
+    });
+    if deferred.pending != 0 {
+        status = "numerical_error".into();
+    }
+    let internal_dual = stack.min_bound(terminal_bound.min(incumbent).min(deferred.minimum));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
     }
@@ -1719,7 +1753,17 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
         binary_graph_enabled: limits.binary_graph,
+        defer_infeasibility_enabled: limits.defer_infeasibility,
         binary_graph: None,
+        deferred_infeasibilities: deferred.observed,
+        deferred_infeasibilities_pending: deferred.pending,
+        deferred_infeasibilities_pruned: deferred.pruned,
+        deferred_infeasibility_bound: deferred
+            .minimum
+            .is_finite()
+            .then_some(sign * deferred.minimum),
+        deferred_infeasibility_unbounded: deferred.minimum == f64::NEG_INFINITY,
+        lp_search_termination,
         branching: format!("{:?}", limits.branching),
         child_order: format!("{:?}", limits.child_order),
         search_strategy: format!("{:?}", limits.search),
