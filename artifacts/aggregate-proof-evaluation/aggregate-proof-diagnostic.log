@@ -1,0 +1,32 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.07s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/b843d3488fc759aa/out/mip_codex-b843d3488fc759aa)
+
+running 2 tests
+test objective_bound::aggregate_box_tests::mixed_decimal_rows_imply_bounds_for_every_fractional_feasible_point ... ok
+{"bound":1.3703389208504368,"file":"failure.json.node-598.failure-2.json","missing_upper":0}
+{"bound":3.916269975423422,"file":"failure.json.node-1157.failure-4.json","missing_upper":0}
+{"bound":0.8023026225739288,"file":"failure.json.node-595.failure-1.json","missing_upper":0}
+{"bound":2.7874982635940917,"file":"failure.json.node-1464.failure-5.json","missing_upper":0}
+{"bound":0.8331675932472844,"file":"failure.json.node-105495.failure-17.json","missing_upper":0}
+{"bound":0.18622853118916446,"file":"failure.json.node-720.failure-3.json","missing_upper":0}
+{"bound":2.3707040905471826,"file":"failure.json.node-3036.failure-9.json","missing_upper":0}
+{"bound":0.6916131541711302,"file":"failure.json.node-27193.failure-12.json","missing_upper":0}
+{"bound":1.6016735471719252,"file":"failure.json.node-105870.failure-18.json","missing_upper":0}
+{"bound":0.9284554787474465,"file":"failure.json.node-4081.failure-10.json","missing_upper":0}
+{"bound":0.20213316530624856,"file":"failure.json.node-2153.failure-11.json","missing_upper":0}
+{"bound":0.0,"file":"failure.json.node-167.failure-0.json","missing_upper":0}
+
+thread 'objective_bound::aggregate_box_tests::inspect_aggregate_proof_boxes' (848497) panicked at src/objective_bound.rs:917:13:
+assertion failed: b.is_some_and(|b| b > 0.)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test objective_bound::aggregate_box_tests::inspect_aggregate_proof_boxes ... FAILED
+
+failures:
+
+failures:
+    objective_bound::aggregate_box_tests::inspect_aggregate_proof_boxes
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `--lib`
