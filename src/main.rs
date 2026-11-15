@@ -59,6 +59,14 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_CHILD_ORDER must be down, nearest or estimate".into()),
             };
         }
+        if let Ok(search) = std::env::var("MIP_SEARCH") {
+            limits.search = match search.as_str() {
+                "depth" => mip_codex::search::Strategy::DepthFirst,
+                "best" => mip_codex::search::Strategy::BestBound,
+                "hybrid" => mip_codex::search::Strategy::Hybrid,
+                _ => return Err("MIP_SEARCH must be depth, best or hybrid".into()),
+            };
+        }
         if let Some(s) = args.get(3) {
             limits.seconds = s.parse().map_err(|_| "invalid seconds")?;
         }

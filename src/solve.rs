@@ -1,5 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{branching, heuristic, lp, model::Model, propagate, revised};
+use crate::{branching, heuristic, lp, model::Model, propagate, revised, search};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -21,6 +21,7 @@ pub struct Limits {
     pub lp_diving: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
+    pub search: search::Strategy,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -36,6 +37,7 @@ impl Default for Limits {
             lp_diving: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
+            search: search::Strategy::DepthFirst,
         }
     }
 }
@@ -43,6 +45,11 @@ impl Default for Limits {
 pub struct Result {
     pub branching: String,
     pub child_order: String,
+    pub search_strategy: String,
+    pub search_pops: usize,
+    pub search_best_pops: usize,
+    pub search_transfers: usize,
+    pub max_open_nodes: usize,
     pub pseudocost_updates: usize,
     pub pseudocost_selections: usize,
     pub primal_repair: bool,
@@ -430,14 +437,15 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             upper[j] = upper[j].map(f64::floor);
         }
     }
-    let mut stack = vec![Node {
+    let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
+    stack.push(Node {
         lower,
         upper,
         bound: f64::NEG_INFINITY,
         warm: None,
         changed: None,
         edge: None,
-    }];
+    });
     let mut costs = branching::Costs::new(model.variables.len());
     let mut nodes = 0;
     let mut lp_solves = 0;
@@ -781,10 +789,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             }
         }
     }
-    let internal_dual = stack
-        .iter()
-        .map(|n| n.bound)
-        .fold(terminal_bound.min(incumbent), f64::min);
+    let internal_dual = stack.min_bound(terminal_bound.min(incumbent));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
     }
@@ -805,6 +810,11 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     Result {
         branching: format!("{:?}", limits.branching),
         child_order: format!("{:?}", limits.child_order),
+        search_strategy: format!("{:?}", limits.search),
+        search_pops: stack.pops,
+        search_best_pops: stack.best_pops,
+        search_transfers: stack.transfers,
+        max_open_nodes: stack.max_open,
         pseudocost_updates: costs.updates,
         pseudocost_selections: costs.selections,
         primal_repair: limits.primal_repair,
