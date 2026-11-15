@@ -255,3 +255,33 @@
 - markshare_4_0両設定は同じ1486619 main nodesでoptimal約1。off32.289559秒/on32.161783秒、RINSによる証明差はない。元MPS検査に合格、公式MIPLIB objective1と一致 (検証用JSONだけに保存、optimizerへ未入力)。同じCPU4/1thread/16GiB/60秒の3solver追加094028はHiGHS主解1/下界0、SCIP主解1/下界0、GLPK主解5/下界約0で全時間切れ。3解は双方検査合格。Rustだけがこの単一の開発例で60秒内optimal。全体優位は未達成。
 - native baseline09:33時点71/720、旧primary最適28、errors7、coordinator生存。7件の内訳はGLPK cbs-cta不正1、旧buildingenergy検査600秒切れ2 (新監査で双方有効)、GLPK ex10 reader拒否1、GLPK buildingenergy/bab2/bab6の3660秒watchdog3。watchdogは全てexit-9でresult未生成、進捗ログも保存される。新GMP別監査56解55有効/既知不正1/未検証0。稼働snapshot/共有依存/CPU8..15は不変。
 - 次の候補は整数目的値の安全な下界丸め。まず原MPSのcost/offset包含区間を追加し、整数係数等式で唯一の非整数項の係数±1ならその変数の暗黙整数性を導出する。原モデルの任意の行乗数からLagrangian下界を原境界で外向き計算し、その保証がある場合だけ整数latticeへ上げる。LPの近似boundを無条件ceilすると誤枝刈りになるので禁止。初版は有限元境界が厳密小整数・伝播無効の場合に絞り、Nodeの既存boundsを実際の分枝制約として用いる。unbounded列の負reduced costは微小でも証明を拒否、必要なら乗数の微小scaleを別候補として再検証。mainの既存floatboundと区別し、密LP/条件不明は追加丸めをしない。原MPS Fractionによる独立な目的整数性証明と任意乗数の下界fixtureを先に作り、全列挙で誤枝刈りを検出する。まだ未実装。別候補: feasibility pump (主解なし問題)、強分枝で試した子のwarm基底のみの再利用。
+
+## 2026-11-15: 保証付き目的下界の試作開始
+- PR18を6d2e6edへmerge、certified-objective-bounds branch。詳細設計はOBJECTIVE_BOUND_PLAN.md。目的係数/offsetの原十進包含区間をModel/MPSへ追加。浮動小数点で整数へ丸まった小数はpointと扱わず、costとoffsetのprovenanceを分ける。
+- 原整数変数と厳密整数等式のunit係数から暗黙整数性をqueueで導くGrid、任意の原行乗数と原境界によるLagrangian下界を外向き計算するCertifierを実装。非有界方向の微小負reduced costを許容しない。曖昧なpoint積和の符号は既存exact累算で再検査。まだ主探索への丸めは未接続、既定動作は不変。
+- Python Fractionで元十進MPS/任意f64乗数の厳密下界1000fixtureを生成し、Rustで証明を返した場合は必ずそれ以下であることに合格。125 Rust回帰が成功 (極小積のunderflow/厳密0、暗黙整数性chain、微小負reduced cost、min/maxのlattice境界を含む)。初期2失敗はfixtureの一行MPSに3組を書いた構文誤りと、3.next_upの厳密下界からstep2で5へ上げられるのに3を期待した試験誤り。修正前ログも保持。metadata試験の比較演算子<-構文誤りも保存し修正済み。
+- 原MPS Fractionの目的整数性proof checkerを既存cover checkerへ追加。OBJNAME/offsetとunit等式chain/費用gcdを別計算する。初期OBJNAMEテストもMPS一行3組のfixtureミスを修正。さらにfake infeasible+不正objective grid+cut空+主解なしの実プロセス試験で、benchmark_caseがcut空なら検査を起動しない実際のガード抜けを検出。objective_gridがあれば必ず検査するよう修正し、smoke/auditもfieldなしのobjective proofに対応。稼働baseline snapshotは不変。まだmain solverはobjective_gridを出しておらず、このガードは新機能接続前に修正した。
+
+- 探索へMIP_OBJECTIVE_ROUNDING=0/1 (既定無効) として接続。原有限境界がpoint小整数・伝播無効・revisedの場合だけ、原ModelからGrid proofを作り、cut追加後LP Modelの原row乗数/boxで追加boundを保証する。RINS/probe内部では無効。原dual witnessをrow index/向きで戻し、必要なら乗数1±2^-40の別候補を全再検証する。通常float boundは従来通りで、追加lattice boundだけがこの厳密な検査を必要とする。全LP証明を形式証明化したものではない。
+- mainLPの近似値は、rootまたはceilでincumbentへ届く見込みのあるnodeの計算選別にだけ使う。既にprune可能/丸め幅が微小/改善見込みなしなら余分な原行計算を省き、実際のbound採用には必ず外向きLagrangianを使う。flag無効や適用不可、補助LPではrow mapを作らない。
+- 130 Rust回帰、1000 Fraction bound fixture、160 min/max全列挙が成功。step2/offset、下側/範囲制約、負rhs自由変数、RANGES端点消失ケースでの乗数復元、propagation/不明境界の適用拒否を確認。Python目的proof5/cover7/stage2回帰も成功。既定動作の数値自体は不変。次はflag onの小1000/二値1000/中規模200と固定18問の原MPS proof/point検査付き対照。
+
+- 最初の130-test候補5ae740e (102142/102149) の18問対照は主解すべて同等、30n下界2.0297169811→3のみ改善。短期全36時間制限、markshare60秒102211の双方optimal約1、off31.115413秒/1486619nodes、on33.847151秒/1607635nodesへ悪化。追加ceilの正しさと速度は別で、既定無効を維持。小1000/二値1000/中規模200は失敗0。監査は30解GMP絶対/公式全合格、全154cutと全目的整数性proofも有効。
+- ただしbinkarのoff/on双方が旧6794.860025から7394.229988へ悪化し、下界6646.232386→6646.313679へ上がった。cut proof照合で旧17本に対し双方24本と確認。cut前処理.25秒内に従来未完了だった3回目のLPが速く完了し、追加7cutで根の潜りが失敗、RINSもseedなしとなることを特定。追加目的丸めの効果ではない。root cut回数の上限をMIP_COVER_ROUNDSとして明示し、同じバイナリの2/4round比較を固定18問で行う。LP証明/制約を弱めて誤答を採用せず、少ないcutで既存の主解機会を保てるか調べる。まだdefault4。
+
+- cut上限4/2の同一バイナリ対照2512662 (103229/103230) はbinkarだけ7394.229988→6794.860025と改善、他17主解同等。binkar下界は6646.313679→6646.232386へ約.081弱くなる。cut24→17で潜り候補を回復し、他の実cut件数は同じ。原MPS独立監査中。主解回復を理由に共通root cut上限を既定2へ変更し、MIP_COVER_ROUNDS=1..16で明示指定可能とする。目的下界丸めは別の任意機能で既定無効のまま。
+- 最終130 Rust回帰とrelease buildが成功。新CLI objective-proofは最適化せず元Modelの目的整数性だけをJSON出力する。全240に対してFractionで性質を照合するcheckerを追加。holdoutはLP/MIP性能を測らず、元データ/証明の正しさだけを調べる。次に最終小1000/中規模200、最終8問4solver5秒、全240行列照合と目的proof検査を行う。
+
+### 目的下界の根限定と最初の正の増分（実験中）
+
+全ノードでの丸めはmarkshareの探索を約8%遅くしたため既定採用しない。`MIP_OBJECTIVE_ROUNDING=1`を根限定、`all`を全ノードに分けた。整数目的と有限な原境界からbaseと最初の正の増分を証明し、独立Fraction検査器で検査する。目的係数に依存する一般的な性質で、問題名や既知解は使用しない。保証下界に反する許容誤差だけの候補を拒否し、整数分枝の箱の目的最大値が保証下界未満なら枝刈りする。微小な下限1e-16の整数変数を0に丸める回帰を追加した。
+
+追加した最初のテストは制約向きが誤っていて目的最小0だったため失敗した。G行へ修正し、最大化側も追加。修正後のRust全テスト、目的証明Python6件、既存cut証明7件は成功。ログはobjective-domain-corrected-*。実装は既定offのままで性能比較をこれから実施する。
+
+根限定source8395126の18問対照 (110437/110438) は全36run時間制限、18主解全同等、30n下界だけ2.0297169811→51。1000小/1000二値/200中規模全失敗0、Rust133件/Python目的6+cover7成功。全240構造証明とmarkshare60秒比較は実行中。既定化はこれらの完了/監査後。native baseline 11:04 UTCで90/720完了、旧primary最適37、error8、coordinator生存。新GMP再監査も別ディレクトリで開始した。
+
+根限定のmarkshare60秒対照110527はoff31.210640秒/on30.417432秒、両方optimal約1、両方1,486,619主ノード/1,494,216LPで同一探索。時間差を速度改善とは主張しない。2解と両構造証明はGMP絶対/公式/Fraction全有効。18問の28解と134cut、36目的証明も全有効。baseline再監査は保存73解中72有効/1無効/未検証0、唯一無効は既知のcbs-cta GLPK。新errorはchromaticindex512-7 GLPKの外部watchdog3660秒、途中ログを保持する。
+
+全240入力の新base/増分付き目的構造証明は失敗0で完了。大規模square41/47等はFraction再読込が長かったが全合格。途中でsolve既定だけを変更したa0c6ea4のreleaseへ更新したため、構造証明の実装一致hashと前後binary hashをobjective-domain-proof-implementation.jsonへ保存した。性能比較の途中にはbinaryを変更していない。新既定の133回帰も合格。別worktree warm-objective-sourceで次の費用変更warmを試作開始し、release binaryは共有せず、このPRの性能測定に影響させない。
+
+最終既定release a0c6ea4のfresh8問5秒 (111318、CPU0/1thread/16GiB) は8時間制限、Rust7主解全GMP/公式有効、51cutと8構造証明全有効。目的下界51と主解品質を再現。native比較は103709を明示再利用。root-onlyを採用しPRへ進める。

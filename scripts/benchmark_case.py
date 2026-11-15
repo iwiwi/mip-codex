@@ -92,7 +92,7 @@ def run(config_path, job_id):
         summary['native_gap'] = parsed.get('gap')
         summary['primal_bound'] = None
         summary['verified_optimal'] = False
-        if parsed.get('cut_proofs'):
+        if parsed.get('cut_proofs') or parsed.get('objective_grid') is not None:
             cut_command=[config['python'],str(root/'snapshot/scripts/verify_cover_cuts.py'),
                          record['absolute_path'],str(directory/'result.json'),str(directory/'cut-validation.json')]
             summary['cut_validation_execution']=stage(directory,'cut-validation',cut_command,config['validation_seconds'])

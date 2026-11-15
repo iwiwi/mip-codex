@@ -14,7 +14,8 @@ fn branching_and_dual_bound() {
     assert_eq!(r.status, "optimal");
     assert_eq!(r.objective, Some(-1.));
     assert_eq!(r.dual_bound, Some(-1.));
-    assert!(r.nodes > 1);
+    assert_eq!(r.nodes, 1);
+    assert_eq!(r.objective_bound_stats.rounded, 1);
 }
 #[test]
 fn free_and_upper_only_and_offset() {
@@ -89,6 +90,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
     let cold = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             strong_branching: false,
             cover_cuts: false,
@@ -102,6 +104,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
     let prop = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             strong_branching: false,
             cover_cuts: false,

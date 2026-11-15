@@ -1,0 +1,142 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.43s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/4b119330b64e1928/out/mip_codex-4b119330b64e1928)
+
+running 13 tests
+test exact::tests::cancellation_preserves_smallest_products_and_overflowing_products ... ok
+test exact::tests::nonfinite_values_are_not_certified ... ok
+test revised::ratio_regressions::entering_width_and_upper_bound_are_respected ... ok
+test revised::ratio_regressions::near_tie_chooses_stable_pivot_and_preserves_tolerance ... ok
+test revised::ratio_regressions::stable_pivot_ties_use_basic_variable_order ... ok
+test revised::ratio_regressions::tiny_bound_roundoff_is_not_amplified_by_small_pivot ... ok
+test search::tests::best_bound_uses_minimum_and_deterministic_ties ... ok
+test search::tests::depth_first_keeps_last_child_preference ... ok
+test solve::seed_tests::seed_is_checked_and_cannot_prove_optimality_at_zero_budget ... ok
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+test search::tests::hybrid_keeps_each_pending_node_exactly_once ... ok
+test exact::tests::arbitrary_exponents_match_independent_python_fraction_fixtures ... ok
+test exact::tests::correctly_rounded_sums_match_python_fraction ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src/main.rs (target/debug/build/mip-codex/f67c24e42b1cc7b3/out/mip_codex-f67c24e42b1cc7b3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/branching.rs (target/debug/build/mip-codex/ab90fcd968b04a25/out/branching-ab90fcd968b04a25)
+
+running 3 tests
+test zero_costs_fall_back_and_direction_uses_distance ... ok
+test observed_costs_change_ranking_without_changing_feasible_region ... ok
+test all_rules_orders_and_objective_senses_preserve_optimum ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cuts.rs (target/debug/build/mip-codex/0e4a6efff420ad9f/out/cuts-0e4a6efff420ad9f)
+
+running 13 tests
+test continuous_columns_and_unknown_provenance_are_skipped ... ok
+test a_negative_continuous_term_needs_its_finite_upper_bound ... ok
+test decimal_duplicate_cancellation_is_not_a_spurious_unbounded_objective ... ok
+test signed_cover_is_valid_and_rejects_a_changed_certificate ... ok
+test literal_integer_provenance_does_not_trust_f64_rounding ... ok
+test fractional_coefficients_project_a_continuous_lower_bound_safely ... ok
+test ranges_are_combined_as_original_decimal_values_before_rounding ... ok
+test cover_changes_root_bound_without_excluding_integer_optimum ... ok
+test root_cut_incumbent_does_not_replace_the_fractional_global_bound ... ok
+test ranged_lower_side_cuts_keep_the_maximization_offset ... ok
+test duplicate_terms_are_summed_before_rounding_in_rows_and_objective ... ok
+test no_cover_excludes_any_binary_feasible_point ... ok
+test mixed_decimal_cuts_preserve_all_box_feasible_binary_assignments ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/decimal_input.rs (target/debug/build/mip-codex/1a4f6aa28b81a5bf/out/decimal_input-1a4f6aa28b81a5bf)
+
+running 1 test
+test duplicate_decimals_match_python_fraction_before_rounding ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/diving.rs (target/debug/build/mip-codex/d4f7c831bc6dd9bf/out/diving-d4f7c831bc6dd9bf)
+
+running 5 tests
+test expired_global_deadline_skips_all_local_solves ... ok
+test local_infeasibility_reverses_direction_without_pruning_parent ... ok
+test two_failed_sides_do_not_prove_mip_infeasibility ... ok
+test failed_integral_fixing_does_not_discard_a_feasible_integer_solution ... ok
+test diving_finds_cover_without_claiming_root_bound_is_integer_optimum ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/heuristic.rs (target/debug/build/mip-codex/6d7affc762c9a4c2/out/heuristic-6d7affc762c9a4c2)
+
+running 5 tests
+test expired_deadline_produces_no_candidate ... ok
+test cancellation_cannot_create_false_incumbent ... ok
+test rounds_and_repairs_continuous_equality ... ok
+test incumbent_does_not_change_open_node_lower_bound ... ok
+test fixed_integer_lp_repairs_linked_continuous_variables ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lp.rs (target/debug/build/mip-codex/5657092cd87daff9/out/lp-5657092cd87daff9)
+
+running 9 tests
+test empty ... ok
+test bounded ... ok
+test infeasible ... ok
+test limit ... ok
+test malformed ... ok
+test phase_one ... ok
+test redundant ... ok
+test tiny_cost_with_large_width_is_not_ignored ... ok
+test unbounded ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mps.rs (target/debug/build/mip-codex/84e4a55d33a8d111/out/mps-84e4a55d33a8d111)
+
+running 4 tests
+test explicit_objective_and_exponents ... ok
+test integer_defaults_and_bounds ... ok
+test reject_unsafe_model_changes ... ok
+test ranges_offset_and_duplicates ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/objective_bounds.rs (target/debug/build/mip-codex/0b3b9c1d01bbe5e2/out/objective_bounds-0b3b9c1d01bbe5e2)
+
+running 6 tests
+test lattice_rounding_is_conservative_at_integer_boundaries_and_for_maximization ... FAILED
+test a_tiny_negative_reduced_cost_on_an_unbounded_column_is_not_a_bound ... ok
+test cost_provenance_is_independent_of_fractional_objective_offset ... ok
+test objective_grid_follows_unit_equalities_without_circular_inference ... FAILED
+test objective_provenance_distinguishes_integer_literals_from_f64_rounding ... ok
+test arbitrary_multipliers_never_exceed_independent_original_decimal_fraction_bounds ... ok
+
+failures:
+
+---- lattice_rounding_is_conservative_at_integer_boundaries_and_for_maximization stdout ----
+
+thread 'lattice_rounding_is_conservative_at_integer_boundaries_and_for_maximization' (318586) panicked at tests/objective_bounds.rs:81:5:
+assertion `left == right` failed
+  left: Some(5.0)
+ right: Some(3.0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- objective_grid_follows_unit_equalities_without_circular_inference stdout ----
+
+thread 'objective_grid_follows_unit_equalities_without_circular_inference' (318587) panicked at tests/objective_bounds.rs:68:74:
+called `Result::unwrap()` on an `Err` value: "line 7: expected column and row/value pairs"
+
+
+failures:
+    lattice_rounding_is_conservative_at_integer_boundaries_and_for_maximization
+    objective_grid_follows_unit_equalities_without_circular_inference
+
+test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+error: test failed, to rerun pass `--test objective_bounds`

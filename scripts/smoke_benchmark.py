@@ -53,7 +53,11 @@ with (output/'results.jsonl').open('w') as summary:
                 'rust-best-estimate': ('best', 'estimate'),
                 'rust-hybrid-estimate': ('hybrid', 'estimate'),
             }
-            if solver in ('rust-rins', 'rust-no-rins'):
+            if solver in ('rust-cuts-two', 'rust-cuts-four'):
+                run_env.update(MIP_COVER_ROUNDS='2' if solver=='rust-cuts-two' else '4', MIP_OBJECTIVE_ROUNDING='0', MIP_RINS='1', MIP_STRONG_BRANCHING='1', MIP_ROUNDING_CUTS='0', MIP_COVER_CUTS='1', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
+            elif solver in ('rust-objective', 'rust-no-objective'):
+                run_env.update(MIP_OBJECTIVE_ROUNDING='1' if solver=='rust-objective' else '0', MIP_RINS='1', MIP_STRONG_BRANCHING='1', MIP_ROUNDING_CUTS='0', MIP_COVER_CUTS='1', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
+            elif solver in ('rust-rins', 'rust-no-rins'):
                 run_env.update(MIP_RINS='1' if solver=='rust-rins' else '0', MIP_STRONG_BRANCHING='1', MIP_ROUNDING_CUTS='0', MIP_COVER_CUTS='1', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
             elif solver in ('rust-strong', 'rust-no-strong'):
                 run_env.update(MIP_STRONG_BRANCHING='1' if solver=='rust-strong' else '0', MIP_ROUNDING_CUTS='0', MIP_COVER_CUTS='1', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
@@ -79,7 +83,7 @@ with (output/'results.jsonl').open('w') as summary:
                 run_env['MIP_LP_ENGINE']='revised'
                 run_env['MIP_LP_WARM_START']='1' if solver=='rust-warm' else '0'
             elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
-            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_STRONG_BRANCHING','MIP_RINS']})+'\n')
+            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_STRONG_BRANCHING','MIP_RINS','MIP_OBJECTIVE_ROUNDING','MIP_COVER_ROUNDS']})+'\n')
             if solver.startswith('rust'):
                 assert hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest() == meta['binary_sha256'], 'solver binary changed during smoke run'
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
@@ -106,6 +110,10 @@ with (output/'results.jsonl').open('w') as summary:
                 if solver in ('rust-probe', 'rust-no-probe'):
                     assert parsed['primal_probe'] == (solver == 'rust-probe')
                     assert parsed['search_strategy'] == 'DepthFirst' and parsed['child_order'] == 'Down'
+                if solver in ('rust-cuts-two', 'rust-cuts-four'):
+                    assert parsed['cover_round_limit'] == (2 if solver=='rust-cuts-two' else 4)
+                if solver in ('rust-objective', 'rust-no-objective'):
+                    assert parsed['objective_rounding'] == (solver == 'rust-objective')
                 if solver in ('rust-rins', 'rust-no-rins'):
                     assert parsed['rins_enabled'] == (solver == 'rust-rins')
                 if solver in ('rust-strong', 'rust-no-strong'):
@@ -128,7 +136,7 @@ with (output/'results.jsonl').open('w') as summary:
                 if solver in ('rust-prop', 'rust-no-prop'):
                     assert parsed['propagation'] == (solver == 'rust-prop'), 'unexpected propagation mode'
                 result.update({k:v for k,v in parsed.items() if k!='values'})
-                if 'cut_proofs' in parsed:
+                if 'cut_proofs' in parsed or parsed.get('objective_grid') is not None:
                     cut_check=validate_cut_proofs(path,parsed)
                     (directory/'cut-validation.json').write_text(json.dumps(cut_check)+'\n')
                     result['cut_validation']=cut_check

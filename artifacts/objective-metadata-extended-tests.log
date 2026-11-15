@@ -1,0 +1,13 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+error: unexpected token: `<-`
+  --> tests/objective_bounds.rs:16:17
+   |
+16 |     assert!(b[0]<-1e16 && b[1]>-1e16);
+   |                 ^^
+   |
+help: if you meant to write a comparison against a negative value, add a space in between `<` and `-`
+   |
+16 |     assert!(b[0]< -1e16 && b[1]>-1e16);
+   |                  +
+
+error: could not compile `mip-codex` (test "objective_bounds") due to 1 previous error

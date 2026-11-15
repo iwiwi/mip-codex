@@ -2,8 +2,13 @@ use mip_codex::mps;
 use std::io::{self, Write};
 fn run() -> Result<(), String> {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() < 3 || !["inspect", "dump", "solve"].contains(&args[1].as_str()) {
-        return Err("usage: mip-codex inspect|dump|solve FILE.mps[.gz] [SECONDS] [NODES]".into());
+    if args.len() < 3
+        || !["inspect", "dump", "objective-proof", "solve"].contains(&args[1].as_str())
+    {
+        return Err(
+            "usage: mip-codex inspect|dump|objective-proof|solve FILE.mps[.gz] [SECONDS] [NODES]"
+                .into(),
+        );
     }
     let model = mps::read(&args[2])?;
     let mut out = io::BufWriter::new(io::stdout().lock());
@@ -51,6 +56,23 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PRIMAL_PROBE must be 0 or 1".into()),
             };
         }
+        if let Ok(value) = std::env::var("MIP_OBJECTIVE_ROUNDING") {
+            match value.as_str() {
+                "0" => {
+                    limits.objective_rounding = false;
+                    limits.objective_rounding_all = false;
+                }
+                "1" => {
+                    limits.objective_rounding = true;
+                    limits.objective_rounding_all = false;
+                }
+                "all" => {
+                    limits.objective_rounding = true;
+                    limits.objective_rounding_all = true;
+                }
+                _ => return Err("MIP_OBJECTIVE_ROUNDING must be 0, 1, or all".into()),
+            }
+        }
         if let Ok(value) = std::env::var("MIP_RINS") {
             limits.rins = match value.as_str() {
                 "0" => false,
@@ -71,6 +93,12 @@ fn run() -> Result<(), String> {
                 "1" => true,
                 _ => return Err("MIP_ROUNDING_CUTS must be 0 or 1".into()),
             };
+        }
+        if let Ok(value) = std::env::var("MIP_COVER_ROUNDS") {
+            limits.cover_rounds = value.parse().map_err(|_| "invalid MIP_COVER_ROUNDS")?;
+            if !(1..=16).contains(&limits.cover_rounds) {
+                return Err("MIP_COVER_ROUNDS must be 1..16".into());
+            }
         }
         if let Ok(cuts) = std::env::var("MIP_COVER_CUTS") {
             limits.cover_cuts = match cuts.as_str() {
@@ -113,6 +141,10 @@ fn run() -> Result<(), String> {
         }
         let result = mip_codex::solve::solve(&model, &limits);
         serde_json::to_writer(&mut out, &result).map_err(|e| e.to_string())?;
+    } else if args[1] == "objective-proof" {
+        let proof = mip_codex::objective_bound::Grid::from_model(&model);
+        serde_json::to_writer(&mut out, &serde_json::json!({"objective_grid":proof}))
+            .map_err(|e| e.to_string())?;
     } else if args[1] == "dump" {
         serde_json::to_writer(&mut out, &model).map_err(|e| e.to_string())?;
     } else {

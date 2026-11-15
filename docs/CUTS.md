@@ -12,7 +12,7 @@
 
 ## 実行と独立検査
 
-MIP_COVER_CUTS=0/1、既定有効。根で最大4round×32cut、時間は全体5%または0.25秒の小さい方。row最大16384項、cover最大256変数、選択work上限2,000,000。適用可能性を調べる走査はcut_secondsに含めず、全体secondsに含む。
+MIP_COVER_CUTS=0/1、既定有効。根で既定最大2round×32cut (`MIP_COVER_ROUNDS=1..16`)、時間は全体5%または0.25秒の小さい方。row最大16384項、cover最大256変数、選択work上限2,000,000。適用可能性を調べる走査はcut_secondsに含めず、全体secondsに含む。
 
 追加行はLP用Modelだけに保持する。主解は常に元Modelと元MPSで検査する。LPの返却状態だけで新たなinfeasible/optimalを宣言せず、証明済み行を追加した後に主探索がLPを解く。構造の変わったwarm基底は既存の互換性検査で棄却してcoldへ戻す。全LP数・pivot等に前処理LPを含める。
 

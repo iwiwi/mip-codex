@@ -24,7 +24,7 @@
 
 元十進入力の重複合計/RANGES端点消失、微小コストの誤最適/誤非有界などを修正。LP列/行スケーリングと元単位のray検査も有効。極端な単位のdense参照LP50例の数値エラーは未解決で隠さない。独立GMP原MPS検査とcut証明監査を性能評価の前提にする。
 
-次は整数目的値の安全な下界丸め (原MPS/原境界での保証付き双対下界が前提)、主解なし問題へのfeasibility pump、選択した強分枝子LPのwarm基底再利用を検討する。名前/既知値/holdout性能による個別調整をしない。全240×3 baselineは固定snapshotで継続中、稼働snapshot/共有依存/CPU8..15を変更しない。全240最終Rust評価・全体優位は未達成。
+目的下界の根限定版は独立検証と対照実験後に既定採用 (docs/OBJECTIVE_BOUND.md)。次は主解なし問題へのfeasibility pump、選択した強分枝子LPのwarm基底再利用を検討する。名前/既知値/holdout性能による個別調整をしない。全240×3 baselineは固定snapshotで継続中、稼働snapshot/共有依存/CPU8..15を変更しない。全240最終Rust評価・全体優位は未達成。
 
 ## 再開
 `git status`、`docs/JOURNAL.md`、`docs/BENCHMARK.md`を読み、実ジョブPIDと終了状態を検査。ログだけでジョブが生存していると判断しない。失敗も記録し、採用変更はブランチ→PR→main。
@@ -34,3 +34,9 @@
 全比較720ケース×最大1時間÷8slotは最悪90時間。baseline開始11月15日03:28 UTCからの単純上限は11月18日21:28 UTC付近 (読込/検査等の追加時間を除く)。Rust240ケースは8slotなら最大30時間、4slotなら60時間。11月22日14:59 UTCの期限から逆算し、最終Rust全件runを遅らせすぎない。稼働slotのcgroup上限合計とホスト247GiBの余裕も確認する。
 
 最終比較ではsnapshot固定、同じ1thread/時間/メモリ制限、元MPSへの有理数絶対検査、全失敗の一覧、完了後の参照値監査を必須にする。計測を先送りして開発用少数問題の改善だけで終わらせない。既定の伝播は無効、主解修復は検証後の採用判断をJOURNALに残す。
+
+## 次の実装案: 目的関数変更時の基底再利用
+
+現在WarmStart.compatibleはcosts一致も要求する。feasibility pumpでは同じ制約行列に対して丸め先へのL1距離目的を何度も変えるため、毎回cold phase-Iでは高くつく。行列/スラック構造の一致は維持し、費用だけ違う場合は基底値を再計算してprimal feasibleなら自作primal simplexで新費用を最適化する。不可能ならcoldへ戻す。費用と境界が両方変わった場合も同じ安全な条件を要求する。snapshotのcostsを更新し、親基底のArc構造を変異させない。
+
+新しい費用目的のwarm成功数を統計へ分離し、既存のdual warmを保つ。新目的での非有界ray/元単位チェックを省かない。手作りLP・random費用変更のcold/warm対照・HiGHS検証・親子不変性・費用+境界でprimal infeasibleの場合のcold fallbackを検査する。最初はLPだけの機能として独立PR、その後根の主解専用feasibility pumpを予算付きで検討する。外部ソルバーの最適化呼出しは検証だけ。
