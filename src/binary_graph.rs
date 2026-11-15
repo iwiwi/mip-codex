@@ -534,7 +534,7 @@ pub fn solve_with_cover(
     {
         let allocation = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(
             if adaptive && cover {
-                15.0
+                3.0
             } else if adaptive {
                 2.0
             } else {
