@@ -940,7 +940,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     continue;
                 }
                 if limits.rins
-                    && nodes == 1
+                    && rins.attempts == 0
                     && branch.is_some()
                     && best.is_some()
                     && matches!(limits.engine, Engine::Revised)
@@ -948,6 +948,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 {
                     let started = Instant::now();
                     rins.attempts += 1;
+                    rins.at_node = Some(nodes);
                     let local_deadline = deadline.min(
                         started
                             + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)),
@@ -1338,6 +1339,7 @@ fn strong_branch(
 
 #[derive(Default, Debug, Serialize)]
 pub struct RinsStats {
+    pub at_node: Option<usize>,
     pub attempts: usize,
     pub calls: usize,
     pub fixed: usize,

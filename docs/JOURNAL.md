@@ -234,3 +234,7 @@
 - PR17を613ec6aへmerge。rins-neighborhood branch。現在のincumbentと根LPの値が1e-6以内で一致する整数変数を固定し、元incumbentをseedとして自作B&Bで近傍だけ解く。少なくとも新規2変数・可変整数の10%以上が一致する場合に限定。根一回、全体5%最大.25秒、1024局所node/各LP4096pivot。元のrepair/diving/probeの後、strong branchingの前。局所repair/diving/probe/strong/cut/伝播/RINSを全部無効にして再帰一段だけにする。nearest/DFS/pseudocostで探索し、主探索の順序は不変。
 - 原理の参考: Danna/Rothberg/Le Pape (2005), DOI10.1007/s10107-004-0518-7、およびIBM公式RINS説明 (https://www.ibm.com/docs/en/icos/22.1.2?topic=heuristics-relaxation-induced-neighborhood-search-rins-heuristic)。コード移植や最適化委譲は行わない。近傍モデルの変更は整数境界固定だけ、原Modelは保持する。seedと返却点は元モデルの1e-7/外向き区間検査を通す。局所下界/最適・実行不能宣言は無視し、本体へ主解候補だけ返す。局所LP統計は総数へ加算、局所nodeはrins欄に分離。
 - MIP_RINS=0/1、既定無効。共通solveをprivate solve_seededへ分け、通常solveはseedなしのまま。既存probeのLP統計加算も共通関数に整理。117 Rust回帰が成功。近傍がseedを含むこと/元モデル不変、無効seed/不足一致の棄却、局所optimalでも本体node_limitと下界不変、seedは予算0でもglobal proofにならないことを追加。synthetic/18問性能比較はこれから。
+
+- 初期根のみsource7ae5eb6 (091911/091918) は主解2改善/0悪化/16同等。gmu50 -2532435.2987→-2570880.1906、gmu40 -1860472.4551→-2367540.5084。全36時間制限/証明0、28返却解はGMP絶対/公式双方全合格、全134cutも元MPS Fraction有効。内部improvementsカウンタが立つpk1/mad/gen-ip002でも最終主解は対照と同等なので、最終品質の改善件数へ混ぜない。
+- 小1000/二値1000/中規模200は失敗0、局所呼出40/171/61回、内部改善1/0/6回。これも両設定が最終最適値を返す合成問題の途中改善であり、最終性能の優位ではない。
+- 根ではseedを持たないtimtab1/pg5_34はattempts0だった。incumbentを初めて持った後のfractional nodeで一度だけ試すよう条件を一般化。rootで試した問題は再試行しない。at_nodeを記録し、node3の局所optimalでも本体node_limit/元下界-1.5を維持する回帰を追加。118 Rustテスト後、根のみとの性能差を測定する。未採用。
