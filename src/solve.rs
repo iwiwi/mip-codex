@@ -56,7 +56,7 @@ impl Default for Limits {
             binary_graph: true,
             graph_local_search: true,
             graph_root_coloring: true,
-            graph_root_prefix: false,
+            graph_root_prefix: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
