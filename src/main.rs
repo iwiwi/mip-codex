@@ -30,6 +30,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PROPAGATION must be 0 or 1".into()),
             };
         }
+        if let Ok(repair) = std::env::var("MIP_PRIMAL_REPAIR") {
+            limits.primal_repair = match repair.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_PRIMAL_REPAIR must be 0 or 1".into()),
+            };
+        }
         if let Some(s) = args.get(3) {
             limits.seconds = s.parse().map_err(|_| "invalid seconds")?;
         }

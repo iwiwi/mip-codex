@@ -8,6 +8,7 @@ import sys
 import highspy
 from validate_solution import original_lp
 
+os.environ['MIP_PRIMAL_REPAIR'] = '0'  # isolate LP engine work
 os.environ['MIP_PROPAGATION'] = '0'  # compare original continuous LP relaxations
 root=Path(__file__).resolve().parents[1]
 manifest={r['name']:r for r in json.load(open(root/'data/manifest.json'))['instances']}

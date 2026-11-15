@@ -5,3 +5,5 @@ pub mod mps;
 pub mod propagate;
 pub mod revised;
 pub mod solve;
+
+pub mod heuristic;

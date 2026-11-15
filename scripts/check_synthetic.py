@@ -49,6 +49,8 @@ for case in range(count):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'case.mps';path.write_text(text)
             result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10'],timeout=15))
+            if 'MIP_PRIMAL_REPAIR' in os.environ:
+                assert result.get('primal_repair')==(os.environ['MIP_PRIMAL_REPAIR']=='1'), 'binary does not match requested repair mode'
             if 'MIP_PROPAGATION' in os.environ:
                 assert result.get('propagation')==(os.environ['MIP_PROPAGATION']=='1'), 'binary does not match requested propagation mode'
             h=highspy.Highs();h.setOptionValue('output_flag',False);h.setOptionValue('threads',1);h.setOptionValue('mip_rel_gap',0.);h.setOptionValue('mip_abs_gap',0.);h.readModel(str(path));h.run()
@@ -75,7 +77,7 @@ for case in range(count):
                         feasible.append(offset+sum(v*t for v,t in zip(cost,x)))
                 if not feasible: assert result['status']=='infeasible'
                 else: assert abs((max(feasible) if maximize else min(feasible))-result['objective'])<1e-6
-            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],lp_solves=result.get('lp_solves'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
+            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],lp_solves=result.get('lp_solves'),primal_repair=result.get('primal_repair'),repair_improvements=result.get('repair_improvements'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
     except Exception as error:
         failed+=1
         (outdir/f'failure-{case}.mps').write_text(text)
