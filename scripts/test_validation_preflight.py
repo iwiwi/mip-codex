@@ -12,15 +12,20 @@ from benchmark_common import require_solver_origin
 import json
 root=Path(__file__).resolve().parents[1]
 class Preflight(unittest.TestCase):
-    def fake_binary(self, directory, source):
+    def fake_binary(self, directory, source, library=None):
         path=Path(directory)/'solver'
-        path.write_text('#!'+sys.executable+'\nprint('+repr(json.dumps(dict(source_directory=str(source),package_version='test')))+')\n')
+        path.write_text('#!'+sys.executable+'\nprint('+repr(json.dumps(dict(source_directory=str(source),library_source_directory=str(library or source),package_version='test')))+')\n')
         path.chmod(0o755)
         return path
     def test_binary_from_another_worktree_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             binary=self.fake_binary(tmp,root/'other-worktree')
-            with self.assertRaisesRegex(RuntimeError,'solver binary was built in'):
+            with self.assertRaisesRegex(RuntimeError,'was built in'):
+                require_solver_origin(root,binary)
+    def test_binary_with_a_library_from_another_worktree_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary=self.fake_binary(tmp,root,root/'other-worktree')
+            with self.assertRaisesRegex(RuntimeError,'library_source_directory was built in'):
                 require_solver_origin(root,binary)
     def test_binary_from_the_selected_worktree_is_accepted(self):
         with tempfile.TemporaryDirectory() as tmp:

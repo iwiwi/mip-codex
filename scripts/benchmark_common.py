@@ -98,6 +98,7 @@ def require_solver_origin(root, binary):
     """共有targetに別worktreeの実行ファイルが残った場合、測定前に拒否する。"""
     import subprocess
     info = json.loads(subprocess.check_output([str(binary), 'build-info'], text=True, timeout=15))
-    if Path(info['source_directory']).resolve() != Path(root).resolve():
-        raise RuntimeError('solver binary was built in '+str(info['source_directory'])+'; rebuild in '+str(root)+' with an isolated target directory')
+    for field in ('source_directory','library_source_directory'):
+        if Path(info[field]).resolve() != Path(root).resolve():
+            raise RuntimeError('solver '+field+' was built in '+str(info[field])+'; rebuild in '+str(root)+' with an isolated target directory')
     return info

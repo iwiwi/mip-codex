@@ -20,3 +20,6 @@ pub mod cuts;
 pub mod rins;
 
 pub mod objective_bound;
+
+/// 計測時に共有targetから別worktreeのcrateを拾う事故を検出する。
+pub const BUILD_SOURCE_DIRECTORY: &str = env!("CARGO_MANIFEST_DIR");
