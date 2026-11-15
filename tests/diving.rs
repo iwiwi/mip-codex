@@ -9,6 +9,7 @@ fn run(text: &str, enabled: bool, nodes: usize) -> mip_codex::solve::Result {
         &Limits {
             lp_diving: enabled,
             primal_repair: false,
+            primal_probe: false,
             nodes,
             ..Limits::default()
         },

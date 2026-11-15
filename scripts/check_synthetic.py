@@ -51,6 +51,10 @@ for case in range(count):
             result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10'],timeout=15))
             if 'MIP_LP_DIVING' in os.environ:
                 assert result.get('lp_diving') == (os.environ['MIP_LP_DIVING'] == '1'), 'unexpected diving mode'
+            if 'MIP_PRIMAL_PROBE' in os.environ:
+                assert result.get('primal_probe') == (os.environ['MIP_PRIMAL_PROBE']=='1'), 'unexpected probe mode'
+            if 'MIP_SEARCH' in os.environ:
+                assert result.get('search_strategy') == {'depth':'DepthFirst','best':'BestBound','hybrid':'Hybrid'}[os.environ['MIP_SEARCH']], 'unexpected search strategy'
             if 'MIP_LP_ENGINE' in os.environ:
                 assert result.get('lp_engine')=={'dense':'Dense','revised':'Revised'}[os.environ['MIP_LP_ENGINE']], 'unexpected LP engine'
             if 'MIP_BRANCHING' in os.environ:
@@ -85,7 +89,7 @@ for case in range(count):
                         feasible.append(offset+sum(v*t for v,t in zip(cost,x)))
                 if not feasible: assert result['status']=='infeasible'
                 else: assert abs((max(feasible) if maximize else min(feasible))-result['objective'])<1e-6
-            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],lp_solves=result.get('lp_solves'),branching=result.get('branching'),child_order=result.get('child_order'),pseudocost_selections=result.get('pseudocost_selections'),scaled_columns=result.get('lp_scaled_columns'),scaled_rows=result.get('lp_scaled_rows'),primal_repair=result.get('primal_repair'),lp_diving=result.get('lp_diving'),diving=result.get('diving'),repair_improvements=result.get('repair_improvements'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
+            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],search=result.get('search_strategy'),best_pops=result.get('search_best_pops'),max_open=result.get('max_open_nodes'),lp_solves=result.get('lp_solves'),branching=result.get('branching'),child_order=result.get('child_order'),pseudocost_selections=result.get('pseudocost_selections'),scaled_columns=result.get('lp_scaled_columns'),scaled_rows=result.get('lp_scaled_rows'),primal_repair=result.get('primal_repair'),lp_diving=result.get('lp_diving'),primal_probe=result.get('primal_probe'),probe=result.get('probe'),diving=result.get('diving'),repair_improvements=result.get('repair_improvements'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
     except Exception as error:
         failed+=1
         (outdir/f'failure-{case}.mps').write_text(text)

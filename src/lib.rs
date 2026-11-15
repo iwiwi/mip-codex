@@ -13,3 +13,5 @@ pub mod branching;
 pub(crate) mod scaling;
 
 pub(crate) mod exact;
+
+pub mod search;

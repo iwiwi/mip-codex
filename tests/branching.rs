@@ -74,6 +74,7 @@ fn all_rules_orders_and_objective_senses_preserve_optimum() {
                         branching,
                         child_order,
                         primal_repair: false,
+                        primal_probe: false,
                         lp_diving: false,
                         ..Limits::default()
                     },

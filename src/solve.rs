@@ -1,5 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{branching, heuristic, lp, model::Model, propagate, revised};
+use crate::{branching, heuristic, lp, model::Model, propagate, revised, search};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -19,8 +19,10 @@ pub struct Limits {
     pub propagation: bool,
     pub primal_repair: bool,
     pub lp_diving: bool,
+    pub primal_probe: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
+    pub search: search::Strategy,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -34,8 +36,10 @@ impl Default for Limits {
             propagation: false,
             primal_repair: true,
             lp_diving: true,
+            primal_probe: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
+            search: search::Strategy::DepthFirst,
         }
     }
 }
@@ -43,10 +47,17 @@ impl Default for Limits {
 pub struct Result {
     pub branching: String,
     pub child_order: String,
+    pub search_strategy: String,
+    pub search_pops: usize,
+    pub search_best_pops: usize,
+    pub search_transfers: usize,
+    pub max_open_nodes: usize,
     pub pseudocost_updates: usize,
     pub pseudocost_selections: usize,
     pub primal_repair: bool,
     pub lp_diving: bool,
+    pub primal_probe: bool,
+    pub probe: ProbeStats,
     pub diving: DivingStats,
     pub repair_calls: usize,
     pub repair_candidates: usize,
@@ -418,6 +429,18 @@ fn dive(
         }
     }
 }
+/// 別の分枝順による短い自作探索。主解以外の情報は主探索へ渡さない。
+#[derive(Default, Debug, Serialize)]
+pub struct ProbeStats {
+    pub calls: usize,
+    pub nodes: usize,
+    pub lp_solves: usize,
+    pub max_open_nodes: usize,
+    pub seconds: f64,
+    pub status: Option<String>,
+    pub candidates: usize,
+    pub improvements: usize,
+}
 pub fn solve(model: &Model, limits: &Limits) -> Result {
     let start = Instant::now();
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
@@ -430,14 +453,15 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             upper[j] = upper[j].map(f64::floor);
         }
     }
-    let mut stack = vec![Node {
+    let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
+    stack.push(Node {
         lower,
         upper,
         bound: f64::NEG_INFINITY,
         warm: None,
         changed: None,
         edge: None,
-    }];
+    });
     let mut costs = branching::Costs::new(model.variables.len());
     let mut nodes = 0;
     let mut lp_solves = 0;
@@ -448,6 +472,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     let mut lp_stats = revised::Stats::default();
     let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
     let mut diving = DivingStats::default();
+    let mut probe = ProbeStats::default();
     let mut repair_improvements = 0;
     let mut repair_lp_solves = 0;
     let mut repair_lp_candidates = 0;
@@ -712,6 +737,69 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     lp_solves += diving.lp_solves - old_solves;
                     diving.seconds += started.elapsed().as_secs_f64();
                 }
+                if limits.primal_probe
+                    && node.bound < incumbent
+                    && nodes == 1
+                    && branch.is_some()
+                    && matches!(limits.engine, Engine::Revised)
+                    && Instant::now() < deadline
+                {
+                    let probe_started = Instant::now();
+                    let mut probe_limits = limits.clone();
+                    probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
+                    probe_limits.primal_repair = false;
+                    probe_limits.lp_diving = false;
+                    probe_limits.search = search::Strategy::DepthFirst;
+                    probe_limits.branching = branching::Rule::Pseudocost;
+                    probe_limits.child_order = branching::Order::Estimate;
+                    probe_limits.nodes = 4096;
+                    probe_limits.seconds = (limits.seconds * 0.2).min(1.0).min(
+                        deadline
+                            .saturating_duration_since(Instant::now())
+                            .as_secs_f64(),
+                    );
+                    let result = solve(model, &probe_limits);
+                    probe.calls += 1;
+                    probe.nodes += result.nodes;
+                    probe.lp_solves += result.lp_solves;
+                    probe.max_open_nodes = probe.max_open_nodes.max(result.max_open_nodes);
+                    probe.status = Some(result.status.clone());
+                    lp_solves += result.lp_solves;
+                    lp_stats.add(&revised::Stats {
+                        pivots: result.lp_pivots.unwrap_or(0),
+                        flips: result.lp_flips.unwrap_or(0),
+                        refactors: result.lp_refactors.unwrap_or(0),
+                        warm_attempts: result.lp_warm_attempts.unwrap_or(0),
+                        warm_successes: result.lp_warm_successes.unwrap_or(0),
+                        warm_fallbacks: result.lp_warm_fallbacks.unwrap_or(0),
+                        warm_rejections: result.lp_warm_rejections.unwrap_or(0),
+                        dual_pivots: result.lp_dual_pivots.unwrap_or(0),
+                        dual_flips: result.lp_dual_flips.unwrap_or(0),
+                        scaled_columns: result.lp_scaled_columns.unwrap_or(0),
+                        scaled_rows: result.lp_scaled_rows.unwrap_or(0),
+                    });
+                    if let Some(values) = result.values {
+                        let x: Option<Vec<_>> = model
+                            .variables
+                            .iter()
+                            .map(|v| values.get(&v.name).copied())
+                            .collect();
+                        if let Some(x) = x {
+                            if heuristic::Repair::new(model).candidate_check(&x) {
+                                probe.candidates += 1;
+                                let value = sign * model.objective(&x);
+                                if value.is_finite() && value < incumbent {
+                                    probe.improvements += 1;
+                                    incumbent = value;
+                                    first_primal_seconds
+                                        .get_or_insert_with(|| start.elapsed().as_secs_f64());
+                                    best = Some(x);
+                                }
+                            }
+                        }
+                    }
+                    probe.seconds += probe_started.elapsed().as_secs_f64();
+                }
                 if node.bound >= incumbent {
                     continue;
                 }
@@ -781,10 +869,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             }
         }
     }
-    let internal_dual = stack
-        .iter()
-        .map(|n| n.bound)
-        .fold(terminal_bound.min(incumbent), f64::min);
+    let internal_dual = stack.min_bound(terminal_bound.min(incumbent));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
     }
@@ -805,10 +890,17 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     Result {
         branching: format!("{:?}", limits.branching),
         child_order: format!("{:?}", limits.child_order),
+        search_strategy: format!("{:?}", limits.search),
+        search_pops: stack.pops,
+        search_best_pops: stack.best_pops,
+        search_transfers: stack.transfers,
+        max_open_nodes: stack.max_open,
         pseudocost_updates: costs.updates,
         pseudocost_selections: costs.selections,
         primal_repair: limits.primal_repair,
         lp_diving: limits.lp_diving,
+        primal_probe: limits.primal_probe,
+        probe,
         diving,
         repair_calls: repair_stats.calls,
         repair_candidates: repair_stats.candidates,
