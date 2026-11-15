@@ -9,3 +9,7 @@ pub mod solve;
 pub mod heuristic;
 
 pub mod branching;
+
+pub(crate) mod scaling;
+
+pub(crate) mod exact;

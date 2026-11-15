@@ -54,12 +54,15 @@ def validate_float(path, solution, feasibility=1e-6, integrality=1e-6):
         integer_violation = float(np.max(np.abs(x[mask]-np.rint(x[mask])), initial=0.))
     a = matrix(lp).tocsr()
     row_violation = 0.
+    # pybind converts each vector property to a Python list. Cache it once, not per row.
+    row_lower = lp.row_lower_
+    row_upper = lp.row_upper_
     for i in range(lp.num_row_):
         start, end = a.indptr[i:i+2]
         activity = math.fsum(float(v)*float(x[j]) for v,j in zip(a.data[start:end], a.indices[start:end]))
         if not math.isfinite(activity):
             raise ValueError('nonfinite row activity')
-        row_violation = max(row_violation, lp.row_lower_[i]-activity, activity-lp.row_upper_[i])
+        row_violation = max(row_violation, row_lower[i]-activity, activity-row_upper[i])
     objective = math.fsum([lp.offset_, *(float(c)*float(v) for c,v in zip(lp.col_cost_,x))])
     objective_error = abs(objective-float(solution['objective']))
     valid = (bound_violation <= feasibility and row_violation <= feasibility

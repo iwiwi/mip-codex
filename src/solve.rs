@@ -61,6 +61,8 @@ pub struct Result {
     pub propagation_budget_hits: usize,
     pub fixed_leaves: usize,
     pub lp_solves: usize,
+    pub lp_scaled_columns: Option<usize>,
+    pub lp_scaled_rows: Option<usize>,
     pub lp_warm_start: bool,
     pub lp_warm_attempts: Option<usize>,
     pub lp_warm_successes: Option<usize>,
@@ -139,8 +141,8 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
             .filter(|(l, u)| l.is_some() && u.is_some())
             .count();
     let cols = c.len();
-    // Includes dense input and the tableau, conservatively capped before allocation.
-    let bytes = (rows as u128 + 1) * (cols as u128 + 2 * rows as u128 + 1) * 8
+    // Dense input and both current/rebuilt tableaux are estimated before allocation.
+    let bytes = 2 * (rows as u128 + 1) * (cols as u128 + 2 * rows as u128 + 1) * 8
         + rows as u128 * cols as u128 * 8;
     if bytes > limit as u128 {
         return Relaxation::ResourceLimit;
@@ -641,6 +643,9 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         propagation_budget_hits: propagation_stats.budget_hits,
         fixed_leaves,
         lp_solves,
+        lp_scaled_columns: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.scaled_columns),
+        lp_scaled_rows: matches!(limits.engine, Engine::Revised).then_some(lp_stats.scaled_rows),
         lp_engine: format!("{:?}", limits.engine),
         lp_warm_start: limits.warm_start && matches!(limits.engine, Engine::Revised),
         lp_warm_attempts: matches!(limits.engine, Engine::Revised)

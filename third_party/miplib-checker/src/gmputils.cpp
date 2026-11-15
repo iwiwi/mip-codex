@@ -10,6 +10,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#ifdef MIPLIB_ABSOLUTE
+#include <vector>
+#include <cerrno>
+#include <cctype>
+#endif
 
 char Rational::buffer[] = {'\0'};
 
@@ -169,6 +174,46 @@ bool Rational::isZero() const
 
 void Rational::fromString(const char* num)
 {
+#ifdef MIPLIB_ABSOLUTE
+   const auto fail = []() { std::fprintf(stderr, "unsupported rational token\n"); std::exit(2); };
+   if( num == NULL ) fail();
+   while( std::isspace(static_cast<unsigned char>(*num)) ) ++num;
+   std::string digits;
+   if( *num == '-' ) { digits += '-'; ++num; }
+   else if( *num == '+' ) ++num;
+   bool fraction = false;
+   long decimalPlaces = 0;
+   bool hasDigit = false;
+   while( *num != '\0' && *num != 'e' && *num != 'E' && *num != 'd' && *num != 'D'
+          && !std::isspace(static_cast<unsigned char>(*num)) )
+   {
+      if( std::isdigit(static_cast<unsigned char>(*num)) ) {
+         digits += *num; hasDigit = true; if( fraction ) ++decimalPlaces;
+      } else if( *num == '.' && !fraction ) fraction = true;
+      else fail();
+      if( digits.size() > 1000000 ) fail();
+      ++num;
+   }
+   if( !hasDigit ) fail();
+   long exponent = 0;
+   if( *num == 'e' || *num == 'E' || *num == 'd' || *num == 'D' ) {
+      ++num; char* end = NULL; errno = 0;
+      exponent = std::strtol(num, &end, 10);
+      if( end == num || errno == ERANGE || exponent < -1000000 || exponent > 1000000 ) fail();
+      num = end;
+   }
+   while( std::isspace(static_cast<unsigned char>(*num)) ) ++num;
+   if( *num != '\0' ) fail();
+   exponent -= decimalPlaces;
+   if( exponent < -1000000 || exponent > 1000000 ) fail();
+   std::string rational = digits;
+   if( exponent > 0 ) rational.append(static_cast<size_t>(exponent), '0');
+   rational += "/1";
+   if( exponent < 0 ) rational.append(static_cast<size_t>(-exponent), '0');
+   if( mpq_set_str(number, rational.c_str(), 10) != 0 ) fail();
+   mpq_canonicalize(number);
+#else
+
    char* tmp = &buffer[0];
    int   k = 0;
    int   exponent = 0;
@@ -219,15 +264,22 @@ void Rational::fromString(const char* num)
 
    mpq_set_str(number, tmp, 10);
    mpq_canonicalize(number);
+#endif
 }
 
 std::string Rational::toString() const
 {
+#ifdef MIPLIB_ABSOLUTE
+   std::vector<char> output(mpz_sizeinbase(mpq_numref(number), 10) + mpz_sizeinbase(mpq_denref(number), 10) + 4);
+   mpq_get_str(output.data(), 10, number);
+   return std::string(output.data());
+#else
    // assure the buffer is big enough to store the result
    assert( mpz_sizeinbase(mpq_numref(number), 10 ) + mpz_sizeinbase(mpq_denref(number), 10) + 3 < 1024 );
 
    mpq_get_str(buffer, 10, number);
    return std::string(buffer);
+#endif
 }
 
 void add(Rational& res, const Rational& op1, const Rational& op2)

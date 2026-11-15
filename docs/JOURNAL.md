@@ -121,3 +121,17 @@
 - 最終両エンジンの1000+200照合は各失敗0、60 Rustテストも成功。通常根LP200/scaled100は全通過。初回scaled100の27失敗と中間のfalse infeasible/反復上限を保持。
 - 05:24 UTC baseline24/720、旧primary最適16、invalid_solution1、kernel coordinator生存。新GMP primaryで保存解21件を再監査し20合格/1不合格、未検証0。最適化snapshotと共有依存は変更せず継続。
 - 次: LP列/目的のスケーリング、極端な係数/幅と非有界rayの検証を増やす。gmuの主解品質から、LP潜り/feasibility pump等の一般的主解探索も必要。次に予算付きstrong branchingとカットで下界を強化する。専用問題名による分岐は禁止。
+
+## 2026-11-15: LP列・行スケーリング (進行中、未merge)
+- 前ターンはPR10 mergeという進捗。main c2e97b8からlp-column-scaling branch。旧疎LPは min -x, 1e-12*x<=1 をunbounded_relaxationと誤判定。列を2の冪で正規化してoptimal -1e12へ訂正。列だけではx-z<=0を加えた結合例がなお誤非有界となり、列の後に小さい行も正規化して両例を解いた。before/intermediate/after出力をartifacts/column-scaling-*へ保存。
+- 変換は係数/目的/幅のroundtripを検査し、underflow/overflowを黙って0/無限大へしない。元Problemで主点/dual、Farkas候補、rayを再検査する。warm cacheは正規化後の構造で一貫させる。Statsにscaled_columns/rows追加。
+- 実行不能候補の外向き区間がゼロをまたぐ場合、unbounded列の積和符号を固定長整数で正確に計算する。f64全指数域の積和符号はPython Fractionで作った501fixture (大きい積2000個の相殺+最小subnormal積を含む) と一致。rayの元行/目的符号も正確に検査する。厳密対象は元Problemのf64数値で、元MPS十進係数の有理数最適性証明という主張ではない。
+- 変数単位を2^-30..2^30、行を2^-12..2^12で変えた100根LPはrevised全通過、返却LP点も元MPS GMP検査合格。参照HiGHSは変換前の同値モデルで解き、tiny係数のreader dropを避ける。数学的に既知のfractional knapsackを125単位系で検査する回帰も通過。
+- denseの同100問は初回83 numerical_error。人工変数後処理を既存FEASへ揃える、元境界への点の投影と元行/dual再検査、元行列からのbasis再構築で50 numerical_errorまで減少。共通RHS単位を更に正規化する試作は79失敗へ増えたので棄却し元へ戻した。誤答を成功に数えず失敗ログ/入力は保持。通常回帰は全通過。現在のdense extreme-unitsは未解決で、revisedの成功と混ぜない。
+- 非有界候補はrayだけでなく元単位の基点も検査するよう変更済み。現在は小pivotが有限上限を規定する近平行制約の追加回帰を検討。最終1000+200、通常/scaled根LPとMIPLIB8根LP、性能比較・PRは未完了。
+- baselineは05:51 UTC時点29/720、既知invalid_solution1、kernel coordinator生存。固定snapshot/共有依存/CPU8..15は変更しない。
+
+- 最終source4bff42c: 73 Rustテスト、両エンジン各1000+200、通常200/scaled100/開発8根LP成功。近平行有限LPを微小pivot再試行で解き、長い正確な十進係数を新GMP絶対検査器で確認。検査器32文字制限とPython診断のO(m²)行境界取得を修正、NumPy試作のJSON失敗は保存。3 Python回帰成功。
+- 極端なunits100問はrevised全成功・元MPS GMP合格、denseは50 numerical_errorを残す。性能8問は全時間制限/証明0、返却7解双方検査合格。全8問の変換数0なので性能差をスケーリング効果と主張しない。比較3solverは前回同資源runを再利用。
+- 06:48 UTC baseline39/720、旧primary最適18、errors2、kernel coordinator生存。errorsはcbs-cta/GLPK invalidとbuildingenergy/HiGHSの旧検査600秒時間切れ。新検査器監査33件は32合格/既知invalid1、未検証0。旧監査の既知O(m²)による停止と失敗試作も保存。
+- 次は一般的な予算付きLP潜りによる主解改善。gmu主解の大幅な不足を検証し、強分枝/カットの下界改善へ進む。固定全件baselineを継続し、期限内のRust全240問比較時間を確保する。
