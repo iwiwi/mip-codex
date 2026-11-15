@@ -27,3 +27,5 @@ smoke設定確認の誤ったtuple辞書キーも修正し、BOX/BINARY/LOCALの
 正式な固定開発18問はprimal/dual/status一致。保存26点はGMP絶対・公式検査で全有効、134cut/36証明記録も有効。追加の旧・新・同点改訂の8点、反復3点、60秒Rust2点、native3点の16点も元MPS検査で全有効。合計42保存点。Rustグラフ13点は根彩色/構造検査も通過した。
 
 再現した下界改善に基づき既定有効にする。MIP_GRAPH_ROOT_COLORING=0で無効化できる。次は深い節点の彩色修復と局所探索の探索幅を仮説として検証する（GRAPH_NEXT_HYPOTHESES.md）。
+
+最終既定設定でも1200CLI/3600偽証明拒否/32数値回帰を再確認した。生ログとSHA移動台帳はartifacts/graph-root-evaluation。採用コア7022bf32、FPb922ef2ba08cb8a2、binary SHA4c58e63460e1fb1af87e2ae072ab14b7f07147cd0a75da6eb6ea8f24f25ff651。不変snapshotはexperiments/graph-root-snapshot-20261115.jsonでcreate-only。全Rust最終評価は未開始、native v2は18:12 UTC時点29/720・strict optimal16・error1で継続中。
