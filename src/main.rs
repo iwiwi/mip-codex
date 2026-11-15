@@ -37,6 +37,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PRIMAL_REPAIR must be 0 or 1".into()),
             };
         }
+        if let Ok(diving) = std::env::var("MIP_LP_DIVING") {
+            limits.lp_diving = match diving.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_LP_DIVING must be 0 or 1".into()),
+            };
+        }
         if let Ok(rule) = std::env::var("MIP_BRANCHING") {
             limits.branching = match rule.as_str() {
                 "fractional" => mip_codex::branching::Rule::Fractional,

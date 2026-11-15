@@ -49,6 +49,8 @@ for case in range(count):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'case.mps';path.write_text(text)
             result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10'],timeout=15))
+            if 'MIP_LP_DIVING' in os.environ:
+                assert result.get('lp_diving') == (os.environ['MIP_LP_DIVING'] == '1'), 'unexpected diving mode'
             if 'MIP_LP_ENGINE' in os.environ:
                 assert result.get('lp_engine')=={'dense':'Dense','revised':'Revised'}[os.environ['MIP_LP_ENGINE']], 'unexpected LP engine'
             if 'MIP_BRANCHING' in os.environ:

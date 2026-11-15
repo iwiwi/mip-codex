@@ -47,6 +47,8 @@ with (output/'results.jsonl').open('w') as summary:
             if solver in branching_modes:
                 rule, order = branching_modes[solver]
                 run_env.update(MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_BRANCHING=rule, MIP_CHILD_ORDER=order)
+            elif solver in ('rust-dive', 'rust-no-dive'):
+                run_env.update(MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1' if solver=='rust-dive' else '0')
             elif solver in ('rust-repair', 'rust-no-repair'):
                 run_env.update(MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1' if solver=='rust-repair' else '0')
             elif solver in ('rust-prop', 'rust-no-prop'):
@@ -55,7 +57,7 @@ with (output/'results.jsonl').open('w') as summary:
                 run_env['MIP_LP_ENGINE']='revised'
                 run_env['MIP_LP_WARM_START']='1' if solver=='rust-warm' else '0'
             elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
-            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER']})+'\n')
+            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING']})+'\n')
             if solver.startswith('rust'):
                 assert hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest() == meta['binary_sha256'], 'solver binary changed during smoke run'
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
@@ -81,6 +83,8 @@ with (output/'results.jsonl').open('w') as summary:
                     rule, order = branching_modes[solver]
                     assert parsed['branching'] == {'fractional':'Fractional','pseudocost':'Pseudocost'}[rule]
                     assert parsed['child_order'] == {'down':'Down','nearest':'Nearest','estimate':'Estimate'}[order]
+                if solver in ('rust-dive', 'rust-no-dive'):
+                    assert parsed['lp_diving'] == (solver == 'rust-dive'), 'unexpected diving mode'
                 if solver in ('rust-repair', 'rust-no-repair'):
                     assert parsed['primal_repair'] == (solver == 'rust-repair'), 'unexpected repair mode'
                 if solver in ('rust-prop', 'rust-no-prop'):
