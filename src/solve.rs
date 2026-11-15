@@ -28,6 +28,7 @@ pub struct Limits {
     pub graph_local_diversify: bool,
     pub graph_adaptive_local: bool,
     pub defer_infeasibility: bool,
+    pub joint_infeasibility: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -63,6 +64,7 @@ impl Default for Limits {
             graph_local_diversify: true,
             graph_adaptive_local: true,
             defer_infeasibility: true,
+            joint_infeasibility: false,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -1136,6 +1138,14 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                     }
                                 }
                                 scaled[j] = old;
+                            }
+                        }
+                        if limits.joint_infeasibility {
+                            let (bound, trials) =
+                                certifier.joint_positive_bound(&lower, &upper, &multipliers);
+                            infeasibility_proof_trials += trials;
+                            if bound.is_some() {
+                                return Some(());
                             }
                         }
                         None
