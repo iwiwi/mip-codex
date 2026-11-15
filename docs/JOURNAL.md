@@ -370,3 +370,11 @@ box-primal（最終コアddbc8ea4）はLP前の箱端点+実行可能端点降�
 157Rust/200小例（184改善、188点が列挙最適値だがnode_limit）/300根LP/32数値回帰成功、主実験2700合成成功。46保存解/134cuts・50証明の全独立検査成功。許容誤差内の主解と根の実行不能が矛盾するとnumerical_errorで枝を保持し、誤ったoptimalを避ける。既定有効、機能別単体比較では新機能を明示無効にして条件を固定。詳細docs/BOX_PRIMAL_RESULTS.md、全生データartifacts/box-evaluation。
 
 create-only snapshotはexperiments/box-primal-snapshot-20261115.jsonを参照。全件Rustは未開始。native baseline-v2はPID556757/session89978、12/720完了で継続中。次は純粋な二値競合を構造認識し、彩色上界付きのRust組合せ探索を検討する。mainのLP/主解を維持し、問題名分岐や既知解は使わない。
+
+## 2026-11-15 17:24 UTC：純二値競合の構造専用探索を採用候補へ
+
+binary-conflict-engineは全モデルを検査してから、同一整数目的の0/1・高々1制約だけをbitsetクリークへ変換する。負係数下側行の同値反転も対応。非対応はLPへ戻す。名前・既知解へ依存しない。sorrell3の15秒が旧primal-14/dualなし→-16/-28。最終3回とも再現。根彩色36の独立証明と、82～83根分岐完了後の内部探索上界28を区別する。公式既知値-16には一致するがstatus time_limitで未証明。固定18問のprimal/dual/status全同一。native同条件はHS-15/-20、SCIP-11/-225、GLPK-1/-512。
+
+最終161Rust、300小グラフ×6の1800探索、CLI200×6=1200（全列挙/GMP/彩色、偽証明3600拒否）、2700合成、300根LP、32数値回帰成功。41保存解/134cuts・51証明検査も全有効。初回未認識と既定変更による機能別テストの干渉も保存。全データartifacts/binary-graph-evaluation、詳細docs/BINARY_CONFLICT_RESULTS.md。
+
+snapshot7831746bはcreate-only、全Rust評価未開始。native v2はPID556757/session89978で継続、21/720完了・strict optimal15・errors0（17:10時点）。次はperf547sampleで約32%を占めたcolor内時計確認を間引き、固定節点・元問題解検査で比較する。open instanceへの追加探索も通常Benchmarkとは別枠で検討する。

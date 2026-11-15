@@ -1,0 +1,349 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 547  of event 'cpu-clock'
+# Event count (approx.): 5525252470
+#
+# Overhead  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   IPC   [IPC Coverage]
+# ........  .......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................  ....................
+#
+    31.99%  [.] 0x0000000000000584                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---__kernel_clock_gettime
+               clock_gettime
+               <std::sys::pal::unix::time::Timespec>::now
+               |          
+                --31.63%--<mip_codex::binary_graph::Search>::color
+                          <mip_codex::binary_graph::Search>::expand
+                          <mip_codex::binary_graph::Search>::expand
+                          <mip_codex::binary_graph::Search>::expand
+                          |          
+                           --31.26%--<mip_codex::binary_graph::Search>::expand
+                                     |          
+                                     |--27.06%--<mip_codex::binary_graph::Search>::expand
+                                     |          |          
+                                     |          |--14.81%--mip_codex::binary_graph::solve
+                                     |          |          mip_codex::solve::solve_seeded
+                                     |          |          mip_codex::run
+                                     |          |          mip_codex::main
+                                     |          |          std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                     |          |          std::rt::lang_start::<()>::{closure#0}
+                                     |          |          std::rt::lang_start_internal
+                                     |          |          main
+                                     |          |          0xf213e93a84c4
+                                     |          |          __libc_start_main
+                                     |          |          _start
+                                     |          |          
+                                     |           --12.25%--<mip_codex::binary_graph::Search>::expand
+                                     |                     |          
+                                     |                     |--10.24%--mip_codex::binary_graph::solve
+                                     |                     |          mip_codex::solve::solve_seeded
+                                     |                     |          mip_codex::run
+                                     |                     |          mip_codex::main
+                                     |                     |          std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                     |                     |          std::rt::lang_start::<()>::{closure#0}
+                                     |                     |          std::rt::lang_start_internal
+                                     |                     |          main
+                                     |                     |          0xf213e93a84c4
+                                     |                     |          __libc_start_main
+                                     |                     |          _start
+                                     |                     |          
+                                     |                      --2.01%--<mip_codex::binary_graph::Search>::expand
+                                     |                                |          
+                                     |                                 --1.83%--mip_codex::binary_graph::solve
+                                     |                                           mip_codex::solve::solve_seeded
+                                     |                                           mip_codex::run
+                                     |                                           mip_codex::main
+                                     |                                           std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                     |                                           std::rt::lang_start::<()>::{closure#0}
+                                     |                                           std::rt::lang_start_internal
+                                     |                                           main
+                                     |                                           0xf213e93a84c4
+                                     |                                           __libc_start_main
+                                     |                                           _start
+                                     |          
+                                      --4.20%--mip_codex::binary_graph::solve
+                                                mip_codex::solve::solve_seeded
+                                                mip_codex::run
+                                                mip_codex::main
+                                                std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                                std::rt::lang_start::<()>::{closure#0}
+                                                std::rt::lang_start_internal
+                                                main
+                                                0xf213e93a84c4
+                                                __libc_start_main
+                                                _start
+
+    14.26%  [.] <mip_codex::binary_graph::Search>::color                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---<mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               |          
+                --14.08%--<mip_codex::binary_graph::Search>::expand
+                          |          
+                          |--10.79%--<mip_codex::binary_graph::Search>::expand
+                          |          |          
+                          |          |--5.48%--mip_codex::binary_graph::solve
+                          |          |          mip_codex::solve::solve_seeded
+                          |          |          mip_codex::run
+                          |          |          mip_codex::main
+                          |          |          std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                          |          |          std::rt::lang_start::<()>::{closure#0}
+                          |          |          std::rt::lang_start_internal
+                          |          |          main
+                          |          |          0xf213e93a84c4
+                          |          |          __libc_start_main
+                          |          |          _start
+                          |          |          
+                          |           --5.30%--<mip_codex::binary_graph::Search>::expand
+                          |                     |          
+                          |                     |--3.84%--mip_codex::binary_graph::solve
+                          |                     |          mip_codex::solve::solve_seeded
+                          |                     |          mip_codex::run
+                          |                     |          mip_codex::main
+                          |                     |          std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                          |                     |          std::rt::lang_start::<()>::{closure#0}
+                          |                     |          std::rt::lang_start_internal
+                          |                     |          main
+                          |                     |          0xf213e93a84c4
+                          |                     |          __libc_start_main
+                          |                     |          _start
+                          |                     |          
+                          |                      --1.46%--<mip_codex::binary_graph::Search>::expand
+                          |                                mip_codex::binary_graph::solve
+                          |                                mip_codex::solve::solve_seeded
+                          |                                mip_codex::run
+                          |                                mip_codex::main
+                          |                                std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                          |                                std::rt::lang_start::<()>::{closure#0}
+                          |                                std::rt::lang_start_internal
+                          |                                main
+                          |                                0xf213e93a84c4
+                          |                                __libc_start_main
+                          |                                _start
+                          |          
+                           --3.29%--mip_codex::binary_graph::solve
+                                     mip_codex::solve::solve_seeded
+                                     mip_codex::run
+                                     mip_codex::main
+                                     std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                     std::rt::lang_start::<()>::{closure#0}
+                                     std::rt::lang_start_internal
+                                     main
+                                     0xf213e93a84c4
+                                     __libc_start_main
+                                     _start
+
+    12.07%  [.] 0x0000000000000574                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---__kernel_clock_gettime
+               clock_gettime
+               <std::sys::pal::unix::time::Timespec>::now
+               |          
+                --11.88%--<mip_codex::binary_graph::Search>::color
+                          <mip_codex::binary_graph::Search>::expand
+                          <mip_codex::binary_graph::Search>::expand
+                          <mip_codex::binary_graph::Search>::expand
+                          |          
+                           --11.70%--<mip_codex::binary_graph::Search>::expand
+                                     |          
+                                     |--9.69%--<mip_codex::binary_graph::Search>::expand
+                                     |          |          
+                                     |          |--5.12%--<mip_codex::binary_graph::Search>::expand
+                                     |          |          |          
+                                     |          |           --4.20%--mip_codex::binary_graph::solve
+                                     |          |                     mip_codex::solve::solve_seeded
+                                     |          |                     mip_codex::run
+                                     |          |                     mip_codex::main
+                                     |          |                     std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                     |          |                     std::rt::lang_start::<()>::{closure#0}
+                                     |          |                     std::rt::lang_start_internal
+                                     |          |                     main
+                                     |          |                     0xf213e93a84c4
+                                     |          |                     __libc_start_main
+                                     |          |                     _start
+                                     |          |          
+                                     |           --4.57%--mip_codex::binary_graph::solve
+                                     |                     mip_codex::solve::solve_seeded
+                                     |                     mip_codex::run
+                                     |                     mip_codex::main
+                                     |                     std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                     |                     std::rt::lang_start::<()>::{closure#0}
+                                     |                     std::rt::lang_start_internal
+                                     |                     main
+                                     |                     0xf213e93a84c4
+                                     |                     __libc_start_main
+                                     |                     _start
+                                     |          
+                                      --2.01%--mip_codex::binary_graph::solve
+                                                mip_codex::solve::solve_seeded
+                                                mip_codex::run
+                                                mip_codex::main
+                                                std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                                std::rt::lang_start::<()>::{closure#0}
+                                                std::rt::lang_start_internal
+                                                main
+                                                0xf213e93a84c4
+                                                __libc_start_main
+                                                _start
+
+     6.40%  [.] 0x0000000000000578                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---__kernel_clock_gettime
+               clock_gettime
+               <std::sys::pal::unix::time::Timespec>::now
+               <mip_codex::binary_graph::Search>::color
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               |          
+               |--5.12%--<mip_codex::binary_graph::Search>::expand
+               |          |          
+               |          |--2.56%--mip_codex::binary_graph::solve
+               |          |          mip_codex::solve::solve_seeded
+               |          |          mip_codex::run
+               |          |          mip_codex::main
+               |          |          std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+               |          |          std::rt::lang_start::<()>::{closure#0}
+               |          |          std::rt::lang_start_internal
+               |          |          main
+               |          |          0xf213e93a84c4
+               |          |          __libc_start_main
+               |          |          _start
+               |          |          
+               |           --2.56%--<mip_codex::binary_graph::Search>::expand
+               |                     |          
+               |                      --2.38%--mip_codex::binary_graph::solve
+               |                                mip_codex::solve::solve_seeded
+               |                                mip_codex::run
+               |                                mip_codex::main
+               |                                std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+               |                                std::rt::lang_start::<()>::{closure#0}
+               |                                std::rt::lang_start_internal
+               |                                main
+               |                                0xf213e93a84c4
+               |                                __libc_start_main
+               |                                _start
+               |          
+                --1.28%--mip_codex::binary_graph::solve
+                          mip_codex::solve::solve_seeded
+                          mip_codex::run
+                          mip_codex::main
+                          std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                          std::rt::lang_start::<()>::{closure#0}
+                          std::rt::lang_start_internal
+                          main
+                          0xf213e93a84c4
+                          __libc_start_main
+                          _start
+
+     3.66%  [.] 0x0000000000000594                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---__kernel_clock_gettime
+               clock_gettime
+               <std::sys::pal::unix::time::Timespec>::now
+               <mip_codex::binary_graph::Search>::color
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               |          
+                --3.11%--<mip_codex::binary_graph::Search>::expand
+                          |          
+                          |--1.65%--mip_codex::binary_graph::solve
+                          |          mip_codex::solve::solve_seeded
+                          |          mip_codex::run
+                          |          mip_codex::main
+                          |          std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                          |          std::rt::lang_start::<()>::{closure#0}
+                          |          std::rt::lang_start_internal
+                          |          main
+                          |          0xf213e93a84c4
+                          |          __libc_start_main
+                          |          _start
+                          |          
+                           --1.46%--<mip_codex::binary_graph::Search>::expand
+
+     3.47%  [.] 0x0000000000000568                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---__kernel_clock_gettime
+               clock_gettime
+               <std::sys::pal::unix::time::Timespec>::now
+               <mip_codex::binary_graph::Search>::color
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               |          
+                --2.74%--<mip_codex::binary_graph::Search>::expand
+                          |          
+                           --1.83%--mip_codex::binary_graph::solve
+                                     mip_codex::solve::solve_seeded
+                                     mip_codex::run
+                                     mip_codex::main
+                                     std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+                                     std::rt::lang_start::<()>::{closure#0}
+                                     std::rt::lang_start_internal
+                                     main
+                                     0xf213e93a84c4
+                                     __libc_start_main
+                                     _start
+
+     2.38%  [.] <std::sys::pal::unix::time::Timespec>::now                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---<mip_codex::binary_graph::Search>::color
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               |          
+                --1.83%--<mip_codex::binary_graph::Search>::expand
+
+     2.38%  [.] mip_codex::mps::parse::<alloc::io::buffered::bufreader::BufReader<flate2::gz::read::GzDecoder<std::fs::File>>>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---mip_codex::mps::read::<&alloc::string::String>
+               mip_codex::run
+               mip_codex::main
+               std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+               std::rt::lang_start::<()>::{closure#0}
+               std::rt::lang_start_internal
+               main
+               0xf213e93a84c4
+               __libc_start_main
+               _start
+
+     1.65%  [.] clock_gettime                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |
+            ---<std::sys::pal::unix::time::Timespec>::now
+               <mip_codex::binary_graph::Search>::color
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               <mip_codex::binary_graph::Search>::expand
+               |          
+                --1.46%--<mip_codex::binary_graph::Search>::expand
+                          |          
+                           --1.28%--<mip_codex::binary_graph::Search>::expand
+
+     1.28%  [.] memcmp                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---mip_codex::mps::parse::<alloc::io::buffered::bufreader::BufReader<flate2::gz::read::GzDecoder<std::fs::File>>>
+               mip_codex::mps::read::<&alloc::string::String>
+               mip_codex::run
+               mip_codex::main
+               std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+               std::rt::lang_start::<()>::{closure#0}
+               std::rt::lang_start_internal
+               main
+               0xf213e93a84c4
+               __libc_start_main
+               _start
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#
