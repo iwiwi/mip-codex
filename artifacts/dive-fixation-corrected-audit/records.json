@@ -1,0 +1,1794 @@
+[
+  {
+    "run": "smoke-20261115-115136",
+    "name": "50v-10.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "e45d72629e215b2b37537b0ee105fe0828c973cf9bffd0a799bbbae26dc39b9d",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/50v-10.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/50v-10.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 4.547473508864641e-13,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/50v-10.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "50v-10.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "a0d61f86c2dc7ba3f819d1198693233b2567cb4155b2683fb12db48726f3ed13",
+    "input_sha256": "9e64ce8962b8152e48b617cf7ec9e1abd8efeee8dcb317d4c06d817e5644192c",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/50v-10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/50v-10.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/50v-10.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 3777.5999889075742,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 4.547473508864641e-13,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 3777.599988907574,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "1888799994453787/500000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/50v-10.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/50v-10.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "a8952a13a1bae828c740dc223785adc61cbe5d21580617bbc2c8475c29feb969",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/binkar10_1.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/binkar10_1.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 6794.860025,
+        "bound_violation": 5.551115123125783e-17,
+        "row_violation": 2.220446049250313e-16,
+        "integer_violation": 0.0,
+        "objective_error": 7.275957614183426e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 6794.860025,
+      "bound_violation": 5.551115123125783e-17,
+      "row_violation": 2.0000000000000002e-16,
+      "integer_violation": 0.0,
+      "objective_error": 7.025803519934283e-12,
+      "exact": {
+        "objective": "6794860024999999974196480065717475308985632244637936416191/1000000000000000000000000000000000000000000000000000000",
+        "bound_violation": "5551115123125783/100000000000000000000000000000000",
+        "row_violation": "100000000000000005839415739522207/500000000000000000000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "7025803519934282524691014367755362063583809/1000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/binkar10_1.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "binkar10_1.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "ee7b3aaf1e6443a47480e006940977a0377b896516cc26db9429c0f1cda4400e",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/binkar10_1.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/binkar10_1.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 7429.760014,
+        "bound_violation": 5.889440007134347e-16,
+        "row_violation": 5.889440007134347e-16,
+        "integer_violation": 0.0,
+        "objective_error": 9.094947017729282e-13,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 7429.760014,
+      "bound_violation": 5.889440007134347e-16,
+      "row_violation": 6e-16,
+      "integer_violation": 0.0,
+      "objective_error": 1.0398237660755173e-12,
+      "exact": {
+        "objective": "37148800069999999800881169622413573966429673200919589/5000000000000000000000000000000000000000000000000",
+        "bound_violation": "5889440007134347/10000000000000000000000000000000",
+        "row_violation": "3/5000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5199118830377586426033570326799080411/5000000000000000000000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/binkar10_1.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "gmu-35-40.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "930f15f551a8203e66fe576216713e7eee57f682d5bc1c87c36f14359ff94591",
+    "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-40.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/gmu-35-40.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-40.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2367540.5084,
+        "bound_violation": 0.0,
+        "row_violation": 3.61666252501891e-12,
+        "integer_violation": 0.0,
+        "objective_error": 9.313225746154785e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2367540.5084,
+      "bound_violation": 0.0,
+      "row_violation": 3.6e-12,
+      "integer_violation": 0.0,
+      "objective_error": 8e-10,
+      "exact": {
+        "objective": "-5918851271/2500",
+        "bound_violation": "0",
+        "row_violation": "9/2500000000000",
+        "integer_violation": "0",
+        "objective_error": "1/1250000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-40.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-40.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "gmu-35-40.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "60746c50c691d1ec9abffd2d5206bcf00e9b7d00e1da5c891cef693bb74bef37",
+    "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-40.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/gmu-35-40.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-40.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2367540.5084,
+        "bound_violation": 0.0,
+        "row_violation": 3.61666252501891e-12,
+        "integer_violation": 0.0,
+        "objective_error": 9.313225746154785e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2367540.5084,
+      "bound_violation": 0.0,
+      "row_violation": 3.6e-12,
+      "integer_violation": 0.0,
+      "objective_error": 8e-10,
+      "exact": {
+        "objective": "-5918851271/2500",
+        "bound_violation": "0",
+        "row_violation": "9/2500000000000",
+        "integer_violation": "0",
+        "objective_error": "1/1250000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-40.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-40.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "gmu-35-50.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "d6ac8cbfad9f44e7b286928e0888b6589c9f134786e79ce677e6ac76e99adce0",
+    "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-50.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/gmu-35-50.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-50.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2574311.3903,
+        "bound_violation": 0.0,
+        "row_violation": 2.376765451117535e-12,
+        "integer_violation": 0.0,
+        "objective_error": 9.313225746154785e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2574311.3903,
+      "bound_violation": 0.0,
+      "row_violation": 2.3e-12,
+      "integer_violation": 0.0,
+      "objective_error": 1e-09,
+      "exact": {
+        "objective": "-25743113903/10000",
+        "bound_violation": "0",
+        "row_violation": "23/10000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/1000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-50.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-50.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "gmu-35-50.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "6a5ef284cc9e2ad6a56f204187526997a3686df3abf94dfd0282d252f454cb29",
+    "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-50.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/gmu-35-50.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-50.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -2574311.3903,
+        "bound_violation": 0.0,
+        "row_violation": 2.376765451117535e-12,
+        "integer_violation": 0.0,
+        "objective_error": 9.313225746154785e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -2574311.3903,
+      "bound_violation": 0.0,
+      "row_violation": 2.3e-12,
+      "integer_violation": 0.0,
+      "objective_error": 1e-09,
+      "exact": {
+        "objective": "-25743113903/10000",
+        "bound_violation": "0",
+        "row_violation": "23/10000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/1000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gmu-35-50.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/gmu-35-50.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "mad.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "f726c31bc5f756bbf76ffbe31ea7c7afddf6534e1bca50cdd20ddfe30c15d0f2",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/mad.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/mad.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37660000000000043,
+        "bound_violation": 0.0,
+        "row_violation": 6.366435156834882e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37660000000000043,
+      "bound_violation": 0.0,
+      "row_violation": 6.072e-16,
+      "integer_violation": 0.0,
+      "objective_error": 1.5e-17,
+      "exact": {
+        "objective": "75320000000000083/200000000000000000",
+        "bound_violation": "0",
+        "row_violation": "759/1250000000000000000",
+        "integer_violation": "0",
+        "objective_error": "3/200000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mad.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/mad.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "mad.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "40972fb2c5ce2d26b52743e89a6b199ece6481b65601183cdd624dcf147688a0",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/mad.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/mad.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37660000000000043,
+        "bound_violation": 0.0,
+        "row_violation": 6.366435156834882e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37660000000000043,
+      "bound_violation": 0.0,
+      "row_violation": 6.072e-16,
+      "integer_violation": 0.0,
+      "objective_error": 1.5e-17,
+      "exact": {
+        "objective": "75320000000000083/200000000000000000",
+        "bound_violation": "0",
+        "row_violation": "759/1250000000000000000",
+        "integer_violation": "0",
+        "objective_error": "3/200000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mad.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/mad.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "7c377eab7b441866b3684a034df14d3dcd330d515f22f391d365670251e509a5",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/markshare_4_0.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/markshare_4_0.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 4.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 4.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-16,
+      "integer_violation": 0.0,
+      "objective_error": 2e-16,
+      "exact": {
+        "objective": "19999999999999999/5000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/5000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/markshare_4_0.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "markshare_4_0.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "b2661c4db6abab83394dee4cc4da9b8e548f08cb87a575097e7164d89a5a900a",
+    "input_sha256": "1a1feb04f5637db9f69be53bd6224fcd9fe5b8d750870d9b2002b535d25f4353",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/markshare_4_0.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/markshare_4_0.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/markshare_4_0.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 4.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 4.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-16,
+      "integer_violation": 0.0,
+      "objective_error": 2e-16,
+      "exact": {
+        "objective": "19999999999999999/5000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/5000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/5000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/markshare_4_0.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/markshare_4_0.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "pk1.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "1235bcace45debf241e6de9e8fe3c3152eb3acfe2aeee0f9f6c5c5194c99cd61",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/pk1.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/pk1.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 20.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 20.0,
+      "bound_violation": 0.0,
+      "row_violation": 2e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "20",
+        "bound_violation": "0",
+        "row_violation": "1/500000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/pk1.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115136",
+    "name": "pk1.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "3e1478c84e2dd15280c8f0d14ba6d2c7c2efb913f9f601fa0a2c2ef80ae8fd61",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115136/pk1.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/pk1.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 19.999999999999993,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 19.999999999999993,
+      "bound_violation": 0.0,
+      "row_violation": 3e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "19999999999999993/1000000000000000",
+        "bound_violation": "0",
+        "row_violation": "3/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115136/pk1.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "790d75f8280f42b092fb1c46607a36960ca3637e803803b970944700a9efa7c9",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/beasleyC3.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/beasleyC3.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/beasleyC3.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "beasleyC3.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "5d9cfe96c9c00b28e1250979fdb8c8dc6af7ee2b803c2a97936ff3e19c251c5a",
+    "input_sha256": "37350bc46bdb84a6373e9044eb3d0d65202427fe2bcba64ed282f894699d75dd",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/beasleyC3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/beasleyC3.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/beasleyC3.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 950.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 950.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "950",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/beasleyC3.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/beasleyC3.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "e03645678b54f46f81805e09cac774d3f91074d42e533de50c1cf6c0ac80c751",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/bppc4-08.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/bppc4-08.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 68.99999999999999,
+        "bound_violation": 0.0,
+        "row_violation": 1.4210854715202004e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 68.99999999999999,
+      "bound_violation": 0.0,
+      "row_violation": 1e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "6899999999999999/100000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/bppc4-08.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "bppc4-08.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "8efc1137b0fec6c1d91b9626d418154cd3d4bcd99cb5b9c528c54ef687a0097b",
+    "input_sha256": "f7441940af00d8a1a68b889f95dcabbe0185b68f53598cb70595fab23eca1cec",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/bppc4-08.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/bppc4-08.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/bppc4-08.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 67.00000000000001,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 67.00000000000001,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "6700000000000001/100000000000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/bppc4-08.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/bppc4-08.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "32aead499b8f4c9218e8eac91ad22251f62483a8f659c8f01a32f32e9ab958df",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/gen-ip002.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/gen-ip002.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4725.2015367,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4725.2015367,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-47252015367/10000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/gen-ip002.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "gen-ip002.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "c26372feb05be71c91bb4a8d5b08d8ecf55249a3ab21798bec0157debc688b32",
+    "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gen-ip002.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/gen-ip002.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/gen-ip002.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -4725.2015367,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -4725.2015367,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-47252015367/10000000",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/gen-ip002.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/gen-ip002.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "mc11.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "a38b59b2eaa3e12c95b229ab9da98f460f3af807f1b004e651e8bf90b792fe64",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/mc11.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/mc11.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/mc11.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "mc11.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "e70fd841776b81d7e5934bcabb76e15d22e428c15a2caf1d80524d205ffa7a65",
+    "input_sha256": "55f4d9c9d2022cffeb3e07cd7398753f5aab720f16fa49ab17223375bab83874",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mc11.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/mc11.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/mc11.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 13548.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 13548.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "13548",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/mc11.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/mc11.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "n5-3.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "02f03096f44877eb8dfafdc00a978b598682fbd3520b76ece074772e38d4bfd9",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/n5-3.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/n5-3.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/n5-3.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "n5-3.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "59e95632fd52597fbc7007e4f92a276d41f392de8d3d027b6dadd0c4acf3215b",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/n5-3.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/n5-3.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/n5-3.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "20fe0a7cecbc1eb130dbea4a2ae6f1fd81668a1242ca31b5cc5d9121ffde17e7",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/pg5_34.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/pg5_34.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -14019.566632688631,
+        "bound_violation": 0.0,
+        "row_violation": 7.815970093361102e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -14019.566632688631,
+      "bound_violation": 0.0,
+      "row_violation": 1.1215e-13,
+      "integer_violation": 0.0,
+      "objective_error": 6.01868e-13,
+      "exact": {
+        "objective": "-3504891658172157900467/250000000000000000",
+        "bound_violation": "0",
+        "row_violation": "2243/20000000000000000",
+        "integer_violation": "0",
+        "objective_error": "150467/250000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/pg5_34.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "pg5_34.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "4e7f33376d3a1961277a7b0cf34911db351ae7e8bda953f1316fe5502fd7ff2c",
+    "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/pg5_34.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/pg5_34.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -14019.566632688631,
+        "bound_violation": 0.0,
+        "row_violation": 7.815970093361102e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -14019.566632688631,
+      "bound_violation": 0.0,
+      "row_violation": 1.1215e-13,
+      "integer_violation": 0.0,
+      "objective_error": 6.01868e-13,
+      "exact": {
+        "objective": "-3504891658172157900467/250000000000000000",
+        "bound_violation": "0",
+        "row_violation": "2243/20000000000000000",
+        "integer_violation": "0",
+        "objective_error": "150467/250000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/pg5_34.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/pg5_34.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "timtab1.mps.gz",
+    "solver": "rust-dive-fixed",
+    "solution_sha256": "c14ed28944f1c594c7b5f42b3e105d8b5b6c3bc85d1bb0c59d5e1b3cdde684fd",
+    "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/timtab1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/timtab1.mps.gz/rust-dive-fixed/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/timtab1.mps.gz/rust-dive-fixed"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1154004.99999986,
+        "bound_violation": 0.0,
+        "row_violation": 7.105427357601002e-15,
+        "integer_violation": 0.0,
+        "objective_error": 2.3283064365386963e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1154004.99999986,
+      "bound_violation": 0.0,
+      "row_violation": 1e-14,
+      "integer_violation": 0.0,
+      "objective_error": 1.799999999999e-10,
+      "exact": {
+        "objective": "11540049999998599799999999999/10000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "1799999999999/10000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/timtab1.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/timtab1.mps.gz/rust-dive-fixed/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261115-115137",
+    "name": "timtab1.mps.gz",
+    "solver": "rust-dive-flexible",
+    "solution_sha256": "01adf33e5119046fc5f6b3b30d322b72e64c8a9df7bb589e1578c24096ce575c",
+    "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/.venv/bin/python",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/timtab1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/artifacts/smoke-20261115-115137/timtab1.mps.gz/rust-dive-flexible/result.json",
+      "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+      "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/timtab1.mps.gz/rust-dive-flexible"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1154004.99999986,
+        "bound_violation": 0.0,
+        "row_violation": 7.105427357601002e-15,
+        "integer_violation": 0.0,
+        "objective_error": 2.3283064365386963e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational absolute",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1154004.99999986,
+      "bound_violation": 0.0,
+      "row_violation": 1e-14,
+      "integer_violation": 0.0,
+      "objective_error": 1.799999999999e-10,
+      "exact": {
+        "objective": "11540049999998599799999999999/10000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "1/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "1799999999999/10000000000000000000000"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/artifacts/runs/dive-fixation-source/data/raw/benchmark/timtab1.mps.gz",
+        "artifacts/dive-fixation-corrected-audit/smoke-20261115-115137/timtab1.mps.gz/rust-dive-flexible/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+]
