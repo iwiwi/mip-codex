@@ -24,7 +24,7 @@
 
 元十進入力の重複合計/RANGES端点消失、微小コストの誤最適/誤非有界などを修正。LP列/行スケーリングと元単位のray検査も有効。極端な単位のdense参照LP50例の数値エラーは未解決で隠さない。独立GMP原MPS検査とcut証明監査を性能評価の前提にする。
 
-次は整数目的値の安全な下界丸め (原MPS/原境界での保証付き双対下界が前提)、主解なし問題へのfeasibility pump、選択した強分枝子LPのwarm基底再利用を検討する。名前/既知値/holdout性能による個別調整をしない。全240×3 baselineは固定snapshotで継続中、稼働snapshot/共有依存/CPU8..15を変更しない。全240最終Rust評価・全体優位は未達成。
+目的下界の根限定版は独立検証と対照実験後に既定採用予定 (docs/OBJECTIVE_BOUND.md)。次は主解なし問題へのfeasibility pump、選択した強分枝子LPのwarm基底再利用を検討する。名前/既知値/holdout性能による個別調整をしない。全240×3 baselineは固定snapshotで継続中、稼働snapshot/共有依存/CPU8..15を変更しない。全240最終Rust評価・全体優位は未達成。
 
 ## 再開
 `git status`、`docs/JOURNAL.md`、`docs/BENCHMARK.md`を読み、実ジョブPIDと終了状態を検査。ログだけでジョブが生存していると判断しない。失敗も記録し、採用変更はブランチ→PR→main。

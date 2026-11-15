@@ -137,6 +137,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
     use mip_codex::solve::{Limits, solve};
     let model = read("2", "3");
     let limits = Limits {
+        objective_rounding: false,
         rins: false,
         strong_branching: false,
         cover_cuts: false,
@@ -150,6 +151,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
     let after = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             strong_branching: false,
             cover_cuts: true,
@@ -173,6 +175,7 @@ fn ranged_lower_side_cuts_keep_the_maximization_offset() {
     let result = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             strong_branching: false,
             nodes: 1,
@@ -243,6 +246,7 @@ fn fractional_coefficients_project_a_continuous_lower_bound_safely() {
     let result = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             strong_branching: false,
             nodes: 1,
@@ -357,6 +361,7 @@ fn root_cut_incumbent_does_not_replace_the_fractional_global_bound() {
     let result = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             strong_branching: false,
             nodes: 1,

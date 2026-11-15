@@ -50,7 +50,7 @@ impl Default for Limits {
             rounding_cuts: false,
             strong_branching: true,
             rins: true,
-            objective_rounding: false,
+            objective_rounding: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,

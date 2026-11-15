@@ -4,6 +4,7 @@ use mip_codex::{
 };
 fn limits() -> Limits {
     Limits {
+        objective_rounding: false,
         rins: false,
         cover_cuts: false,
         rounding_cuts: false,
@@ -20,6 +21,7 @@ fn infeasible_probes_do_not_prove_the_main_problem() {
     let result = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             nodes: 1,
             ..limits()
@@ -39,6 +41,7 @@ fn optimal_probes_only_train_costs_and_preserve_the_parent_bound() {
     let on = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             nodes: 1,
             ..limits()
@@ -47,6 +50,7 @@ fn optimal_probes_only_train_costs_and_preserve_the_parent_bound() {
     let off = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             nodes: 1,
             strong_branching: false,
@@ -69,6 +73,7 @@ fn expired_deadline_does_not_start_probing() {
     let result = solve(
         &model,
         &Limits {
+            objective_rounding: false,
             rins: false,
             seconds: 0.,
             ..limits()
