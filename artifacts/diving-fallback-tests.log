@@ -1,0 +1,57 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.00s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/543b08d65459b292/out/mip_codex-543b08d65459b292)
+
+running 8 tests
+test exact::tests::cancellation_preserves_smallest_products_and_overflowing_products ... ok
+test exact::tests::nonfinite_values_are_not_certified ... ok
+test revised::ratio_regressions::entering_width_and_upper_bound_are_respected ... ok
+test revised::ratio_regressions::near_tie_chooses_stable_pivot_and_preserves_tolerance ... ok
+test revised::ratio_regressions::stable_pivot_ties_use_basic_variable_order ... ok
+test revised::ratio_regressions::tiny_bound_roundoff_is_not_amplified_by_small_pivot ... ok
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+test exact::tests::arbitrary_exponents_match_independent_python_fraction_fixtures ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/build/mip-codex/d349582408c85666/out/mip_codex-d349582408c85666)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/branching.rs (target/debug/build/mip-codex/5d3004c9a3fa6f99/out/branching-5d3004c9a3fa6f99)
+
+running 3 tests
+test zero_costs_fall_back_and_direction_uses_distance ... ok
+test observed_costs_change_ranking_without_changing_feasible_region ... ok
+test all_rules_orders_and_objective_senses_preserve_optimum ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/diving.rs (target/debug/build/mip-codex/afcace67792c37d6/out/diving-afcace67792c37d6)
+
+running 5 tests
+test expired_global_deadline_skips_all_local_solves ... ok
+test local_infeasibility_reverses_direction_without_pruning_parent ... ok
+test failed_integral_fixing_does_not_discard_a_feasible_integer_solution ... FAILED
+test diving_finds_cover_without_claiming_root_bound_is_integer_optimum ... ok
+test two_failed_sides_do_not_prove_mip_infeasibility ... ok
+
+failures:
+
+---- failed_integral_fixing_does_not_discard_a_feasible_integer_solution stdout ----
+
+thread 'failed_integral_fixing_does_not_discard_a_feasible_integer_solution' (139036) panicked at tests/diving.rs:75:5:
+assertion `left == right` failed
+  left: 3
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    failed_integral_fixing_does_not_discard_a_feasible_integer_solution
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test diving`

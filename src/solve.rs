@@ -18,6 +18,7 @@ pub struct Limits {
     pub warm_start: bool,
     pub propagation: bool,
     pub primal_repair: bool,
+    pub lp_diving: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
 }
@@ -32,6 +33,7 @@ impl Default for Limits {
             warm_start: true,
             propagation: false,
             primal_repair: true,
+            lp_diving: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
         }
@@ -44,6 +46,8 @@ pub struct Result {
     pub pseudocost_updates: usize,
     pub pseudocost_selections: usize,
     pub primal_repair: bool,
+    pub lp_diving: bool,
+    pub diving: DivingStats,
     pub repair_calls: usize,
     pub repair_candidates: usize,
     pub repair_improvements: usize,
@@ -274,6 +278,146 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
         terms,
     })
 }
+/// 主解探索の局所LPは探索木・下界・擬似コストには一切反映しない。
+#[derive(Default, Debug, Serialize)]
+pub struct DivingStats {
+    pub calls: usize,
+    pub lp_solves: usize,
+    pub reversals: usize,
+    pub infeasible: usize,
+    pub numerical_errors: usize,
+    pub limited: usize,
+    pub candidates: usize,
+    pub improvements: usize,
+    pub seconds: f64,
+}
+fn dive(
+    model: &Model,
+    root: &Node,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+    stats: &mut DivingStats,
+    lp_stats: &mut revised::Stats,
+) -> Option<Vec<f64>> {
+    stats.calls += 1;
+    let mut current = root.clone();
+    let mut point = point.to_vec();
+    let checker = heuristic::Repair::new(model);
+    let first_solve = stats.lp_solves;
+    loop {
+        if Instant::now() >= deadline || stats.lp_solves - first_solve >= 256 {
+            stats.limited += 1;
+            return None;
+        }
+        // ほぼ整数の変数から順に近い側へ潜る。整数許容幅内の値は分枝しない。
+        let choice = model
+            .variables
+            .iter()
+            .enumerate()
+            .filter(|(j, v)| v.integer && (point[*j] - point[*j].round()).abs() > 1e-6)
+            .min_by(|(j, _), (k, _)| {
+                let distance = |i: usize| (point[i] - point[i].round()).abs();
+                distance(*j).total_cmp(&distance(*k)).then(j.cmp(k))
+            })
+            .map(|(j, _)| j);
+        let Some(j) = choice else {
+            // 整数を丸めた後に全元制約を検査。連続部分はそのまま保持する。
+            for (j, v) in model.variables.iter().enumerate() {
+                if v.integer {
+                    point[j] = point[j].round();
+                }
+            }
+            if checker.candidate_check(&point) {
+                stats.candidates += 1;
+                return Some(point);
+            }
+            return None;
+        };
+        let floor = point[j].floor();
+        let ceil = point[j].ceil();
+        let prefer_up = ceil - point[j] <= point[j] - floor;
+        let mut accepted = false;
+        // 局所LPが実行不能なら同じ親から反対側を一度だけ試す。
+        for reverse in [false, true] {
+            if Instant::now() >= deadline || stats.lp_solves - first_solve >= 256 {
+                stats.limited += 1;
+                return None;
+            }
+            if reverse {
+                stats.reversals += 1;
+            }
+            let mut child = current.clone();
+            // 現在整数の値は局所探索内で固定し、再最適化で再び分数化するのを抑える。
+            // これらの固定が悪くても、失うのはこの主解探索の機会だけ。
+            for (k, v) in model.variables.iter().enumerate() {
+                if v.integer && (point[k] - point[k].round()).abs() <= 1e-6 {
+                    let value = point[k].round();
+                    child.lower[k] = Some(value);
+                    child.upper[k] = Some(value);
+                }
+            }
+            if prefer_up != reverse {
+                child.lower[j] = Some(child.lower[j].map_or(ceil, |l| l.max(ceil)));
+            } else {
+                child.upper[j] = Some(child.upper[j].map_or(floor, |u| u.min(floor)));
+            }
+            let q = match standard_sparse(model, &child, limits.dense_bytes) {
+                Relaxation::Ready(q) => q,
+                Relaxation::Infeasible => {
+                    stats.infeasible += 1;
+                    continue;
+                }
+                Relaxation::ResourceLimit => {
+                    stats.limited += 1;
+                    return None;
+                }
+            };
+            let answer = revised::minimize_warm(
+                q.sparse.as_ref().unwrap(),
+                limits.pivots.min(4096),
+                Some(deadline),
+                if limits.warm_start {
+                    current.warm.as_deref()
+                } else {
+                    None
+                },
+            );
+            stats.lp_solves += 1;
+            lp_stats.add(&answer.stats);
+            match answer.outcome {
+                lp::Outcome::Optimal { x, .. } => {
+                    point = q
+                        .terms
+                        .iter()
+                        .enumerate()
+                        .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                        .collect();
+                    if model.check(&point, false, 1e-6).is_err() {
+                        stats.numerical_errors += 1;
+                        return None;
+                    }
+                    child.warm = answer.warm;
+                    current = child;
+                    accepted = true;
+                    break;
+                }
+                lp::Outcome::Infeasible => stats.infeasible += 1,
+                lp::Outcome::IterationLimit | lp::Outcome::TimeLimit => {
+                    stats.limited += 1;
+                    return None;
+                }
+                _ => {
+                    stats.numerical_errors += 1;
+                    return None;
+                }
+            }
+        }
+        if !accepted {
+            return None;
+        }
+    }
+}
 pub fn solve(model: &Model, limits: &Limits) -> Result {
     let start = Instant::now();
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
@@ -303,6 +447,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         .then(|| propagate::Propagator::new(model));
     let mut lp_stats = revised::Stats::default();
     let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
+    let mut diving = DivingStats::default();
     let mut repair_improvements = 0;
     let mut repair_lp_solves = 0;
     let mut repair_lp_candidates = 0;
@@ -534,6 +679,42 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                         continue;
                     }
                 }
+                if limits.lp_diving
+                    && nodes == 1
+                    && branch.is_some()
+                    && matches!(limits.engine, Engine::Revised)
+                {
+                    let started = Instant::now();
+                    let diving_deadline = deadline.min(
+                        started
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)),
+                    );
+                    let old_solves = diving.lp_solves;
+                    let candidate = dive(
+                        model,
+                        &node,
+                        &original,
+                        limits,
+                        diving_deadline,
+                        &mut diving,
+                        &mut lp_stats,
+                    );
+                    if let Some(x) = candidate {
+                        let value = sign * model.objective(&x);
+                        if value.is_finite() && value < incumbent {
+                            diving.improvements += 1;
+                            incumbent = value;
+                            first_primal_seconds
+                                .get_or_insert_with(|| start.elapsed().as_secs_f64());
+                            best = Some(x);
+                        }
+                    }
+                    lp_solves += diving.lp_solves - old_solves;
+                    diving.seconds += started.elapsed().as_secs_f64();
+                }
+                if node.bound >= incumbent {
+                    continue;
+                }
                 if let Some(j) = branch {
                     let prefer_up = costs.prefer_up(j, original[j], limits.child_order);
                     let mut up = node.clone();
@@ -627,6 +808,8 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         pseudocost_updates: costs.updates,
         pseudocost_selections: costs.selections,
         primal_repair: limits.primal_repair,
+        lp_diving: limits.lp_diving,
+        diving,
         repair_calls: repair_stats.calls,
         repair_candidates: repair_stats.candidates,
         repair_improvements,
