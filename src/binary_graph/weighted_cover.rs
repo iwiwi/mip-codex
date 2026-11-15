@@ -6,6 +6,8 @@ pub struct Stats {
     pub initial: usize,
     pub best: usize,
     pub iterations: usize,
+    pub first_improvement_iteration: Option<usize>,
+    pub last_improvement_iteration: usize,
     pub additions: usize,
     pub removals: usize,
     pub weight_increases: usize,
@@ -210,7 +212,7 @@ pub(super) fn improve(
     let mut stats = Stats {
         initial: best.len(),
         best: best.len(),
-        iteration_limit: graph.n.saturating_mul(128).min(500000),
+        iteration_limit: graph.n.saturating_mul(1024).min(2_000_000),
         ..Stats::default()
     };
     let Some(mut state) = State::new(graph, &best, memory, deadline) else {
@@ -236,6 +238,8 @@ pub(super) fn improve(
                 }
                 best = candidate;
                 stats.best = best.len();
+                stats.first_improvement_iteration.get_or_insert(step);
+                stats.last_improvement_iteration = step;
             }
             let Some(v) = state.remove_choice() else {
                 stats.stop_reason = "complete";
@@ -244,6 +248,10 @@ pub(super) fn improve(
             state.change(v, false, step);
             stats.removals += 1;
             continue;
+        }
+        if step > graph.n.saturating_mul(16) && stats.first_improvement_iteration.is_none() {
+            stats.stop_reason = "initial_stagnation";
+            break;
         }
         let Some(v) = state.remove_choice() else {
             stats.stop_reason = "no_moves";
