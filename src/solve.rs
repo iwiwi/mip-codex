@@ -20,6 +20,7 @@ pub struct Limits {
     pub fixed_columns: bool,
     pub propagation: bool,
     pub primal_repair: bool,
+    pub box_primal: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -47,6 +48,7 @@ impl Default for Limits {
             fixed_columns: true,
             propagation: false,
             primal_repair: true,
+            box_primal: false,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -76,6 +78,8 @@ pub struct Result {
     pub pseudocost_updates: usize,
     pub pseudocost_selections: usize,
     pub primal_repair: bool,
+    pub box_primal_enabled: bool,
+    pub box_primal: heuristic::BoxStats,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
@@ -759,6 +763,22 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         changed: None,
         edge: None,
     };
+    let mut box_primal = heuristic::BoxStats::default();
+    let mut box_candidate = None;
+    let mut early_repair = None;
+    if limits.box_primal && seed.is_none() && Instant::now() < deadline {
+        let started = Instant::now();
+        let box_deadline = deadline
+            .min(started + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)));
+        let repair = heuristic::Repair::new(model);
+        let offset = start.elapsed().as_secs_f64();
+        (box_candidate, box_primal) = repair.box_search(box_deadline);
+        if let Some(t) = &mut box_primal.first_seconds {
+            *t += offset;
+        }
+        box_primal.seconds = started.elapsed().as_secs_f64();
+        early_repair = Some(repair);
+    }
     let mut lp_stats = revised::Stats::default();
     let prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let lp_model = prepared.model.as_ref().unwrap_or(model);
@@ -799,7 +819,12 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut propagator = limits
         .propagation
         .then(|| propagate::Propagator::new(model));
-    let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
+    let mut repair = limits.primal_repair.then(|| {
+        early_repair
+            .take()
+            .unwrap_or_else(|| heuristic::Repair::new(model))
+    });
+    drop(early_repair);
     let mut diving = DivingStats::default();
     let mut probe = ProbeStats::default();
     let mut strong = StrongStats::default();
@@ -810,6 +835,11 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut incumbent = f64::INFINITY;
     let mut best = None;
     let mut first_primal_seconds = None;
+    if let Some(x) = box_candidate {
+        incumbent = sign * model.objective(&x);
+        first_primal_seconds = box_primal.first_seconds;
+        best = Some(x);
+    }
     if let Some(x) = seed {
         if heuristic::Repair::new(model).candidate_check(x) {
             let value = sign * model.objective(x);
@@ -1319,6 +1349,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
+                    probe_limits.box_primal = false;
                     probe_limits.rounding_cuts = false;
                     probe_limits.strong_branching = false;
                     probe_limits.rins = false;
@@ -1406,6 +1437,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             local.lp_diving = false;
                             local.strong_branching = false;
                             local.cover_cuts = false;
+                            local.box_primal = false;
                             local.rounding_cuts = false;
                             local.propagation = false;
                             local.nodes = 1024;
@@ -1597,6 +1629,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         pseudocost_updates: costs.updates,
         pseudocost_selections: costs.selections,
         primal_repair: limits.primal_repair,
+        box_primal_enabled: limits.box_primal,
+        box_primal,
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,

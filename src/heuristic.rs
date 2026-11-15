@@ -203,3 +203,137 @@ impl<'a> Repair<'a> {
         None
     }
 }
+
+#[derive(Default, Debug, serde::Serialize)]
+pub struct BoxStats {
+    pub calls: usize,
+    pub candidates: usize,
+    pub improvements: usize,
+    pub moves: usize,
+    pub work: usize,
+    pub seconds: f64,
+    pub first_seconds: Option<f64>,
+}
+impl Repair<'_> {
+    /// Feasible box endpoints and objective descent; no bound or infeasibility claims.
+    pub fn box_search(&self, deadline: Instant) -> (Option<Vec<f64>>, BoxStats) {
+        let started = Instant::now();
+        let mut stats = BoxStats {
+            calls: 1,
+            ..BoxStats::default()
+        };
+        let sign = if self.model.maximize { -1. } else { 1. };
+        let mut best = None;
+        let mut best_value = f64::INFINITY;
+        let mut remember = |point: &[f64], stats: &mut BoxStats| {
+            if !self.candidate_check(point) {
+                return false;
+            }
+            let value = sign * self.model.objective(point);
+            if !value.is_finite() {
+                return false;
+            }
+            stats.candidates += 1;
+            stats
+                .first_seconds
+                .get_or_insert_with(|| started.elapsed().as_secs_f64());
+            if value < best_value {
+                best_value = value;
+                best = Some(point.to_vec());
+                stats.improvements += 1;
+            }
+            true
+        };
+        let domain = |j: usize| {
+            let v = &self.model.variables[j];
+            (
+                v.lower.map(|b| if v.integer { b.ceil() } else { b }),
+                v.upper.map(|b| if v.integer { b.floor() } else { b }),
+            )
+        };
+        for mode in 0..4 {
+            if Instant::now() >= deadline {
+                break;
+            }
+            let mut point = Vec::with_capacity(self.model.variables.len());
+            for (j, v) in self.model.variables.iter().enumerate() {
+                let (lower, upper) = domain(j);
+                let raw = match mode {
+                    1 => lower.unwrap_or(0.),
+                    2 => upper.unwrap_or(0.),
+                    3 if sign * v.objective < 0. => upper.unwrap_or(0.),
+                    3 if sign * v.objective > 0. => lower.unwrap_or(0.),
+                    _ => 0.,
+                };
+                point.push(
+                    raw.max(lower.unwrap_or(f64::NEG_INFINITY))
+                        .min(upper.unwrap_or(f64::INFINITY)),
+                );
+            }
+            stats.work += point.len();
+            if !remember(&point, &mut stats) {
+                continue;
+            }
+            let mut activities: Vec<_> = self
+                .model
+                .rows
+                .iter()
+                .map(|row| {
+                    crate::exact::dot(row.coefficients.iter().map(|&(j, a)| (a, point[j])))
+                        .unwrap_or(f64::NAN)
+                })
+                .collect();
+            let mut order = Vec::new();
+            for (j, v) in self.model.variables.iter().enumerate() {
+                let (lower, upper) = domain(j);
+                let target = if sign * v.objective < 0. {
+                    upper
+                } else if sign * v.objective > 0. {
+                    lower
+                } else {
+                    None
+                };
+                let Some(target) = target.filter(|x| x.is_finite()) else {
+                    continue;
+                };
+                let gain = -sign * v.objective * (target - point[j]);
+                if gain.is_finite() && gain > 1e-12 {
+                    order.push((j, target, gain / (1 + self.incidence[j].len()) as f64));
+                }
+            }
+            order.sort_unstable_by(|a, b| b.2.total_cmp(&a.2).then(a.0.cmp(&b.0)));
+            for (j, target, _) in order {
+                if Instant::now() >= deadline {
+                    break;
+                }
+                let delta = target - point[j];
+                if !delta.is_finite() {
+                    continue;
+                }
+                stats.work += self.incidence[j].len();
+                let allowed = self.incidence[j].iter().all(|&(i, a)| {
+                    let next = crate::exact::dot([(activities[i], 1.), (a, delta)].into_iter())
+                        .unwrap_or(f64::NAN);
+                    let row = &self.model.rows[i];
+                    next.is_finite()
+                        && row.lower.is_none_or(|l| l - next <= 1e-8)
+                        && row.upper.is_none_or(|u| next - u <= 1e-8)
+                });
+                if !allowed {
+                    continue;
+                }
+                point[j] = target;
+                for &(i, a) in &self.incidence[j] {
+                    activities[i] =
+                        crate::exact::dot([(activities[i], 1.), (a, delta)].into_iter())
+                            .unwrap_or(f64::NAN);
+                }
+                stats.moves += 1;
+            }
+            // Approximate activity updates only choose moves. The original guard decides acceptance.
+            remember(&point, &mut stats);
+        }
+        stats.seconds = started.elapsed().as_secs_f64();
+        (best, stats)
+    }
+}
