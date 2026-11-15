@@ -1758,7 +1758,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         deferred_infeasibilities: deferred.observed,
         deferred_infeasibilities_pending: deferred.pending,
         deferred_infeasibilities_pruned: deferred.pruned,
-        deferred_infeasibility_bound: deferred.minimum.is_finite().then_some(deferred.minimum),
+        deferred_infeasibility_bound: deferred
+            .minimum
+            .is_finite()
+            .then_some(sign * deferred.minimum),
         deferred_infeasibility_unbounded: deferred.minimum == f64::NEG_INFINITY,
         lp_search_termination,
         branching: format!("{:?}", limits.branching),
