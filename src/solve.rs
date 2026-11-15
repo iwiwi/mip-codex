@@ -159,6 +159,24 @@ enum Relaxation {
     Infeasible,
     ResourceLimit,
 }
+fn checked_difference(a: f64, b: f64) -> f64 {
+    crate::exact::dot_error([(a, 1.), (-b, 1.)].into_iter())
+        .filter(|&(_, e)| e <= 1e-9)
+        .map_or(f64::NAN, |(v, _)| v)
+}
+fn shifted_bound(row: &crate::model::Row, shift: &[f64], upper: bool) -> f64 {
+    let (bound, sign) = if upper {
+        (row.upper.unwrap(), 1.)
+    } else {
+        (row.lower.unwrap(), -1.)
+    };
+    crate::exact::dot_error(
+        std::iter::once((sign * bound, 1.))
+            .chain(row.coefficients.iter().map(|&(j, a)| (-sign * a, shift[j]))),
+    )
+    .filter(|&(_, error)| error <= 1e-9)
+    .map_or(f64::NAN, |(value, _)| value)
+}
 fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
     let mut shift = vec![];
     let mut terms = vec![];
@@ -207,20 +225,18 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
     let mut b = Vec::with_capacity(rows);
     for row in &model.rows {
         let mut coeff = vec![0.0; cols];
-        let mut offset = 0.0;
         for &(j, v) in &row.coefficients {
-            offset += v * shift[j];
             for &(k, s) in &terms[j] {
                 coeff[k] += v * s;
             }
         }
-        if let Some(u) = row.upper {
+        if row.upper.is_some() {
             a.push(coeff.clone());
-            b.push(u - offset);
+            b.push(shifted_bound(row, &shift, true));
         }
-        if let Some(l) = row.lower {
+        if row.lower.is_some() {
             a.push(coeff.iter().map(|x| -x).collect());
-            b.push(offset - l);
+            b.push(shifted_bound(row, &shift, false));
         }
     }
     for j in 0..model.variables.len() {
@@ -228,7 +244,7 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
             let mut r = vec![0.0; cols];
             r[terms[j][0].0] = 1.0;
             a.push(r);
-            b.push(u - l);
+            b.push(checked_difference(u, l));
         }
     }
     Relaxation::Ready(Standard {
@@ -263,7 +279,7 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -
             shift.push(l);
             terms.push(vec![(costs.len(), 1.0)]);
             costs.push(sign * v.objective);
-            upper.push(up.map_or(f64::INFINITY, |u| u - l));
+            upper.push(up.map_or(f64::INFINITY, |u| checked_difference(u, l)));
         } else if let Some(u) = up {
             shift.push(u);
             terms.push(vec![(costs.len(), -1.0)]);
@@ -313,18 +329,12 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -
         };
         for &row_sign in orientations {
             let i = rhs.len();
-            let mut offset = 0.;
             for &(j, a) in &row.coefficients {
-                offset += a * shift[j];
                 for &(k, s) in &terms[j] {
                     columns[k].push((i, row_sign * a * s));
                 }
             }
-            let bound = if row_sign > 0. {
-                row.upper.unwrap() - offset
-            } else {
-                offset - row.lower.unwrap()
-            };
+            let bound = shifted_bound(row, &shift, row_sign > 0.);
             rhs.push(bound);
             if track_rows {
                 row_sources.push((source, row_sign));
@@ -808,14 +818,23 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     costs.observe(edge, objective);
                 }
                 let bound = if let Some(dual) = relaxation_dual {
-                    let constant = model.offset
-                        + model
-                            .variables
-                            .iter()
-                            .zip(&p.shift)
-                            .map(|(v, s)| v.objective * s)
-                            .sum::<f64>();
-                    (dual + sign * constant).min(objective)
+                    let value = crate::exact::dot_lower(
+                        std::iter::once((dual, 1.))
+                            .chain(std::iter::once((sign * model.offset, 1.)))
+                            .chain(
+                                model
+                                    .variables
+                                    .iter()
+                                    .zip(&p.shift)
+                                    .map(|(v, &s)| (sign * v.objective, s)),
+                            ),
+                    );
+                    let Some(value) = value else {
+                        stack.push(node);
+                        status = "numerical_error".into();
+                        break;
+                    };
+                    value.min(objective)
                 } else {
                     objective
                 };

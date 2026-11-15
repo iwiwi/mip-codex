@@ -43,13 +43,11 @@ pub struct Model {
 }
 impl Model {
     pub fn objective(&self, x: &[f64]) -> f64 {
-        self.offset
-            + self
-                .variables
-                .iter()
-                .zip(x)
-                .map(|(v, x)| v.objective * x)
-                .sum::<f64>()
+        crate::exact::dot(
+            std::iter::once((self.offset, 1.))
+                .chain(self.variables.iter().zip(x).map(|(v, &x)| (v.objective, x))),
+        )
+        .unwrap_or(f64::NAN)
     }
     /// A quick in-process guard. Independent original-MPS validation is separate.
     pub fn check(&self, x: &[f64], integer: bool, tolerance: f64) -> Result<(), String> {
@@ -68,9 +66,18 @@ impl Model {
             }
         }
         for row in &self.rows {
-            let activity: f64 = row.coefficients.iter().map(|&(j, a)| a * x[j]).sum();
-            if !activity.is_finite() || !bounds(activity, row.lower, row.upper) {
-                return Err(format!("row {} violates bounds", row.name));
+            let terms = || row.coefficients.iter().map(|&(j, a)| (a, x[j]));
+            let feasible = |[lo, hi]: [f64; 2]| {
+                row.lower.is_none_or(|l| lo >= l - tolerance)
+                    && row.upper.is_none_or(|u| hi <= u + tolerance)
+            };
+            if !crate::exact::fast_dot_bounds(terms()).is_some_and(feasible)
+                && !crate::exact::dot_bounds(terms()).is_some_and(feasible)
+            {
+                return Err(format!(
+                    "row {} violates bounds or loses precision",
+                    row.name
+                ));
             }
         }
         Ok(())

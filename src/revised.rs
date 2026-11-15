@@ -254,19 +254,21 @@ impl Simplex {
             return Err(numerical());
         }
         let y = self.multipliers(c);
-        let mut dual: f64 = y.iter().zip(&self.rhs).map(|(y, b)| y * b).sum();
+        let mut dual_terms: Vec<_> = y.iter().zip(&self.rhs).map(|(&y, &b)| (y, b)).collect();
         for j in 0..self.columns.len() {
             let r = self.reduced(c, &y, j);
             if !r.is_finite() {
                 return Err(numerical());
             }
             if self.upper[j].is_finite() {
-                dual += r.min(0.0) * self.upper[j];
+                dual_terms.push((r.min(0.), self.upper[j]));
             } else if r < -1e-7 {
                 return Err(numerical());
             }
         }
-        let primal: f64 = c.iter().zip(&self.x).map(|(c, x)| c * x).sum();
+        let dual = crate::exact::dot_lower(dual_terms.into_iter()).ok_or_else(numerical)?;
+        let primal = crate::exact::dot(c.iter().zip(&self.x).map(|(&c, &x)| (c, x)))
+            .ok_or_else(numerical)?;
         if !primal.is_finite()
             || !dual.is_finite()
             || (primal - dual).abs() > 1e-6 * (1.0 + primal.abs())

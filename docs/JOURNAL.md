@@ -311,3 +311,9 @@ origin単独確認の0秒protocol smoke120053は、binaryの出自がmainでもc
 source directoryだけでなく同一rootの旧revisionも拒否するため、build.rsのstdlibだけでcore Rust/Cargo/build.rs内容のFNV64を生成しbinary/libraryへ埋めた。Pythonは独立に同じ入力を読み計算して照合、従来のSHA256記録も維持する。8preflight回帰が成功し、snapshot createへも照合とbuild.rs保存を追加。ソルバーの最適化処理は変更しない。
 
 最終0秒protocol smoke120729はbinary/libraryのsource directoryとFNV fingerprint、checker SHA256が一致、nodes0/time_limitを確認した。新規snapshot preflight-snapshot-20261115の作成だけを行い、build.rs保存とarchive source fingerprint一致を確認、coordinatorは起動していない。初回setupはtaskset32なのにcores0を指定して開始前にCPU不正で停止し、cores32へ修正した失敗ログも保存。既存baselineへは変更しない。
+
+### 既存の変数間積和相殺の誤答
+
+整数伝播の純粋domain検査は成功しexact-integer-propagation branchへ保存したが、統合前に既存の数値誤答を再現した。exact-transformation-sums branchをmain001cbc5eから作成。固定x=y=z=1、費用1e16/1/-1e16で旧optimal0、GMPは目的1/誤差1。同じ固定点の等式1e16*x+y-1e16*z=1では旧infeasible。さらにx=1e16,y=1,free zの等式で旧optimal点にGMP行違反1。before出力と原MPSをartifacts/exact-shift-diagnosisに保持。旧binaryのbuild-infoも保存、compiled fingerprint19a8a69a7a6e183fの旧mainを診断した。
+
+68limb積和を目的/offset/行shift/LP certificateへ使い、個々の積のoverflowも打消し前に失わない。最も狭いf64上下界・残差を求め、dualは下へ丸める。RHS/幅の絶対誤差が1e-9を超えれば数値エラーへ。Model行チェックは前方誤差区間→厳密fallback。Dense/Revisedの回帰は成功、1200 Fraction積和oracleも成功。最終確認/性能測定はこれから。詳細docs/EXACT_TRANSFORMATION_PLAN.md。
