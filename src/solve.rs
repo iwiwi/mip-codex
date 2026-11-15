@@ -306,7 +306,7 @@ fn dive(
     let checker = heuristic::Repair::new(model);
     let first_solve = stats.lp_solves;
     loop {
-        if Instant::now() >= deadline || stats.lp_solves - first_solve >= 96 {
+        if Instant::now() >= deadline || stats.lp_solves - first_solve >= 256 {
             stats.limited += 1;
             return None;
         }
@@ -340,7 +340,7 @@ fn dive(
         let mut accepted = false;
         // 局所LPが実行不能なら同じ親から反対側を一度だけ試す。
         for reverse in [false, true] {
-            if Instant::now() >= deadline || stats.lp_solves - first_solve >= 96 {
+            if Instant::now() >= deadline || stats.lp_solves - first_solve >= 256 {
                 stats.limited += 1;
                 return None;
             }
@@ -348,6 +348,15 @@ fn dive(
                 stats.reversals += 1;
             }
             let mut child = current.clone();
+            // 現在整数の値は局所探索内で固定し、再最適化で再び分数化するのを抑える。
+            // これらの固定が悪くても、失うのはこの主解探索の機会だけ。
+            for (k, v) in model.variables.iter().enumerate() {
+                if v.integer && (point[k] - point[k].round()).abs() <= 1e-6 {
+                    let value = point[k].round();
+                    child.lower[k] = Some(value);
+                    child.upper[k] = Some(value);
+                }
+            }
             if prefer_up != reverse {
                 child.lower[j] = Some(child.lower[j].map_or(ceil, |l| l.max(ceil)));
             } else {
@@ -366,7 +375,7 @@ fn dive(
             };
             let answer = revised::minimize_warm(
                 q.sparse.as_ref().unwrap(),
-                limits.pivots.min(512),
+                limits.pivots.min(4096),
                 Some(deadline),
                 if limits.warm_start {
                     current.warm.as_deref()
@@ -581,38 +590,6 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     continue;
                 }
                 let branch = costs.select(model, &original, limits.branching);
-                if limits.lp_diving
-                    && nodes == 1
-                    && branch.is_some()
-                    && matches!(limits.engine, Engine::Revised)
-                {
-                    let started = Instant::now();
-                    let diving_deadline = deadline.min(
-                        started
-                            + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)),
-                    );
-                    let old_solves = diving.lp_solves;
-                    if let Some(x) = dive(
-                        model,
-                        &node,
-                        &original,
-                        limits,
-                        diving_deadline,
-                        &mut diving,
-                        &mut lp_stats,
-                    ) {
-                        let value = sign * model.objective(&x);
-                        if value.is_finite() && value < incumbent {
-                            diving.improvements += 1;
-                            incumbent = value;
-                            first_primal_seconds
-                                .get_or_insert_with(|| start.elapsed().as_secs_f64());
-                            best = Some(x);
-                        }
-                    }
-                    lp_solves += diving.lp_solves - old_solves;
-                    diving.seconds += started.elapsed().as_secs_f64();
-                }
                 if branch.is_some() && (nodes == 1 || nodes % 256 == 0) {
                     if let Some(h) = &mut repair {
                         let allocation = if nodes == 1 { 0.05 } else { 0.001 };
@@ -701,6 +678,41 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     if node.bound >= incumbent {
                         continue;
                     }
+                }
+                if limits.lp_diving
+                    && nodes == 1
+                    && branch.is_some()
+                    && matches!(limits.engine, Engine::Revised)
+                {
+                    let started = Instant::now();
+                    let diving_deadline = deadline.min(
+                        started
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)),
+                    );
+                    let old_solves = diving.lp_solves;
+                    if let Some(x) = dive(
+                        model,
+                        &node,
+                        &original,
+                        limits,
+                        diving_deadline,
+                        &mut diving,
+                        &mut lp_stats,
+                    ) {
+                        let value = sign * model.objective(&x);
+                        if value.is_finite() && value < incumbent {
+                            diving.improvements += 1;
+                            incumbent = value;
+                            first_primal_seconds
+                                .get_or_insert_with(|| start.elapsed().as_secs_f64());
+                            best = Some(x);
+                        }
+                    }
+                    lp_solves += diving.lp_solves - old_solves;
+                    diving.seconds += started.elapsed().as_secs_f64();
+                }
+                if node.bound >= incumbent {
+                    continue;
                 }
                 if let Some(j) = branch {
                     let prefer_up = costs.prefer_up(j, original[j], limits.child_order);
