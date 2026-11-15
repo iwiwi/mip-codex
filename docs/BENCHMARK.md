@@ -16,3 +16,14 @@
 
 根拠: 公式セットは240問。原論文では4時間上限も分析しているが、期限内の反復と全比較を両立するため1時間を初期選択。
 出典: https://miplib.zib.de/set_benchmark.html ; https://doi.org/10.1007/s12532-020-00194-3
+
+## 導入版と短期測定 (2026-11-15)
+- HiGHS 1.16.0 (highspy、git f3f113d)、SCIP 10.0.2 (PySCIPOpt 6.3.0)、GLPK/glpsol 5.0。Python側の固定依存はscripts/requirements-comparison.txt。
+- 比較APIはscripts/comparison_worker.pyに限定。Rustの依存はserde/serde_json/flate2のみ。
+- 短期smokeは開発群のpk1、mad、markshare_4_0を5秒で測定。選定は小規模の入出力・制限・検証経路の確認用。性能優位の評価用ではない。
+- 各プロセスを同一CPU affinityとRLIMIT_AS=16 GiBで逐次実行。OMP/BLASスレッドを1に制限。内部時間制限に加え、読込・終了・ラッパー処理に60秒を加えた外部watchdogを置く。超過時はプロセスグループを強制終了し終了コードを残す。
+- Rustは初期密表エンジンのため、表の推定256 MiBを超える問題をresource_limitとする。この実装上の制限を隠さず集計する。最終評価では疎LPへの移行が必須。
+- 最適性gap: HiGHSのmip_rel_gap/mip_abs_gap、SCIPのlimits/gap/limits/absgap、GLPKのmipgapを0に設定。Rustは整数性1e-7、返却解の制約検査1e-6、最終数値gap検査1e-7。これらは浮動小数点による判定であり厳密有理証明ではない。
+- 独立Python検査器は元MPSをHiGHS readerで再読込し、制約活動をmath.fsumで計算。絶対制約・変数境界・整数性許容誤差1e-6、目的値誤差1e-8*(1+abs(obj))。最適化は呼ばない。HiGHS readerのsmall_matrix_valueを1e-12に設定。既定1e-9ではmomentum1の7係数が省かれるため。全入力のRust readerとの照合を記録。
+- CLIのoptimal/infeasibleは数値的探索結果を表す。LP非有界の場合はMILP非有界を断定せずunbounded_relaxationで停止。時間・ノード・反復・資源・数値異常を別statusにする。
+- 参考仕様: https://ergo-code.github.io/HiGHS/dev/options/definitions/ ; https://www.scipopt.org/doc/html/PARAMETERS.php

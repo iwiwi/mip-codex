@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""同じCPU/16 GiB制限での短期比較。全結果・生ログ・解検証を保存。"""
+import hashlib
+import json
+import os
+from pathlib import Path
+import resource
+import subprocess
+import sys
+import time
+from validate_solution import validate
+
+root=Path(__file__).resolve().parents[1]
+seconds=int(sys.argv[1]) if len(sys.argv)>1 else 10
+names=sys.argv[2:] or ['pk1.mps.gz','mad.mps.gz','markshare_4_0.mps.gz']
+manifest=json.load(open(root/'data/manifest.json'))
+records={r['name']:r for r in manifest['instances']}
+output=root/'artifacts'/('smoke-'+time.strftime('%Y%m%d-%H%M%S',time.gmtime()))
+output.mkdir()
+core=min(os.sched_getaffinity(0))
+env=os.environ.copy();env.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
+meta=dict(seconds=seconds,threads=1,cpu=core,memory_bytes=16*1024**3,git_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),dirty=bool(subprocess.check_output(['git','status','--porcelain'],cwd=root)),names=names)
+(output/'experiment.json').write_text(json.dumps(meta,indent=2)+'\n')
+
+def restrict():
+    os.sched_setaffinity(0,{core})
+    resource.setrlimit(resource.RLIMIT_AS,(16*1024**3,16*1024**3))
+
+with (output/'results.jsonl').open('w') as summary:
+    for name in names:
+        record=records[name]
+        assert record['split']=='development', 'smoke benchmark only uses development split'
+        path=root/record['path']
+        assert hashlib.sha256(path.read_bytes()).hexdigest()==record['sha256']
+        for solver in ['rust','highs','scip','glpk']:
+            directory=output/name/solver;directory.mkdir(parents=True)
+            if solver=='rust':cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
+            else:cmd=[str(root/'.venv/bin/python'),str(root/'scripts/comparison_worker.py'),solver,str(path),str(seconds),str(directory)]
+            (directory/'command.json').write_text(json.dumps(cmd)+'\n')
+            full=['/usr/bin/time','-v','-o',str(directory/'resource.log'),*cmd]
+            started=time.monotonic()
+            with (directory/'stdout.log').open('w') as stdout,(directory/'stderr.log').open('w') as stderr:
+                p=subprocess.Popen(full,stdout=stdout,stderr=stderr,env=env,preexec_fn=restrict,start_new_session=True)
+                (directory/'pid').write_text(str(p.pid)+'\n')
+                try:exit_code=p.wait(timeout=seconds+60)
+                except subprocess.TimeoutExpired:
+                    import signal
+                    os.killpg(p.pid,signal.SIGKILL);exit_code=p.wait()
+            elapsed=time.monotonic()-started
+            (directory/'exit.json').write_text(json.dumps(dict(exit_code=exit_code,wall_seconds=elapsed))+'\n')
+            result=dict(name=name,solver=solver,exit_code=exit_code,wall_seconds=elapsed,input_sha256=record['sha256'])
+            try:
+                parsed=json.loads((directory/('stdout.log' if solver=='rust' else 'result.json')).read_text())
+                result.update({k:v for k,v in parsed.items() if k!='values'})
+                if solver=='rust':(directory/'result.json').write_text(json.dumps(parsed)+'\n')
+                if parsed.get('values') is not None:
+                    validation=validate(path,parsed)
+                    (directory/'validation.json').write_text(json.dumps(validation)+'\n')
+                    result['validation']=validation
+            except Exception as error:result.update(status='error',error=str(error))
+            summary.write(json.dumps(result,allow_nan=False)+'\n');summary.flush()
+            print(name,solver,result.get('status'),flush=True)
+print(output)

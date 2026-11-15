@@ -7,6 +7,7 @@ pub enum Outcome {
     Infeasible,
     Unbounded,
     IterationLimit,
+    TimeLimit,
     NumericalError,
 }
 struct Tableau {
@@ -15,6 +16,7 @@ struct Tableau {
     n: usize,
     iterations: usize,
     limit: usize,
+    deadline: Option<std::time::Instant>,
 }
 impl Tableau {
     fn pivot(&mut self, r: usize, j: usize) {
@@ -48,6 +50,12 @@ impl Tableau {
     }
     fn run(&mut self, allowed: usize) -> Result<(), Outcome> {
         loop {
+            if self
+                .deadline
+                .is_some_and(|d| std::time::Instant::now() >= d)
+            {
+                return Err(Outcome::TimeLimit);
+            }
             if self.a.iter().flatten().any(|x| !x.is_finite()) {
                 return Err(Outcome::NumericalError);
             }
@@ -82,6 +90,16 @@ impl Tableau {
 }
 /// Reject malformed or nonfinite input; a finite pivot budget bounds degenerate runs.
 pub fn minimize(a: &[Vec<f64>], b: &[f64], c: &[f64], limit: usize) -> Result<Outcome, String> {
+    minimize_until(a, b, c, limit, None)
+}
+
+pub fn minimize_until(
+    a: &[Vec<f64>],
+    b: &[f64],
+    c: &[f64],
+    limit: usize,
+    deadline: Option<std::time::Instant>,
+) -> Result<Outcome, String> {
     let m = b.len();
     let n = c.len();
     if a.len() != m || a.iter().any(|r| r.len() != n) {
@@ -97,6 +115,7 @@ pub fn minimize(a: &[Vec<f64>], b: &[f64], c: &[f64], limit: usize) -> Result<Ou
         n: total,
         iterations: 0,
         limit,
+        deadline,
     };
     for i in 0..m {
         let sign = if b[i] < 0.0 { -1.0 } else { 1.0 };
@@ -118,7 +137,21 @@ pub fn minimize(a: &[Vec<f64>], b: &[f64], c: &[f64], limit: usize) -> Result<Ou
         });
     }
     if t.a[m][total] < -EPS {
-        return Ok(Outcome::Infeasible);
+        // Farkas multipliers from the slack reduced costs. Reject unstable
+        // infeasibility claims rather than pruning on a tableau value alone.
+        let lambda: Vec<_> = (0..m).map(|i| -t.a[m][n + i]).collect();
+        let certified = lambda.iter().all(|&v| v <= 1e-8)
+            && (0..n).all(|j| {
+                let value: f64 = (0..m).map(|i| lambda[i] * a[i][j]).sum();
+                let scale: f64 = (0..m).map(|i| (lambda[i] * a[i][j]).abs()).sum();
+                value <= 1e-8 * (1.0 + scale)
+            })
+            && lambda.iter().zip(b).map(|(v, b)| v * b).sum::<f64>() > EPS;
+        return Ok(if certified {
+            Outcome::Infeasible
+        } else {
+            Outcome::NumericalError
+        });
     }
     // Remove artificial basic variables; an all-zero row is redundant.
     let mut i = 0;
@@ -156,6 +189,22 @@ pub fn minimize(a: &[Vec<f64>], b: &[f64], c: &[f64], limit: usize) -> Result<Ou
     {
         return Ok(Outcome::NumericalError);
     }
-    let objective = c.iter().zip(&x).map(|(v, x)| v * x).sum();
+    let objective: f64 = c.iter().zip(&x).map(|(v, x)| v * x).sum();
+    let row = t.basis.len();
+    let lambda: Vec<_> = (0..m).map(|i| -t.a[row][n + i]).collect();
+    let dual: f64 = lambda.iter().zip(b).map(|(v, b)| v * b).sum();
+    let dual_ok = lambda.iter().all(|&v| v <= 1e-8)
+        && (0..n).all(|j| {
+            let value: f64 = (0..m).map(|i| lambda[i] * a[i][j]).sum();
+            let scale: f64 = (0..m).map(|i| (lambda[i] * a[i][j]).abs()).sum();
+            value <= c[j] + 1e-8 * (1.0 + scale + c[j].abs())
+        });
+    if !objective.is_finite()
+        || !dual.is_finite()
+        || !dual_ok
+        || (objective - dual).abs() > 1e-7 * (1.0 + objective.abs())
+    {
+        return Ok(Outcome::NumericalError);
+    }
     Ok(Outcome::Optimal { objective, x })
 }

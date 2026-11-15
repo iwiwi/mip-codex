@@ -1,0 +1,74 @@
+use mip_codex::{
+    mps,
+    solve::{Limits, solve},
+};
+fn run(body: &str) -> mip_codex::solve::Result {
+    let model = mps::parse(std::io::Cursor::new(body)).unwrap();
+    solve(&model, &Limits::default())
+}
+#[test]
+fn branching_and_dual_bound() {
+    let r = run(
+        "NAME branch\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 2\nRHS\n rhs r 3\nBOUNDS\n LI b x 0\n UP b x 3\nENDATA\n",
+    );
+    assert_eq!(r.status, "optimal");
+    assert_eq!(r.objective, Some(-1.));
+    assert_eq!(r.dual_bound, Some(-1.));
+    assert!(r.nodes > 1);
+}
+#[test]
+fn free_and_upper_only_and_offset() {
+    let r = run(
+        "NAME free\nOBJSENSE MAX\nROWS\n N c\n L r\n G s\nCOLUMNS\n x c 2 r 1\n y c 1 s 1\nRHS\n rhs c -7 r -1\n rhs s -3\nBOUNDS\n FR b x\n MI b y\n UP b y -2\nENDATA\n",
+    );
+    assert_eq!(r.status, "optimal");
+    assert_eq!(r.objective, Some(3.));
+}
+#[test]
+fn integer_infeasible_from_domain() {
+    let r =
+        run("NAME domain\nROWS\n N c\nCOLUMNS\n x c 1\nBOUNDS\n LI b x 0.2\n UP b x 0.8\nENDATA\n");
+    assert_eq!(r.status, "infeasible");
+}
+#[test]
+fn unbounded_relaxation_is_not_mip_claim() {
+    let r = run(
+        "NAME unbounded\nROWS\n N c\n E r\nCOLUMNS\n x c -1\n y r 1\nRHS\n rhs r 0.5\nBOUNDS\n LI b y 0\nENDATA\n",
+    );
+    assert_eq!(r.status, "unbounded_relaxation");
+    assert_eq!(r.objective, None);
+}
+#[test]
+fn limits_do_not_claim_infeasibility() {
+    let model = mps::parse(std::io::Cursor::new(
+        "NAME limit\nROWS\n N c\nCOLUMNS\n x c 1\nENDATA\n",
+    ))
+    .unwrap();
+    for (limits, status) in [
+        (
+            Limits {
+                seconds: 0.,
+                ..Limits::default()
+            },
+            "time_limit",
+        ),
+        (
+            Limits {
+                nodes: 0,
+                ..Limits::default()
+            },
+            "node_limit",
+        ),
+        (
+            Limits {
+                dense_bytes: 0,
+                ..Limits::default()
+            },
+            "resource_limit",
+        ),
+    ] {
+        let r = solve(&model, &limits);
+        assert_eq!(r.status, status);
+        assert_eq!(r.dual_bound, None);
+    }
+}
