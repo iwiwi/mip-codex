@@ -36,6 +36,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_LP_WARM_START must be 0 or 1".into()),
             };
         }
+        if let Ok(value) = std::env::var("MIP_FIXED_COLUMNS") {
+            limits.fixed_columns = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_FIXED_COLUMNS must be 0 or 1".into()),
+            };
+        }
         if let Ok(propagation) = std::env::var("MIP_PROPAGATION") {
             limits.propagation = match propagation.as_str() {
                 "0" => false,
