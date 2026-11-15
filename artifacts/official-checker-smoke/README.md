@@ -1,0 +1,1 @@
+このログは監査中に保存した未対応形式の診断であり、検証済み解ではない。短いfree形式名のMPSを公式checkerが読めなかった。solution.solは目的定数規約の正規化前のGLPK値を含む歴史的な失敗入力として保持している。修正後のGLPK値はartifacts/glpk-driver-smoke/result.json、最終の二重検査成功例はexperiments/runner-clean-smoke/results.jsonlを参照。
