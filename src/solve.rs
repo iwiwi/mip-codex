@@ -44,7 +44,7 @@ impl Default for Limits {
             cover_cuts: true,
             rounding_cuts: false,
             strong_branching: true,
-            rins: false,
+            rins: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,

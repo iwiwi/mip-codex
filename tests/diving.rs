@@ -7,6 +7,7 @@ fn run(text: &str, enabled: bool, nodes: usize) -> mip_codex::solve::Result {
     let result = solve(
         &model,
         &Limits {
+            rins: false,
             strong_branching: false,
             cover_cuts: false,
             lp_diving: enabled,
@@ -61,6 +62,7 @@ fn expired_global_deadline_skips_all_local_solves() {
     let result = solve(
         &model,
         &Limits {
+            rins: false,
             strong_branching: false,
             cover_cuts: false,
             seconds: 0.,

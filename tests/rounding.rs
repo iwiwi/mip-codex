@@ -24,6 +24,7 @@ fn separate(m: &Model, x: &[f64]) -> Vec<mip_codex::cuts::Cut> {
 fn division_closes_a_root_that_pairwise_covers_cannot_close() {
     let m = model(&[2, 2, 2], 3, "L");
     let limits = Limits {
+        rins: false,
         strong_branching: false,
         nodes: 1,
         cover_cuts: false,
@@ -36,6 +37,7 @@ fn division_closes_a_root_that_pairwise_covers_cannot_close() {
     let after = solve(
         &m,
         &Limits {
+            rins: false,
             strong_branching: false,
             rounding_cuts: true,
             ..limits

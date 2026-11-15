@@ -244,3 +244,8 @@
 
 - .5秒予算の編集時に汎用文字列置換がdiving側へ当たったが、直後の差分/行確認で検出し、LP divingは従来の5%/.25秒へ復元、RINSだけ10%/.5秒へ修正。誤編集状態でベンチマークは起動していない。rins-larger-budget-tests.logを中間ログとして保持し、修正後118テストとrelease buildを別ログで完走した。
 - 後回し版の最終監査も28解と全134cutが双方/元MPS Fractionで全合格。性能上は追加益がないため棄却理由は不変。
+
+- .5秒試作c6b4657 (092558/092559) は3主解改善/0悪化/15同等。gmu50 -2532435.2987→-2574311.3903、gmu40 -1860472.4551→-2367540.5084、bppc4-08 72→69。初期.25秒版よりgmu50とbppが改善、悪化なし。根のみ/10%最大.5秒を既定化候補とする。118回帰と独立監査を確認し、既定化後の最終合成比較と4solver短期比較を残作業とする。
+- 60秒対照を固定18開発問で開始。c6b4657のdetached worktreeへ同一バイナリとGMP/公式checkerをコピーしhashを保存 (.venv/raw MPSだけ不変原本へsymlink)。CPU4/5/6/7の4群、各1thread/16GiB、同じ問題を同じCPUでRINS off/on。通常開発CPU0/1やnativebaseline CPU8..15と重ねない。immutable binaryなので本体を変更しても長期対照は不変。artifacts/rins-60s-frozen.jsonとgroup1..4-launch.log、実結果はworktree内artifacts/smoke-*。初回freezeはcwdをsnapshotにしたまま原rootを相対取得し失敗したため、原rootを絶対指定してコピーし直した。最初の起動失敗ログも保持。先行60秒runは起動されておらず、正しく凍結した4群だけが進行中。
+
+- .5秒版の独立監査は28返却解GMP絶対/公式双方全合格、全134cut Fraction有効。既定化後の試験設定挿入でtests/strong.rsの戻り型Limitsを関数本体と誤認し構文エラーになった。修正し、rins-default-tests.logを失敗ログとして保持、rins-default-corrected-tests.logで118テストが全成功。release buildも完了。長期対照のc6固定バイナリには触れていない。
