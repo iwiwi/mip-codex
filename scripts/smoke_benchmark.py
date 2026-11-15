@@ -38,8 +38,11 @@ with (output/'results.jsonl').open('w') as summary:
         for solver in solvers:
             directory=output/name/solver;directory.mkdir(parents=True)
             run_env=env.copy()
-            if solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
-            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE']})+'\n')
+            if solver in ('rust-cold','rust-warm'):
+                run_env['MIP_LP_ENGINE']='revised'
+                run_env['MIP_LP_WARM_START']='1' if solver=='rust-warm' else '0'
+            elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
+            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START']})+'\n')
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
             else:cmd=[str(root/'.venv/bin/python'),str(root/'scripts/comparison_worker.py'),solver,str(path),str(seconds),str(directory)]
             (directory/'command.json').write_text(json.dumps(cmd)+'\n')

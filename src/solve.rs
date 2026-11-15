@@ -1,7 +1,7 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
 use crate::{lp, model::Model, revised};
 use serde::Serialize;
-use std::time::Instant;
+use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
 pub enum Engine {
     Dense,
@@ -15,6 +15,7 @@ pub struct Limits {
     pub pivots: usize,
     pub dense_bytes: usize,
     pub engine: Engine,
+    pub warm_start: bool,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -24,12 +25,20 @@ impl Default for Limits {
             pivots: usize::MAX,
             dense_bytes: 256 * 1024 * 1024,
             engine: Engine::Revised,
+            warm_start: true,
         }
     }
 }
 #[derive(Serialize, Debug)]
 pub struct Result {
     pub lp_engine: String,
+    pub lp_warm_start: bool,
+    pub lp_warm_attempts: Option<usize>,
+    pub lp_warm_successes: Option<usize>,
+    pub lp_warm_fallbacks: Option<usize>,
+    pub lp_warm_rejections: Option<usize>,
+    pub lp_dual_pivots: Option<usize>,
+    pub lp_dual_flips: Option<usize>,
     pub lp_pivots: Option<usize>,
     pub lp_flips: Option<usize>,
     pub lp_refactors: Option<usize>,
@@ -46,6 +55,7 @@ struct Node {
     lower: Vec<Option<f64>>,
     upper: Vec<Option<f64>>,
     bound: f64,
+    warm: Option<Arc<revised::WarmStart>>,
 }
 struct Standard {
     sparse: Option<revised::Problem>,
@@ -247,6 +257,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         lower,
         upper,
         bound: f64::NEG_INFINITY,
+        warm: None,
     }];
     let mut nodes = 0;
     let mut lp_stats = revised::Stats::default();
@@ -284,11 +295,17 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             Relaxation::Ready(p) => p,
         };
         nodes += 1;
+        let mut next_warm = None;
         let (answer, relaxation_dual) = if let Some(sparse) = &p.sparse {
-            let answer = revised::minimize(sparse, limits.pivots, Some(deadline));
-            lp_stats.pivots += answer.stats.pivots;
-            lp_stats.flips += answer.stats.flips;
-            lp_stats.refactors += answer.stats.refactors;
+            let answer = if limits.warm_start {
+                revised::minimize_warm(sparse, limits.pivots, Some(deadline), node.warm.as_deref())
+            } else {
+                revised::minimize(sparse, limits.pivots, Some(deadline))
+            };
+            lp_stats.add(&answer.stats);
+            if limits.warm_start {
+                next_warm = answer.warm;
+            }
             (Ok(answer.outcome), answer.dual)
         } else {
             (
@@ -299,6 +316,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         match answer {
             Ok(lp::Outcome::Infeasible) => continue,
             Ok(lp::Outcome::Optimal { x, .. }) => {
+                node.warm = next_warm;
                 let original: Vec<f64> = p
                     .terms
                     .iter()
@@ -407,6 +425,17 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     }
     Result {
         lp_engine: format!("{:?}", limits.engine),
+        lp_warm_start: limits.warm_start && matches!(limits.engine, Engine::Revised),
+        lp_warm_attempts: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.warm_attempts),
+        lp_warm_successes: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.warm_successes),
+        lp_warm_fallbacks: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.warm_fallbacks),
+        lp_warm_rejections: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.warm_rejections),
+        lp_dual_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.dual_pivots),
+        lp_dual_flips: matches!(limits.engine, Engine::Revised).then_some(lp_stats.dual_flips),
         lp_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.pivots),
         lp_flips: matches!(limits.engine, Engine::Revised).then_some(lp_stats.flips),
         lp_refactors: matches!(limits.engine, Engine::Revised).then_some(lp_stats.refactors),

@@ -2,6 +2,7 @@
 """固定seedの有界小MILP/LPをHiGHSと比較。純整数では全列挙も照合。"""
 import hashlib
 import itertools
+import math
 import json
 import os
 from pathlib import Path
@@ -16,17 +17,21 @@ root = Path(__file__).resolve().parents[1]
 rng = random.Random(20261115)
 count = int(sys.argv[1]) if len(sys.argv)>1 else 500
 failed = 0
+larger = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'larger'
 outdir = root/os.environ.get('MIP_SYNTHETIC_DIR','artifacts/synthetic')
 outdir.mkdir(exist_ok=True)
 for case in range(count):
-    n=rng.randint(1,5)
-    m=rng.randint(0,7)
+    n=rng.randint(8,12) if larger else rng.randint(1,5)
+    m=rng.randint(8,16) if larger else rng.randint(0,7)
     integer=[case%3==0 or (case%3==1 and rng.random()<0.5) for _ in range(n)]
     bounds=[(rng.randint(-3,0),rng.randint(1,4)) for _ in range(n)]
     cost=[rng.randint(-5,5) for _ in range(n)]
     offset=rng.randint(-4,4)
     maximize=rng.choice([False,True])
     rows=[([rng.randint(-4,4) for _ in range(n)],rng.randint(-10,10),rng.choice(['L','G','E'])) for _ in range(m)]
+    if larger:
+        planted=[rng.randint(lo,up) for lo,up in bounds]
+        rows=[(a,sum(v*x for v,x in zip(a,planted))+rng.randint(0,5)*(1 if kind=='L' else -1 if kind=='G' else 0),kind) for a,_,kind in rows]
     lines=['NAME synthetic','OBJSENSE',' MAX' if maximize else ' MIN','ROWS',' N obj']
     lines += [f' {kind} r{i}' for i,(_,_,kind) in enumerate(rows)]
     lines+=['COLUMNS']
@@ -57,7 +62,8 @@ for case in range(count):
                 if case==0:
                     (outdir/'example.mps').write_text(text)
                     (outdir/'example.solution.json').write_text(json.dumps(result,indent=2)+'\n')
-            if all(integer):
+            exhaustive=all(integer) and math.prod(up-lo+1 for lo,up in bounds)<=500000
+            if exhaustive:
                 feasible=[]
                 for x in itertools.product(*(range(lo,up+1) for lo,up in bounds)):
                     def satisfies(row):
@@ -67,7 +73,7 @@ for case in range(count):
                         feasible.append(offset+sum(v*t for v,t in zip(cost,x)))
                 if not feasible: assert result['status']=='infeasible'
                 else: assert abs((max(feasible) if maximize else min(feasible))-result['objective'])<1e-6
-            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
+            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
     except Exception as error:
         failed+=1
         (outdir/f'failure-{case}.mps').write_text(text)
