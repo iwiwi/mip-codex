@@ -31,6 +31,7 @@ fn incumbent_does_not_change_open_node_lower_bound() {
         &Limits {
             nodes: 1,
             primal_repair: false,
+            primal_probe: false,
             lp_diving: false,
             ..Limits::default()
         },
@@ -40,6 +41,7 @@ fn incumbent_does_not_change_open_node_lower_bound() {
         &Limits {
             nodes: 1,
             primal_repair: true,
+            primal_probe: false,
             lp_diving: false,
             ..Limits::default()
         },
@@ -84,6 +86,7 @@ fn fixed_integer_lp_repairs_linked_continuous_variables() {
         &Limits {
             nodes: 1,
             primal_repair: true,
+            primal_probe: false,
             lp_diving: false,
             ..Limits::default()
         },

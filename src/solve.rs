@@ -36,7 +36,7 @@ impl Default for Limits {
             propagation: false,
             primal_repair: true,
             lp_diving: true,
-            primal_probe: false,
+            primal_probe: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,

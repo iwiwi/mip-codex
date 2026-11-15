@@ -74,6 +74,7 @@ fn all_search_orders_match_binary_enumeration() {
                 &Limits {
                     search: strategy,
                     primal_repair: false,
+                    primal_probe: false,
                     lp_diving: false,
                     ..Limits::default()
                 },
@@ -127,6 +128,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
                 search: strategy,
                 nodes: 130,
                 primal_repair: false,
+                primal_probe: false,
                 lp_diving: false,
                 ..Limits::default()
             },
