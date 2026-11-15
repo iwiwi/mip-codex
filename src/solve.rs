@@ -27,6 +27,7 @@ pub struct Limits {
     pub graph_root_prefix: bool,
     pub graph_local_diversify: bool,
     pub graph_adaptive_local: bool,
+    pub graph_cover_local: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
     pub aggregate_infeasibility: bool,
@@ -65,6 +66,7 @@ impl Default for Limits {
             graph_root_prefix: true,
             graph_local_diversify: true,
             graph_adaptive_local: true,
+            graph_cover_local: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
             aggregate_infeasibility: true,
@@ -89,6 +91,7 @@ impl Default for Limits {
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
     pub binary_graph_enabled: bool,
+    pub graph_cover_local_enabled: bool,
     pub binary_graph: Option<crate::binary_graph::Stats>,
     pub branching: String,
     pub child_order: String,
@@ -938,7 +941,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
-            if let Some(answer) = crate::binary_graph::solve_with_adaptive(
+            if let Some(answer) = crate::binary_graph::solve_with_cover(
                 model,
                 limits.dense_bytes,
                 deadline,
@@ -948,6 +951,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 limits.graph_root_prefix,
                 limits.graph_local_diversify,
                 limits.graph_adaptive_local,
+                limits.graph_cover_local,
             ) {
                 let sign = if model.maximize { -1. } else { 1. };
                 let objective = model.objective(&answer.point);
@@ -969,6 +973,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 let gap = dual_bound.map(|b| (objective - b).abs() / objective.abs().max(1.));
                 return Result {
                     binary_graph_enabled: true,
+                    graph_cover_local_enabled: limits.graph_cover_local,
                     nodes: answer.stats.nodes,
                     first_primal_seconds: answer.stats.first_seconds,
                     binary_graph: Some(answer.stats),
@@ -1989,6 +1994,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
         binary_graph_enabled: limits.binary_graph,
+        graph_cover_local_enabled: limits.graph_cover_local,
         defer_infeasibility_enabled: limits.defer_infeasibility,
         joint_infeasibility_enabled: limits.joint_infeasibility,
         aggregate_infeasibility_enabled: limits.aggregate_infeasibility,

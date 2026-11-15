@@ -60,9 +60,9 @@ def create(args):
     (snapshot/'bin').mkdir()
     for path in (REPO/'scripts').glob('*.py'):
         shutil.copy2(path, snapshot/'scripts'/path.name)
-    for path in (REPO/'src').glob('*.rs'):
-        target = snapshot/'src'/path.name
-        target.parent.mkdir(exist_ok=True)
+    for path in (REPO/'src').rglob('*.rs'):
+        target = snapshot/'src'/path.relative_to(REPO/'src')
+        target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, target)
     for path in ('Cargo.toml', 'Cargo.lock', 'build.rs'):
         shutil.copy2(REPO/path, snapshot/path)
