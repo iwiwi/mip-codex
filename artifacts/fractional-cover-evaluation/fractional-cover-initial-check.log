@@ -1,0 +1,52 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Checking serde_json v1.0.154
+warning: struct `Builder` is never constructed
+  --> src/binary_graph/fractional_cover.rs:32:8
+   |
+32 | struct Builder<'a> {
+   |        ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `add`, `grow`, and `enumerate` are never used
+   --> src/binary_graph/fractional_cover.rs:44:8
+    |
+ 43 | impl Builder<'_> {
+    | ---------------- methods in this implementation
+ 44 |     fn add(&mut self, mut group: Vec<usize>) -> Option<usize> {
+    |        ^^^
+...
+ 68 |     fn grow(&mut self, mut group: Vec<usize>) {
+    |        ^^^^
+...
+103 |     fn enumerate(&mut self, group: &mut Vec<usize>, mut p: Vec<u64>, mut x: Vec<u64>) {
+    |        ^^^^^^^^^
+
+warning: struct `Entry` is never constructed
+   --> src/binary_graph/fractional_cover.rs:159:8
+    |
+159 | struct Entry {
+    |        ^^^^^
+
+warning: function `certificate` is never used
+   --> src/binary_graph/fractional_cover.rs:181:4
+    |
+181 | fn certificate(graph: &Graph, groups: &[Vec<usize>], counts: &[u32]) -> Option<Certificate> {
+    |    ^^^^^^^^^^^
+
+warning: method `prefix_bounds` is never used
+   --> src/binary_graph/fractional_cover.rs:218:19
+    |
+217 | impl Certificate {
+    | ---------------- method in this implementation
+218 |     pub(super) fn prefix_bounds(&self, n: usize, order: &[usize]) -> Option<Vec<usize>> {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `improve` is never used
+   --> src/binary_graph/fractional_cover.rs:254:15
+    |
+254 | pub(super) fn improve(
+    |               ^^^^^^^
+
+warning: `mip-codex` (lib) generated 6 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.62s

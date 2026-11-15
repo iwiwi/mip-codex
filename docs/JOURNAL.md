@@ -453,3 +453,9 @@ native v2は57/720・strict optimal24・error2。新しい044-glpk/ex10はGLPK�
 ### 2026-11-15 22:19 UTC 分数被覆上界の試作
 
 `graph-fractional-cover`で独自Rustのクリーク回数ヒューリスティックと整数証明を実装中。既定off。初版sorrell7 15秒でprimal -193維持、dual -379→-306、sorrell3は-16/-24で未改善。4点の元MPS検査成功、1200小規模CLI/7410破損拒否成功、Rust全体テスト成功。構成順序を変える次版を測定中。計画/証明/初版結果は`FRACTIONAL_COVER_HYPOTHESIS.md`、ログは`artifacts/fractional-cover-*`。比較用native LPの重みは最適化に使わない。native全体比較は77/720完了・32件独立検査済optimal・5件error、凍結設定を変更せず継続。
+
+### 2026-11-15 22:28 UTC 分数被覆の最終設定
+
+source core `3125227a`、既定有効。sorrell7 15秒193/242、60秒197/241、追加15秒1回/60秒2回も再現。主解は直前版と同じで上界を379から強化、公開最良198超え/最適性証明は未達成、Benchmark v2外の探索例。sorrell3の同一CPU3組は6042153節点不変、中央値18.85908→19.37730秒（+2.75%）と悪化。固定18問status/primal/dual不変。181Rust、最終1200CLI/7410破損拒否成功。全240問snapshotはcreate-onlyで再帰FP検証済、receipt `experiments/fractional-cover-snapshot-20261115.json`。native全体は78/720、32独立optimal、5errorで設定を変えず継続。
+
+次の仮説は短時間でも全頂点に届く安価なmaximalクリーク生成。sorrell3の比較専用native被覆LPは別候補20000個で約23.004、Rust候補の偏りが疑われる。native重みは一切使わず、現在版のPR確定後に別branchで先頭bitによるgreedy maximal化等を比較する。詳細はFRACTIONAL_COVER_HYPOTHESIS/RESULTS。保存解の一括独立再検査・原データarchiveを作成中。
