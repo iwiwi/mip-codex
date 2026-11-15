@@ -47,6 +47,8 @@ with (output/'results.jsonl').open('w') as summary:
                 run_env['MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR']='1' if solver=='rust-warm' else '0'
             elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
             (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR']})+'\n')
+            if solver.startswith('rust'):
+                assert hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest() == meta['binary_sha256'], 'solver binary changed during smoke run'
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
             else:cmd=[str(root/'.venv/bin/python'),str(root/'scripts/comparison_worker.py'),solver,str(path),str(seconds),str(directory)]
             (directory/'command.json').write_text(json.dumps(cmd)+'\n')
@@ -59,6 +61,8 @@ with (output/'results.jsonl').open('w') as summary:
                 except subprocess.TimeoutExpired:
                     import signal
                     os.killpg(p.pid,signal.SIGKILL);exit_code=p.wait()
+            if solver.startswith('rust'):
+                assert hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest() == meta['binary_sha256'], 'solver binary changed during smoke run'
             elapsed=time.monotonic()-started
             (directory/'exit.json').write_text(json.dumps(dict(exit_code=exit_code,wall_seconds=elapsed))+'\n')
             result=dict(name=name,solver=solver,exit_code=exit_code,wall_seconds=elapsed,input_sha256=record['sha256'])

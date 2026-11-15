@@ -29,7 +29,7 @@ impl Default for Limits {
             engine: Engine::Revised,
             warm_start: true,
             propagation: false,
-            primal_repair: false,
+            primal_repair: true,
         }
     }
 }

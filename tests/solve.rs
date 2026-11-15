@@ -81,6 +81,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
         &model,
         &Limits {
             propagation: false,
+            primal_repair: false,
             ..Limits::default()
         },
     );
@@ -88,6 +89,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
         &model,
         &Limits {
             propagation: true,
+            primal_repair: false,
             ..Limits::default()
         },
     );

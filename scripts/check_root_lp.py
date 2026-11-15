@@ -9,6 +9,7 @@ import sys
 import tempfile
 import highspy
 
+os.environ['MIP_PRIMAL_REPAIR'] = '0'  # isolate LP engine work
 os.environ['MIP_PROPAGATION'] = '0'  # compare original continuous LP relaxations
 root=Path(__file__).resolve().parents[1]
 rng=random.Random(2026111502)
