@@ -5,6 +5,9 @@ use std::time::Instant;
 #[derive(Debug, Default, serde::Serialize)]
 pub struct Stats {
     pub local: Option<LocalStats>,
+    pub root_initial_upper: usize,
+    pub root_variants: usize,
+    pub root_color_seconds: f64,
     pub vertices: usize,
     pub conflict_edges: usize,
     pub nodes: usize,
@@ -335,6 +338,16 @@ pub fn solve_with_local(
     limit: usize,
     local: bool,
 ) -> Option<Answer> {
+    solve_with_options(model, memory, deadline, limit, local, false)
+}
+pub fn solve_with_options(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+) -> Option<Answer> {
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -375,7 +388,31 @@ pub fn solve_with_local(
         interrupted: false,
     };
     search.stats.first_seconds = Some(started.elapsed().as_secs_f64());
-    let root = search.color(&all);
+    let mut root = search.color(&all);
+    search.stats.root_initial_upper = search.stats.root_upper;
+    if stronger_root && root.is_some() && search.best.len() < search.stats.root_upper {
+        let phase = Instant::now();
+        let budget = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(0.15);
+        let end = deadline.min(phase + std::time::Duration::from_secs_f64(budget));
+        for mode in 0..2 {
+            if let Some(colors) = alternate_root_colors(&graph, mode, end) {
+                search.stats.root_variants += 1;
+                let upper = colors.iter().copied().max().unwrap_or(0);
+                if upper < search.stats.root_upper {
+                    let mut order: Vec<_> = (0..graph.n).collect();
+                    order.sort_unstable_by_key(|&v| (colors[v], v));
+                    let bounds = order.iter().map(|&v| colors[v]).collect();
+                    for v in 0..graph.n {
+                        search.stats.root_colors[graph.order[v]] = colors[v];
+                    }
+                    search.stats.root_upper = upper;
+                    search.stats.remaining_upper = upper;
+                    root = Some((order, bounds));
+                }
+            }
+        }
+        search.stats.root_color_seconds = phase.elapsed().as_secs_f64();
+    }
     if local
         && root.is_some()
         && search.best.len() < search.stats.root_upper
@@ -667,4 +704,82 @@ mod local_tests {
         assert!(best.is_empty());
         assert_eq!(stats.validation_failures, 1);
     }
+}
+
+// Each class is pairwise nonadjacent in the compatibility graph.
+// A timed-out candidate is discarded in full; the previous proper coloring remains.
+fn alternate_root_colors(graph: &Graph, mode: usize, deadline: Instant) -> Option<Vec<usize>> {
+    let n = graph.n;
+    let mut colors = vec![0usize; n];
+    let mut remaining = vec![u64::MAX; graph.words];
+    if n % 64 != 0 {
+        remaining[graph.words - 1] = (1 << (n % 64)) - 1;
+    }
+    if mode == 0 {
+        let mut color = 0;
+        while first(&remaining).is_some() {
+            color += 1;
+            let mut available = remaining.clone();
+            while first(&available).is_some() {
+                if Instant::now() >= deadline {
+                    return None;
+                }
+                let mut choice = None;
+                for (k, &bits) in available.iter().enumerate() {
+                    let mut bits = bits;
+                    while bits != 0 {
+                        let v = k * 64 + bits.trailing_zeros() as usize;
+                        bits &= bits - 1;
+                        let common: usize = available
+                            .iter()
+                            .zip(&graph.compatible[v])
+                            .map(|(&a, &b)| (a & !b).count_ones() as usize)
+                            .sum();
+                        if choice.is_none_or(|(score, old)| {
+                            common > score || (common == score && v < old)
+                        }) {
+                            choice = Some((common, v));
+                        }
+                    }
+                }
+                let v = choice?.1;
+                colors[v] = color;
+                clear(&mut remaining, v);
+                clear(&mut available, v);
+                for (a, &b) in available.iter_mut().zip(&graph.compatible[v]) {
+                    *a &= !b;
+                }
+            }
+        }
+    } else {
+        let mut used = vec![vec![0u64; graph.words]; n];
+        let mut saturation = vec![0usize; n];
+        let degree: Vec<usize> = graph
+            .compatible
+            .iter()
+            .map(|r| r.iter().map(|b| b.count_ones() as usize).sum())
+            .collect();
+        for _ in 0..n {
+            if Instant::now() >= deadline {
+                return None;
+            }
+            let v = (0..n)
+                .filter(|&v| colors[v] == 0)
+                .max_by_key(|&v| (saturation[v], degree[v], std::cmp::Reverse(v)))?;
+            let color = used[v].iter().enumerate().find_map(|(k, &bits)| {
+                (bits != u64::MAX).then(|| k * 64 + (!bits).trailing_zeros() as usize)
+            })?;
+            colors[v] = color + 1;
+            for u in 0..n {
+                if colors[u] == 0 && graph.compatible[v][u / 64] & (1 << (u % 64)) != 0 {
+                    let mask = 1 << (color % 64);
+                    if used[u][color / 64] & mask == 0 {
+                        used[u][color / 64] |= mask;
+                        saturation[u] += 1;
+                    }
+                }
+            }
+        }
+    }
+    Some(colors)
 }
