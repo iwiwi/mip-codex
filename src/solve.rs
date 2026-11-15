@@ -244,8 +244,8 @@ fn shifted_bound(
             return f64::NAN;
         };
         bound = if upper { hi } else { lo };
-        let error = if exact_shift && row.exact_coefficients {
-            0.
+        let error = if exact_shift {
+            row.activity_error_exact_point(shift)
         } else {
             row.activity_error(shift)
         };

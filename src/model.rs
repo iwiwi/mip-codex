@@ -81,6 +81,24 @@ impl Row {
                 .max((value - value.next_down()).abs())
         }
     }
+    /// Same outward sum when every point coordinate has zero serialization error.
+    /// Only call after proving point_error(x[j]) == 0 for all coordinates.
+    pub(crate) fn activity_error_exact_point(&self, x: &[f64]) -> f64 {
+        debug_assert!(x.iter().all(|&value| point_error(value) == 0.));
+        if self.exact_coefficients || self.exact_integral {
+            return 0.;
+        }
+        let mut error = 0.;
+        for (index, &(j, a)) in self.coefficients.iter().enumerate() {
+            if x[j] != 0. {
+                let da = self.coefficient_error(index, a);
+                if da != 0. {
+                    add_error(&mut error, (da * x[j].abs()).next_up());
+                }
+            }
+        }
+        error
+    }
     pub(crate) fn activity_error(&self, x: &[f64]) -> f64 {
         let mut error = 0.;
         for (index, &(j, a)) in self.coefficients.iter().enumerate() {
@@ -321,5 +339,66 @@ impl Model {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod activity_error_tests {
+    use super::*;
+    #[test]
+    fn exact_point_specialization_matches_the_full_outward_sum_bit_for_bit() {
+        let mut rng = 0x71c53b2a9084e6fdu64;
+        let values = [
+            0.,
+            -0.,
+            1.,
+            -2.,
+            (1u64 << 52) as f64,
+            (1u64 << 53) as f64,
+            ((1u64 << 60) + 256) as f64,
+            2f64.powi(100),
+            f64::MAX,
+        ];
+        for case in 0..5000 {
+            let n = 1 + case % 32;
+            let mut x = Vec::new();
+            let mut coefficients = Vec::new();
+            let mut flags = Vec::new();
+            for j in 0..n {
+                rng ^= rng << 13;
+                rng ^= rng >> 7;
+                rng ^= rng << 17;
+                x.push(values[rng as usize % values.len()]);
+                let bits = rng & !(0x7ffu64 << 52) | (((rng >> 20) % 2047) << 52);
+                let a = match (case + j) % 5 {
+                    0 => 0.,
+                    1 => f64::from_bits(1),
+                    2 => 0.1,
+                    3 => f64::MAX,
+                    _ => f64::from_bits(bits),
+                };
+                coefficients.push((j, a));
+                flags.push(rng & 1 != 0);
+            }
+            flags.truncate(case % (n + 1));
+            let row = Row {
+                exact_coefficients: case % 7 == 0,
+                exact_integral: case % 11 == 0,
+                exact_coefficient_flags: flags,
+                lower_enclosure: None,
+                upper_enclosure: None,
+                name: String::new(),
+                lower: None,
+                upper: None,
+                coefficients,
+            };
+            let old = row.activity_error(&x);
+            let new = row.activity_error_exact_point(&x);
+            assert_eq!(
+                old.to_bits(),
+                new.to_bits(),
+                "case {case}: {old:?} != {new:?}"
+            );
+        }
     }
 }
