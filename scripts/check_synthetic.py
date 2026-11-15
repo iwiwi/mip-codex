@@ -72,6 +72,8 @@ for case in range(count):
             if 'MIP_OBJECTIVE_ROUNDING' in os.environ:
                 assert result.get('objective_rounding') == (os.environ['MIP_OBJECTIVE_ROUNDING']!='0'), 'unexpected objective rounding mode'
                 assert result.get('objective_rounding_all') == (os.environ['MIP_OBJECTIVE_ROUNDING']=='all'), 'unexpected objective rounding scope'
+            for envname,key in [('MIP_STRONG_OBJECTIVE','strong_objective'),('MIP_STRONG_INFEASIBLE_HINT','strong_infeasible_hint')]:
+                if envname in os.environ: assert result.get(key)==(os.environ[envname]=='1'), 'unexpected strong mode'
             if 'MIP_RINS' in os.environ:
                 assert result.get('rins_enabled') == (os.environ['MIP_RINS'] == '1'), 'unexpected RINS mode'
             if 'MIP_STRONG_BRANCHING' in os.environ:

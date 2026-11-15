@@ -25,6 +25,8 @@ pub struct Limits {
     pub cover_rounds: usize,
     pub rounding_cuts: bool,
     pub strong_branching: bool,
+    pub strong_objective: bool,
+    pub strong_infeasible_hint: bool,
     pub rins: bool,
     pub objective_rounding: bool,
     pub objective_rounding_all: bool,
@@ -49,6 +51,8 @@ impl Default for Limits {
             cover_rounds: 2,
             rounding_cuts: false,
             strong_branching: true,
+            strong_objective: true,
+            strong_infeasible_hint: true,
             rins: true,
             objective_rounding: true,
             objective_rounding_all: false,
@@ -76,6 +80,8 @@ pub struct Result {
     pub cover_round_limit: usize,
     pub rounding_cuts_enabled: bool,
     pub strong_branching: bool,
+    pub strong_objective: bool,
+    pub strong_infeasible_hint: bool,
     pub strong: StrongStats,
     pub rins_enabled: bool,
     pub rins: RinsStats,
@@ -1338,6 +1344,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         cover_round_limit: limits.cover_rounds,
         rounding_cuts_enabled: limits.rounding_cuts,
         strong_branching: limits.strong_branching,
+        strong_objective: limits.strong_objective,
+        strong_infeasible_hint: limits.strong_infeasible_hint,
         strong,
         rins_enabled: limits.rins,
         rins,
@@ -1420,6 +1428,9 @@ pub struct StrongStats {
     pub limited: usize,
     pub numerical_errors: usize,
     pub branch_changes: usize,
+    pub evaluated_variables: Vec<usize>,
+    pub selected_variable: Option<usize>,
+    pub infeasible_hint_selections: usize,
     pub seconds: f64,
 }
 fn strong_branch(
@@ -1434,27 +1445,19 @@ fn strong_branch(
 ) -> Option<usize> {
     let started = Instant::now();
     stats.calls += 1;
-    let mut candidates: Vec<_> = model
-        .variables
-        .iter()
-        .enumerate()
-        .filter_map(|(j, v)| {
-            let f = point[j] - point[j].floor();
-            (v.integer && f.min(1. - f) > 1e-7).then_some((j, f.min(1. - f)))
-        })
-        .collect();
-    candidates.sort_by(|a, b| b.1.total_cmp(&a.1).then(b.0.cmp(&a.0)));
-    candidates.truncate(8);
+    let candidates = branching::strong_candidates(model, point, limits.strong_objective);
     let sign = if model.maximize { -1. } else { 1. };
     let parent = sign * model.objective(point);
     let floor = (parent.abs() * 1e-9).max(1e-8);
-    let mut best: Option<(usize, f64)> = None;
+    let mut best: Option<(usize, f64, usize)> = None;
     for (j, _) in candidates {
         if Instant::now() >= deadline {
             break;
         }
         stats.candidates += 1;
+        stats.evaluated_variables.push(j);
         let mut gains = [None, None];
+        let mut infeasible = [false; 2];
         for up in [false, true] {
             if Instant::now() >= deadline {
                 stats.limited += 1;
@@ -1479,6 +1482,7 @@ fn strong_branch(
                 Relaxation::Ready(q) => q,
                 Relaxation::Infeasible => {
                     stats.infeasible += 1;
+                    infeasible[usize::from(up)] = true;
                     continue;
                 }
                 Relaxation::ResourceLimit => {
@@ -1523,20 +1527,43 @@ fn strong_branch(
                         objective,
                     );
                 }
-                lp::Outcome::Infeasible => stats.infeasible += 1,
+                lp::Outcome::Infeasible => {
+                    stats.infeasible += 1;
+                    infeasible[usize::from(up)] = true;
+                }
                 lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => stats.limited += 1,
                 _ => stats.numerical_errors += 1,
             }
         }
-        if let [Some(down), Some(up)] = gains {
-            let score = down.max(floor).ln() + up.max(floor).ln();
-            if best.is_none_or(|(_, old)| score > old) {
-                best = Some((j, score));
+        let hints = infeasible.iter().filter(|&&v| v).count();
+        let score = if limits.strong_infeasible_hint && hints != 0 {
+            Some(
+                1e6 * hints as f64
+                    + gains
+                        .iter()
+                        .map(|g| g.unwrap_or(floor).max(floor).ln())
+                        .sum::<f64>(),
+            )
+        } else if let [Some(down), Some(up)] = gains {
+            Some(down.max(floor).ln() + up.max(floor).ln())
+        } else {
+            None
+        };
+        if let Some(score) = score {
+            if best.is_none_or(|(_, old, _)| score > old) {
+                best = Some((j, score, hints));
             }
         }
     }
     stats.seconds += started.elapsed().as_secs_f64();
-    best.map(|(j, _)| j)
+    if let Some((j, _, hints)) = best {
+        stats.selected_variable = Some(j);
+        stats.infeasible_hint_selections +=
+            usize::from(limits.strong_infeasible_hint && hints != 0);
+        Some(j)
+    } else {
+        None
+    }
 }
 
 #[derive(Default, Debug, Serialize)]

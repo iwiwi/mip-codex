@@ -289,3 +289,11 @@
 ### PR20候補: 費用変更時の主単体法warm
 
 PR19はa4705cbへマージ。別worktree warm-objective-source、branch warm-objectiveで開発しmainへrebaseした。行列構造一致と費用変更を区別し、primal feasibleな基底だけ主単体法へ渡す。違反ならcoldへ戻す。snapshot費用は更新、元Arcは不変。Stats集約のフィールド不足による初回コンパイル失敗を保持し修正。Rust136回帰成功。1000変更のcold/dense照合、別の1100解のHiGHS/Fraction検査も失敗0。部品時間はwarm0.1071秒/cold0.1468秒/HiGHS0.1440秒、pivot37035/53057、warm成功1000。小さい部品測定に限り、MILP全体の高速化とはしない。詳細docs/WARM_OBJECTIVE.md。次は主解専用の根feasibility pump。
+
+### 強分枝の混合候補と実行不能hint試作
+
+PR21はマージせず閉じ、main PR20からstrong-objective branchへ。候補を分数度と元費用×分数距離の混合にできるようにし、実行不能hintは独立flagに分けた。初期既定はいずれもfalse。8候補/256pivot/.1秒は維持する。評価候補indexと選択indexも出力し、非零費用の少数変数が実際に候補へ入るかを確認可能にする。子LPのbound/主解/証明の不採用は維持。両子実行不能でもmain node_limit/bound不変のテストと、混合候補が上位分数度6を保つ単体検査、80二値min/max全列挙を4設定へ広げた。実験計画はdocs/STRONG_OBJECTIVE_PLAN.md。
+
+強分枝d9e9c41の18問4設定 (113501/113503) は全72時間制限、18主解全同等、併用だけ30n下界51→51.7547169811。56主解GMP/公式有効、268cut/72構造証明全有効。小1000/二値1000/中規模200全失敗0、Rust138回帰と80二値×4設定全列挙成功。30n60秒113850もclassic51/併用51.7547、両方主解なし。主ノード486→330/LP549→390は同時間枠の異なる探索であり高速化の証拠とはしない。両方のcut/構造証明有効。両設定を既定候補へ変更し最終確認中。
+
+既定8e95f9eのfresh8×5秒114252でも30n下界51.7547と7主解の品質を再現した。native3参照は103709の同条件測定を明示再利用。新既定138回帰も成功。全件native baselineは11:43 UTCに99/720完了、旧primary最適41/error8、生存。次のdive-fixation-source worktreeで、一括整数固定を省く反例(min/max)と全139回帰が成功。releaseはmainの測定完了まで変更せず、PR採用後のrebase/対照実験へ進む。

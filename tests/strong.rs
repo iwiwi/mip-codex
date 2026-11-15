@@ -133,13 +133,51 @@ fn strong_branching_matches_exhaustive_min_and_max_integer_optima() {
                 }));
             }
         }
-        let result = solve(&model, &limits());
-        match expected {
-            None => assert_eq!(result.status, "infeasible", "case{case}"),
-            Some(value) => {
-                assert_eq!(result.status, "optimal", "case{case}");
-                assert!((result.objective.unwrap() - value as f64).abs() < 1e-6);
+        for (objective, hints) in [(false, false), (true, false), (false, true), (true, true)] {
+            let result = solve(
+                &model,
+                &Limits {
+                    strong_objective: objective,
+                    strong_infeasible_hint: hints,
+                    ..limits()
+                },
+            );
+            match expected {
+                None => assert_eq!(
+                    result.status, "infeasible",
+                    "case{case} modes{objective}/{hints}"
+                ),
+                Some(value) => {
+                    assert_eq!(
+                        result.status, "optimal",
+                        "case{case} modes{objective}/{hints}"
+                    );
+                    assert!((result.objective.unwrap() - value as f64).abs() < 1e-6);
+                }
             }
         }
+    }
+}
+
+#[test]
+fn infeasible_hints_select_a_variable_but_do_not_prune_or_change_parent_bound() {
+    let model=mps::parse(std::io::Cursor::new("NAME strong\nROWS\n N c\n E r\nCOLUMNS\n x c 1 r 1\nRHS\n rhs r .4\nBOUNDS\n BV b x\nENDATA\n")).unwrap();
+    for mixed in [false, true] {
+        let result = solve(
+            &model,
+            &Limits {
+                strong_objective: mixed,
+                strong_infeasible_hint: true,
+                nodes: 1,
+                ..limits()
+            },
+        );
+        assert_eq!(result.status, "node_limit");
+        assert_eq!(result.nodes, 1);
+        assert_eq!(result.dual_bound, Some(0.4));
+        assert_eq!(result.objective, None);
+        assert_eq!(result.strong.selected_variable, Some(0));
+        assert_eq!(result.strong.infeasible_hint_selections, 1);
+        assert_eq!(result.strong.infeasible, 2);
     }
 }

@@ -126,3 +126,86 @@ impl Costs {
         }
     }
 }
+
+/// 強分枝の短い候補列。分数度の多様性を保ち目的影響の上位も早めに試す。
+pub(crate) fn strong_candidates(model: &Model, point: &[f64], mixed: bool) -> Vec<(usize, f64)> {
+    let mut fractional: Vec<_> = model
+        .variables
+        .iter()
+        .enumerate()
+        .filter_map(|(j, v)| {
+            let f = point[j] - point[j].floor();
+            let d = f.min(1. - f);
+            (v.integer && d > 1e-7).then_some((j, d))
+        })
+        .collect();
+    fractional.sort_by(|a, b| b.1.total_cmp(&a.1).then(b.0.cmp(&a.0)));
+    if !mixed {
+        fractional.truncate(8);
+        return fractional;
+    }
+    let mut objective: Vec<_> = fractional
+        .iter()
+        .copied()
+        .filter(|(j, d)| model.variables[*j].objective.abs() * d > 0.)
+        .collect();
+    objective.sort_by(|a, b| {
+        let impact = |(j, d): (usize, f64)| model.variables[j].objective.abs() * d;
+        impact(*b).total_cmp(&impact(*a)).then(b.0.cmp(&a.0))
+    });
+    objective.truncate(2);
+    let mut result = Vec::new();
+    let mut add = |candidate: (usize, f64)| {
+        if result.len() < 8 && !result.iter().any(|&(j, _)| j == candidate.0) {
+            result.push(candidate);
+        }
+    };
+    for k in 0..2 {
+        if let Some(&v) = fractional.get(k) {
+            add(v);
+        }
+        if let Some(&v) = objective.get(k) {
+            add(v);
+        }
+    }
+    for v in fractional {
+        add(v);
+    }
+    result
+}
+
+#[cfg(test)]
+mod strong_candidate_tests {
+    use super::*;
+    #[test]
+    fn mixed_candidates_keep_fractional_variables_and_include_rare_cost_variable() {
+        let mut text = String::from("NAME s\nROWS\n N c\n L r\nCOLUMNS\n");
+        for j in 0..10 {
+            text += &format!(" x{j} c {} r 1\n", if j == 9 { 100 } else { 0 });
+        }
+        text += "RHS\n rhs r 10\nBOUNDS\n";
+        for j in 0..10 {
+            text += &format!(" BV b x{j}\n");
+        }
+        text += "ENDATA\n";
+        let mut model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+        let mut point = vec![0.5; 10];
+        point[8] = 0.4;
+        point[9] = 0.01;
+        for max in [false, true] {
+            model.maximize = max;
+            let classic = strong_candidates(&model, &point, false);
+            let mixed = strong_candidates(&model, &point, true);
+            assert_eq!(classic.len(), 8);
+            assert_eq!(mixed.len(), 8);
+            assert!(!classic.iter().any(|&(j, _)| j == 9));
+            assert_eq!(mixed[1].0, 9);
+            assert!(
+                classic
+                    .iter()
+                    .take(6)
+                    .all(|&(j, _)| mixed.iter().any(|&(k, _)| j == k))
+            );
+        }
+    }
+}
