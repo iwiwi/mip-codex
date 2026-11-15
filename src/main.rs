@@ -42,6 +42,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PRIMAL_REPAIR must be 0 or 1".into()),
             };
         }
+        if let Ok(value) = std::env::var("MIP_DIVE_FIX_INTEGRAL") {
+            limits.dive_fix_integral = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_DIVE_FIX_INTEGRAL must be 0 or 1".into()),
+            };
+        }
         if let Ok(diving) = std::env::var("MIP_LP_DIVING") {
             limits.lp_diving = match diving.as_str() {
                 "0" => false,

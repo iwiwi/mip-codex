@@ -20,6 +20,7 @@ pub struct Limits {
     pub propagation: bool,
     pub primal_repair: bool,
     pub lp_diving: bool,
+    pub dive_fix_integral: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
     pub cover_rounds: usize,
@@ -46,6 +47,7 @@ impl Default for Limits {
             propagation: false,
             primal_repair: true,
             lp_diving: true,
+            dive_fix_integral: true,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 2,
@@ -75,6 +77,7 @@ pub struct Result {
     pub pseudocost_selections: usize,
     pub primal_repair: bool,
     pub lp_diving: bool,
+    pub dive_fix_integral: bool,
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
     pub cover_round_limit: usize,
@@ -361,6 +364,7 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -
 #[derive(Default, Debug, Serialize)]
 pub struct DivingStats {
     pub calls: usize,
+    pub fixed_variables: usize,
     pub lp_solves: usize,
     pub reversals: usize,
     pub infeasible: usize,
@@ -429,11 +433,16 @@ fn dive(
             let mut child = current.clone();
             // 現在整数の値は局所探索内で固定し、再最適化で再び分数化するのを抑える。
             // これらの固定が悪くても、失うのはこの主解探索の機会だけ。
-            for (k, v) in model.variables.iter().enumerate() {
-                if v.integer && (point[k] - point[k].round()).abs() <= 1e-6 {
-                    let value = point[k].round();
-                    child.lower[k] = Some(value);
-                    child.upper[k] = Some(value);
+            if limits.dive_fix_integral {
+                for (k, v) in model.variables.iter().enumerate() {
+                    if v.integer && (point[k] - point[k].round()).abs() <= 1e-6 {
+                        let value = point[k].round();
+                        if child.lower[k] != Some(value) || child.upper[k] != Some(value) {
+                            stats.fixed_variables += 1;
+                        }
+                        child.lower[k] = Some(value);
+                        child.upper[k] = Some(value);
+                    }
                 }
             }
             if prefer_up != reverse {
@@ -1339,6 +1348,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         pseudocost_selections: costs.selections,
         primal_repair: limits.primal_repair,
         lp_diving: limits.lp_diving,
+        dive_fix_integral: limits.dive_fix_integral,
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,
         cover_round_limit: limits.cover_rounds,

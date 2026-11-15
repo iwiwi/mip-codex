@@ -88,3 +88,58 @@ fn failed_integral_fixing_does_not_discard_a_feasible_integer_solution() {
     assert_eq!(complete.status, "optimal");
     assert_eq!(complete.objective, Some(1.));
 }
+
+#[test]
+fn an_integral_root_variable_may_need_to_move_to_complete_a_dive() {
+    for maximize in [false, true] {
+        let sense = if maximize { "OBJSENSE MAX\n" } else { "" };
+        let cost = if maximize { -1 } else { 1 };
+        let text = format!(
+            "NAME flexible\n{sense}ROWS\n N c\n G lo\n L hi\nCOLUMNS\n x c {cost} lo 1\n x hi -1\n y lo 1 hi 1\nRHS\n rhs lo .5 hi .5\nBOUNDS\n BV b x\n BV b y\nENDATA\n"
+        );
+        let model = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let limits = Limits {
+            objective_rounding: false,
+            primal_repair: false,
+            primal_probe: false,
+            rins: false,
+            strong_branching: false,
+            cover_cuts: false,
+            rounding_cuts: false,
+            lp_diving: true,
+            nodes: 1,
+            seconds: 5.,
+            ..Limits::default()
+        };
+        let fixed = solve(
+            &model,
+            &Limits {
+                dive_fix_integral: true,
+                ..limits.clone()
+            },
+        );
+        let flexible = solve(
+            &model,
+            &Limits {
+                dive_fix_integral: false,
+                ..limits
+            },
+        );
+        assert_eq!(fixed.objective, None);
+        assert!(fixed.diving.infeasible >= 2);
+        assert!(fixed.diving.fixed_variables > 0);
+        assert_eq!(flexible.status, "node_limit");
+        assert_eq!(flexible.objective, Some(cost as f64));
+        assert_eq!(flexible.dual_bound, fixed.dual_bound);
+        assert_eq!(flexible.nodes, 1);
+        assert_eq!(flexible.diving.fixed_variables, 0);
+        assert_eq!(flexible.diving.improvements, 1);
+        let values = flexible.values.unwrap();
+        let x = model
+            .variables
+            .iter()
+            .map(|v| values[&v.name])
+            .collect::<Vec<_>>();
+        model.check(&x, true, 1e-7).unwrap();
+    }
+}
