@@ -1,0 +1,55 @@
+GLPSOL--GLPK LP/MIP Solver 5.0
+Parameter(s) specified in the command line:
+ --freemps /home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz --tmlim 5
+ --memlim 16384 --mipgap 0 --write /home/ubuntu/mip-codex/artifacts/smoke-20261115-023707/mad.mps.gz/glpk/solution.raw
+ --wglp /home/ubuntu/mip-codex/artifacts/smoke-20261115-023707/mad.mps.gz/glpk/model.glp
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz'...
+Problem: mad
+Objective: F52
+53 rows, 220 columns, 3027 non-zeros
+200 integer variables, all of which are binary
+3338 records were read
+2 free rows were removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-023707/mad.mps.gz/glpk/model.glp'...
+3164 lines were written
+GLPK Integer Optimizer 5.0
+51 rows, 220 columns, 2808 non-zeros
+200 integer variables, all of which are binary
+Preprocessing...
+40 rows, 210 columns, 2400 non-zeros
+200 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  4.000e-04  max|aij| =  1.000e+00  ratio =  2.500e+03
+GM: min|aij| =  1.457e-01  max|aij| =  6.862e+00  ratio =  4.709e+01
+EQ: min|aij| =  2.127e-02  max|aij| =  1.000e+00  ratio =  4.701e+01
+2N: min|aij| =  1.562e-02  max|aij| =  1.656e+00  ratio =  1.060e+02
+Constructing initial basis...
+Size of triangular part is 40
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+40 rows, 210 columns, 2400 non-zeros
+      0: obj =   1.387778781e-17 inf =   5.570e+01 (10)
+     43: obj =  -1.228671648e-16 inf =   1.242e-15 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
++    43: mip =     not found yet >=              -inf        (1; 0)
++   335: >>>>>   1.833000000e+00 >=   0.000000000e+00 100.0% (44; 0)
++  1029: >>>>>   1.116800000e+00 >=   0.000000000e+00 100.0% (136; 2)
++  1312: >>>>>   6.864000000e-01 >=   0.000000000e+00 100.0% (172; 30)
++  9483: >>>>>   6.520000000e-01 >=   0.000000000e+00 100.0% (889; 189)
++ 13419: >>>>>   5.016000000e-01 >=   0.000000000e+00 100.0% (1171; 343)
++ 22791: >>>>>   4.512000000e-01 >=   0.000000000e+00 100.0% (1293; 1103)
++ 22894: >>>>>   4.206000000e-01 >=   0.000000000e+00 100.0% (1034; 1548)
++ 65217: >>>>>   4.120000000e-01 >=   0.000000000e+00 100.0% (3274; 2504)
++ 82672: >>>>>   3.496000000e-01 >=   0.000000000e+00 100.0% (3765; 3101)
++ 83108: >>>>>   2.500000000e-01 >=   0.000000000e+00 100.0% (3009; 4433)
++ 98191: >>>>>   2.156000000e-01 >=   0.000000000e+00 100.0% (2461; 6884)
++ 98293: >>>>>   1.712000000e-01 >=   0.000000000e+00 100.0% (2137; 7678)
++105047: mip =   1.712000000e-01 >=   0.000000000e+00 100.0% (1924; 8721)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Time used:   5.0 secs
+Memory used: 3.8 Mb (4023146 bytes)
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-023707/mad.mps.gz/glpk/solution.raw'...
+280 lines were written
+
