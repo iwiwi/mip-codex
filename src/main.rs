@@ -22,6 +22,14 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(value) = std::env::var("MIP_LP_WORKSPACE_MIB") {
+            limits.dense_bytes = value
+                .parse::<usize>()
+                .ok()
+                .filter(|&mib| mib > 0)
+                .and_then(|mib| mib.checked_mul(1024 * 1024))
+                .ok_or("MIP_LP_WORKSPACE_MIB must be a positive, representable MiB value")?;
+        }
         if let Ok(engine) = std::env::var("MIP_LP_ENGINE") {
             limits.engine = match engine.as_str() {
                 "dense" => mip_codex::solve::Engine::Dense,
