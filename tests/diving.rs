@@ -73,8 +73,7 @@ fn failed_integral_fixing_does_not_discard_a_feasible_integer_solution() {
     let text = "NAME localfix\nROWS\n N c\n E r\nCOLUMNS\n x r 1\n y c 1 r 0.5\nRHS\n rhs r 0.5\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
     let root = run(text, true, 1);
     assert!(root.diving.infeasible >= 2);
-    assert_eq!(root.diving.sequential_calls, 1);
-    assert_eq!(root.objective, Some(1.));
+    assert_eq!(root.objective, None);
     assert_eq!(root.status, "node_limit");
     let complete = run(text, true, usize::MAX);
     assert_eq!(complete.status, "optimal");

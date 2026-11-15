@@ -283,7 +283,6 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
 pub struct DivingStats {
     pub calls: usize,
     pub lp_solves: usize,
-    pub sequential_calls: usize,
     pub reversals: usize,
     pub infeasible: usize,
     pub numerical_errors: usize,
@@ -295,7 +294,6 @@ pub struct DivingStats {
 fn dive(
     model: &Model,
     root: &Node,
-    fix_integral: bool,
     point: &[f64],
     limits: &Limits,
     deadline: Instant,
@@ -303,9 +301,6 @@ fn dive(
     lp_stats: &mut revised::Stats,
 ) -> Option<Vec<f64>> {
     stats.calls += 1;
-    if !fix_integral {
-        stats.sequential_calls += 1;
-    }
     let mut current = root.clone();
     let mut point = point.to_vec();
     let checker = heuristic::Repair::new(model);
@@ -356,7 +351,7 @@ fn dive(
             // 現在整数の値は局所探索内で固定し、再最適化で再び分数化するのを抑える。
             // これらの固定が悪くても、失うのはこの主解探索の機会だけ。
             for (k, v) in model.variables.iter().enumerate() {
-                if fix_integral && v.integer && (point[k] - point[k].round()).abs() <= 1e-6 {
+                if v.integer && (point[k] - point[k].round()).abs() <= 1e-6 {
                     let value = point[k].round();
                     child.lower[k] = Some(value);
                     child.upper[k] = Some(value);
@@ -698,29 +693,12 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     let candidate = dive(
                         model,
                         &node,
-                        true,
                         &original,
                         limits,
                         diving_deadline,
                         &mut diving,
                         &mut lp_stats,
-                    )
-                    .or_else(|| {
-                        if Instant::now() >= diving_deadline {
-                            return None;
-                        }
-                        // 多数の整数固定が袋小路なら、元の根から固定を減らして再試行する。
-                        dive(
-                            model,
-                            &node,
-                            false,
-                            &original,
-                            limits,
-                            diving_deadline,
-                            &mut diving,
-                            &mut lp_stats,
-                        )
-                    });
+                    );
                     if let Some(x) = candidate {
                         let value = sign * model.objective(&x);
                         if value.is_finite() && value < incumbent {
