@@ -17,3 +17,5 @@
 `make -C third_party/miplib-checker MAINNAME=solchecker-absolute OBJDIR=obj-absolute CXX=g++ LINKCXX=g++ USROFLAGS=-O2 USRCXXFLAGS=-DMIPLIB_ABSOLUTE`
 
 絶対版は境界・行を非スケールの絶対許容誤差で判定し、目的値許容誤差は `1e-8*(1+abs(computed objective))`。元の十進係数と解の十進値をGMP有理数で演算する。短名free形式、目的定数RHSに対応し、厳密な目的値と違反量を出力する。Python側で変数名の完全一致を別途確認する。最適性証明ではない。主検査が利用不能なら検証不能とし、浮動小数点結果だけで合格にしない。
+
+MIPLIB_ABSOLUTE版の数値入出力は可変長。元の32文字assertを外し、長い正確な十進係数・E/D指数をGMPへ渡す。数値token/指数には資源保護上限を設け、未対応tokenは検査不能とする。通常版は原版の制限を保持し、稼働snapshotのbinも変更しない。

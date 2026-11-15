@@ -175,3 +175,13 @@ source1e093b8。数値安定化と誤った最適宣言の修正で、許容誤�
 返却28解はGMP絶対27/28、公式相対28/28。HiGHS pk1の厳密行違反1.000000008e-6は今回も不合格、検証済primalから除外。Rust7返却解は双方合格。native値/検証済値/共通gapをstability-final-summary.jsonに分けて保存。安定化と既知の誤った最適宣言の修正を採用し、悪化した解品質も省略しない。
 
 05:24 UTC時点で長時間baseline24/720完了、既知invalid_solution1、kernel coordinator生存。保存解21件を新GMP primaryで再監査し20合格/1不合格 (cbs-cta/GLPK)、検証不能0。最適化snapshotは変更せず監査を別保存 (artifacts/stability-baseline-audit)。
+
+## 2026-11-15 列・行の単位と微小pivot
+
+有限LPを誤って非有界とした3反例を修正。詳細は[LP_SCALING.md](LP_SCALING.md)。73 Rustテスト、両エンジン各1000小問+200中規模、通常200/scaled100根LP、開発8根LPが成功。追加の変数単位profile100問はrevised全成功し、返却点も元MPS GMP絶対検査に合格。denseは50成功/50 numerical_errorで未解決。全失敗・棄却試作を保存した。
+
+source4bff42cの8開発問×Rust各5秒、CPU0/1thread/16GiB (smoke-20261115-061837) は全時間制限・証明0、返却7解はGMP絶対/公式相対とも合格。主解はpk1=20、mad=.3766、markshare≈2、30n20b8なし、50v-10=3777.599989、binkar10_1=6920.290013、gmu-35-50=-112379.8182、gmu-35-40=-933357.2996。直前Rustのgmu-35-40=-878554.4542以外は同じ。8問とも実際の列/行変換数0であり、この差をスケーリングの性能効果とは扱わない。
+
+HiGHS/SCIP/GLPK比較値は同資源の直前smoke-20261115-052105を再利用し、今回再測定していない。gmu-35-40は各-2405426/-2402696/-2301098、gmu-35-50は-2605437/-2603755/-2396822でRustの主解に大幅な不足がある。全体優位は未達成。詳細値/前後差はartifacts/column-scaling-summary.json。
+
+GMP絶対検査器だけ長い十進係数の32文字制限を除去し、近平行反例の正確な係数を検査可能にした。診断用Pythonの行境界取得をO(m²)から一度の取得へ修正 (許容誤差不変)。NumPy試作のJSON型エラーも保存し、型を保つ版の3回帰テストを通過。新検査器によるbaseline保存解監査は06:43 UTC時点33件中32合格、cbs-cta/GLPK不合格1、未検証0。稼働snapshotや共有ソルバーは変更しない。

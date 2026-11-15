@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/scripts/audit_saved_solutions.py", line 35, in <module>
+    atomic_json(args.output/(job['id']+'.json'), record)
+  File "/home/ubuntu/mip-codex/scripts/benchmark_common.py", line 14, in atomic_json
+    json.dump(value, stream, ensure_ascii=False, allow_nan=False, indent=2)
+  File "/usr/lib/python3.12/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/usr/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bool is not JSON serializable
