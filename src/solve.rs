@@ -32,7 +32,7 @@ impl Default for Limits {
             warm_start: true,
             propagation: false,
             primal_repair: true,
-            branching: branching::Rule::Fractional,
+            branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
         }
     }
