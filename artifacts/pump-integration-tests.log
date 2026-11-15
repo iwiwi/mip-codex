@@ -1,0 +1,25 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+error: float literals must have an integer part
+  --> tests/pump.rs:41:36
+   |
+41 |     assert!((r.dual_bound.unwrap()-.8).abs()<1e-7);
+   |                                    ^^
+   |
+help: must have an integer part
+   |
+41 |     assert!((r.dual_bound.unwrap()-0.8).abs()<1e-7);
+   |                                    +
+
+error: float literals must have an integer part
+  --> tests/pump.rs:54:36
+   |
+54 |     assert!((r.dual_bound.unwrap()-.8).abs()<1e-7);
+   |                                    ^^
+   |
+help: must have an integer part
+   |
+54 |     assert!((r.dual_bound.unwrap()-0.8).abs()<1e-7);
+   |                                    +
+
+error: could not compile `mip-codex` (test "pump") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
