@@ -17,3 +17,13 @@
 18問中fhnw-binpack4-4で10、timtab1で11の違反候補。保存証明を別Pythonコードが元MPSのFractionから合成/投影/床除算し直して全件一致。比較専用HiGHS連続LPで、fhnwは元/既存main16cut/+集約10cutすべて0、timtabは元28694/既存main0cut28694/+集約11cut52566。native解・重みをRustへ返さず、このLP値を自作ソルバーの結果として数えない。
 
 この信号を根拠にRustへの候補生成・証明記録・独立検査を実装して自作LP/短期B&Bを比較する。初期はMIP_AGGREGATE_CUTS既定off。mainへ採用するかは自作LPと終了時指標を測ってから判断する。
+
+## Rust試作の最初の測定
+
+Rustに2行の正整数結合、gcdによる共有係数相殺、既存rounding_rowの整数床除算を実装した。証明に2元行・側・正整数重みを保存し、独立Python検査も元MPSから再合成する。MIP_AGGREGATE_CUTS既定false。全128二値モデルの256割当てを整数算術で全列挙、自由連続変数の相殺・上下側・破損証明を検査。初回toyの内部check許容差0は区間による境界検査に合わず失敗し、テストだけ1e-12へ訂正。製品許容差は変えず、全列挙の元実行可能性は内部interval guardに頼らず整数活動量から判定するよう強化した。183 Rustテスト成功、toyの元MPS GMP検査と7破損証明拒否も成功。
+
+同一binary flag0/1の10秒18問：timtab1のみ下界28694→52566、他17問はstatus/primal/dual全て一致。主解悪化なし。timtab1 60秒も同じ下界改善で、両方主解未発見。fhnwは28集約cut等を入れたが下界0不変。timtabの集約処理約0.00186秒/11cut。
+
+新しい同資源native10秒timtab：HiGHS主解795869.99999978/下界652311.58342779、SCIP834361.99999978/594251.36149405、GLPK主解なし/374243.11935881。自作52566はなお大幅に弱い。fhnwは全nativeとも主解なし/下界0。原native全体は80/720、32独立optimal、6error。追加errorはHiGHS/chromaticindex1024-7、watchdog3660.18679秒/SIGKILL、OOMなし・result未生成。凍結条件を変えずerrorとして保持する。
+
+集約有効の2700合成検査が進行中。既定採用は結果確認後。連続LPだけの入力などで不要なcut準備をしない適用ガードも最終設定で確認する。

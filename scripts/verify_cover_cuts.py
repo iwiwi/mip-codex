@@ -162,6 +162,28 @@ def validate_cut_proofs(model_path,result):
             bound=source['upper' if side else 'lower']
             if bound is None:raise AssertionError('source side missing')
             divisor=proof.get('divisor')
+            aggregation=proof.get('aggregation',[])
+            if not isinstance(aggregation,list):raise AssertionError('bad aggregation terms')
+            if aggregation:
+                if len(aggregation)!=2 or divisor is None:raise AssertionError('aggregation requires two terms and rounding')
+                first=aggregation[0]
+                if any(first.get(k)!=proof[k]for k in ['source_row','source_name','upper_side']):raise AssertionError('aggregation first source mismatch')
+                combined={};combined_rhs=Fraction(0);used=set()
+                for term in aggregation:
+                    ri=term['source_row'];weight=term['weight'];upper=term['upper_side']
+                    if type(ri)is not int or not 0<=ri<len(rows)or ri in used:raise AssertionError('bad aggregate source index')
+                    if type(weight)is not int or not 0<weight<=2**52 or type(upper)is not bool:raise AssertionError('bad aggregation weight/side')
+                    used.add(ri);r=rows[ri]
+                    if term['source_name']!=r['name']:raise AssertionError('bad aggregate source name')
+                    rhs=r['upper'if upper else'lower']
+                    if rhs is None or rhs.denominator!=1:raise AssertionError('aggregate source requires integer side')
+                    signed=weight*(1 if upper else-1);combined_rhs+=signed*rhs
+                    for name,a in r['coefficients'].items():
+                        if a.denominator!=1:raise AssertionError('aggregate source requires integer coefficients')
+                        combined[name]=combined.get(name,Fraction(0))+signed*a
+                if abs(combined_rhs)>2**52 or any(abs(a)>2**52 for a in combined.values()):raise AssertionError('aggregate source outside exact float range')
+                source=dict(coefficients=combined,upper=combined_rhs,lower=None)
+                bound=combined_rhs;sign=1
             if divisor is not None:
                 if type(divisor)!=int or divisor<2 or divisor>2**52 or cover:raise AssertionError('bad rounding divisor/cover')
                 oriented_rhs=sign*bound
@@ -184,6 +206,7 @@ def validate_cut_proofs(model_path,result):
                 if row['lower'] is not None or Fraction(row['upper'])!=oriented_rhs//divisor or actual!=coeff:
                     raise AssertionError('derived inequality does not match floor division')
                 metadata['checked']+=1
+                if aggregation:metadata['aggregate_checked']=metadata.get('aggregate_checked',0)+1
                 continue
             minimum=Fraction(0);coeff=[];negative=0;found=set()
             for name,a in source['coefficients'].items():
