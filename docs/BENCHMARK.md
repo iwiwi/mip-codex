@@ -148,3 +148,30 @@ source6d138a2で4方式を比較。全方式でwarm/主解修復有効、伝播�
 ## baselineの不合格を検出
 
 05:00 UTC時点で22/720完了、うちcbs-cta/GLPKがinvalid_solution。nativeはobjective0/optimalと報告したが、元行c5862のupper0に対しactivity1.44935807712805。浮動小数点絶対、新GMP絶対、公式相対で不合格。保存native solution.rawをGLPK自身のread_mip/check_kktで読み直してもPB最大違反1.44935807712805 (row5862) を再現し、名前変換/JSON検査だけの不一致ではないことを確認。最適化は再実行せず、native statusと生ログを残して検証済primal/最適には数えない。baseline snapshotは変更せず、他ケースは継続。監査ソース・結果はartifacts/branching-baseline-invalid-audit。
+
+## LP比率検定と微小目的係数の正しさ (2026-11-15)
+
+source1e093b8。数値安定化と誤った最適宣言の修正で、許容誤差を緩めて成功扱いにしていない。詳細はdocs/NUMERICAL_STABILITY.md。
+
+- gmu-35-50/35-40は旧全方式で根LP numerical_errorだった。Harris二段階比率検定と変数値の単位での誤差判定により、約0.02/0.013秒で根LP目的がHiGHSと一致した。
+- min y-1e-12*x, x=z, x/z>=0, y∈[0,1]で旧両エンジンがoptimal0を誤宣言した。価格付けとray目的改善のスケールを修正し、両者unbounded_relaxationへ訂正。x=z=1e12,y=0の目的-1の点もGMP絶対検査で確認し、旧「最適」を実際に反証した。実行可能点0の検査だけでは見つからない誤りである。
+- denseの行/目的正規化・元単位へのdual/Farkas復元も追加。中間試作のfalse infeasibleは回帰で検出して不採用とし、失敗ログを保存。最終60 Rustテスト、両エンジンそれぞれ1000小問題+200中規模照合、通常200/スケール変更100根LP、開発8根LPを通過した。
+
+最終比較は8開発問×4solver各5秒CPU0/1thread/RLIMIT_AS16GiB、artifacts/smoke-20261115-052105。全32run時間制限、証明0。比較版/設定/生ログ/hashを保存 (GLPK cuts/FP有効)。
+
+| 問題 | Rust primal | HiGHS primal | SCIP primal | GLPK primal |
+|---|---:|---:|---:|---:|
+| pk1 | 約20 | 不合格 (native約15) | 19 | 21 |
+| mad | 0.3766 | 0.2080 | 0.4208 | 0.3512 |
+| markshare_4_0 | 約2 | 約5 | 約5 | 8 |
+| 30n20b8 | なし | なし | なし | なし |
+| 50v-10 | 3777.599989 | 3629.309987 | 6799.659986 | 4741.989989 |
+| binkar10_1 | 6920.290013 | 6751.210022 | 6749.290015 | 6846.460044 |
+| gmu-35-50 | -112379.8182 | -2605437.3597 | -2603755.2784 | -2396821.7722 |
+| gmu-35-40 | -878554.4542 | -2405426.3311 | -2402695.8198 | -2301097.5364 |
+
+修正前pseudocost/downの5秒run (smoke-20261115-045604) と比べ、mad0.2218→0.3766、binkar6904.630026→6920.290013と悪化。他4問は最終品質が同等。LPの最適頂点/探索経路が変わり、単なるノード数比を速度倍率と扱わない。gmu2問は根LP失敗から主解/dualを返す状態へ改善したが、primalは他3solverより大幅に悪い。Rust dualはgmu-35-50 -2608070.315743、gmu-35-40 -2406943.556343。全体優位は未達成で、主解ヒューリスティックと下界強化が必要。
+
+返却28解はGMP絶対27/28、公式相対28/28。HiGHS pk1の厳密行違反1.000000008e-6は今回も不合格、検証済primalから除外。Rust7返却解は双方合格。native値/検証済値/共通gapをstability-final-summary.jsonに分けて保存。安定化と既知の誤った最適宣言の修正を採用し、悪化した解品質も省略しない。
+
+05:24 UTC時点で長時間baseline24/720完了、既知invalid_solution1、kernel coordinator生存。保存解21件を新GMP primaryで再監査し20合格/1不合格 (cbs-cta/GLPK)、検証不能0。最適化snapshotは変更せず監査を別保存 (artifacts/stability-baseline-audit)。

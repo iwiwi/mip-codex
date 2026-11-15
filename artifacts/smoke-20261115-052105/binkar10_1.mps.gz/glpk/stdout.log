@@ -1,0 +1,58 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz'...
+Problem: binkar10_1
+Objective: R1027
+1027 rows, 2298 columns, 6238 non-zeros
+170 integer variables, all of which are binary
+7563 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-052105/binkar10_1.mps.gz/glpk/model.glp'...
+11814 lines were written
+GLPK Integer Optimizer 5.0
+1026 rows, 2298 columns, 4496 non-zeros
+170 integer variables, all of which are binary
+Preprocessing...
+840 rows, 1531 columns, 3543 non-zeros
+170 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.881e+01  ratio =  2.881e+01
+GM: min|aij| =  8.500e-01  max|aij| =  1.177e+00  ratio =  1.384e+00
+EQ: min|aij| =  7.225e-01  max|aij| =  1.000e+00  ratio =  1.384e+00
+2N: min|aij| =  5.000e-01  max|aij| =  1.597e+00  ratio =  3.194e+00
+Constructing initial basis...
+Size of triangular part is 840
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+840 rows, 1531 columns, 3543 non-zeros
+      0: obj =   1.406461008e+04 inf =   6.100e+01 (61)
+    159: obj =   1.010346907e+04 inf =   0.000e+00 (0)
+*   635: obj =   6.637188027e+03 inf =   1.710e-14 (0) 3
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 10
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++   635: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 7107.880023
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: mir = 21;
+Cuts on level 71: gmi = 2; mir = 22;
++  3892: >>>>>   6.891080013e+03 >=   6.697651079e+03   2.8% (218; 3)
+Cuts on level 80: gmi = 2; mir = 27; cov = 1;
++  5219: >>>>>   6.869380006e+03 >=   6.698779260e+03   2.5% (308; 42)
+Cuts on level 57: gmi = 6; mir = 29;
++ 14294: >>>>>   6.846460044e+03 >=   6.700614665e+03   2.1% (843; 78)
++ 26086: mip =   6.846460044e+03 >=   6.704449256e+03   2.1% (1432; 152)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-052105/binkar10_1.mps.gz/glpk/solution.raw'...
+3333 lines were written

@@ -1,0 +1,21 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.69s
+     Running tests/solve.rs (target/debug/build/mip-codex/0014a8babc83ecce/out/solve-0014a8babc83ecce)
+
+running 1 test
+
+thread 'dense_reference_handles_row_and_objective_scales' (82406) panicked at tests/solve.rs:122:9:
+assertion `left == right` failed: scaled-lp-8.mps: Result { branching: "Pseudocost", child_order: "Down", pseudocost_updates: 0, pseudocost_selections: 0, primal_repair: false, repair_calls: 0, repair_candidates: 0, repair_improvements: 0, repair_moves: 0, first_primal_seconds: None, repair_lp_solves: 0, repair_lp_candidates: 0, repair_work: 0, lp_engine: "Dense", propagation: false, propagation_calls: 0, propagation_rows: 0, propagation_tightenings: 0, propagation_pruned: 0, propagation_budget_hits: 0, fixed_leaves: 0, lp_solves: 1, lp_warm_start: false, lp_warm_attempts: None, lp_warm_successes: None, lp_warm_fallbacks: None, lp_warm_rejections: None, lp_dual_pivots: None, lp_dual_flips: None, lp_pivots: None, lp_flips: None, lp_refactors: None, status: "infeasible", objective: None, dual_bound: None, gap: None, nodes: 1, seconds: 2.3149726729999998, values: None }
+  left: "infeasible"
+ right: "optimal"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test dense_reference_handles_row_and_objective_scales ... FAILED
+
+failures:
+
+failures:
+    dense_reference_handles_row_and_objective_scales
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.49s
+
+error: test failed, to rerun pass `--test solve`

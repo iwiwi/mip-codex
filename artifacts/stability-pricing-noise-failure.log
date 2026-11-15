@@ -1,0 +1,133 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.75s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/543b08d65459b292/out/mip_codex-543b08d65459b292)
+
+running 5 tests
+test revised::ratio_regressions::entering_width_and_upper_bound_are_respected ... ok
+test revised::ratio_regressions::near_tie_chooses_stable_pivot_and_preserves_tolerance ... ok
+test revised::ratio_regressions::stable_pivot_ties_use_basic_variable_order ... ok
+test revised::ratio_regressions::tiny_bound_roundoff_is_not_amplified_by_small_pivot ... ok
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/build/mip-codex/d349582408c85666/out/mip_codex-d349582408c85666)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/branching.rs (target/debug/build/mip-codex/5d3004c9a3fa6f99/out/branching-5d3004c9a3fa6f99)
+
+running 3 tests
+test zero_costs_fall_back_and_direction_uses_distance ... ok
+test observed_costs_change_ranking_without_changing_feasible_region ... ok
+test all_rules_orders_and_objective_senses_preserve_optimum ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/heuristic.rs (target/debug/build/mip-codex/348b25fd9d6b0de8/out/heuristic-348b25fd9d6b0de8)
+
+running 5 tests
+test expired_deadline_produces_no_candidate ... ok
+test cancellation_cannot_create_false_incumbent ... ok
+test rounds_and_repairs_continuous_equality ... ok
+test incumbent_does_not_change_open_node_lower_bound ... ok
+test fixed_integer_lp_repairs_linked_continuous_variables ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lp.rs (target/debug/build/mip-codex/a58e84069aad6845/out/lp-a58e84069aad6845)
+
+running 8 tests
+test bounded ... ok
+test empty ... ok
+test infeasible ... ok
+test limit ... ok
+test malformed ... ok
+test redundant ... ok
+test phase_one ... ok
+test unbounded ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mps.rs (target/debug/build/mip-codex/9014873f60e65c52/out/mps-9014873f60e65c52)
+
+running 4 tests
+test explicit_objective_and_exponents ... ok
+test integer_defaults_and_bounds ... ok
+test ranges_offset_and_duplicates ... ok
+test reject_unsafe_model_changes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/propagate.rs (target/debug/build/mip-codex/b3a5c68348b9b297/out/propagate-b3a5c68348b9b297)
+
+running 8 tests
+test contradictory_activity_and_integer_domain ... ok
+test deadline_stops_without_infeasibility_claim ... ok
+test mixed_signs_integer_rounding_and_tolerance ... ok
+test overflow_and_cancellation_do_not_create_false_contradiction ... ok
+test unbounded_variables_can_acquire_both_bounds ... ok
+test branch_fixing_propagates_through_implication_chain ... ok
+test mixed_continuous_grid_points_are_preserved ... ok
+test enumeration_preserves_every_feasible_integer_point ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s
+
+     Running tests/revised.rs (target/debug/build/mip-codex/2cadbcbdb2de17b0/out/revised-2cadbcbdb2de17b0)
+
+running 10 tests
+test infeasible_bounds_and_equations ... ok
+test finite_upper_bound_flips ... ok
+test small_cost_and_large_finite_width_preserve_objective ... ok
+test duplicate_sparse_entries_are_summed ... ok
+test unbounded_ray ... ok
+test negative_rhs ... ok
+test ranged_slack_starts_at_upper_bound ... ok
+test phase_one_and_fixed_artificial_degeneracy ... ok
+test tiny_cost_does_not_hide_unbounded_direction ... ok
+test sparse_factorization_after_many_updates ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/solve.rs (target/debug/build/mip-codex/0014a8babc83ecce/out/solve-0014a8babc83ecce)
+
+running 6 tests
+test limits_do_not_claim_infeasibility ... ok
+test integer_infeasible_from_domain ... ok
+test unbounded_relaxation_is_not_mip_claim ... ok
+test free_and_upper_only_and_offset ... ok
+test branching_and_dual_bound ... ok
+test propagation_preserves_optimum_and_saves_lp_calls ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/warm.rs (target/debug/build/mip-codex/c2510a0df3a64260/out/warm-c2510a0df3a64260)
+
+running 9 tests
+test box_only_bounds_and_zero_width_reactivation_fallback ... ok
+test expired_budget_does_not_restart_cold_phase_one ... ok
+test impossible_box_row_requires_certificate ... ok
+test lower_violation_after_variable_shift ... ok
+test entering_from_upper_bound ... ok
+test ranged_slack_and_parent_artificial_layout_are_reused ... ok
+test cost_or_structure_changes_reject_warm_basis ... ok
+test dual_bound_flips_and_siblings_keep_parent_immutable ... ok
+test repeated_random_rhs_and_bound_changes_match_cold_solver ... FAILED
+
+failures:
+
+---- repeated_random_rhs_and_bound_changes_match_cold_solver stdout ----
+
+thread 'repeated_random_rhs_and_bound_changes_match_cold_solver' (76705) panicked at tests/warm.rs:209:27:
+step 13: warm Optimal { objective: -11.666666666666664, x: [0.08333333333333379, 0.5, 0.0, 1.5, 4.33333333333333, 0.0, 0.0, 3.0] }, cold IterationLimit
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    repeated_random_rhs_and_bound_changes_match_cold_solver
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.52s
+
+error: test failed, to rerun pass `--test warm`
