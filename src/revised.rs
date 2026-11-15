@@ -236,6 +236,42 @@ impl Simplex {
         self.stats.refactors += 1;
         self.recompute()
     }
+    fn ratio_diagnostic(&self, d: &[f64], direction: f64, entering: usize) {
+        let trace = std::env::var_os("MIP_LP_TRACE").is_some();
+        let dump = std::env::var_os("MIP_LP_RATIO_DUMP");
+        if !trace && dump.is_none() {
+            return;
+        }
+        let bad:Vec<_>=self.basis.iter().enumerate().filter_map(|(i,&j)|{
+            let a=d[i]*direction;
+            let available=if a>PIVOT{self.x[j]}else if a < -PIVOT{self.upper[j]-self.x[j]}else{return None};
+            (available < -FEAS).then(||serde_json::json!({"row":i,"variable":j,"value":self.x[j],"upper":self.upper[j].is_finite().then_some(self.upper[j]),"direction_coefficient":a,"available":available}))
+        }).collect();
+        if trace {
+            eprintln!(
+                "LP fresh-factor ratio failure {}",
+                serde_json::json!({"entering":entering,"bad":bad})
+            );
+        }
+        if let Some(mut path) = dump {
+            static SERIAL: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+            path.push(format!(
+                ".{}.{}.json",
+                std::process::id(),
+                SERIAL.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+            ));
+            if let Ok(file) = std::fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(path)
+            {
+                let _ = serde_json::to_writer(
+                    file,
+                    &serde_json::json!({"columns":self.columns.as_ref(),"rhs":self.rhs,"upper":self.upper.iter().map(|v|v.is_finite().then_some(*v)).collect::<Vec<_>>(),"basis":self.basis,"at_upper":self.at_upper,"point":self.x,"d":d,"direction":direction,"entering":entering,"bad":bad}),
+                );
+            }
+        }
+    }
     fn recompute(&mut self) -> Result<(), Outcome> {
         let mut residual = self.rhs.clone();
         for j in 0..self.columns.len() {
@@ -583,6 +619,7 @@ impl Simplex {
                 Ok(step) => step,
                 Err(()) => {
                     if self.factor.updates.is_empty() {
+                        self.ratio_diagnostic(&d, direction, j);
                         return Err(numerical());
                     }
                     self.refactor()?;
@@ -1119,5 +1156,97 @@ pub(crate) fn raw(
         warm_impl(p, limit, deadline, warm)
     } else {
         cold(p, limit, deadline, false)
+    }
+}
+
+#[cfg(test)]
+mod saved_ratio_diagnostic {
+    use super::*;
+    #[test]
+    #[ignore = "saved bases via MIP_RATIO_DUMP_DIR"]
+    fn replay_saved_basis_residual_refinement() {
+        for entry in std::fs::read_dir(std::env::var("MIP_RATIO_DUMP_DIR").unwrap()).unwrap() {
+            let path = entry.unwrap().path();
+            let saved: serde_json::Value =
+                serde_json::from_reader(std::fs::File::open(&path).unwrap()).unwrap();
+            let columns: Vec<Vec<(usize, f64)>> =
+                serde_json::from_value(saved["columns"].clone()).unwrap();
+            let rhs: Vec<f64> = serde_json::from_value(saved["rhs"].clone()).unwrap();
+            let basis: Vec<usize> = serde_json::from_value(saved["basis"].clone()).unwrap();
+            let mut x: Vec<f64> = serde_json::from_value(saved["point"].clone()).unwrap();
+            let upper: Vec<Option<f64>> = serde_json::from_value(saved["upper"].clone()).unwrap();
+            let upper: Vec<f64> = upper
+                .into_iter()
+                .map(|v| v.unwrap_or(f64::INFINITY))
+                .collect();
+            let d: Vec<f64> = serde_json::from_value(saved["d"].clone()).unwrap();
+            let direction = saved["direction"].as_f64().unwrap();
+            let entering = saved["entering"].as_u64().unwrap() as usize;
+            let triples: Vec<_> = basis
+                .iter()
+                .enumerate()
+                .flat_map(|(k, &j)| columns[j].iter().map(move |&(i, a)| Triplet::new(i, k, a)))
+                .collect();
+            let matrix =
+                SparseColMat::try_new_from_triplets(rhs.len(), rhs.len(), &triples).unwrap();
+            let lu = matrix.sp_lu().unwrap();
+            let factor = Basis {
+                factor: Arc::new(Factor::Sparse(lu)),
+                updates: vec![],
+                multiplier_cache: None,
+            };
+            let mut rows = vec![Vec::new(); rhs.len()];
+            for (j, col) in columns.iter().enumerate() {
+                for &(i, a) in col {
+                    rows[i].push((j, a));
+                }
+            }
+            for iteration in 0..=4 {
+                let residual: Vec<_> = rows
+                    .iter()
+                    .enumerate()
+                    .map(|(i, row)| {
+                        crate::exact::dot(
+                            std::iter::once((rhs[i], 1.))
+                                .chain(row.iter().map(|&(j, a)| (-a, x[j]))),
+                        )
+                        .unwrap()
+                    })
+                    .collect();
+                let norm = residual.iter().copied().map(f64::abs).fold(0., f64::max);
+                let backward = rows
+                    .iter()
+                    .enumerate()
+                    .map(|(i, row)| {
+                        let scale = crate::exact::dot(
+                            std::iter::once((rhs[i].abs(), 1.))
+                                .chain(row.iter().map(|&(j, a)| (a.abs(), x[j].abs()))),
+                        )
+                        .unwrap_or(f64::INFINITY);
+                        if residual[i] == 0. {
+                            0.
+                        } else {
+                            residual[i].abs() / scale
+                        }
+                    })
+                    .fold(0., f64::max);
+
+                let violation = basis
+                    .iter()
+                    .map(|&j| (-x[j]).max(x[j] - upper[j]).max(0.))
+                    .fold(0., f64::max);
+                println!(
+                    "{}",
+                    serde_json::json!({"file":path.file_name().unwrap().to_string_lossy(),"iteration":iteration,"residual_inf":norm,"backward_error":backward,"basic_violation":violation,"ratio_ok":primal_ratio(&basis,&x,&upper,&d,direction,upper[entering]).is_ok()})
+                );
+                if iteration == 4 {
+                    break;
+                }
+                let correction = factor.forward(&residual);
+                for (i, &j) in basis.iter().enumerate() {
+                    x[j] += correction[i];
+                }
+            }
+        }
     }
 }

@@ -310,6 +310,9 @@ pub(crate) fn solve(
     };
     let Some((q, factors, rows)) = normalized else {
         let mut answer = revised::raw(p, limit, deadline, warm, retain);
+        if matches!(answer.outcome, Outcome::NumericalError) {
+            validation_diagnostic(p, &answer, "raw_unscaled");
+        }
         if matches!(answer.outcome, Outcome::Unbounded)
             && !(answer
                 .witness
