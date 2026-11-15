@@ -92,3 +92,12 @@ def cgroup_stats(config, job):
     path=root/'cpu.stat'
     if path.exists():result['cpu.stat']={k:int(v) for k,v in (line.split() for line in path.read_text().splitlines())}
     return result
+
+
+def require_solver_origin(root, binary):
+    """共有targetに別worktreeの実行ファイルが残った場合、測定前に拒否する。"""
+    import subprocess
+    info = json.loads(subprocess.check_output([str(binary), 'build-info'], text=True, timeout=15))
+    if Path(info['source_directory']).resolve() != Path(root).resolve():
+        raise RuntimeError('solver binary was built in '+str(info['source_directory'])+'; rebuild in '+str(root)+' with an isolated target directory')
+    return info

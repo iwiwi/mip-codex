@@ -8,8 +8,24 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from validate_solution import absolute_checker
+from benchmark_common import require_solver_origin
+import json
 root=Path(__file__).resolve().parents[1]
 class Preflight(unittest.TestCase):
+    def fake_binary(self, directory, source):
+        path=Path(directory)/'solver'
+        path.write_text('#!'+sys.executable+'\nprint('+repr(json.dumps(dict(source_directory=str(source),package_version='test')))+')\n')
+        path.chmod(0o755)
+        return path
+    def test_binary_from_another_worktree_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary=self.fake_binary(tmp,root/'other-worktree')
+            with self.assertRaisesRegex(RuntimeError,'solver binary was built in'):
+                require_solver_origin(root,binary)
+    def test_binary_from_the_selected_worktree_is_accepted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary=self.fake_binary(tmp,root)
+            self.assertEqual(require_solver_origin(root,binary)['package_version'],'test')
     def test_explicit_checker_path_is_respected(self):
         with patch.dict(os.environ,{'MIP_ABSOLUTE_CHECKER':'/not-installed/checker'}):
             self.assertEqual(absolute_checker(),Path('/not-installed/checker'))

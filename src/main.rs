@@ -2,11 +2,19 @@ use mip_codex::mps;
 use std::io::{self, Write};
 fn run() -> Result<(), String> {
     let args: Vec<String> = std::env::args().collect();
+    if args.len() == 2 && args[1] == "build-info" {
+        println!(
+            "{}",
+            serde_json::json!({"source_directory":env!("CARGO_MANIFEST_DIR"),"package_version":env!("CARGO_PKG_VERSION")})
+        );
+        return Ok(());
+    }
+
     if args.len() < 3
         || !["inspect", "dump", "objective-proof", "solve"].contains(&args[1].as_str())
     {
         return Err(
-            "usage: mip-codex inspect|dump|objective-proof|solve FILE.mps[.gz] [SECONDS] [NODES]"
+            "usage: mip-codex build-info OR inspect|dump|objective-proof|solve FILE.mps[.gz] [SECONDS] [NODES]"
                 .into(),
         );
     }
