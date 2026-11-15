@@ -445,3 +445,7 @@ native v2は57/720・strict optimal24・error2。新しい044-glpk/ex10はGLPK�
 ## 2026-11-15 21:09 UTC: 整数乗数候補でLP不能証明を補完
 
 通常証明が失敗したときだけRust連分数から小分母比/共通整数乗数を提案し、既存の外向きcontradictionで必ず再証明する。glass4は92節点/主解なし→163節点/主解3466706233.3333354、追加3回同じ点と40補完を再現。後続raw LP数値失敗は残る。app1-1は59節点失敗で不変。全native10秒の点/下界はなお優れ、HS/SCIPはapp1-1を最適証明。177Rust/2700合成/300根LP/32数値成功、固定18問主解/dual/status一致、37保存点GMP/公式/140切断検査成功。全件Rust snapshotはcreate-only、native v2は63/720・strict optimal25・error3で継続。次はfresh LU後のratio失敗を残差から診断し、閾値を緩めず基底解の精度を改善する。
+
+## 2026-11-15 21:25 UTC: 失敗時の基底残差補正は不採用
+
+glass4の局所ratio2件/certificateを含め4件を回復したが、主解/dual/163節点の停止は不変。app1-1も59節点で不変。停止候補は元単位で厳密積和でも約0.3の行違反があり、受理しない。179Rust/1700合成/300根LP/32数値、7保存点GMP/公式/7切断検査が有効。全段階のsourceと診断を保持してmainへは採用しない。次は退化基底の数値安定化と、汎用binary conflict graph向けのminimum vertex cover局所探索を検討する。
