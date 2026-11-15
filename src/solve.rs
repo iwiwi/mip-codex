@@ -29,6 +29,7 @@ pub struct Limits {
     pub graph_adaptive_local: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
+    pub aggregate_infeasibility: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -65,6 +66,7 @@ impl Default for Limits {
             graph_adaptive_local: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
+            aggregate_infeasibility: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -144,6 +146,7 @@ pub struct Result {
     pub lp_solves: usize,
     pub defer_infeasibility_enabled: bool,
     pub joint_infeasibility_enabled: bool,
+    pub aggregate_infeasibility_enabled: bool,
     pub deferred_infeasibilities: usize,
     pub deferred_infeasibilities_pending: usize,
     pub deferred_infeasibilities_pruned: usize,
@@ -1092,7 +1095,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             if entries * 64 > limits.dense_bytes as u128 {
                                 return None;
                             }
-                            infeasibility_certifier = Certifier::feasibility(lp_model);
+                            infeasibility_certifier = Certifier::feasibility_with_aggregation(
+                                lp_model,
+                                limits.aggregate_infeasibility,
+                            );
                         }
                         let certifier = infeasibility_certifier.as_ref()?;
                         let mut multipliers = vec![0.; lp_model.rows.len()];
@@ -1770,6 +1776,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         binary_graph_enabled: limits.binary_graph,
         defer_infeasibility_enabled: limits.defer_infeasibility,
         joint_infeasibility_enabled: limits.joint_infeasibility,
+        aggregate_infeasibility_enabled: limits.aggregate_infeasibility,
         binary_graph: None,
         deferred_infeasibilities: deferred.observed,
         deferred_infeasibilities_pending: deferred.pending,

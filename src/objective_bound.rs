@@ -300,12 +300,15 @@ pub struct Certifier {
 }
 impl Certifier {
     pub fn new(model: &Model) -> Option<Self> {
-        Self::with_objective(model, false)
+        Self::with_objective(model, false, false)
     }
     pub fn feasibility(model: &Model) -> Option<Self> {
-        Self::with_objective(model, true)
+        Self::feasibility_with_aggregation(model, false)
     }
-    fn with_objective(model: &Model, feasibility: bool) -> Option<Self> {
+    pub fn feasibility_with_aggregation(model: &Model, aggregate: bool) -> Option<Self> {
+        Self::with_objective(model, true, aggregate)
+    }
+    fn with_objective(model: &Model, feasibility: bool, aggregate: bool) -> Option<Self> {
         let sign = if model.maximize { -1. } else { 1. };
         let s = I::point(sign)?;
         let costs: Option<Vec<_>> = model
@@ -350,12 +353,120 @@ impl Certifier {
             columns,
         };
         if feasibility {
-            result.implied_box = Some(result.infer_finite_box(model));
+            result.implied_box = Some(result.infer_finite_box(model, aggregate));
         }
         Some(result)
     }
+    // A nonnegative combination of original row sides remains valid for every
+    // original feasible point. Candidate weights need no numerical guarantee:
+    // every combined coefficient and RHS is enclosed before deriving bounds.
+    fn aggregate_finite_box(
+        &self,
+        rows: &[Vec<(usize, I)>],
+        lower: &mut [Option<f64>],
+        upper: &mut [Option<f64>],
+    ) -> Option<()> {
+        if !lower
+            .iter()
+            .zip(upper.iter())
+            .any(|(l, u)| l.is_none() || u.is_none())
+        {
+            return Some(());
+        }
+        let sides: Vec<_> = self
+            .rows
+            .iter()
+            .map(|r| {
+                r[1].map(|b| (1., b))
+                    .or_else(|| r[0].map(|b| (-1., b.neg())))
+            })
+            .collect();
+        let mut a = vec![I::point(0.)?; lower.len()];
+        let mut rhs = I::point(0.)?;
+        for (i, row) in rows.iter().enumerate() {
+            let Some((sign, b)) = sides[i] else { continue };
+            rhs = rhs.add(b)?;
+            for &(j, v) in row {
+                a[j] = a[j].add(if sign > 0. { v } else { v.neg() })?;
+            }
+        }
+        for _ in 0..8 {
+            let bad = (0..a.len()).find_map(|j| match (lower[j], upper[j]) {
+                (Some(_), None) if a[j].lo <= 0. => Some((j, 1.)),
+                (None, Some(_)) if a[j].hi >= 0. => Some((j, -1.)),
+                _ => None,
+            });
+            let Some((j, direction)) = bad else { break };
+            let (i, help) = self.columns[j]
+                .iter()
+                .filter_map(|&(i, v)| {
+                    let (sign, _) = sides[i]?;
+                    let v = if sign * direction > 0. { v } else { v.neg() };
+                    (v.lo > 0.).then_some((i, v.lo))
+                })
+                .max_by(|a, b| a.1.total_cmp(&b.1).then_with(|| b.0.cmp(&a.0)))?;
+            let current = if direction > 0. { a[j].lo } else { -a[j].hi };
+            let weight = (1. - current / help).next_up();
+            if !weight.is_finite() || weight <= 0. {
+                return None;
+            }
+            let (sign, b) = sides[i]?;
+            let w = I::point(weight)?;
+            rhs = rhs.add(b.mul(w)?)?;
+            for &(k, v) in &rows[i] {
+                a[k] = a[k].add((if sign > 0. { v } else { v.neg() }).mul(w)?)?;
+            }
+        }
+        let mut total = I::point(0.)?;
+        let mut minima = Vec::with_capacity(a.len());
+        for (j, &v) in a.iter().enumerate() {
+            let minimum = if v.zero() {
+                0.
+            } else {
+                let domain = match (lower[j], upper[j]) {
+                    (Some(l), Some(u)) => I::new(l, u)?,
+                    (Some(l), None) if v.lo >= 0. => I::point(l)?,
+                    (None, Some(u)) if v.hi <= 0. => I::point(u)?,
+                    _ => return None,
+                };
+                v.mul(domain)?.lo
+            };
+            minima.push(minimum);
+            total = total.add(I::point(minimum)?)?;
+        }
+        // Complete all arithmetic before updating: a failed proposal changes no box.
+        let mut proposals = Vec::new();
+        for (j, &v) in a.iter().enumerate() {
+            if upper[j].is_none() && v.lo > 0. || lower[j].is_none() && v.hi < 0. {
+                let others = total.sub(I::point(minima[j])?)?.lo;
+                let numerator = rhs.sub(I::point(others)?)?.hi;
+                let x = numerator / v.lo;
+                let y = numerator / v.hi;
+                let bound = if v.lo > 0. {
+                    x.max(y).next_up()
+                } else {
+                    x.min(y).next_down()
+                };
+                if bound.is_finite() {
+                    proposals.push((j, v.lo > 0., bound));
+                }
+            }
+        }
+        for (j, is_upper, bound) in proposals {
+            if is_upper {
+                upper[j] = Some(bound)
+            } else {
+                lower[j] = Some(bound)
+            }
+        }
+        Some(())
+    }
     // Only fill missing sides. These bounds are used in certificates, never LP search.
-    fn infer_finite_box(&self, model: &Model) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
+    fn infer_finite_box(
+        &self,
+        model: &Model,
+        aggregate: bool,
+    ) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
         let mut lower: Vec<_> = model
             .variables
             .iter()
@@ -456,10 +567,11 @@ impl Certifier {
                 break;
             }
         }
+        if aggregate {
+            let _ = self.aggregate_finite_box(&rows, &mut lower, &mut upper);
+        }
         (lower, upper)
     }
-    /// 任意の有限行乗数に対する、指定されたbox内の元問題の下界。
-    /// 乗数が双対実行可能であるとの仮定は置かない。
     /// Propose joint perturbations; only `bound` can accept a certificate.
     pub(crate) fn joint_positive_bound(
         &self,
@@ -501,6 +613,8 @@ impl Certifier {
         }
         (None, trials)
     }
+    /// 任意の有限行乗数に対する、指定されたbox内の元問題の下界。
+    /// 乗数が双対実行可能であるとの仮定は置かない。
     pub fn bound(
         &self,
         lower: &[Option<f64>],
@@ -732,5 +846,118 @@ mod joint_proof_diagnostic {
         let (bound, trials) = c.joint_positive_bound(&lower, &upper, &weights, None);
         println!("{}", serde_json::json!({"bound":bound,"trials":trials}));
         assert!(bound.is_some_and(|b| b > 0.));
+    }
+}
+
+#[cfg(test)]
+mod aggregate_box_tests {
+    use super::*;
+    #[test]
+    fn aggregate_bounds_enclose_fractional_points_with_negative_lower_bounds() {
+        let mut seed = 189723u64;
+        for _ in 0..100 {
+            let mut next = || {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                (seed % 10 + 1) as i64
+            };
+            let c = next();
+            let b = next();
+            let a = c + next();
+            let d = b + next();
+            let r = next();
+            let t = next();
+            let text = format!(
+                "NAME randomaggregate\nROWS\n N obj\n L a\n L b\nCOLUMNS\n x obj 0 a {}\n x b {}\n y obj 0 a {}\n y b {}\nRHS\n rhs a {} b {}\nBOUNDS\n LO b x -2\n LO b y -2\nENDATA\n",
+                a as f64 / 10.,
+                -c as f64 / 10.,
+                -b as f64 / 10.,
+                d as f64 / 10.,
+                r as f64 / 10.,
+                t as f64 / 10.
+            );
+            let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+            let proof = Certifier::feasibility_with_aggregation(&model, true).unwrap();
+            let (lo, up) = proof.implied_box.as_ref().unwrap();
+            assert!(up.iter().all(Option::is_some));
+            for x2 in -4..=40 {
+                for y2 in -4..=40 {
+                    if a * x2 - b * y2 > 2 * r || -c * x2 + d * y2 > 2 * t {
+                        continue;
+                    }
+                    for (j, v2) in [x2, y2].into_iter().enumerate() {
+                        let v = v2 as f64 / 2.;
+                        assert!(lo[j].unwrap() <= v && v <= up[j].unwrap());
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn mixed_decimal_rows_imply_bounds_for_every_fractional_feasible_point() {
+        for negative in [false, true] {
+            for lower_rows in [false, true] {
+                let sign = if negative { -1. } else { 1. };
+                let side = if lower_rows { -1. } else { 1. };
+                let kind = if lower_rows { "G" } else { "L" };
+                let bounds = if negative {
+                    " MI b x\n UP b x 0\n MI b y\n UP b y 0\n"
+                } else {
+                    ""
+                };
+                let text = format!(
+                    "NAME aggregate\nROWS\n N obj\n {kind} a\n {kind} b\nCOLUMNS\n x obj 0 a {}\n x b {}\n y obj 0 a {}\n y b {}\nRHS\n rhs a {} b {}\nBOUNDS\n{bounds}ENDATA\n",
+                    sign * side * 0.2,
+                    -sign * side * 0.1,
+                    -sign * side * 0.1,
+                    sign * side * 0.2,
+                    side * 0.3,
+                    side * 0.3
+                );
+                let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+                let old = Certifier::feasibility(&model).unwrap().implied_box.unwrap();
+                assert!(if negative {
+                    old.0.iter().all(Option::is_none)
+                } else {
+                    old.1.iter().all(Option::is_none)
+                });
+                let c = Certifier::feasibility_with_aggregation(&model, true).unwrap();
+                let (l, u) = c.implied_box.as_ref().unwrap();
+                assert!(l.iter().chain(u).all(Option::is_some));
+                for x in 0..=60 {
+                    for y in 0..=60 {
+                        if 2 * x - y > 30 || -x + 2 * y > 30 {
+                            continue;
+                        }
+                        let p = [sign * x as f64 / 10., sign * y as f64 / 10.];
+                        for j in 0..2 {
+                            assert!(l[j].unwrap() <= p[j] && p[j] <= u[j].unwrap());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    #[ignore = "saved development dump directory via MIP_PROOF_DUMP_DIR"]
+    fn inspect_aggregate_proof_boxes() {
+        for entry in std::fs::read_dir(std::env::var("MIP_PROOF_DUMP_DIR").unwrap()).unwrap() {
+            let path = entry.unwrap().path();
+            let d: serde_json::Value =
+                serde_json::from_reader(std::fs::File::open(&path).unwrap()).unwrap();
+            let model: Model = serde_json::from_value(d["model"].clone()).unwrap();
+            let lower: Vec<Option<f64>> = serde_json::from_value(d["lower"].clone()).unwrap();
+            let upper: Vec<Option<f64>> = serde_json::from_value(d["upper"].clone()).unwrap();
+            let weights: Vec<f64> = serde_json::from_value(d["multipliers"].clone()).unwrap();
+            let c = Certifier::feasibility_with_aggregation(&model, true).unwrap();
+            let b = c.bound(&lower, &upper, &weights);
+            let opposite: Vec<_> = weights.iter().map(|v| -v).collect();
+            let inverse = c.bound(&lower, &upper, &opposite);
+            let joint = c.joint_positive_bound(&lower, &upper, &weights, None).0;
+            println!(
+                "{}",
+                serde_json::json!({"file":path.file_name().unwrap().to_string_lossy(),"missing_upper":c.implied_box.as_ref().unwrap().1.iter().filter(|v|v.is_none()).count(),"bound":b,"inverse":inverse,"joint":joint})
+            );
+            assert!([b, inverse, joint].into_iter().flatten().any(|b| b > 0.));
+        }
     }
 }
