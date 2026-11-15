@@ -70,18 +70,22 @@ struct Basis {
 impl Basis {
     // The basis owns the cache; every update/refactor invalidates it, and siblings
     // share only immutable snapshots. RHS and variable bounds do not enter B^-T c_B.
-    fn multipliers(&mut self, input: Vec<f64>) -> (Arc<MultiplierCache>, bool) {
+    fn multipliers(
+        &mut self,
+        input: impl ExactSizeIterator<Item = f64> + Clone,
+    ) -> (Arc<MultiplierCache>, bool) {
         if let Some(cache) = &self.multiplier_cache {
             if cache.input.len() == input.len()
                 && cache
                     .input
                     .iter()
-                    .zip(&input)
+                    .zip(input.clone())
                     .all(|(a, b)| a.to_bits() == b.to_bits())
             {
                 return (cache.clone(), true);
             }
         }
+        let input: Vec<_> = input.collect();
         let values = self.backward(&input);
         let cache = Arc::new(MultiplierCache { input, values });
         self.multiplier_cache = Some(cache.clone());
@@ -253,7 +257,7 @@ impl Simplex {
         Ok(())
     }
     fn multipliers(&mut self, c: &[f64]) -> Arc<MultiplierCache> {
-        let input = self.basis.iter().map(|&j| c[j]).collect();
+        let input = self.basis.iter().map(|&j| c[j]);
         let (cache, hit) = self.factor.multipliers(input);
         self.stats.multiplier_cache_hits += usize::from(hit);
         self.stats.multiplier_cache_misses += usize::from(!hit);
@@ -917,26 +921,26 @@ mod tests {
             multiplier_cache: None,
         };
         let input = vec![2., 6.];
-        let (first, hit) = parent.multipliers(input.clone());
+        let (first, hit) = parent.multipliers(input.iter().copied());
         assert!(!hit);
         assert_eq!(first.values, parent.backward(&input));
-        let (same, hit) = parent.multipliers(input.clone());
+        let (same, hit) = parent.multipliers(input.iter().copied());
         assert!(hit);
         assert!(Arc::ptr_eq(&first, &same));
         let mut child = parent.clone();
         child.update(0, &[1., 1.]);
-        let (changed, hit) = child.multipliers(input.clone());
+        let (changed, hit) = child.multipliers(input.iter().copied());
         assert!(!hit);
         assert_eq!(changed.values, child.backward(&input));
         assert!(!Arc::ptr_eq(&first, &changed));
-        let (unchanged, hit) = parent.multipliers(input);
+        let (unchanged, hit) = parent.multipliers(input.iter().copied());
         assert!(hit);
         assert!(Arc::ptr_eq(&first, &unchanged));
-        let (_, hit) = parent.multipliers(vec![4., 6.]);
+        let (_, hit) = parent.multipliers(vec![4., 6.].into_iter());
         assert!(!hit);
-        let (minus, hit) = parent.multipliers(vec![-0., 0.]);
+        let (minus, hit) = parent.multipliers(vec![-0., 0.].into_iter());
         assert!(!hit);
-        let (plus, hit) = parent.multipliers(vec![0., 0.]);
+        let (plus, hit) = parent.multipliers(vec![0., 0.].into_iter());
         assert!(!hit);
         assert!(!Arc::ptr_eq(&minus, &plus));
         assert_eq!(minus.values[0].to_bits(), (-0f64).to_bits());
