@@ -27,3 +27,7 @@ germanrr根は17.24061秒、7923pivot、残差補正11回成功で完了。元MP
 旧patchは診断関数の周辺で適用競合し、対象関数/統計/テストだけを明示抽出した。競合patchと適用前checkのログを保持。内部作業領域2GiBの60秒追加11問も根点0で、メモリ値は変更しない。
 
 保存点・切断の追加監査とsource snapshotを追記する。詳細な試行はROOT_BASIS_REFINEMENT.md、LP_COLUMN_ORDER_DIAGNOSTIC.mdと原データを参照。次は残った基底の実際の境界違反と、目的0の双対法による実行可能性の回復を診断する。既存の証明検査を通らない結論を採用しない。
+
+追加監査：保存16整数点は元MPSのGMP/公式とも有効、24記録/131切断の導出も有効。独立した問題数と反復点数を混同しない。最終コードの追加根測定は17.11592秒/同じ7923pivot/補正11成功で同じ下界とFraction検査有効を再現した。
+
+全240問snapshotはcreate-only、source5a3854568/FP96e1aced2d1ba302の再帰照合済。受領票`experiments/root-refinement-snapshot-20261115.json`。実際の全件Rust評価はまだ開始せず、native全件の凍結設定も変更しない。原データは`artifacts/root-refinement-evaluation`。

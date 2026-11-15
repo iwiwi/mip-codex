@@ -1,0 +1,51 @@
+{
+  "purpose": "column order and numerical-stage diagnostic only",
+  "command": [
+    "/home/ubuntu/mip-codex/artifacts/runs/aggregate-cuts-final-20261115/snapshot/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/artifacts/lp-column-order-diagnostic/reverse/germanrr/reverse.mps",
+    "10",
+    "1"
+  ],
+  "input_sha256": "e7609d88c8ef96f40be85069e39ee5f208a7980625badb4d3908cd4b7a0058fb",
+  "split": "development",
+  "build_info": {
+    "library_source_directory": "/home/ubuntu/mip-codex",
+    "library_source_fingerprint": "8262e2efdce05367",
+    "package_version": "0.1.0",
+    "source_directory": "/home/ubuntu/mip-codex",
+    "source_fingerprint": "8262e2efdce05367"
+  },
+  "binary_sha256": "4196b9165bd65b430672e2bdb3e43e988c950174be123846244a7cd5a2546ecd",
+  "frozen_config_sha256": "e30289e20452bfb21c581af0c974098e84a7f724e1aa4f7392319db8964e71ab",
+  "cpu": 2,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "memory_policy": "per-process RLIMIT_AS; diagnostic only",
+  "environment": {
+    "MIP_LP_ENGINE": "revised",
+    "MIP_ABSOLUTE_CHECKER": "/home/ubuntu/mip-codex/artifacts/runs/aggregate-cuts-final-20261115/snapshot/bin/solchecker-absolute",
+    "MIP_AGGREGATE_CUTS": "0",
+    "MIP_BINARY_GRAPH": "0",
+    "MIP_COVER_CUTS": "0",
+    "MIP_ROUNDING_CUTS": "0",
+    "MIP_LP_DIVING": "0",
+    "MIP_PRIMAL_REPAIR": "0",
+    "MIP_PRIMAL_PROBE": "0",
+    "MIP_RINS": "0",
+    "MIP_FEASIBILITY_PUMP": "0",
+    "MIP_STRONG_BRANCHING": "0",
+    "MIP_OBJECTIVE_ROUNDING": "0",
+    "MIP_PROPAGATION": "0",
+    "MIP_BOX_PRIMAL": "0",
+    "MIP_LP_TRACE": "1",
+    "MIP_LP_NUMERICAL_DUMP": "/home/ubuntu/mip-codex/artifacts/lp-column-order-diagnostic/reverse/germanrr/failure",
+    "MIP_ROOT_LP_DUMP": "/home/ubuntu/mip-codex/artifacts/lp-column-order-diagnostic/reverse/germanrr/root-lp.json"
+  },
+  "partition": 2,
+  "original_model": "/home/ubuntu/mip-codex/data/raw/benchmark/germanrr.mps.gz",
+  "original_sha256": "e7609d88c8ef96f40be85069e39ee5f208a7980625badb4d3908cd4b7a0058fb",
+  "reordered_sha256": "2777c001e4bba9e89bd0f99b86884bae5c561887fbe7924062185d9a059e5c4b",
+  "exact_equivalence": true,
+  "mode": "reverse"
+}
