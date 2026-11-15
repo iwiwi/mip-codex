@@ -37,6 +37,9 @@ pub struct Stats {
     pub multiplier_cache_misses: usize,
     pub certificate_repair_trials: usize,
     pub certificate_repairs: usize,
+    pub refinement_attempts: usize,
+    pub refinement_steps: usize,
+    pub refinement_successes: usize,
 }
 #[derive(Debug)]
 pub struct Answer {
@@ -235,6 +238,74 @@ impl Simplex {
         };
         self.stats.refactors += 1;
         self.recompute()
+    }
+    fn refine_ratio(
+        &mut self,
+        d: &[f64],
+        direction: f64,
+        entering: usize,
+    ) -> Option<(f64, Option<usize>)> {
+        self.stats.refinement_attempts += 1;
+        let mut rows = vec![Vec::new(); self.rhs.len()];
+        for (j, col) in self.columns.iter().enumerate() {
+            for &(i, a) in col {
+                rows[i].push((j, a));
+            }
+        }
+        let evaluate = |point: &[f64]| -> Option<(Vec<f64>, f64)> {
+            let mut residual = Vec::with_capacity(rows.len());
+            let mut score = 0f64;
+            for (i, row) in rows.iter().enumerate() {
+                let r = crate::exact::dot(
+                    std::iter::once((self.rhs[i], 1.))
+                        .chain(row.iter().map(|&(j, a)| (-a, point[j]))),
+                )?;
+                let scale = crate::exact::dot(
+                    std::iter::once((self.rhs[i].abs(), 1.))
+                        .chain(row.iter().map(|&(j, a)| (a.abs(), point[j].abs()))),
+                )?;
+                score = score.max(r.abs() / (1. + scale));
+                residual.push(r);
+            }
+            Some((residual, score))
+        };
+        let (mut residual, old_score) = evaluate(&self.x)?;
+        let mut point = self.x.clone();
+        for _ in 0..3 {
+            if self
+                .deadline
+                .is_some_and(|deadline| Instant::now() >= deadline)
+            {
+                return None;
+            }
+            let correction = self.factor.forward(&residual);
+            self.stats.refinement_steps += 1;
+            for (i, &j) in self.basis.iter().enumerate() {
+                point[j] += correction[i];
+            }
+            let (next, score) = evaluate(&point)?;
+            if score <= old_score
+                && self
+                    .basis
+                    .iter()
+                    .all(|&j| point[j] >= -FEAS && point[j] <= self.upper[j] + FEAS)
+            {
+                if let Ok(step) = primal_ratio(
+                    &self.basis,
+                    &point,
+                    &self.upper,
+                    d,
+                    direction,
+                    self.upper[entering],
+                ) {
+                    self.x = point;
+                    self.stats.refinement_successes += 1;
+                    return Some(step);
+                }
+            }
+            residual = next;
+        }
+        None
     }
     fn recompute(&mut self) -> Result<(), Outcome> {
         let mut residual = self.rhs.clone();
@@ -583,10 +654,11 @@ impl Simplex {
                 Ok(step) => step,
                 Err(()) => {
                     if self.factor.updates.is_empty() {
-                        return Err(numerical());
+                        self.refine_ratio(&d, direction, j).ok_or_else(numerical)?
+                    } else {
+                        self.refactor()?;
+                        continue 'iterations;
                     }
-                    self.refactor()?;
-                    continue 'iterations;
                 }
             };
             if !theta.is_finite() {
@@ -796,6 +868,9 @@ impl Stats {
         self.multiplier_cache_misses += other.multiplier_cache_misses;
         self.certificate_repair_trials += other.certificate_repair_trials;
         self.certificate_repairs += other.certificate_repairs;
+        self.refinement_attempts += other.refinement_attempts;
+        self.refinement_steps += other.refinement_steps;
+        self.refinement_successes += other.refinement_successes;
     }
 }
 fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> Answer {
@@ -1119,5 +1194,73 @@ pub(crate) fn raw(
         warm_impl(p, limit, deadline, warm)
     } else {
         cold(p, limit, deadline, false)
+    }
+}
+
+#[cfg(test)]
+mod refinement_tests {
+    use super::*;
+    fn refinement_example(true_negative: bool) -> Simplex {
+        let tiny = 2f64.powi(-40);
+        let columns = vec![
+            vec![(0, 1.), (1, 1.)],
+            vec![(0, 1.), (1, 1. + tiny)],
+            vec![(0, 1.), (1, 1.)],
+        ];
+        let triples: Vec<_> = columns[..2]
+            .iter()
+            .enumerate()
+            .flat_map(|(j, col)| col.iter().map(move |&(i, a)| Triplet::new(i, j, a)))
+            .collect();
+        let matrix = SparseColMat::try_new_from_triplets(2, 2, &triples).unwrap();
+        let factor = Basis {
+            factor: Arc::new(Factor::Sparse(matrix.sp_lu().unwrap())),
+            updates: vec![],
+            multiplier_cache: None,
+        };
+        Simplex {
+            columns: Arc::new(columns),
+            rhs: vec![1., 1. + if true_negative { 2. * tiny } else { tiny }],
+            upper: vec![f64::INFINITY, f64::INFINITY, 1.],
+            basis: vec![0, 1],
+            basic: vec![true, true, false],
+            at_upper: vec![false; 3],
+            x: if true_negative {
+                vec![-1., 2., 0.]
+            } else {
+                vec![-0.001, 1.001, 0.]
+            },
+            factor,
+            stats: Stats::default(),
+            limit: 1000,
+            deadline: None,
+            artificial: vec![],
+            original: 3,
+            witness: None,
+            witness_point: None,
+        }
+    }
+    #[test]
+    fn refinement_recovers_an_inaccurate_basis_point_without_moving_nonbasics() {
+        let mut s = refinement_example(false);
+        assert!(primal_ratio(&s.basis, &s.x, &s.upper, &[1., 0.], 1., 1.).is_err());
+        assert!(s.refine_ratio(&[1., 0.], 1., 2).is_some());
+        assert_eq!(s.x[2], 0.);
+        assert!(s.x[0].abs() < FEAS);
+        assert!((s.x[1] - 1.).abs() < FEAS);
+        assert_eq!(s.stats.refinement_successes, 1);
+    }
+    #[test]
+    fn refinement_does_not_clip_a_truly_infeasible_basis_or_mutate_on_expiry() {
+        let mut s = refinement_example(true);
+        let point = s.x.clone();
+        assert!(s.refine_ratio(&[1., 0.], 1., 2).is_none());
+        assert_eq!(s.x, point);
+        let mut s = refinement_example(false);
+        let point = s.x.clone();
+        s.deadline = Some(Instant::now());
+        assert!(s.refine_ratio(&[1., 0.], 1., 2).is_none());
+        assert_eq!(s.x, point);
+        assert_eq!(s.stats.refinement_steps, 0);
     }
 }

@@ -182,6 +182,9 @@ pub struct Result {
     pub lp_multiplier_cache_misses: Option<usize>,
     pub lp_certificate_repair_trials: Option<usize>,
     pub lp_certificate_repairs: Option<usize>,
+    pub lp_refinement_attempts: Option<usize>,
+    pub lp_refinement_steps: Option<usize>,
+    pub lp_refinement_successes: Option<usize>,
     pub lp_dual_pivots: Option<usize>,
     pub lp_dual_flips: Option<usize>,
     pub lp_pivots: Option<usize>,
@@ -2126,6 +2129,12 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             .then_some(lp_stats.warm_cost_attempts),
         lp_warm_cost_successes: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.warm_cost_successes),
+        lp_refinement_attempts: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.refinement_attempts),
+        lp_refinement_steps: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.refinement_steps),
+        lp_refinement_successes: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.refinement_successes),
         lp_certificate_repair_trials: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.certificate_repair_trials),
         lp_certificate_repairs: matches!(limits.engine, Engine::Revised)
@@ -2343,6 +2352,9 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         multiplier_cache_misses: result.lp_multiplier_cache_misses.unwrap_or(0),
         certificate_repair_trials: result.lp_certificate_repair_trials.unwrap_or(0),
         certificate_repairs: result.lp_certificate_repairs.unwrap_or(0),
+        refinement_attempts: result.lp_refinement_attempts.unwrap_or(0),
+        refinement_steps: result.lp_refinement_steps.unwrap_or(0),
+        refinement_successes: result.lp_refinement_successes.unwrap_or(0),
         dual_pivots: result.lp_dual_pivots.unwrap_or(0),
         dual_flips: result.lp_dual_flips.unwrap_or(0),
         scaled_columns: result.lp_scaled_columns.unwrap_or(0),
