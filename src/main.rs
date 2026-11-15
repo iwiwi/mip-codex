@@ -22,6 +22,13 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(value) = std::env::var("MIP_REPAIR_BREAKOUT") {
+            limits.repair_breakout = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_REPAIR_BREAKOUT must be 0 or 1".into()),
+            };
+        }
         if let Ok(engine) = std::env::var("MIP_LP_ENGINE") {
             limits.engine = match engine.as_str() {
                 "dense" => mip_codex::solve::Engine::Dense,

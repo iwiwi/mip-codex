@@ -7,12 +7,14 @@ pub struct Stats {
     pub candidates: usize,
     pub moves: usize,
     pub work: usize,
+    pub penalty_updates: usize,
 }
 pub struct Repair<'a> {
     model: &'a Model,
     incidence: Vec<Vec<(usize, f64)>>,
     weights: Vec<f64>,
     pub stats: Stats,
+    pub breakout: bool,
 }
 impl<'a> Repair<'a> {
     pub fn new(model: &'a Model) -> Self {
@@ -35,6 +37,7 @@ impl<'a> Repair<'a> {
             incidence,
             weights,
             stats: Stats::default(),
+            breakout: false,
         }
     }
     fn violation(&self, i: usize, activity: f64) -> f64 {
@@ -73,6 +76,11 @@ impl<'a> Repair<'a> {
         seed: u64,
     ) -> Option<Vec<f64>> {
         self.stats.calls += 1;
+        if Instant::now() >= deadline || budget == 0 {
+            return None;
+        }
+        let original_weights = self.breakout.then(|| self.weights.clone());
+        let mut updates = 0;
         let mut rng = seed.wrapping_add(0x9e3779b97f4a7c15);
         let mut work = 0usize;
         for attempt in 0..4 {
@@ -124,6 +132,9 @@ impl<'a> Repair<'a> {
                 if self.candidate_check(&x) {
                     self.stats.candidates += 1;
                     self.stats.work += work;
+                    if let Some(weights) = &original_weights {
+                        self.weights.copy_from_slice(weights);
+                    }
                     return Some(x);
                 }
                 let worst = activities
@@ -189,6 +200,21 @@ impl<'a> Repair<'a> {
                     }
                 }
                 let Some((j, value, _, _)) = best else {
+                    if self.breakout && updates < 32 {
+                        let mut changed = false;
+                        for (i, &activity) in activities.iter().enumerate() {
+                            if self.violation(i, activity) > 1e-9 {
+                                self.weights[i] *= 2.;
+                                changed = true;
+                            }
+                        }
+                        work = work.saturating_add(activities.len());
+                        if changed {
+                            updates += 1;
+                            self.stats.penalty_updates += 1;
+                            continue;
+                        }
+                    }
                     break;
                 };
                 let delta = value - x[j];
@@ -200,6 +226,9 @@ impl<'a> Repair<'a> {
             }
         }
         self.stats.work += work;
+        if let Some(weights) = original_weights {
+            self.weights = weights;
+        }
         None
     }
 }

@@ -20,6 +20,7 @@ pub struct Limits {
     pub fixed_columns: bool,
     pub propagation: bool,
     pub primal_repair: bool,
+    pub repair_breakout: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -47,6 +48,7 @@ impl Default for Limits {
             fixed_columns: true,
             propagation: false,
             primal_repair: true,
+            repair_breakout: false,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -76,6 +78,8 @@ pub struct Result {
     pub pseudocost_updates: usize,
     pub pseudocost_selections: usize,
     pub primal_repair: bool,
+    pub repair_breakout: bool,
+    pub repair_penalty_updates: usize,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
@@ -798,7 +802,11 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut propagator = limits
         .propagation
         .then(|| propagate::Propagator::new(model));
-    let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
+    let mut repair = limits.primal_repair.then(|| {
+        let mut repair = heuristic::Repair::new(model);
+        repair.breakout = limits.repair_breakout;
+        repair
+    });
     let mut diving = DivingStats::default();
     let mut probe = ProbeStats::default();
     let mut strong = StrongStats::default();
@@ -1596,6 +1604,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         pseudocost_updates: costs.updates,
         pseudocost_selections: costs.selections,
         primal_repair: limits.primal_repair,
+        repair_breakout: limits.repair_breakout,
+        repair_penalty_updates: repair_stats.penalty_updates,
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,
