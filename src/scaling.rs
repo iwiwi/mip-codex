@@ -51,7 +51,7 @@ fn validation_diagnostic(p: &Problem, answer: &Answer, stage: &str) {
             }
         }
     }
-    let event = serde_json::json!({"stage":stage,"outcome":kind,"variables":p.columns.len(),"rows":p.rhs.len(),"point_valid":x.map(|x|point_valid(p,x)),"bad_rows":bad_rows});
+    let event = serde_json::json!({"stage":stage,"outcome":kind,"variables":p.columns.len(),"rows":p.rhs.len(),"point_valid":x.map(|x|point_valid(p,x)),"bad_rows":bad_rows,"bad_bounds":x.map(|point|point.iter().enumerate().filter_map(|(j,&v)|((!v.is_finite())||v < -1e-7||v>p.upper[j]+1e-7).then(||serde_json::json!({"variable":j,"value":v,"upper":p.upper[j].is_finite().then_some(p.upper[j])}))).collect::<Vec<_>>())});
     if trace {
         eprintln!("LP validation diagnostic {event}");
     }
@@ -341,6 +341,10 @@ pub(crate) fn solve(
                     "LP unverified candidate original validation {:?}",
                     primal_dual(p, &x, &y)
                 );
+                let mut candidate = error();
+                candidate.outcome = Outcome::Optimal { objective: 0., x };
+                candidate.witness = Some(y);
+                validation_diagnostic(p, &candidate, "candidate_original_units");
             }
         }
         validation_diagnostic(p, &answer, "raw_scaled");
