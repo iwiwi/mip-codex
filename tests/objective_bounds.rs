@@ -109,6 +109,7 @@ fn optimization_limits() -> mip_codex::solve::Limits {
         strong_branching: false,
         rins: false,
         primal_repair: false,
+        feasibility_pump: false,
         lp_diving: false,
         primal_probe: false,
         ..mip_codex::solve::Limits::default()

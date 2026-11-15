@@ -31,6 +31,7 @@ pub struct Limits {
     pub joint_infeasibility: bool,
     pub aggregate_infeasibility: bool,
     pub lp_diving: bool,
+    pub feasibility_pump: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
     pub cover_rounds: usize,
@@ -68,6 +69,7 @@ impl Default for Limits {
             joint_infeasibility: true,
             aggregate_infeasibility: true,
             lp_diving: true,
+            feasibility_pump: true,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 2,
@@ -127,6 +129,8 @@ pub struct Result {
     pub cut_seconds: f64,
     pub probe: ProbeStats,
     pub diving: DivingStats,
+    pub feasibility_pump_enabled: bool,
+    pub pump: PumpStats,
     pub repair_calls: usize,
     pub repair_candidates: usize,
     pub repair_improvements: usize,
@@ -513,6 +517,170 @@ fn standard_sparse(
         shift,
         terms,
     })
+}
+#[derive(Default, Debug, Serialize)]
+pub struct PumpStats {
+    pub calls: usize,
+    pub lp_solves: usize,
+    pub perturbations: usize,
+    pub candidates: usize,
+    pub improvements: usize,
+    pub numerical_errors: usize,
+    pub limited: usize,
+    pub seconds: f64,
+}
+fn binary_pump(
+    model: &Model,
+    root: &Node,
+    standard: &Standard,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+    stats: &mut PumpStats,
+    lp_stats: &mut revised::Stats,
+) -> Option<Vec<f64>> {
+    let mut binary = Vec::new();
+    for (j, v) in model
+        .variables
+        .iter()
+        .enumerate()
+        .filter(|(_, v)| v.integer)
+    {
+        let (Some(l), Some(u)) = (v.lower, v.upper) else {
+            return None;
+        };
+        if l.ceil() == u.floor() {
+            continue;
+        }
+        if l < 0. || u > 1. {
+            return None;
+        }
+        binary.push(j);
+    }
+    if binary.is_empty() {
+        return None;
+    }
+    let mut problem = standard.sparse.as_ref()?.clone();
+    stats.calls += 1;
+    let checker = heuristic::Repair::new(model);
+    let mut current = point.to_vec();
+    let mut warm = root.warm.clone();
+    let mut history = std::collections::VecDeque::<Vec<bool>>::new();
+    let mut seed = 0xace189e3914b5837u64;
+    for _ in 0..64 {
+        if Instant::now() >= deadline {
+            stats.limited += 1;
+            return None;
+        }
+        let mut rounded = current.clone();
+        for (j, v) in model.variables.iter().enumerate() {
+            if v.integer {
+                rounded[j] = rounded[j].round();
+            }
+        }
+        if checker.candidate_check(&rounded) {
+            stats.candidates += 1;
+            if let Some(path) = std::env::var_os("MIP_PUMP_CANDIDATE_DUMP") {
+                #[derive(Serialize)]
+                struct Candidate {
+                    #[serde(serialize_with = "crate::model::serialize_optional_solution_number")]
+                    objective: Option<f64>,
+                    #[serde(serialize_with = "crate::model::serialize_solution_values")]
+                    values: Option<std::collections::BTreeMap<String, f64>>,
+                }
+                let objective = model.objective(&rounded);
+                if objective.is_finite() {
+                    if let Ok(file) = std::fs::OpenOptions::new()
+                        .write(true)
+                        .create_new(true)
+                        .open(path)
+                    {
+                        let candidate = Candidate {
+                            objective: Some(objective),
+                            values: Some(
+                                model
+                                    .variables
+                                    .iter()
+                                    .zip(&rounded)
+                                    .map(|(v, &x)| (v.name.clone(), x))
+                                    .collect(),
+                            ),
+                        };
+                        let _ = serde_json::to_writer(file, &candidate);
+                    }
+                }
+            }
+            return Some(rounded);
+        }
+        let mut target: Vec<_> = binary.iter().map(|&j| current[j] >= 0.5).collect();
+        if history.iter().any(|old| *old == target) {
+            let mut ranking: Vec<_> = binary
+                .iter()
+                .enumerate()
+                .map(|(k, &j)| {
+                    seed ^= seed << 13;
+                    seed ^= seed >> 7;
+                    seed ^= seed << 17;
+                    let noise = (seed >> 11) as f64 / (1u64 << 53) as f64;
+                    (k, (current[j] - current[j].round()).abs() + 0.2 * noise)
+                })
+                .collect();
+            ranking.sort_unstable_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
+            let count = (binary.len() as f64).sqrt() as usize;
+            for &(k, _) in ranking.iter().take(count.clamp(1, 32)) {
+                target[k] = !target[k];
+            }
+            stats.perturbations += 1;
+        }
+        history.push_back(target.clone());
+        if history.len() > 8 {
+            history.pop_front();
+        }
+        problem.costs.fill(0.);
+        for (&j, &value) in binary.iter().zip(&target) {
+            let coefficient = if value { -1. } else { 1. };
+            for &(k, s) in &standard.terms[j] {
+                problem.costs[k] += coefficient * s;
+            }
+        }
+        let answer = revised::minimize_warm(
+            &problem,
+            limits.pivots.min(4096),
+            Some(deadline),
+            if limits.warm_start {
+                warm.as_deref()
+            } else {
+                None
+            },
+        );
+        stats.lp_solves += 1;
+        lp_stats.add(&answer.stats);
+        match answer.outcome {
+            lp::Outcome::Optimal { x, .. } => {
+                current = standard
+                    .terms
+                    .iter()
+                    .enumerate()
+                    .map(|(j, t)| standard.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                    .collect();
+                if model.check(&current, false, 1e-6).is_err() {
+                    stats.numerical_errors += 1;
+                    return None;
+                }
+                warm = answer.warm;
+            }
+            lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => {
+                stats.limited += 1;
+                return None;
+            }
+            _ => {
+                stats.numerical_errors += 1;
+                return None;
+            }
+        }
+    }
+    stats.limited += 1;
+    None
 }
 /// 主解探索の局所LPは探索木・下界・擬似コストには一切反映しない。
 #[derive(Default, Debug, Serialize)]
@@ -925,6 +1093,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     });
     drop(early_repair);
     let mut diving = DivingStats::default();
+    let mut pump = PumpStats::default();
     let mut probe = ProbeStats::default();
     let mut strong = StrongStats::default();
     let mut rins = RinsStats::default();
@@ -1444,6 +1613,48 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                         continue;
                     }
                 }
+                if limits.feasibility_pump
+                    && !incumbent.is_finite()
+                    && nodes == 1
+                    && branch.is_some()
+                    && matches!(limits.engine, Engine::Revised)
+                    && Instant::now() < deadline
+                {
+                    let started = Instant::now();
+                    let pump_deadline = deadline.min(
+                        started
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.1).min(1.)),
+                    );
+                    let old_solves = pump.lp_solves;
+                    if let Some(x) = binary_pump(
+                        model,
+                        &node,
+                        &p,
+                        &original,
+                        limits,
+                        pump_deadline,
+                        &mut pump,
+                        &mut lp_stats,
+                    ) {
+                        let value = sign * model.objective(&x);
+                        if value.is_finite()
+                            && value < incumbent
+                            && candidate_respects_bound(
+                                value,
+                                node.certified_bound,
+                                &mut objective_bound_stats,
+                            )
+                        {
+                            pump.improvements += 1;
+                            incumbent = value;
+                            first_primal_seconds
+                                .get_or_insert_with(|| start.elapsed().as_secs_f64());
+                            best = Some(x);
+                        }
+                    }
+                    lp_solves += pump.lp_solves - old_solves;
+                    pump.seconds += started.elapsed().as_secs_f64();
+                }
                 if limits.lp_diving
                     && nodes == 1
                     && branch.is_some()
@@ -1503,6 +1714,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
+                    probe_limits.feasibility_pump = false;
                     probe_limits.search = search::Strategy::DepthFirst;
                     probe_limits.branching = branching::Rule::Pseudocost;
                     probe_limits.child_order = branching::Order::Estimate;
@@ -1580,6 +1792,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             local.primal_probe = false;
                             local.primal_repair = false;
                             local.lp_diving = false;
+                            local.feasibility_pump = false;
                             local.strong_branching = false;
                             local.cover_cuts = false;
                             local.box_primal = false;
@@ -1826,6 +2039,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         cut_seconds: prepared.seconds,
         probe,
         diving,
+        feasibility_pump_enabled: limits.feasibility_pump,
+        pump,
         repair_calls: repair_stats.calls,
         repair_candidates: repair_stats.candidates,
         repair_improvements,
@@ -2126,5 +2341,121 @@ fn candidate_respects_bound(
         false
     } else {
         true
+    }
+}
+
+#[cfg(test)]
+mod pump_tests {
+    use super::*;
+    fn prepare(text: &str) -> (Model, Node, Standard, Vec<f64>) {
+        let m = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+        let mut node = Node {
+            certified_bound: None,
+            lower: m.variables.iter().map(|v| v.lower).collect(),
+            upper: m.variables.iter().map(|v| v.upper).collect(),
+            bound: f64::NEG_INFINITY,
+            warm: None,
+            changed: None,
+            edge: None,
+        };
+        let Relaxation::Ready(p) = standard_sparse(&m, &node, 1 << 24, false, true) else {
+            panic!("no LP")
+        };
+        let a = revised::minimize(p.sparse.as_ref().unwrap(), 1000, None);
+        let lp::Outcome::Optimal { x, .. } = a.outcome else {
+            panic!("no optimal root")
+        };
+        node.warm = a.warm;
+        let point = p
+            .terms
+            .iter()
+            .enumerate()
+            .map(|(j, t)| p.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+            .collect();
+        (m, node, p, point)
+    }
+    const FRACTIONAL: &str = "NAME pump\nOBJSENSE\n MAX\nROWS\n N obj\n L r\nCOLUMNS\n x obj 1 r 1\n y obj 1 r 1\nRHS\n rhs r 1.5\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
+    #[test]
+    fn pump_projects_and_perturbs_without_changing_parent_lp() {
+        let (m, node, p, point) = prepare(FRACTIONAL);
+        let mut s = PumpStats::default();
+        let mut lp = revised::Stats::default();
+        let candidate = binary_pump(
+            &m,
+            &node,
+            &p,
+            &point,
+            &Limits::default(),
+            Instant::now() + std::time::Duration::from_secs(2),
+            &mut s,
+            &mut lp,
+        )
+        .unwrap();
+        assert!(m.check(&candidate, true, 1e-6).is_ok());
+        assert_eq!(m.objective(&candidate), 1.);
+        assert!(s.lp_solves > 0);
+        assert!(s.perturbations > 0);
+        let a =
+            revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
+        let lp::Outcome::Optimal { objective, .. } = a.outcome else {
+            panic!("parent corrupted")
+        };
+        assert!((objective + 1.5).abs() < 1e-9);
+    }
+    #[test]
+    fn expired_pump_and_infeasible_integer_domain_return_no_candidate() {
+        let text = "NAME impossible\nROWS\n N obj\n E r\nCOLUMNS\n x obj 0 r 1\nRHS\n rhs r 0.5\nBOUNDS\n BV b x\nENDATA\n";
+        let (m, node, p, point) = prepare(text);
+        let mut s = PumpStats::default();
+        let mut lp = revised::Stats::default();
+        assert!(
+            binary_pump(
+                &m,
+                &node,
+                &p,
+                &point,
+                &Limits::default(),
+                Instant::now(),
+                &mut s,
+                &mut lp
+            )
+            .is_none()
+        );
+        assert_eq!(s.lp_solves, 0);
+        assert!(
+            binary_pump(
+                &m,
+                &node,
+                &p,
+                &point,
+                &Limits::default(),
+                Instant::now() + std::time::Duration::from_secs(2),
+                &mut s,
+                &mut lp
+            )
+            .is_none()
+        );
+        assert_eq!(s.candidates, 0);
+        assert_eq!(s.lp_solves, 64);
+    }
+    #[test]
+    fn mixed_continuous_projection_keeps_original_constraints() {
+        let text = "NAME mixed\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1 r 1\n y obj -1 r 1\n z obj 0 r -1\nRHS\n rhs r 0.5\nBOUNDS\n BV b x\n BV b y\n UP b z 0.4\nENDATA\n";
+        let (m, node, p, point) = prepare(text);
+        let mut s = PumpStats::default();
+        let mut lp = revised::Stats::default();
+        let candidate = binary_pump(
+            &m,
+            &node,
+            &p,
+            &point,
+            &Limits::default(),
+            Instant::now() + std::time::Duration::from_secs(2),
+            &mut s,
+            &mut lp,
+        )
+        .unwrap();
+        assert!(m.check(&candidate, true, 1e-6).is_ok());
+        assert!(s.lp_solves > 0);
     }
 }

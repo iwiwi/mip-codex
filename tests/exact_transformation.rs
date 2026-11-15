@@ -8,6 +8,7 @@ fn limits(engine: Engine) -> Limits {
         fixed_columns: true,
         objective_rounding: false,
         primal_repair: false,
+        feasibility_pump: false,
         primal_probe: false,
         lp_diving: false,
         rins: false,

@@ -14,6 +14,7 @@ fn run(text: &str, enabled: bool, nodes: usize) -> mip_codex::solve::Result {
             strong_branching: false,
             cover_cuts: false,
             lp_diving: enabled,
+            feasibility_pump: false,
             primal_repair: false,
             primal_probe: false,
             nodes,

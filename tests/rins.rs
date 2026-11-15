@@ -74,6 +74,7 @@ fn no_incumbent_or_expired_deadline_does_not_start_a_local_search() {
             objective_rounding: false,
             nodes: 1,
             primal_repair: false,
+            feasibility_pump: false,
             ..limits()
         },
     );
@@ -104,6 +105,7 @@ fn later_incumbent_does_not_trigger_an_unbudgeted_retry() {
             objective_rounding: false,
             nodes: 3,
             primal_repair: false,
+            feasibility_pump: false,
             ..limits()
         },
     );

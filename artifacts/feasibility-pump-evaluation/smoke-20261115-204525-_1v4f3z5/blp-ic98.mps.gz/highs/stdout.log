@@ -1,0 +1,62 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261115-204525-_1v4f3z5/blp-ic98.mps.gz/highs/options.txt
+MIP blp-ic98 has 717 rows; 13640 cols; 191947 nonzeros; 13550 integer variables (13550 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+03]
+  Cost    [1e+00, 1e+00]
+  Cost    [5e+01, 2e+03] (effective)
+  Bound   [1e+00, 3e+01] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 1e+00]
+Presolving model
+717 rows, 13640 cols, 191947 nonzeros 0s
+713 rows, 13550 cols, 174959 nonzeros 0s
+Presolve reductions: rows 713(-4); columns 13550(-90); nonzeros 174959(-16988) 
+
+Solving MIP model with:
+   713 rows
+   13550 cols (13550 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   174959 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            5264.699552        Large        0      0      0         0     0.6s
+         0       0         0   0.00%   4331.168353     5264.699552       17.73%        0      0      2       313     0.7s
+         0       0         0   0.00%   4440.820975     5264.699552       15.65%      714     97      5      2257     5.7s
+ L       0       0         0   0.00%   4440.87302      4849.818906        8.43%      650     89      5      2296     9.8s
+         0       0         0   0.00%   4441.510298     4849.818906        8.42%      623     91      5      3877    10.0s
+
+Solving report
+  Model             blp-ic98
+  Status            Time limit reached
+  Primal bound      4849.8189056
+  Dual bound        4441.51029818
+  Gap               8.42%
+  P-D integral      2.18
+  Solution status   feasible
+                    4849.8189056 (objective)
+  Timing            10.01
+                    0.71 (Presolve)
+                        MIP    time [calls] = 0.32 [1]
+                        subMIP time [calls] = 0.39 [31]
+                    9.30 (Solve)
+                        MIP    time [calls] = 5.85 [1]
+                        subMIP time [calls] = 3.45 [31]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [31]
+  Max sub-MIP depth 20
+  Nodes             0
+  Repair LPs        0
+  LP iterations     3877
+                    0 (strong br.)
+                    2050 (separation)
+                    1514 (heuristics)

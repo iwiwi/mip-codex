@@ -145,6 +145,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
         cover_cuts: false,
         nodes: 1,
         primal_repair: false,
+        feasibility_pump: false,
         lp_diving: false,
         primal_probe: false,
         ..Limits::default()
@@ -187,6 +188,7 @@ fn ranged_lower_side_cuts_keep_the_maximization_offset() {
             nodes: 1,
             cover_cuts: true,
             primal_repair: false,
+            feasibility_pump: false,
             lp_diving: false,
             primal_probe: false,
             ..Limits::default()
@@ -261,6 +263,7 @@ fn fractional_coefficients_project_a_continuous_lower_bound_safely() {
             cover_cuts: true,
             primal_probe: false,
             primal_repair: false,
+            feasibility_pump: false,
             lp_diving: false,
             ..Limits::default()
         },
@@ -378,6 +381,7 @@ fn root_cut_incumbent_does_not_replace_the_fractional_global_bound() {
             cover_cuts: true,
             primal_probe: false,
             primal_repair: false,
+            feasibility_pump: false,
             lp_diving: true,
             ..Limits::default()
         },

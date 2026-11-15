@@ -1,0 +1,69 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 13640 variables (13550 bin, 0 int, 90 cont) and 717 constraints
+presolving:
+(round 1, fast)       90 del vars, 1 del conss, 89 add conss, 45 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 627 clqs, 0 implints
+(round 2, fast)       90 del vars, 90 del conss, 89 add conss, 45 chg bounds, 46 chg sides, 30729 chg coeffs, 0 upgd conss, 0 impls, 627 clqs, 0 implints
+(round 3, exhaustive) 90 del vars, 99 del conss, 89 add conss, 45 chg bounds, 71 chg sides, 30729 chg coeffs, 0 upgd conss, 0 impls, 627 clqs, 0 implints
+(round 4, fast)       107 del vars, 101 del conss, 89 add conss, 45 chg bounds, 71 chg sides, 30729 chg coeffs, 0 upgd conss, 0 impls, 625 clqs, 0 implints
+(round 5, exhaustive) 107 del vars, 101 del conss, 89 add conss, 45 chg bounds, 71 chg sides, 30729 chg coeffs, 679 upgd conss, 0 impls, 625 clqs, 0 implints
+(round 6, fast)       107 del vars, 104 del conss, 92 add conss, 45 chg bounds, 107 chg sides, 40194 chg coeffs, 679 upgd conss, 0 impls, 625 clqs, 0 implints
+(round 7, exhaustive) 1018 del vars, 104 del conss, 92 add conss, 45 chg bounds, 107 chg sides, 40194 chg coeffs, 679 upgd conss, 0 impls, 625 clqs, 0 implints
+(round 8, fast)       1018 del vars, 104 del conss, 92 add conss, 45 chg bounds, 107 chg sides, 40389 chg coeffs, 679 upgd conss, 0 impls, 625 clqs, 0 implints
+   (0.4s) probing: 51/12622 (0.4%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.4s) probing aborted: 50/50 successive totally useless probings
+   (0.5s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.5s) no symmetry present (symcode time: 0.00)
+presolving (9 rounds: 9 fast, 4 medium, 4 exhaustive):
+ 1018 deleted vars, 104 deleted constraints, 92 added constraints, 45 tightened bounds, 0 added holes, 107 changed sides, 40389 changed coefficients
+ 0 implications, 625 cliques, 0 implied integral variables (0 bin, 0 int, 0 cont)
+presolved problem has 12622 variables (12622 bin, 0 int, 0 cont) and 705 constraints
+     51 constraints of type <knapsack>
+    625 constraints of type <setppc>
+     26 constraints of type <linear>
+      3 constraints of type <logicor>
+Presolving Time: 0.48
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+p 0.6s|     1 |     0 |     0 |     - |   locks|   0 |  12k| 705 | 705 |   0 |  0 |   0 |   0 | 0.000000e+00 | 1.014944e+04 |    Inf | unknown
+i 1.5s|     1 |     0 |     0 |     - |  oneopt|   0 |  12k| 730 | 705 |   0 |  0 |  25 |   0 | 0.000000e+00 | 7.650445e+03 |    Inf | unknown
+  1.6s|     1 |     0 |   480 |     - |   181M |   0 |  12k| 730 | 705 |   0 |  0 |  25 |   0 | 4.374534e+03 | 7.650445e+03 |  74.89%| unknown
+  2.2s|     1 |     0 |   495 |     - |   198M |   0 |  12k| 730 | 711 |   6 |  1 |  25 |   0 | 4.377161e+03 | 7.650445e+03 |  74.78%| unknown
+  2.6s|     1 |     0 |   519 |     - |   202M |   0 |  12k| 730 | 716 |  11 |  2 |  25 |   0 | 4.377726e+03 | 7.650445e+03 |  74.76%| unknown
+  3.1s|     1 |     0 |   538 |     - |   207M |   0 |  12k| 730 | 721 |  16 |  3 |  25 |   0 | 4.379779e+03 | 7.650445e+03 |  74.68%| unknown
+r 3.1s|     1 |     0 |   538 |     - |shifting|   0 |  12k| 727 | 721 |  16 |  3 |  25 |   0 | 4.379779e+03 | 7.619270e+03 |  73.96%| unknown
+  3.5s|     1 |     0 |   551 |     - |   207M |   0 |  12k| 727 | 726 |  21 |  4 |  25 |   0 | 4.380018e+03 | 7.619270e+03 |  73.96%| unknown
+i 3.5s|     1 |     0 |   551 |     - |  oneopt|   0 |  12k| 727 | 726 |  21 |  4 |  25 |   0 | 4.380018e+03 | 6.215139e+03 |  41.90%| unknown
+  4.0s|     1 |     0 |   602 |     - |   211M |   0 |  12k| 727 | 732 |  27 |  5 |  25 |   0 | 4.381590e+03 | 6.215139e+03 |  41.85%| unknown
+  4.5s|     1 |     0 |   632 |     - |   211M |   0 |  12k| 727 | 738 |  33 |  6 |  25 |   0 | 4.382207e+03 | 6.215139e+03 |  41.83%| unknown
+  4.9s|     1 |     0 |   670 |     - |   217M |   0 |  12k| 727 | 745 |  40 |  7 |  25 |   0 | 4.384086e+03 | 6.215139e+03 |  41.77%| unknown
+  5.4s|     1 |     0 |   729 |     - |   218M |   0 |  12k| 727 | 750 |  45 |  8 |  25 |   0 | 4.386150e+03 | 6.215139e+03 |  41.70%| unknown
+  5.9s|     1 |     0 |   769 |     - |   221M |   0 |  12k| 727 | 755 |  50 |  9 |  25 |   0 | 4.386788e+03 | 6.215139e+03 |  41.68%| unknown
+  6.4s|     1 |     0 |   811 |     - |   225M |   0 |  12k| 727 | 761 |  56 | 10 |  25 |   0 | 4.387057e+03 | 6.215139e+03 |  41.67%| unknown
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  6.9s|     1 |     0 |   840 |     - |   228M |   0 |  12k| 727 | 765 |  60 | 11 |  25 |   0 | 4.387274e+03 | 6.215139e+03 |  41.66%| unknown
+  7.4s|     1 |     0 |   855 |     - |   229M |   0 |  12k| 727 | 769 |  64 | 12 |  25 |   0 | 4.387416e+03 | 6.215139e+03 |  41.66%| unknown
+  7.8s|     1 |     0 |   885 |     - |   229M |   0 |  12k| 727 | 773 |  68 | 13 |  25 |   0 | 4.387970e+03 | 6.215139e+03 |  41.64%| unknown
+  8.3s|     1 |     0 |   935 |     - |   230M |   0 |  12k| 727 | 778 |  73 | 14 |  25 |   0 | 4.388794e+03 | 6.215139e+03 |  41.61%| unknown
+  8.8s|     1 |     0 |   993 |     - |   231M |   0 |  12k| 727 | 782 |  77 | 15 |  25 |   0 | 4.390649e+03 | 6.215139e+03 |  41.55%| unknown
+  9.3s|     1 |     0 |  1010 |     - |   232M |   0 |  12k| 727 | 779 |  81 | 16 |  25 |   0 | 4.390801e+03 | 6.215139e+03 |  41.55%| unknown
+  9.8s|     1 |     0 |  1035 |     - |   232M |   0 |  12k| 727 | 782 |  84 | 17 |  25 |   0 | 4.390905e+03 | 6.215139e+03 |  41.55%| unknown
+ 10.1s|     1 |     0 |  1035 |     - |   232M |   0 |  12k| 727 | 785 |  87 | 18 |  25 |   0 | 4.390905e+03 | 6.215139e+03 |  41.55%| unknown
+(node 1) LP solver hit time limit in LP 19 -- using pseudo solution instead
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 10.12
+Solving Nodes      : 1
+Primal Bound       : +6.21513878720000e+03 (4 solutions)
+Dual Bound         : +4.39090479975722e+03
+Gap                : 41.55 %
+wrote parameter settings to file /home/ubuntu/mip-codex/artifacts/smoke-20261115-204525-_1v4f3z5/blp-ic98.mps.gz/scip/options.txt

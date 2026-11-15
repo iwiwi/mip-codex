@@ -1,0 +1,159 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.62s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/b843d3488fc759aa/out/mip_codex-b843d3488fc759aa)
+
+running 34 tests
+test exact::enclosure_tests::exact_zero_and_products_below_smallest_subnormal_are_enclosed ... ok
+test exact::pair_tests::a_pair_preserves_a_halfway_bit_and_can_collapse_after_cancellation ... ok
+test exact::pair_tests::a_third_separated_component_falls_back_without_losing_either_tail ... ok
+test binary_graph::local_tests::pair_exchange_improves_a_feasible_seed_and_invalid_seeds_fail_closed ... ok
+test exact::tests::nonfinite_values_are_not_certified ... ok
+test objective_bound::aggregate_box_tests::inspect_aggregate_proof_boxes ... ignored, saved development dump directory via MIP_PROOF_DUMP_DIR
+test branching::strong_candidate_tests::mixed_candidates_keep_fractional_variables_and_include_rare_cost_variable ... ok
+test exact::tests::cancellation_preserves_smallest_products_and_overflowing_products ... ok
+test objective_bound::joint_proof_diagnostic::inspect_joint_perturbations ... ignored, saved development failure via MIP_PROOF_DUMP
+test revised::ratio_regressions::entering_width_and_upper_bound_are_respected ... ok
+test objective_bound::implied_box_tests::two_unbounded_terms_do_not_imply_an_individual_bound ... ok
+test revised::ratio_regressions::near_tie_chooses_stable_pivot_and_preserves_tolerance ... ok
+test revised::ratio_regressions::tiny_bound_roundoff_is_not_amplified_by_small_pivot ... ok
+test objective_bound::joint_proof_diagnostic::joint_trials_reject_bad_shapes_and_nonfinite_weights ... ok
+test revised::ratio_regressions::stable_pivot_ties_use_basic_variable_order ... ok
+test search::deferred_tests::unresolved_regions_hold_the_global_bound_until_all_are_prunable ... ok
+test revised::tests::cached_multipliers_preserve_bits_cost_keys_updates_and_siblings ... ok
+test search::deferred_tests::unbounded_inherited_lower_bound_cannot_be_dropped ... ok
+test search::tests::best_bound_uses_minimum_and_deterministic_ties ... ok
+test search::tests::depth_first_keeps_last_child_preference ... ok
+test objective_bound::aggregate_box_tests::mixed_decimal_rows_imply_bounds_for_every_fractional_feasible_point ... ok
+test solve::seed_tests::seed_is_checked_and_cannot_prove_optimality_at_zero_budget ... ok
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+test solve::pump_tests::mixed_continuous_projection_keeps_original_constraints ... ok
+test solve::pump_tests::pump_projects_and_perturbs_without_changing_parent_lp ... ok
+test solve::pump_tests::expired_pump_and_infeasible_integer_domain_return_no_candidate ... ok
+test search::tests::hybrid_keeps_each_pending_node_exactly_once ... ok
+test objective_bound::aggregate_box_tests::aggregate_bounds_enclose_fractional_points_with_negative_lower_bounds ... ok
+test exact::tests::arbitrary_exponents_match_independent_python_fraction_fixtures ... ok
+test model::activity_error_tests::exact_point_specialization_matches_the_full_outward_sum_bit_for_bit ... ok
+test objective_bound::implied_box_tests::decimal_interval_bounds_preserve_every_enumerated_feasible_point ... ok
+test exact::tests::correctly_rounded_sums_match_python_fraction ... ok
+test exact::value_tests::nearest_tight_bounds_and_fast_enclosures_match_fraction_oracle ... ok
+test objective_bound::joint_proof_diagnostic::joint_trials_never_certify_a_planted_feasible_decimal_model ... ok
+
+test result: ok. 32 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running unittests src/main.rs (target/debug/build/mip-codex/b283bdf30b116108/out/mip_codex-b283bdf30b116108)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/binary_graph.rs (target/debug/build/mip-codex/99de3fa0edc49532/out/binary_graph-99de3fa0edc49532)
+
+running 4 tests
+test recognition_rejects_constraints_and_objectives_outside_the_exact_class ... ok
+test negative_lower_rows_have_the_same_conflict_meaning ... ok
+test dispatch_reports_the_original_objective_and_uses_no_lp ... ok
+test exact_search_and_interruption_bounds_match_enumeration_and_root_coloring ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.17s
+
+     Running tests/box_primal.rs (target/debug/build/mip-codex/8e9683c40fa8f8bb/out/box_primal-8e9683c40fa8f8bb)
+
+running 5 tests
+test box_primal_has_no_claim_when_all_endpoints_violate_the_model ... ok
+test a_tolerance_feasible_box_point_cannot_turn_root_infeasibility_into_optimality ... ok
+test approximate_activity_updates_cannot_accept_a_cancellation_violation ... ok
+test box_primal_preserves_a_greedy_feasible_point_when_lp_cannot_start ... ok
+test tolerance_feasibility_cannot_override_phase_one_infeasibility ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/branching.rs (target/debug/build/mip-codex/3e6072f7cdf2f618/out/branching-3e6072f7cdf2f618)
+
+running 3 tests
+test zero_costs_fall_back_and_direction_uses_distance ... ok
+test observed_costs_change_ranking_without_changing_feasible_region ... ok
+test all_rules_orders_and_objective_senses_preserve_optimum ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cuts.rs (target/debug/build/mip-codex/b6cc7368636202ea/out/cuts-b6cc7368636202ea)
+
+running 13 tests
+test continuous_columns_and_unknown_provenance_are_skipped ... ok
+test a_negative_continuous_term_needs_its_finite_upper_bound ... ok
+test decimal_duplicate_cancellation_is_not_a_spurious_unbounded_objective ... ok
+test signed_cover_is_valid_and_rejects_a_changed_certificate ... ok
+test literal_integer_provenance_does_not_trust_f64_rounding ... ok
+test ranges_are_combined_as_original_decimal_values_before_rounding ... ok
+test fractional_coefficients_project_a_continuous_lower_bound_safely ... ok
+test cover_changes_root_bound_without_excluding_integer_optimum ... ok
+test ranged_lower_side_cuts_keep_the_maximization_offset ... ok
+test root_cut_incumbent_does_not_replace_the_fractional_global_bound ... ok
+test duplicate_terms_are_summed_before_rounding_in_rows_and_objective ... ok
+test no_cover_excludes_any_binary_feasible_point ... ok
+test mixed_decimal_cuts_preserve_all_box_feasible_binary_assignments ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/decimal_input.rs (target/debug/build/mip-codex/3431189c06422e59/out/decimal_input-3431189c06422e59)
+
+running 1 test
+test duplicate_decimals_match_python_fraction_before_rounding ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/diving.rs (target/debug/build/mip-codex/f10a8fee7c1653b6/out/diving-f10a8fee7c1653b6)
+
+running 5 tests
+test expired_global_deadline_skips_all_local_solves ... ok
+test local_infeasibility_reverses_direction_without_pruning_parent ... ok
+test two_failed_sides_do_not_prove_mip_infeasibility ... ok
+test failed_integral_fixing_does_not_discard_a_feasible_integer_solution ... ok
+test diving_finds_cover_without_claiming_root_bound_is_integer_optimum ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/exact_transformation.rs (target/debug/build/mip-codex/89645a87a3da9f1a/out/exact_transformation-89645a87a3da9f1a)
+
+running 3 tests
+test a_shift_that_cannot_preserve_absolute_row_precision_is_unresolved ... ok
+test original_decimal_ill_conditioning_is_unresolved ... ok
+test objective_offset_row_shift_and_overflow_cancel_before_rounding ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fixed_columns.rs (target/debug/build/mip-codex/b27bfbb5f2d68f67/out/fixed_columns-b27bfbb5f2d68f67)
+
+running 3 tests
+test an_empty_lp_column_set_preserves_constant_row_infeasibility ... ok
+test an_integer_singleton_is_proved_from_the_original_bound_intervals ... ok
+test deleting_a_static_column_keeps_original_cost_and_child_warm_compatibility ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/heuristic.rs (target/debug/build/mip-codex/dfdba436aab113de/out/heuristic-dfdba436aab113de)
+
+running 5 tests
+test expired_deadline_produces_no_candidate ... ok
+test rounds_and_repairs_continuous_equality ... ok
+test cancellation_cannot_create_false_incumbent ... ok
+test fixed_integer_lp_repairs_linked_continuous_variables ... ok
+test incumbent_does_not_change_open_node_lower_bound ... FAILED
+
+failures:
+
+---- incumbent_does_not_change_open_node_lower_bound stdout ----
+
+thread 'incumbent_does_not_change_open_node_lower_bound' (888271) panicked at tests/heuristic.rs:61:5:
+assertion `left == right` failed
+  left: Some(1.0)
+ right: None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    incumbent_does_not_change_open_node_lower_bound
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test heuristic`
