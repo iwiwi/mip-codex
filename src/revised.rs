@@ -29,6 +29,8 @@ pub struct Stats {
     pub warm_rejections: usize,
     pub dual_pivots: usize,
     pub dual_flips: usize,
+    pub scaled_columns: usize,
+    pub scaled_rows: usize,
 }
 #[derive(Debug)]
 pub struct Answer {
@@ -36,6 +38,8 @@ pub struct Answer {
     pub dual: Option<f64>,
     pub stats: Stats,
     pub warm: Option<Arc<WarmStart>>,
+    pub(crate) witness: Option<Vec<f64>>,
+    pub(crate) witness_point: Option<Vec<f64>>,
 }
 #[derive(Debug)]
 struct Eta {
@@ -166,6 +170,8 @@ struct Simplex {
     deadline: Option<Instant>,
     artificial: Vec<usize>,
     original: usize,
+    witness: Option<Vec<f64>>,
+    witness_point: Option<Vec<f64>>,
 }
 impl Simplex {
     fn refactor(&mut self) -> Result<(), Outcome> {
@@ -232,7 +238,7 @@ impl Simplex {
         self.reduced_with_tolerance(c, y, j).0
     }
     /// Validate primal and bounded-variable dual residuals independently of pricing.
-    fn certificate(&self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+    fn certificate(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
         let mut residual = self.rhs.clone();
         for j in 0..self.columns.len() {
             if !self.x[j].is_finite() || self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7 {
@@ -265,6 +271,7 @@ impl Simplex {
         {
             return Err(numerical());
         }
+        self.witness = Some(y);
         Ok((primal, dual.min(primal)))
     }
     /// 任意の行乗数と全box境界で矛盾を確認する。確証が弱ければcoldへ戻す。
@@ -396,6 +403,7 @@ impl Simplex {
             }
             let Some((j, direction, beta)) = enter else {
                 return Err(if self.impossible_row(&w) {
+                    self.witness = Some(w);
                     Outcome::Infeasible
                 } else {
                     numerical()
@@ -563,6 +571,8 @@ impl Simplex {
                 {
                     return Err(numerical());
                 }
+                self.witness = Some(ray[..self.original].to_vec());
+                self.witness_point = Some(self.x[..self.original].to_vec());
                 return Err(Outcome::Unbounded);
             }
             if theta <= 1e-10 {
@@ -595,9 +605,9 @@ impl Simplex {
     }
 }
 pub fn minimize(p: &Problem, limit: usize, deadline: Option<Instant>) -> Answer {
-    cold(p, limit, deadline, false)
+    crate::scaling::solve(p, limit, deadline, None, false)
 }
-fn valid(p: &Problem) -> bool {
+pub(crate) fn valid(p: &Problem) -> bool {
     p.columns.len() == p.costs.len()
         && p.upper.len() == p.costs.len()
         && p.equality.len() == p.rhs.len()
@@ -609,20 +619,12 @@ fn valid(p: &Problem) -> bool {
             .iter()
             .all(|c| c.iter().all(|&(i, a)| i < p.rhs.len() && a.is_finite()))
 }
-pub fn minimize_warm(
+fn warm_impl(
     p: &Problem,
     limit: usize,
     deadline: Option<Instant>,
     warm: Option<&WarmStart>,
 ) -> Answer {
-    if !valid(p) {
-        return Answer {
-            outcome: numerical(),
-            dual: None,
-            stats: Stats::default(),
-            warm: None,
-        };
-    }
     let Some(w) = warm else {
         return cold(p, limit, deadline, true);
     };
@@ -650,6 +652,8 @@ pub fn minimize_warm(
         deadline,
         artificial: a.artificial.clone(),
         original: n,
+        witness: None,
+        witness_point: None,
     };
     for &j in &s.basis {
         s.basic[j] = true;
@@ -674,6 +678,8 @@ pub fn minimize_warm(
                 dual: Some(dual),
                 warm: Some(snapshot(p, &s, Some(a.clone()))),
                 stats: s.stats,
+                witness: s.witness,
+                witness_point: s.witness_point,
             }
         }
         Err(Outcome::Infeasible) => {
@@ -683,6 +689,8 @@ pub fn minimize_warm(
                 dual: None,
                 warm: None,
                 stats: s.stats,
+                witness: s.witness,
+                witness_point: s.witness_point,
             }
         }
         Err(outcome @ (Outcome::TimeLimit | Outcome::IterationLimit)) => Answer {
@@ -690,6 +698,8 @@ pub fn minimize_warm(
             dual: None,
             warm: None,
             stats: s.stats,
+            witness: s.witness,
+            witness_point: s.witness_point,
         },
         Err(_) => {
             let used = s.stats.pivots + s.stats.flips;
@@ -711,30 +721,13 @@ impl Stats {
         self.warm_rejections += other.warm_rejections;
         self.dual_pivots += other.dual_pivots;
         self.dual_flips += other.dual_flips;
+        self.scaled_columns += other.scaled_columns;
+        self.scaled_rows += other.scaled_rows;
     }
 }
 fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> Answer {
     let m = p.rhs.len();
     let n = p.costs.len();
-    let error = |outcome| Answer {
-        outcome,
-        dual: None,
-        stats: Stats::default(),
-        warm: None,
-    };
-    if p.columns.len() != n
-        || p.upper.len() != n
-        || p.equality.len() != m
-        || p.slack_upper.len() != m
-        || p.slack_upper.iter().any(|v| v.is_nan() || *v < 0.0)
-        || p.rhs.iter().chain(&p.costs).any(|v| !v.is_finite())
-        || p.upper.iter().any(|v| v.is_nan() || *v < 0.0)
-        || p.columns
-            .iter()
-            .any(|col| col.iter().any(|&(i, a)| i >= m || !a.is_finite()))
-    {
-        return error(numerical());
-    }
     let mut s = Simplex {
         columns: Arc::new(p.columns.clone()),
         rhs: p.rhs.clone(),
@@ -752,6 +745,8 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
         deadline,
         artificial: vec![],
         original: n,
+        witness: None,
+        witness_point: None,
     };
     let mut diagonal = vec![];
     for i in 0..m {
@@ -830,12 +825,16 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
             },
             dual: Some(dual),
             stats: s.stats,
+            witness: s.witness,
+            witness_point: s.witness_point,
         },
         Err(outcome) => Answer {
             warm: None,
             outcome,
             dual: None,
             stats: s.stats,
+            witness: s.witness,
+            witness_point: s.witness_point,
         },
     }
 }
@@ -888,12 +887,28 @@ fn primal_ratio(
     direction: f64,
     width: f64,
 ) -> Result<(f64, Option<usize>), ()> {
+    let step = primal_ratio_threshold(basis, x, upper, d, direction, width, PIVOT)?;
+    if step.0.is_infinite() {
+        primal_ratio_threshold(basis, x, upper, d, direction, width, 0.)
+    } else {
+        Ok(step)
+    }
+}
+fn primal_ratio_threshold(
+    basis: &[usize],
+    x: &[f64],
+    upper: &[f64],
+    d: &[f64],
+    direction: f64,
+    width: f64,
+    pivot_threshold: f64,
+) -> Result<(f64, Option<usize>), ()> {
     let mut relaxed = width;
     for (i, &k) in basis.iter().enumerate() {
         let a = d[i] * direction;
-        let available = if a > PIVOT {
+        let available = if a > pivot_threshold {
             x[k]
-        } else if a < -PIVOT {
+        } else if a < -pivot_threshold {
             upper[k] - x[k]
         } else {
             continue;
@@ -908,9 +923,9 @@ fn primal_ratio(
     let mut largest = 0.;
     for (i, &k) in basis.iter().enumerate() {
         let a = d[i] * direction;
-        let available = if a > PIVOT {
+        let available = if a > pivot_threshold {
             x[k]
-        } else if a < -PIVOT {
+        } else if a < -pivot_threshold {
             upper[k] - x[k]
         } else {
             continue;
@@ -973,5 +988,27 @@ mod ratio_regressions {
             primal_ratio(&[1, 0], &[1., 1.], &[2., 2.], &[1., 1.], 1., 10.),
             Ok((1., Some(1)))
         );
+    }
+}
+
+pub fn minimize_warm(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+) -> Answer {
+    crate::scaling::solve(p, limit, deadline, warm, true)
+}
+pub(crate) fn raw(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+    retain: bool,
+) -> Answer {
+    if retain {
+        warm_impl(p, limit, deadline, warm)
+    } else {
+        cold(p, limit, deadline, false)
     }
 }
