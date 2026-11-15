@@ -29,6 +29,13 @@ class ObjectiveGrid(unittest.TestCase):
     def test_objective_proof_is_checked_without_cuts_or_primal(self):
         bad=copy.deepcopy(PROOF);bad['step']=7
         result=self.check(MODEL,bad);self.assertFalse(result['valid']);self.assertFalse(result['objective_grid_valid'])
+    def test_objective_gap_uses_original_integer_box_endpoints(self):
+        proof=copy.deepcopy(PROOF);proof['min_domain']=dict(base=0,first_increment=6)
+        self.assertTrue(self.check(MODEL,proof)['valid'])
+        for key,value in [('base',1),('first_increment',5)]:
+            bad=copy.deepcopy(proof);bad['min_domain'][key]=value;self.assertFalse(self.check(MODEL,bad)['valid'])
+        bad=copy.deepcopy(PROOF);bad['max_domain']=dict(base=0,first_increment=6)
+        self.assertFalse(self.check(MODEL,bad)['valid'])
     def test_bad_objective_proof_blocks_a_global_claim_without_cuts_or_point(self):
         with tempfile.TemporaryDirectory()as directory:
             root=Path(directory);(root/'snapshot/bin').mkdir(parents=True);(root/'snapshot/scripts').mkdir()

@@ -72,6 +72,8 @@ fn objective_grid_follows_unit_equalities_without_circular_inference() {
 fn lattice_rounding_is_conservative_at_integer_boundaries_and_for_maximization() {
     use mip_codex::objective_bound::Grid;
     let g = Grid {
+        min_domain: None,
+        max_domain: None,
         offset: 3,
         step: 2,
         implied: vec![],
@@ -301,4 +303,85 @@ fn original_free_and_lossy_ranged_rows_receive_correct_multipliers() {
     assert_eq!(result.status, "optimal");
     assert_eq!(result.objective, Some(4.));
     assert!(result.objective_bound_stats.valid > 0);
+}
+#[test]
+fn first_positive_objective_gap_and_complemented_maximum_are_proved_from_costs() {
+    use mip_codex::objective_bound::Grid;
+    let text = "NAME gap\nROWS\n N obj\n G r\nCOLUMNS\n x obj 100 r 1\n y obj 51 r 1\nRHS\n rhs r 0.1\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
+    let m = mps::parse(std::io::Cursor::new(text)).unwrap();
+    let g = Grid::from_model(&m).unwrap();
+    assert_eq!(g.round_lower(0., false), Some(0.));
+    assert_eq!(g.round_lower(1e-100, false), Some(51.));
+    assert_eq!(g.round_lower(-120.4, true), Some(-100.));
+    let result = mip_codex::solve::solve(&m, &optimization_limits());
+    assert_eq!(result.dual_bound, Some(51.));
+    let max_text = text
+        .replace("NAME gap", "NAME gap\nOBJSENSE\n MAX")
+        .replace(" G r", " L r")
+        .replace("rhs r 0.1", "rhs r 1.4");
+    let max = mps::parse(std::io::Cursor::new(max_text)).unwrap();
+    assert_eq!(
+        mip_codex::solve::solve(&max, &optimization_limits()).dual_bound,
+        Some(100.)
+    );
+}
+#[test]
+fn certified_positive_gap_rejects_tolerance_only_zero_and_prunes_its_box() {
+    use mip_codex::solve::{Limits, solve};
+    let text = "NAME tiny\nROWS\n N obj\n G r\nCOLUMNS\n x obj 1 r 1\nRHS\n rhs r 1e-16\nBOUNDS\n LI b x 0\nENDATA\n";
+    let m = mps::parse(std::io::Cursor::new(text)).unwrap();
+    let result = solve(
+        &m,
+        &Limits {
+            nodes: usize::MAX,
+            ..optimization_limits()
+        },
+    );
+    assert_eq!(result.status, "optimal");
+    assert_eq!(result.objective, Some(1.));
+    assert_eq!(result.dual_bound, Some(1.));
+    assert!(result.objective_bound_stats.box_pruned > 0);
+}
+#[test]
+fn objective_gap_rounding_cannot_skip_any_feasible_integer_box_value() {
+    use mip_codex::objective_bound::Grid;
+    let mut seed = 22903u64;
+    let mut next = || {
+        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        seed
+    };
+    for _ in 0..160 {
+        let costs: Vec<i64> = (0..4).map(|_| (next() % 15) as i64 - 7).collect();
+        if costs.iter().all(|&c| c == 0) {
+            continue;
+        }
+        let offset = (next() % 11) as i64 - 5;
+        let mut text = String::from("NAME domain\nROWS\n N obj\nCOLUMNS\n");
+        for j in 0..4 {
+            text += &format!(" x{j} obj {}\n", costs[j]);
+        }
+        text += &format!("RHS\n rhs obj {}\nBOUNDS\n", -offset);
+        for j in 0..4 {
+            text += &format!(" LI b x{j} -2\n UP b x{j} 3\n");
+        }
+        text += "ENDATA\n";
+        let m = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let grid = Grid::from_model(&m).unwrap();
+        for code in 0..1296 {
+            let mut n = code;
+            let x: Vec<i64> = (0..4)
+                .map(|_| {
+                    let z = (n % 6) as i64 - 2;
+                    n /= 6;
+                    z
+                })
+                .collect();
+            let value = offset + costs.iter().zip(&x).map(|(c, x)| c * x).sum::<i64>();
+            for maximize in [false, true] {
+                let signed = if maximize { -value } else { value };
+                let bound = grid.round_lower(signed as f64 - 0.3, maximize).unwrap();
+                assert!(bound <= signed as f64);
+            }
+        }
+    }
 }

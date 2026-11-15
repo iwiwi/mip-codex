@@ -70,7 +70,8 @@ for case in range(count):
             path=Path(directory)/'case.mps';path.write_text(text)
             result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10'],timeout=15))
             if 'MIP_OBJECTIVE_ROUNDING' in os.environ:
-                assert result.get('objective_rounding') == (os.environ['MIP_OBJECTIVE_ROUNDING']=='1'), 'unexpected objective rounding mode'
+                assert result.get('objective_rounding') == (os.environ['MIP_OBJECTIVE_ROUNDING']!='0'), 'unexpected objective rounding mode'
+                assert result.get('objective_rounding_all') == (os.environ['MIP_OBJECTIVE_ROUNDING']=='all'), 'unexpected objective rounding scope'
             if 'MIP_RINS' in os.environ:
                 assert result.get('rins_enabled') == (os.environ['MIP_RINS'] == '1'), 'unexpected RINS mode'
             if 'MIP_STRONG_BRANCHING' in os.environ:

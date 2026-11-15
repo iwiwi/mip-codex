@@ -10,9 +10,41 @@ pub struct Implication {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Grid {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_domain: Option<Domain>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_domain: Option<Domain>,
     pub offset: i64,
     pub step: i64,
     pub implied: Vec<Implication>,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Domain {
+    pub base: i64,
+    pub first_increment: i64,
+}
+fn domain(model: &Model, sign: i64) -> Option<Domain> {
+    let mut base =
+        (small_integer(point(model.offset, model.offset_enclosure)?)? as i128) * sign as i128;
+    let mut first = i64::MAX;
+    for v in &model.variables {
+        let c = small_integer(point(v.objective, v.objective_enclosure)?)?.checked_mul(sign)?;
+        if c == 0 {
+            continue;
+        }
+        let (bound, enclosure) = if c > 0 {
+            (v.lower?, v.lower_enclosure)
+        } else {
+            (v.upper?, v.upper_enclosure)
+        };
+        let bound = small_integer(point(bound, enclosure)?)?;
+        base = base.checked_add((c as i128).checked_mul(bound as i128)?)?;
+        first = first.min(c.abs());
+    }
+    (base.abs() <= (1i128 << 52) && first != i64::MAX).then_some(Domain {
+        base: base as i64,
+        first_increment: first,
+    })
 }
 fn small_integer(v: f64) -> Option<i64> {
     (v.is_finite() && v.fract() == 0. && v.abs() <= (1u64 << 52) as f64).then_some(v as i64)
@@ -22,6 +54,27 @@ fn point(v: f64, b: Option<[f64; 2]>) -> Option<f64> {
         .map(|b| b[0])
 }
 impl Grid {
+    pub fn upper_box(
+        &self,
+        model: &Model,
+        lower: &[Option<f64>],
+        upper: &[Option<f64>],
+    ) -> Option<i128> {
+        if lower.len() != model.variables.len() || upper.len() != lower.len() {
+            return None;
+        }
+        let sign = if model.maximize { -1i64 } else { 1 };
+        let mut value = (self.offset as i128) * sign as i128;
+        for (j, v) in model.variables.iter().enumerate() {
+            let c = small_integer(point(v.objective, v.objective_enclosure)?)?.checked_mul(sign)?;
+            if c == 0 {
+                continue;
+            }
+            let bound = small_integer(if c > 0 { upper[j]? } else { lower[j]? })?;
+            value = value.checked_add((c as i128).checked_mul(bound as i128)?)?;
+        }
+        Some(value)
+    }
     pub fn from_model(model: &Model) -> Option<Self> {
         let offset = small_integer(point(model.offset, model.offset_enclosure)?)?;
         let mut step = 0i64;
@@ -105,7 +158,12 @@ impl Grid {
                 }
             }
         }
-        (unknown == 0).then_some(Self {
+        if unknown != 0 {
+            return None;
+        }
+        Some(Self {
+            min_domain: domain(model, 1),
+            max_domain: domain(model, -1),
             offset,
             step,
             implied,
@@ -132,7 +190,32 @@ impl Grid {
             return None;
         }
         let result = (offset as i128).checked_add((self.step as i128).checked_mul(k as i128)?)?;
-        (result.abs() <= (1i128 << 52)).then_some(result as f64)
+        if result.abs() > (1i128 << 52) {
+            return None;
+        }
+        let mut result = result as f64;
+        let domain = if maximize {
+            &self.max_domain
+        } else {
+            &self.min_domain
+        };
+        if let Some(domain) = domain {
+            if domain.first_increment <= 0 {
+                return None;
+            }
+            let base = domain.base as i128;
+            if base.abs() > (1i128 << 52) {
+                return None;
+            }
+            result = result.max(domain.base as f64);
+            if lower > domain.base as f64 {
+                let next = base.checked_add(domain.first_increment as i128)?;
+                if next.abs() <= (1i128 << 52) {
+                    result = result.max(next as f64);
+                }
+            }
+        }
+        Some(result)
     }
 }
 #[derive(Clone, Copy, Debug)]

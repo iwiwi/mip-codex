@@ -57,11 +57,21 @@ fn run() -> Result<(), String> {
             };
         }
         if let Ok(value) = std::env::var("MIP_OBJECTIVE_ROUNDING") {
-            limits.objective_rounding = match value.as_str() {
-                "0" => false,
-                "1" => true,
-                _ => return Err("MIP_OBJECTIVE_ROUNDING must be 0 or 1".into()),
-            };
+            match value.as_str() {
+                "0" => {
+                    limits.objective_rounding = false;
+                    limits.objective_rounding_all = false;
+                }
+                "1" => {
+                    limits.objective_rounding = true;
+                    limits.objective_rounding_all = false;
+                }
+                "all" => {
+                    limits.objective_rounding = true;
+                    limits.objective_rounding_all = true;
+                }
+                _ => return Err("MIP_OBJECTIVE_ROUNDING must be 0, 1, or all".into()),
+            }
         }
         if let Ok(value) = std::env::var("MIP_RINS") {
             limits.rins = match value.as_str() {

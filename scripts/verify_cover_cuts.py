@@ -116,7 +116,22 @@ def verify_objective_grid(names,variables,rows,objective,offset,proof):
         if c.denominator!=1 or name not in known:raise AssertionError('objective has an unproved integer term')
         step=math.gcd(step,abs(c.numerator))
     if step<=0 or proof['step']!=step:raise AssertionError('objective grid gcd mismatch')
-    return dict(objective_grid_valid=True,objective_step=step,implied_integer_variables=len(implications))
+    domains=0
+    for key,sign in [('min_domain',1),('max_domain',-1)]:
+        domain=proof.get(key)
+        if domain is None:continue
+        if not isinstance(domain,dict) or type(domain.get('base'))!=int or type(domain.get('first_increment'))!=int:
+            raise AssertionError('invalid objective domain schema')
+        base=sign*offset;weights=[]
+        for name,c in objective.items():
+            c*=sign
+            if not c:continue
+            bound=variables[name]['lower' if c>0 else 'upper']
+            if bound is None or bound.denominator!=1:raise AssertionError('objective domain requires integer box endpoints')
+            base+=c*bound;weights.append(abs(c.numerator))
+        if domain['base']!=base or domain['first_increment']!=min(weights):raise AssertionError('objective domain gap mismatch')
+        domains+=1
+    return dict(objective_grid_valid=True,objective_step=step,implied_integer_variables=len(implications),objective_domains=domains)
 
 
 def validate_cut_proofs(model_path,result):

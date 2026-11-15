@@ -27,6 +27,7 @@ pub struct Limits {
     pub strong_branching: bool,
     pub rins: bool,
     pub objective_rounding: bool,
+    pub objective_rounding_all: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
     pub search: search::Strategy,
@@ -50,6 +51,7 @@ impl Default for Limits {
             strong_branching: true,
             rins: true,
             objective_rounding: false,
+            objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,
@@ -78,6 +80,7 @@ pub struct Result {
     pub rins_enabled: bool,
     pub rins: RinsStats,
     pub objective_rounding: bool,
+    pub objective_rounding_all: bool,
     pub objective_grid: Option<Grid>,
     pub objective_bound_stats: ObjectiveBoundStats,
     pub cut_proofs: Vec<cuts::Cut>,
@@ -126,6 +129,7 @@ pub struct Result {
 }
 #[derive(Clone)]
 struct Node {
+    certified_bound: Option<i64>,
     lower: Vec<Option<f64>>,
     upper: Vec<Option<f64>>,
     bound: f64,
@@ -599,6 +603,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         }
     }
     let mut root = Node {
+        certified_bound: None,
         lower,
         upper,
         bound: f64::NEG_INFINITY,
@@ -627,7 +632,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     } else {
         None
     };
-    let objective_certifier = objective_grid
+    let mut objective_certifier = objective_grid
         .as_ref()
         .and_then(|_| Certifier::new(lp_model));
     let mut objective_bound_stats = ObjectiveBoundStats::default();
@@ -666,6 +671,15 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     while let Some(mut node) = stack.pop() {
         if node.bound >= incumbent {
             continue;
+        }
+        if let (Some(grid), Some(bound)) = (&objective_grid, node.certified_bound) {
+            if grid
+                .upper_box(model, &node.lower, &node.upper)
+                .is_some_and(|upper| upper < bound as i128)
+            {
+                objective_bound_stats.box_pruned += 1;
+                continue;
+            }
         }
         let interrupt = if Instant::now() >= deadline {
             Some("time_limit")
@@ -804,7 +818,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     &objective_certifier,
                     relaxation_witness.as_deref(),
                 ) {
-                    let profitable = node.bound < incumbent
+                    let profitable = (nodes == 1 || limits.objective_rounding_all)
+                        && node.bound < incumbent
                         && grid
                             .round_lower(node.bound, model.maximize)
                             .is_some_and(|candidate| {
@@ -832,6 +847,11 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                     if let Some(rounded) =
                                         grid.round_lower(rigorous, model.maximize)
                                     {
+                                        let certified = rounded as i64;
+                                        node.certified_bound = Some(
+                                            node.certified_bound
+                                                .map_or(certified, |old| old.max(certified)),
+                                        );
                                         if rounded > node.bound {
                                             node.bound = rounded;
                                             objective_bound_stats.rounded += 1;
@@ -844,10 +864,41 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                         objective_bound_stats.seconds += started.elapsed().as_secs_f64();
                     }
                 }
+                if nodes == 1 && !limits.objective_rounding_all {
+                    objective_certifier = None;
+                }
+                if nodes == 1
+                    && node
+                        .certified_bound
+                        .is_some_and(|b| incumbent < b as f64 - 1e-6)
+                {
+                    objective_bound_stats.rejected_candidates += 1;
+                    incumbent = f64::INFINITY;
+                    best = None;
+                    first_primal_seconds = None;
+                }
                 if node.bound >= incumbent {
                     continue;
                 }
-                let branch = costs.select(model, &original, limits.branching);
+                let mut branch = costs.select(model, &original, limits.branching);
+                if branch.is_none()
+                    && node
+                        .certified_bound
+                        .is_some_and(|b| objective < b as f64 - 1e-6)
+                {
+                    branch = model
+                        .variables
+                        .iter()
+                        .enumerate()
+                        .filter(|(_, v)| v.integer)
+                        .filter_map(|(j, _)| {
+                            let f = original[j] - original[j].floor();
+                            let d = f.min(1. - f);
+                            (d > 0.).then_some((j, d))
+                        })
+                        .max_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)))
+                        .map(|(j, _)| j);
+                }
                 if branch.is_some() && (nodes == 1 || nodes % 256 == 0) {
                     if let Some(h) = &mut repair {
                         let allocation = if nodes == 1 { 0.05 } else { 0.001 };
@@ -896,7 +947,14 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                     if h.candidate_check(&x) {
                                         repair_lp_candidates += 1;
                                         let value = sign * model.objective(&x);
-                                        if value.is_finite() && value < incumbent {
+                                        if value.is_finite()
+                                            && value < incumbent
+                                            && candidate_respects_bound(
+                                                value,
+                                                node.certified_bound,
+                                                &mut objective_bound_stats,
+                                            )
+                                        {
                                             repair_improvements += 1;
                                             incumbent = value;
                                             first_primal_seconds.get_or_insert_with(|| {
@@ -924,7 +982,14 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             nodes as u64,
                         ) {
                             let value = sign * model.objective(&x);
-                            if value.is_finite() && value < incumbent {
+                            if value.is_finite()
+                                && value < incumbent
+                                && candidate_respects_bound(
+                                    value,
+                                    node.certified_bound,
+                                    &mut objective_bound_stats,
+                                )
+                            {
                                 repair_improvements += 1;
                                 incumbent = value;
                                 first_primal_seconds
@@ -959,7 +1024,14 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     );
                     if let Some(x) = candidate {
                         let value = sign * model.objective(&x);
-                        if value.is_finite() && value < incumbent {
+                        if value.is_finite()
+                            && value < incumbent
+                            && candidate_respects_bound(
+                                value,
+                                node.certified_bound,
+                                &mut objective_bound_stats,
+                            )
+                        {
                             diving.improvements += 1;
                             incumbent = value;
                             first_primal_seconds
@@ -984,6 +1056,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     probe_limits.strong_branching = false;
                     probe_limits.rins = false;
                     probe_limits.objective_rounding = false;
+                    probe_limits.objective_rounding_all = false;
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
@@ -1014,7 +1087,14 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             if heuristic::Repair::new(model).candidate_check(&x) {
                                 probe.candidates += 1;
                                 let value = sign * model.objective(&x);
-                                if value.is_finite() && value < incumbent {
+                                if value.is_finite()
+                                    && value < incumbent
+                                    && candidate_respects_bound(
+                                        value,
+                                        node.certified_bound,
+                                        &mut objective_bound_stats,
+                                    )
+                                {
                                     probe.improvements += 1;
                                     incumbent = value;
                                     first_primal_seconds
@@ -1053,6 +1133,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             let mut local = limits.clone();
                             local.rins = false;
                             local.objective_rounding = false;
+                            local.objective_rounding_all = false;
                             local.primal_probe = false;
                             local.primal_repair = false;
                             local.lp_diving = false;
@@ -1086,7 +1167,14 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                     if heuristic::Repair::new(model).candidate_check(&x) {
                                         rins.candidates += 1;
                                         let value = sign * model.objective(&x);
-                                        if value.is_finite() && value < incumbent {
+                                        if value.is_finite()
+                                            && value < incumbent
+                                            && candidate_respects_bound(
+                                                value,
+                                                node.certified_bound,
+                                                &mut objective_bound_stats,
+                                            )
+                                        {
                                             rins.improvements += 1;
                                             incumbent = value;
                                             best = Some(x);
@@ -1180,6 +1268,17 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                         break;
                     }
                     let value = sign * model.objective(&rounded);
+                    if !value.is_finite()
+                        || !candidate_respects_bound(
+                            value,
+                            node.certified_bound,
+                            &mut objective_bound_stats,
+                        )
+                    {
+                        stack.push(node);
+                        status = "numerical_error".into();
+                        break;
+                    }
                     terminal_bound = terminal_bound.min(node.bound.min(value));
                     if value < incumbent {
                         incumbent = value;
@@ -1241,6 +1340,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         rins_enabled: limits.rins,
         rins,
         objective_rounding: limits.objective_rounding,
+        objective_rounding_all: limits.objective_rounding_all,
         objective_grid,
         objective_bound_stats,
         cut_proofs: prepared.cuts,
@@ -1491,9 +1591,24 @@ mod seed_tests {
 
 #[derive(Default, Debug, Serialize)]
 pub struct ObjectiveBoundStats {
+    pub box_pruned: usize,
+    pub rejected_candidates: usize,
     pub calls: usize,
     pub trials: usize,
     pub valid: usize,
     pub rounded: usize,
     pub seconds: f64,
+}
+
+fn candidate_respects_bound(
+    value: f64,
+    bound: Option<i64>,
+    stats: &mut ObjectiveBoundStats,
+) -> bool {
+    if bound.is_some_and(|b| value < b as f64 - 1e-6) {
+        stats.rejected_candidates += 1;
+        false
+    } else {
+        true
+    }
 }
