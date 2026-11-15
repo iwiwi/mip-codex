@@ -75,7 +75,12 @@ MpsInput::MpsInput()
    isZipped    = false;
    lineno      = 0;
    isInteger   = false;
+#ifdef MIPLIB_ABSOLUTE
+   // 空白を含む名前は本プロジェクトのMPS対象外。短いfree形式名も保護する。
+   isNewFormat = true;
+#else
    isNewFormat = false;
+#endif
    semiContWarning = false;
    buf[0]      = '\0';
    f0          = NULL;
@@ -495,6 +500,27 @@ void MpsInput::readCols()
    throw SyntaxError(buf, lineno);
 }
 
+#ifdef MIPLIB_ABSOLUTE
+static bool assignAbsoluteRhs(Model* model, const char* name, const Rational& value)
+{
+   if( model->objName == std::string(name) )
+   {
+      model->objectiveOffset.toZero();
+      model->objectiveOffset -= value;
+      return true;
+   }
+   LinearConstraint* cons = static_cast<LinearConstraint*>(model->getCons(name));
+   if( cons == NULL ) return false;
+   switch( cons->lintype )
+   {
+      case LinearConstraint::LESS_THAN: cons->rhs = value; return true;
+      case LinearConstraint::GREATER_THAN: cons->lhs = value; return true;
+      case LinearConstraint::EQUAL: cons->lhs = value; cons->rhs = value; return true;
+      default: return false;
+   }
+}
+#endif
+
 /* Process RHS section. */
 void MpsInput::readRhs()
 {
@@ -532,6 +558,9 @@ void MpsInput::readRhs()
       if( !strcmp(rhsname, f1) )
       {
          val.fromString(f3);
+#ifdef MIPLIB_ABSOLUTE
+         if( !assignAbsoluteRhs(model, f2, val) ) throw SyntaxError(buf, lineno);
+#else
          LinearConstraint* cons = static_cast<LinearConstraint*>(model->getCons(f2));
          assert( cons != NULL );
          switch(cons->lintype)
@@ -549,9 +578,13 @@ void MpsInput::readRhs()
             default:
                throw SyntaxError(buf, lineno);
          }
+#endif
          if( f5 != NULL )
          {
             val.fromString(f5);
+#ifdef MIPLIB_ABSOLUTE
+            if( !assignAbsoluteRhs(model, f4, val) ) throw SyntaxError(buf, lineno);
+#else
             LinearConstraint* cons = static_cast<LinearConstraint*>(model->getCons(f4));
             assert( cons != NULL );
             switch(cons->lintype)
@@ -569,6 +602,7 @@ void MpsInput::readRhs()
                default:
                   throw SyntaxError(buf, lineno);
             }
+#endif
          }
       }
    }

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """元MPSへ独立した2つのreader/数値系で検査。最適化はしない。"""
 import json
+from decimal import Decimal
 from pathlib import Path
 import re
 import subprocess
@@ -10,7 +11,7 @@ from validate_solution import validate
 
 model, solution, checker, directory = sys.argv[1:]
 directory = Path(directory)
-value = json.load(open(solution))
+value = json.load(open(solution), parse_float=Decimal)
 try:
     strict = validate(model, value)
 except Exception as error:
@@ -18,11 +19,11 @@ except Exception as error:
 atomic_json(directory/'strict-validation.json', strict)
 sol = directory/'solution.sol'
 with sol.open('w') as stream:
-    stream.write('=obj= '+repr(value['objective'])+'\n')
+    stream.write('=obj= '+str(value['objective'])+'\n')
     for name, x in value['values'].items():
         if any(c.isspace() for c in name):
             raise ValueError('official solution format does not support whitespace names')
-        stream.write(name+' '+repr(x)+'\n')
+        stream.write(name+' '+str(x)+'\n')
 command = [checker, model, str(sol), '1e-6', '1e-6']
 with (directory/'official-checker.log').open('w') as stream:
     completed = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT)

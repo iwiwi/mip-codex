@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import copy
+from decimal import Decimal
 import unittest
 from pathlib import Path
 from validate_solution import validate
@@ -34,4 +35,18 @@ class ValidatorTests(unittest.TestCase):
             self.assertFalse(validate(path,solution)['valid'])
             solution['values'].pop('y')
             with self.assertRaises(ValueError):validate(path,solution)
+    def test_exact_cancellation(self):
+        text = MPS.replace('x cost 2 cap 1', 'x cost 0 cap 100000000').replace('y cost 1 cap 1', 'y cost 1 cap 1').replace('rhs cost -3 cap 4', 'rhs cap 10000000000000000').replace('BV b x', 'FX b x 100000000').replace('UP b y 5', 'BV b y')
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)/'cancel.mps'
+            path.write_text(text)
+            result = validate(path, dict(objective=1., values=dict(x=1e8,y=1.)))
+            self.assertTrue(result['float_diagnostics']['valid'])
+            self.assertFalse(result['valid'])
+            self.assertEqual(result['exact']['row_violation'], '1')
+            result = validate(path, dict(objective=0, values=dict(x=Decimal('100000000.0000000001'), y=0)))
+            self.assertTrue(result['float_diagnostics']['valid'])
+            self.assertFalse(result['valid'])
+            self.assertEqual(result['exact']['row_violation'], '1/100')
+
 if __name__=='__main__':unittest.main()

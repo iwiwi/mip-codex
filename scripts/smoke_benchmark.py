@@ -38,11 +38,13 @@ with (output/'results.jsonl').open('w') as summary:
         for solver in solvers:
             directory=output/name/solver;directory.mkdir(parents=True)
             run_env=env.copy()
-            if solver in ('rust-cold','rust-warm'):
+            if solver in ('rust-prop', 'rust-no-prop'):
+                run_env.update(MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='1' if solver=='rust-prop' else '0')
+            elif solver in ('rust-cold','rust-warm'):
                 run_env['MIP_LP_ENGINE']='revised'
-                run_env['MIP_LP_WARM_START']='1' if solver=='rust-warm' else '0'
+                run_env['MIP_LP_WARM_START','MIP_PROPAGATION']='1' if solver=='rust-warm' else '0'
             elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
-            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START']})+'\n')
+            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION']})+'\n')
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
             else:cmd=[str(root/'.venv/bin/python'),str(root/'scripts/comparison_worker.py'),solver,str(path),str(seconds),str(directory)]
             (directory/'command.json').write_text(json.dumps(cmd)+'\n')
@@ -60,6 +62,8 @@ with (output/'results.jsonl').open('w') as summary:
             result=dict(name=name,solver=solver,exit_code=exit_code,wall_seconds=elapsed,input_sha256=record['sha256'])
             try:
                 parsed=json.loads((directory/('stdout.log' if solver.startswith('rust') else 'result.json')).read_text())
+                if solver in ('rust-prop', 'rust-no-prop'):
+                    assert parsed['propagation'] == (solver == 'rust-prop'), 'unexpected propagation mode'
                 result.update({k:v for k,v in parsed.items() if k!='values'})
                 if solver.startswith('rust'):(directory/'result.json').write_text(json.dumps(parsed)+'\n')
                 if parsed.get('values') is not None:

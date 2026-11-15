@@ -21,6 +21,11 @@ Var::Var(const char* _name, VarType _type, const Rational& _lb, const Rational& 
 
 bool Var::checkBounds(const Rational& boundTolerance) const
 {
+#ifdef MIPLIB_ABSOLUTE
+   // 絶対誤差版は変数値・境界の大きさで許容誤差を拡大しない。
+   Rational lbtol(boundTolerance);
+   Rational ubtol(boundTolerance);
+#else
    // compute lb tolerance
    Rational absx(value);
    absx.abs();
@@ -37,6 +42,7 @@ bool Var::checkBounds(const Rational& boundTolerance) const
    max(ubtol, ubtol, absub);
    max(ubtol, ubtol, absx);
    ubtol *= boundTolerance;
+#endif
    // compute relaxed bounds
    Rational relaxedLb(lb);
    relaxedLb -= lbtol;
@@ -119,6 +125,15 @@ void LinearConstraint::push(Var* v, const Rational& c)
 
 bool LinearConstraint::check(const Rational& tolerance) const
 {
+#ifdef MIPLIB_ABSOLUTE
+   Rational activity;
+   for( unsigned int i = 0; i < vars.size(); ++i )
+      activity.addProduct(coefs[i], vars[i]->value);
+   Rational relaxedLhs(lhs);
+   Rational relaxedRhs(rhs);
+   relaxedLhs -= tolerance;
+   relaxedRhs += tolerance;
+#else
    // compute row activity (with its positive and negative parts)
    Rational posact;
    Rational negact;
@@ -154,6 +169,7 @@ bool LinearConstraint::check(const Rational& tolerance) const
    rhstol *= tolerance;
    Rational relaxedRhs(rhs);
    relaxedRhs += rhstol;
+#endif
    // check lhs and rhs
    if (activity < relaxedLhs || activity > relaxedRhs)
    {
@@ -519,6 +535,10 @@ void Model::check(
       Rational objVal;
       objVal += objValPlus;
       objVal += objvalMinus;
+#ifdef MIPLIB_ABSOLUTE
+      objVal += objectiveOffset;
+      std::cout << "Exact objective: " << objVal.toString() << std::endl;
+#endif
 
 
       Rational absobj(objectiveValue);
@@ -528,6 +548,13 @@ void Model::check(
       max(objtol, objtol, objvalMinus);
       max(objtol, objtol, absobj);
       objtol *= linearTolerance;
+#ifdef MIPLIB_ABSOLUTE
+      objtol = Rational(1, 100000000);
+      Rational scale(objVal);
+      scale.abs();
+      scale += Rational(1);
+      objtol *= scale;
+#endif
 
       Rational diff;
       sub(diff, objVal, objectiveValue);
@@ -554,6 +581,9 @@ void Model::maxViolations(
    Rational& linearViol,
    Rational& objViol) const
 {
+#ifdef MIPLIB_ABSOLUTE
+   Rational boundViol, rowViol;
+#endif
    // check vars first
    intViol.toZero();
    linearViol.toZero();
@@ -564,6 +594,9 @@ void Model::maxViolations(
    {
       Rational viol;
       vitr->second->boundsViolation(viol);
+#ifdef MIPLIB_ABSOLUTE
+      max(boundViol, viol, boundViol);
+#endif
       max(linearViol, viol, linearViol);
       vitr->second->integralityViolation(viol);
       max(intViol, viol, intViol);
@@ -576,6 +609,9 @@ void Model::maxViolations(
    {
       Rational viol;
       citr->second->violation(viol);
+#ifdef MIPLIB_ABSOLUTE
+      max(rowViol, viol, rowViol);
+#endif
       max(linearViol, viol, linearViol);
       ++citr;
    }
@@ -589,9 +625,18 @@ void Model::maxViolations(
          objVal.addProduct(vitr->second->objCoef, vitr->second->value);
          ++vitr;
       }
+#ifdef MIPLIB_ABSOLUTE
+      objVal += objectiveOffset;
+#endif
       sub(objViol, objVal, objectiveValue);
       objViol.abs();
    }
+#ifdef MIPLIB_ABSOLUTE
+   std::cout << "Exact bound violation: " << boundViol.toString() << std::endl;
+   std::cout << "Exact row violation: " << rowViol.toString() << std::endl;
+   std::cout << "Exact integer violation: " << intViol.toString() << std::endl;
+   std::cout << "Exact objective violation: " << objViol.toString() << std::endl;
+#endif
 }
 
 void Model::checkWrtExact(
