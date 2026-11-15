@@ -1,0 +1,14 @@
+NAME duplicate
+ROWS
+ N obj
+ L r
+COLUMNS
+ x obj -1
+ x r 10000000000000000
+ x r 1
+ x r -10000000000000000
+RHS
+ rhs r 1
+BOUNDS
+ UP b x 2
+ENDATA
