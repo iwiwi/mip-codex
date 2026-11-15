@@ -246,8 +246,21 @@ impl Simplex {
         entering: usize,
     ) -> Option<(f64, Option<usize>)> {
         self.stats.refinement_attempts += 1;
+        if self
+            .deadline
+            .is_some_and(|deadline| Instant::now() >= deadline)
+        {
+            return None;
+        }
         let mut rows = vec![Vec::new(); self.rhs.len()];
         for (j, col) in self.columns.iter().enumerate() {
+            if j & 255 == 0
+                && self
+                    .deadline
+                    .is_some_and(|deadline| Instant::now() >= deadline)
+            {
+                return None;
+            }
             for &(i, a) in col {
                 rows[i].push((j, a));
             }
@@ -256,6 +269,13 @@ impl Simplex {
             let mut residual = Vec::with_capacity(rows.len());
             let mut score = 0f64;
             for (i, row) in rows.iter().enumerate() {
+                if i & 63 == 0
+                    && self
+                        .deadline
+                        .is_some_and(|deadline| Instant::now() >= deadline)
+                {
+                    return None;
+                }
                 let r = crate::exact::dot(
                     std::iter::once((self.rhs[i], 1.))
                         .chain(row.iter().map(|&(j, a)| (-a, point[j]))),
