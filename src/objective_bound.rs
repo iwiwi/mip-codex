@@ -572,8 +572,6 @@ impl Certifier {
         }
         (lower, upper)
     }
-    /// 任意の有限行乗数に対する、指定されたbox内の元問題の下界。
-    /// 乗数が双対実行可能であるとの仮定は置かない。
     /// Propose joint perturbations; only `bound` can accept a certificate.
     pub(crate) fn joint_positive_bound(
         &self,
@@ -615,6 +613,8 @@ impl Certifier {
         }
         (None, trials)
     }
+    /// 任意の有限行乗数に対する、指定されたbox内の元問題の下界。
+    /// 乗数が双対実行可能であるとの仮定は置かない。
     pub fn bound(
         &self,
         lower: &[Option<f64>],
@@ -852,6 +852,46 @@ mod joint_proof_diagnostic {
 #[cfg(test)]
 mod aggregate_box_tests {
     use super::*;
+    #[test]
+    fn aggregate_bounds_enclose_fractional_points_with_negative_lower_bounds() {
+        let mut seed = 189723u64;
+        for _ in 0..100 {
+            let mut next = || {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                (seed % 10 + 1) as i64
+            };
+            let c = next();
+            let b = next();
+            let a = c + next();
+            let d = b + next();
+            let r = next();
+            let t = next();
+            let text = format!(
+                "NAME randomaggregate\nROWS\n N obj\n L a\n L b\nCOLUMNS\n x obj 0 a {}\n x b {}\n y obj 0 a {}\n y b {}\nRHS\n rhs a {} b {}\nBOUNDS\n LO b x -2\n LO b y -2\nENDATA\n",
+                a as f64 / 10.,
+                -c as f64 / 10.,
+                -b as f64 / 10.,
+                d as f64 / 10.,
+                r as f64 / 10.,
+                t as f64 / 10.
+            );
+            let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+            let proof = Certifier::feasibility_with_aggregation(&model, true).unwrap();
+            let (lo, up) = proof.implied_box.as_ref().unwrap();
+            assert!(up.iter().all(Option::is_some));
+            for x2 in -4..=40 {
+                for y2 in -4..=40 {
+                    if a * x2 - b * y2 > 2 * r || -c * x2 + d * y2 > 2 * t {
+                        continue;
+                    }
+                    for (j, v2) in [x2, y2].into_iter().enumerate() {
+                        let v = v2 as f64 / 2.;
+                        assert!(lo[j].unwrap() <= v && v <= up[j].unwrap());
+                    }
+                }
+            }
+        }
+    }
     #[test]
     fn mixed_decimal_rows_imply_bounds_for_every_fractional_feasible_point() {
         for negative in [false, true] {
