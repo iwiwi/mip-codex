@@ -22,6 +22,13 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(value) = std::env::var("MIP_GRAPH_ADAPTIVE_LOCAL") {
+            limits.graph_adaptive_local = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_GRAPH_ADAPTIVE_LOCAL must be 0 or 1".into()),
+            };
+        }
         if let Ok(value) = std::env::var("MIP_GRAPH_LOCAL_DIVERSIFY") {
             limits.graph_local_diversify = match value.as_str() {
                 "0" => false,

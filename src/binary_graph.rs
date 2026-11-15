@@ -383,6 +383,29 @@ pub fn solve_with_diversify(
     preserve_order: bool,
     diversify: bool,
 ) -> Option<Answer> {
+    solve_with_adaptive(
+        model,
+        memory,
+        deadline,
+        limit,
+        local,
+        stronger_root,
+        preserve_order,
+        diversify,
+        false,
+    )
+}
+pub fn solve_with_adaptive(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+    adaptive: bool,
+) -> Option<Answer> {
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -481,11 +504,11 @@ pub fn solve_with_diversify(
         && search.best.len() < search.stats.root_upper
         && Instant::now() < deadline
     {
-        let allocation =
-            (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(0.25);
+        let allocation = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05)
+            .min(if adaptive { 2.0 } else { 0.25 });
         let local_deadline =
             deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
-        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline, diversify);
+        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline, diversify, adaptive);
         search.best = seed;
         search.stats.local = Some(stats);
     }
@@ -533,6 +556,11 @@ pub struct LocalStats {
     pub additions: usize,
     pub restarts: usize,
     pub restart_removals: usize,
+    pub iteration_limit: usize,
+    pub stagnation_limit: usize,
+    pub last_improvement_iteration: usize,
+    pub stop_reason: &'static str,
+    pub budget_seconds: f64,
     pub validation_failures: usize,
     pub seconds: f64,
 }
@@ -622,10 +650,21 @@ fn improve_seed(
     initial: &[usize],
     deadline: Instant,
     diversify: bool,
+    adaptive: bool,
 ) -> (Vec<usize>, LocalStats) {
     let started = Instant::now();
     let mut stats = LocalStats {
         initial: initial.len(),
+        iteration_limit: graph
+            .n
+            .saturating_mul(if adaptive { 128 } else { 8 })
+            .min(if adaptive { 500000 } else { 50000 }),
+        stagnation_limit: if adaptive {
+            graph.n.saturating_mul(16).max(256)
+        } else {
+            usize::MAX
+        },
+        budget_seconds: deadline.saturating_duration_since(started).as_secs_f64(),
         best: initial.len(),
         ..LocalStats::default()
     };
@@ -640,9 +679,11 @@ fn improve_seed(
     let mut tabu = vec![0usize; graph.n];
     let mut rng = 0x9e3779b97f4a7c15u64;
     let mut stale = 0;
+    let mut stagnant = 0;
     let mut order: Vec<usize> = (0..graph.n).collect();
-    for iteration in 0..graph.n.saturating_mul(8).min(50000) {
+    for iteration in 0..stats.iteration_limit {
         if Instant::now() >= deadline {
+            stats.stop_reason = "deadline";
             break;
         }
         stats.iterations += 1;
@@ -732,9 +773,16 @@ fn improve_seed(
             }
             best = candidate;
             stats.best = best.len();
+            stats.last_improvement_iteration = stats.iterations;
+            stagnant = 0;
             stale = 0;
         } else {
             stale += 1;
+            stagnant += 1;
+        }
+        if adaptive && stagnant >= stats.stagnation_limit {
+            stats.stop_reason = "stagnation";
+            break;
         }
         if stale >= 64 {
             state = LocalState::new(graph, &best);
@@ -762,6 +810,15 @@ fn improve_seed(
             stale = 0;
         }
     }
+    if stats.stop_reason.is_empty() {
+        stats.stop_reason = if stats.iterations == stats.iteration_limit {
+            "iteration_limit"
+        } else if Instant::now() >= deadline {
+            "deadline"
+        } else {
+            "no_moves"
+        };
+    }
     stats.seconds = started.elapsed().as_secs_f64();
     (best, stats)
 }
@@ -785,6 +842,7 @@ mod local_tests {
             &[0],
             Instant::now() + std::time::Duration::from_secs(1),
             false,
+            false,
         );
         assert_eq!(best, vec![1, 2]);
         assert!(stats.pair_swaps > 0);
@@ -793,6 +851,7 @@ mod local_tests {
             &graph,
             &[0, 1],
             Instant::now() + std::time::Duration::from_secs(1),
+            false,
             false,
         );
         assert!(best.is_empty());
