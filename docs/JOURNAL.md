@@ -229,3 +229,29 @@
 
 - 最終新規4solver比較091021/091022は全44run時間制限/証明0。39返却解GMP絶対38合格/既知HiGHS pk1不正1/未検証0、公式39合格。Rust10解は双方全合格、全51cutも元MPS Fraction有効。全値はBENCHMARKとstrong-default-summary.json。誤った監査run名091019を指定した最初の起動失敗ログも保存し、実在091021/091022で再監査した。
 - 隔離二値1000問はoff nodes3676/LP5424/.211177373秒、on nodes3418/LP7970/.264023416秒 (局所LP2804)、全参照/全列挙/原MPS検査成功。速度は悪化。主解取得範囲と3改善/2悪化の判断でPR17の既定化を採用予定。次はRINS近傍または選択した子LPのwarm基底だけの再利用を検討する。全240最終Rust評価・全体優位は未達成。
+
+## 2026-11-15: RINS型主解近傍の試作
+- PR17を613ec6aへmerge。rins-neighborhood branch。現在のincumbentと根LPの値が1e-6以内で一致する整数変数を固定し、元incumbentをseedとして自作B&Bで近傍だけ解く。少なくとも新規2変数・可変整数の10%以上が一致する場合に限定。根一回、全体5%最大.25秒、1024局所node/各LP4096pivot。元のrepair/diving/probeの後、strong branchingの前。局所repair/diving/probe/strong/cut/伝播/RINSを全部無効にして再帰一段だけにする。nearest/DFS/pseudocostで探索し、主探索の順序は不変。
+- 原理の参考: Danna/Rothberg/Le Pape (2005), DOI10.1007/s10107-004-0518-7、およびIBM公式RINS説明 (https://www.ibm.com/docs/en/icos/22.1.2?topic=heuristics-relaxation-induced-neighborhood-search-rins-heuristic)。コード移植や最適化委譲は行わない。近傍モデルの変更は整数境界固定だけ、原Modelは保持する。seedと返却点は元モデルの1e-7/外向き区間検査を通す。局所下界/最適・実行不能宣言は無視し、本体へ主解候補だけ返す。局所LP統計は総数へ加算、局所nodeはrins欄に分離。
+- MIP_RINS=0/1、既定無効。共通solveをprivate solve_seededへ分け、通常solveはseedなしのまま。既存probeのLP統計加算も共通関数に整理。117 Rust回帰が成功。近傍がseedを含むこと/元モデル不変、無効seed/不足一致の棄却、局所optimalでも本体node_limitと下界不変、seedは予算0でもglobal proofにならないことを追加。synthetic/18問性能比較はこれから。
+
+- 初期根のみsource7ae5eb6 (091911/091918) は主解2改善/0悪化/16同等。gmu50 -2532435.2987→-2570880.1906、gmu40 -1860472.4551→-2367540.5084。全36時間制限/証明0、28返却解はGMP絶対/公式双方全合格、全134cutも元MPS Fraction有効。内部improvementsカウンタが立つpk1/mad/gen-ip002でも最終主解は対照と同等なので、最終品質の改善件数へ混ぜない。
+- 小1000/二値1000/中規模200は失敗0、局所呼出40/171/61回、内部改善1/0/6回。これも両設定が最終最適値を返す合成問題の途中改善であり、最終性能の優位ではない。
+- 根ではseedを持たないtimtab1/pg5_34はattempts0だった。incumbentを初めて持った後のfractional nodeで一度だけ試すよう条件を一般化。rootで試した問題は再試行しない。at_nodeを記録し、node3の局所optimalでも本体node_limit/元下界-1.5を維持する回帰を追加。118 Rustテスト後、根のみとの性能差を測定する。未採用。
+
+- 後回し試作fbe8305 (092238/092244) も主解2改善/0悪化/16同等で、根のみと全18最終値同じ。timtab1はnode738で35局所LP/.0067秒を使い近傍optimalだが改善なし。pg5_34はnode52で1局所LP/.094秒が4096pivotのiteration_limit、seedだけを保持し改善なし。追加LP/時間だけ増えたため後回しを棄却し、根のみへ戻す。ログと回帰履歴は保持。
+- 次の対照は根の近傍を全体10%最大.5秒へ増やす単一変更。初期は全体5%最大.25秒でgmu両方が時間切れだったため。1024node/4096pivot制限と主解専用/再帰禁止は同じ。既定無効のまま18開発問で比較し、悪化も含めて選ぶ。まだ採用しない。
+
+- .5秒予算の編集時に汎用文字列置換がdiving側へ当たったが、直後の差分/行確認で検出し、LP divingは従来の5%/.25秒へ復元、RINSだけ10%/.5秒へ修正。誤編集状態でベンチマークは起動していない。rins-larger-budget-tests.logを中間ログとして保持し、修正後118テストとrelease buildを別ログで完走した。
+- 後回し版の最終監査も28解と全134cutが双方/元MPS Fractionで全合格。性能上は追加益がないため棄却理由は不変。
+
+- .5秒試作c6b4657 (092558/092559) は3主解改善/0悪化/15同等。gmu50 -2532435.2987→-2574311.3903、gmu40 -1860472.4551→-2367540.5084、bppc4-08 72→69。初期.25秒版よりgmu50とbppが改善、悪化なし。根のみ/10%最大.5秒を既定化候補とする。118回帰と独立監査を確認し、既定化後の最終合成比較と4solver短期比較を残作業とする。
+- 60秒対照を固定18開発問で開始。c6b4657のdetached worktreeへ同一バイナリとGMP/公式checkerをコピーしhashを保存 (.venv/raw MPSだけ不変原本へsymlink)。CPU4/5/6/7の4群、各1thread/16GiB、同じ問題を同じCPUでRINS off/on。通常開発CPU0/1やnativebaseline CPU8..15と重ねない。immutable binaryなので本体を変更しても長期対照は不変。artifacts/rins-60s-frozen.jsonとgroup1..4-launch.log、実結果はworktree内artifacts/smoke-*。初回freezeはcwdをsnapshotにしたまま原rootを相対取得し失敗したため、原rootを絶対指定してコピーし直した。最初の起動失敗ログも保持。先行60秒runは起動されておらず、正しく凍結した4群だけが進行中。
+
+- .5秒版の独立監査は28返却解GMP絶対/公式双方全合格、全134cut Fraction有効。既定化後の試験設定挿入でtests/strong.rsの戻り型Limitsを関数本体と誤認し構文エラーになった。修正し、rins-default-tests.logを失敗ログとして保持、rins-default-corrected-tests.logで118テストが全成功。release buildも完了。長期対照のc6固定バイナリには触れていない。
+
+- 最終既定2b4c09dの118 Rust回帰と小1000/中規模200は失敗0。新規9問×4solver (093203/093204) は全36時間制限/証明0、32返却解GMP絶対31合格/既知HiGHS pk1不正1/未検証0、公式32合格。Rust8解と全51cutは全合格。
+- 60秒固定対照c6 (092942/092950/092951/092952) が全4群exit0で完了。18問3主解改善/0悪化/15同等、下界全同じ。gmu50 -2532435.2987→-2574311.3903、gmu40 -1888142.565→-2367540.5084、bpp72→65。36run中markshare両設定の2runがoptimal、残34時間制限。全30返却解GMP絶対/公式全合格、全134cutもFraction有効。結果とメタデータ/保存点を主repoへ回収、原frozen worktreeも残す。
+- markshare_4_0両設定は同じ1486619 main nodesでoptimal約1。off32.289559秒/on32.161783秒、RINSによる証明差はない。元MPS検査に合格、公式MIPLIB objective1と一致 (検証用JSONだけに保存、optimizerへ未入力)。同じCPU4/1thread/16GiB/60秒の3solver追加094028はHiGHS主解1/下界0、SCIP主解1/下界0、GLPK主解5/下界約0で全時間切れ。3解は双方検査合格。Rustだけがこの単一の開発例で60秒内optimal。全体優位は未達成。
+- native baseline09:33時点71/720、旧primary最適28、errors7、coordinator生存。7件の内訳はGLPK cbs-cta不正1、旧buildingenergy検査600秒切れ2 (新監査で双方有効)、GLPK ex10 reader拒否1、GLPK buildingenergy/bab2/bab6の3660秒watchdog3。watchdogは全てexit-9でresult未生成、進捗ログも保存される。新GMP別監査56解55有効/既知不正1/未検証0。稼働snapshot/共有依存/CPU8..15は不変。
+- 次の候補は整数目的値の安全な下界丸め。まず原MPSのcost/offset包含区間を追加し、整数係数等式で唯一の非整数項の係数±1ならその変数の暗黙整数性を導出する。原モデルの任意の行乗数からLagrangian下界を原境界で外向き計算し、その保証がある場合だけ整数latticeへ上げる。LPの近似boundを無条件ceilすると誤枝刈りになるので禁止。初版は有限元境界が厳密小整数・伝播無効の場合に絞り、Nodeの既存boundsを実際の分枝制約として用いる。unbounded列の負reduced costは微小でも証明を拒否、必要なら乗数の微小scaleを別候補として再検証。mainの既存floatboundと区別し、密LP/条件不明は追加丸めをしない。原MPS Fractionによる独立な目的整数性証明と任意乗数の下界fixtureを先に作り、全列挙で誤枝刈りを検出する。まだ未実装。別候補: feasibility pump (主解なし問題)、強分枝で試した子のwarm基底のみの再利用。

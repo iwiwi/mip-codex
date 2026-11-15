@@ -1,5 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{branching, cuts, heuristic, lp, model::Model, propagate, revised, search};
+use crate::{branching, cuts, heuristic, lp, model::Model, propagate, revised, rins, search};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -23,6 +23,7 @@ pub struct Limits {
     pub cover_cuts: bool,
     pub rounding_cuts: bool,
     pub strong_branching: bool,
+    pub rins: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
     pub search: search::Strategy,
@@ -43,6 +44,7 @@ impl Default for Limits {
             cover_cuts: true,
             rounding_cuts: false,
             strong_branching: true,
+            rins: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,
@@ -67,6 +69,8 @@ pub struct Result {
     pub rounding_cuts_enabled: bool,
     pub strong_branching: bool,
     pub strong: StrongStats,
+    pub rins_enabled: bool,
+    pub rins: RinsStats,
     pub cut_proofs: Vec<cuts::Cut>,
     pub cut_stats: cuts::Stats,
     pub cut_rounds: usize,
@@ -564,6 +568,9 @@ fn prepare_cuts(
     prepared
 }
 pub fn solve(model: &Model, limits: &Limits) -> Result {
+    solve_seeded(model, limits, None)
+}
+fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result {
     let start = Instant::now();
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
     let sign = if model.maximize { -1.0 } else { 1.0 };
@@ -599,12 +606,23 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     let mut diving = DivingStats::default();
     let mut probe = ProbeStats::default();
     let mut strong = StrongStats::default();
+    let mut rins = RinsStats::default();
     let mut repair_improvements = 0;
     let mut repair_lp_solves = 0;
     let mut repair_lp_candidates = 0;
     let mut incumbent = f64::INFINITY;
     let mut best = None;
     let mut first_primal_seconds = None;
+    if let Some(x) = seed {
+        if heuristic::Repair::new(model).candidate_check(x) {
+            let value = sign * model.objective(x);
+            if value.is_finite() {
+                incumbent = value;
+                best = Some(x.to_vec());
+                first_primal_seconds = Some(start.elapsed().as_secs_f64());
+            }
+        }
+    }
     let mut status = "optimal".to_string();
     let mut terminal_bound = f64::INFINITY;
     while let Some(mut node) = stack.pop() {
@@ -875,6 +893,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     probe_limits.cover_cuts = false;
                     probe_limits.rounding_cuts = false;
                     probe_limits.strong_branching = false;
+                    probe_limits.rins = false;
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
@@ -894,19 +913,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     probe.max_open_nodes = probe.max_open_nodes.max(result.max_open_nodes);
                     probe.status = Some(result.status.clone());
                     lp_solves += result.lp_solves;
-                    lp_stats.add(&revised::Stats {
-                        pivots: result.lp_pivots.unwrap_or(0),
-                        flips: result.lp_flips.unwrap_or(0),
-                        refactors: result.lp_refactors.unwrap_or(0),
-                        warm_attempts: result.lp_warm_attempts.unwrap_or(0),
-                        warm_successes: result.lp_warm_successes.unwrap_or(0),
-                        warm_fallbacks: result.lp_warm_fallbacks.unwrap_or(0),
-                        warm_rejections: result.lp_warm_rejections.unwrap_or(0),
-                        dual_pivots: result.lp_dual_pivots.unwrap_or(0),
-                        dual_flips: result.lp_dual_flips.unwrap_or(0),
-                        scaled_columns: result.lp_scaled_columns.unwrap_or(0),
-                        scaled_rows: result.lp_scaled_rows.unwrap_or(0),
-                    });
+                    add_lp_result(&mut lp_stats, &result);
                     if let Some(values) = result.values {
                         let x: Option<Vec<_>> = model
                             .variables
@@ -928,6 +935,82 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                         }
                     }
                     probe.seconds += probe_started.elapsed().as_secs_f64();
+                }
+                if node.bound >= incumbent {
+                    continue;
+                }
+                if limits.rins
+                    && nodes == 1
+                    && rins.attempts == 0
+                    && branch.is_some()
+                    && best.is_some()
+                    && matches!(limits.engine, Engine::Revised)
+                    && Instant::now() < deadline
+                {
+                    let started = Instant::now();
+                    rins.attempts += 1;
+                    rins.at_node = Some(nodes);
+                    let local_deadline = deadline.min(
+                        started
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.1).min(0.5)),
+                    );
+                    if let Some(neighborhood) =
+                        rins::neighborhood(model, &original, best.as_ref().unwrap())
+                    {
+                        rins.fixed = neighborhood.fixed;
+                        rins.eligible = neighborhood.eligible;
+                        if Instant::now() < local_deadline {
+                            let mut local = limits.clone();
+                            local.rins = false;
+                            local.primal_probe = false;
+                            local.primal_repair = false;
+                            local.lp_diving = false;
+                            local.strong_branching = false;
+                            local.cover_cuts = false;
+                            local.rounding_cuts = false;
+                            local.propagation = false;
+                            local.nodes = 1024;
+                            local.pivots = local.pivots.min(4096);
+                            local.seconds = local_deadline
+                                .saturating_duration_since(Instant::now())
+                                .as_secs_f64();
+                            local.search = search::Strategy::DepthFirst;
+                            local.branching = branching::Rule::Pseudocost;
+                            local.child_order = branching::Order::Nearest;
+                            let result =
+                                solve_seeded(&neighborhood.model, &local, Some(&neighborhood.seed));
+                            rins.calls += 1;
+                            rins.nodes += result.nodes;
+                            rins.lp_solves += result.lp_solves;
+                            rins.status = Some(result.status.clone());
+                            lp_solves += result.lp_solves;
+                            add_lp_result(&mut lp_stats, &result);
+                            if let Some(values) = result.values {
+                                let x: Option<Vec<_>> = model
+                                    .variables
+                                    .iter()
+                                    .map(|v| values.get(&v.name).copied())
+                                    .collect();
+                                if let Some(x) = x {
+                                    if heuristic::Repair::new(model).candidate_check(&x) {
+                                        rins.candidates += 1;
+                                        let value = sign * model.objective(&x);
+                                        if value.is_finite() && value < incumbent {
+                                            rins.improvements += 1;
+                                            incumbent = value;
+                                            best = Some(x);
+                                            first_primal_seconds.get_or_insert_with(|| {
+                                                start.elapsed().as_secs_f64()
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            rins.limited += 1;
+                        }
+                    }
+                    rins.seconds += started.elapsed().as_secs_f64();
                 }
                 if node.bound >= incumbent {
                     continue;
@@ -1063,6 +1146,8 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         rounding_cuts_enabled: limits.rounding_cuts,
         strong_branching: limits.strong_branching,
         strong,
+        rins_enabled: limits.rins,
+        rins,
         cut_proofs: prepared.cuts,
         cut_stats: prepared.stats,
         cut_rounds: prepared.rounds,
@@ -1251,4 +1336,60 @@ fn strong_branch(
     }
     stats.seconds += started.elapsed().as_secs_f64();
     best.map(|(j, _)| j)
+}
+
+#[derive(Default, Debug, Serialize)]
+pub struct RinsStats {
+    pub at_node: Option<usize>,
+    pub attempts: usize,
+    pub calls: usize,
+    pub fixed: usize,
+    pub eligible: usize,
+    pub nodes: usize,
+    pub lp_solves: usize,
+    pub candidates: usize,
+    pub improvements: usize,
+    pub limited: usize,
+    pub status: Option<String>,
+    pub seconds: f64,
+}
+fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
+    stats.add(&revised::Stats {
+        pivots: result.lp_pivots.unwrap_or(0),
+        flips: result.lp_flips.unwrap_or(0),
+        refactors: result.lp_refactors.unwrap_or(0),
+        warm_attempts: result.lp_warm_attempts.unwrap_or(0),
+        warm_successes: result.lp_warm_successes.unwrap_or(0),
+        warm_fallbacks: result.lp_warm_fallbacks.unwrap_or(0),
+        warm_rejections: result.lp_warm_rejections.unwrap_or(0),
+        dual_pivots: result.lp_dual_pivots.unwrap_or(0),
+        dual_flips: result.lp_dual_flips.unwrap_or(0),
+        scaled_columns: result.lp_scaled_columns.unwrap_or(0),
+        scaled_rows: result.lp_scaled_rows.unwrap_or(0),
+    });
+}
+
+#[cfg(test)]
+mod seed_tests {
+    use super::*;
+    #[test]
+    fn seed_is_checked_and_cannot_prove_optimality_at_zero_budget() {
+        let m = crate::mps::parse(std::io::Cursor::new(
+            "NAME seed\nROWS\n N obj\nCOLUMNS\n x obj 1\nRHS\nBOUNDS\n BV b x\nENDATA\n",
+        ))
+        .unwrap();
+        let limits = Limits {
+            seconds: 0.,
+            cover_cuts: false,
+            ..Limits::default()
+        };
+        let result = solve_seeded(&m, &limits, Some(&[1.]));
+        assert_eq!(result.status, "time_limit");
+        assert_eq!(result.objective, Some(1.));
+        assert_eq!(result.dual_bound, None);
+        let invalid = solve_seeded(&m, &limits, Some(&[2.]));
+        assert_eq!(invalid.objective, None);
+        let fractional = solve_seeded(&m, &limits, Some(&[0.5]));
+        assert_eq!(fractional.objective, None);
+    }
 }
