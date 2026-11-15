@@ -44,7 +44,7 @@ impl Default for Limits {
             dense_bytes: 256 * 1024 * 1024,
             engine: Engine::Revised,
             warm_start: true,
-            fixed_columns: false,
+            fixed_columns: true,
             propagation: false,
             primal_repair: true,
             lp_diving: true,
