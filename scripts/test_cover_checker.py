@@ -31,6 +31,27 @@ class Covers(unittest.TestCase):
             self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[single]))['valid'])
             p.write_text(model.replace(' UP b z 1',' PL b z').replace(' z r 1',' z r -1'))
             self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[CUT]))['valid'])
+    def test_floor_division_certificate_and_invalid_domains(self):
+        rounding=copy.deepcopy(CUT);rounding['proof'].update(divisor=2,cover=[])
+        with tempfile.TemporaryDirectory() as directory:
+            p=Path(directory)/'model.mps';p.write_text(MODEL)
+            self.assertTrue(validate_cut_proofs(p,dict(cut_proofs=[rounding]))['valid'])
+            for bad_model in [MODEL.replace('BV b x','LO b x 0'),MODEL.replace(' BV b x',' LI b x -1'),MODEL.replace('rhs r 3','rhs r 3.0000000000000000001')]:
+                p.write_text(bad_model);self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[rounding]))['valid'])
+            p.write_text(MODEL.replace('r 2','r -3',1).replace('r 2','r 2',1).replace('rhs r 3','rhs r -1'))
+            negative=copy.deepcopy(rounding);negative['row'].update(coefficients=[[0,-2],[1,1]],upper=-1)
+            self.assertTrue(validate_cut_proofs(p,dict(cut_proofs=[negative]))['valid'])
+            negative['row']['upper']=0
+            self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[negative]))['valid'])
+    def test_rounding_projects_continuous_lower_and_upper_bounds(self):
+        cut=copy.deepcopy(CUT);cut['proof'].update(divisor=2,cover=[])
+        with tempfile.TemporaryDirectory() as directory:
+            p=Path(directory)/'model.mps'
+            for coef,bound,bounds in [(1,4,' LO b z 1\n UP b z 2'),(-1,2,' LO b z 0\n UP b z 1')]:
+                model=MODEL.replace('RHS',f' z r {coef}\nRHS').replace('rhs r 3',f'rhs r {bound}').replace('ENDATA',bounds+'\nENDATA')
+                p.write_text(model);self.assertTrue(validate_cut_proofs(p,dict(cut_proofs=[cut]))['valid'])
+                p.write_text(model.replace(' UP b z 1',' PL b z') if coef<0 else model.replace(' LO b z 1',' MI b z'))
+                self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[cut]))['valid'])
     def test_empty_cuts_need_no_parser(self):
         self.assertTrue(validate_cut_proofs('/does/not/exist',dict(cut_proofs=[]))['valid'])
     def test_invalid_cut_blocks_infeasible_claim_without_primal(self):

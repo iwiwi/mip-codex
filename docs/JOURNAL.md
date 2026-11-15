@@ -201,3 +201,17 @@
 - 08:49 UTC baseline62/720、旧primary最適24/errors5、coordinator生存。新しいGLPK errorはex10の原MPS reader拒否 (69612行missing row type、driver exit3) とbuildingenergyの3660秒watchdog kill。snapshot改変/隠蔽/再試行はせず全結果へ計上する。保存解51件の新GMP別監査は50合格/既知cbs-cta GLPK不正1/未検証0。buildingenergy HS/SCIPは旧checker時間切れから保存解再監査で合格を回収。
 
 - 最終source7e979b6の新規8問×4solver5秒 (084917) は全32run時間制限/証明0。28返却解GMP絶対27合格/既知HiGHS pk1不正1/未検証0、公式28合格。Rust7解は双方合格、全51cutもFraction有効。主解/下界は最終対照と一致。新規比較を含む全表をBENCHMARKとmixed-cover-default-summary.jsonへ保存。PR15で混合cover既定化とRANGES誤最適修正を採用予定。次は整数行の丸めcutで下界強化を試す。
+
+## 2026-11-15: 一行整数丸めcutの試作 (未採用)
+- PR15を434d5c8へmerge。integer-rounding-cuts branch。仮説: 基本coverは2sum(x)<=3の三角形を閉じない場合があるが、一行CG丸めならsum(x)<=1を直接作れる。原係数/RHSが厳密小整数で、全非零項が原境界により非負整数である行だけを対象とする。上/下を向き付け、正整数dで割り、係数とRHSをdiv_euclidでfloor。非負性が必須で、連続/負領域/未知境界を拒否。数学的定義の参考はFabricio OliveiraのLinear Optimisation Notes §10.2 (https://gamma-opt.github.io/linopt-notes/pdfs/linopt-notes.pdf)。外部実装コードは移植しない。
+- 証明は原行/side/divisor、coverは空。導出係数/RHSを原整数データから再計算するRust検査と、元十進MPS FractionによるPython別実装を追加。古いcover証明との互換を保持。MIP_ROUNDING_CUTS=0/1で既定無効、probe側は必ず無効。根cut共通4round×32本/5%最大.25秒/work2mの予算内で丸めを先に試す。小整数2/3/4/5/10、原係数の絶対値から最大24候補、gcdを除数候補にする。問題名や既知解は使わない。
+- 5追加Rust回帰 (負係数/負RHS floor、下限制約、禁止領域、根最適、250行×全1024整数点の有効性) とPython6回帰が成功、既存101も成功。性能とsynthetic比較はこれから。採用判断前に全cutを原MPSで独立監査する。
+
+- 初期比較pure302cb0a (085639/085644) は丸めcut0本、主解18問同じ。ただし30n下界2.0297169811→1.5664076456に悪化。丸め走査が共通work2mを空費してcover30本を出さなくなったため。36run時間制限、26主解双方検査合格、残る104cover証明も全有効。性能改善として採用しない。丸め用workを50万へ分離、不適用の行/sideを一度調べてから除数走査するよう修正。
+- 純整数1000 (非負0..3)、純二値1000、小1000、中規模200は失敗0。Pythonラッパーの一括置換が後段の設定assert箇所にも入りIndentationErrorとなった初回起動ログを保存、修正後に実行。Rustの誤答はこの段階ではなし。
+- 非負整数でない項を有限な原境界の最小活動量により射影する拡張を追加。今回は原係数と射影する境界が厳密小整数の場合だけ。i128で寄与を引き、調整後RHSが正確に表現できる範囲外は棄却。独立Fraction checkerも元境界で射影。250混合行×256整数点+連続box両端による検査と、正/負項で使う境界の回帰を追加。原境界不明は棄却。性能再測定と新しい混合合成1000問は未完了。
+
+- 最終候補c456307 (090053/090058) の18問対照が完了。丸めcutはfhnw-binpack4-4の26本 (全て射影付き) のみ。主解も下界も全18問同じ。30n下界を2.0297169811へ保持でき、初期work共食いによる悪化は解消。全36run時間制限/証明0、最終独立監査中。生成数だけを性能改善と扱わず、既定無効を維持する。
+- 最終108 Rust回帰とPython7回帰、projected混合1000/二値1000/通常小1000/中規模200は失敗0。新混合profileは連続2列の整数boxと整数係数を持つ。丸め106本を含む全cutを元MPS Fractionで確認。小13本/二値686本の丸めcutも全有効。
+- 純二値1000の同じ入力・原解検査でcover有効、repair/diving/probe無効を比較。丸めoff nodes3676/LP5424/合計solve秒0.203432092/cut2969、on nodes3414/LP5144/0.237046726/cut3513 (丸め686)。探索量は減るが時間は悪化。既定化の根拠にしない。
+- 次は小数RHSでも原係数が整数であることを区別するメタデータを検討し、丸めの適用行を増やす。また強分枝/信頼度分枝も候補。全240 Rust最終比較を開始する時間予算は維持する。

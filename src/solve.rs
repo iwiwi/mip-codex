@@ -21,6 +21,7 @@ pub struct Limits {
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
+    pub rounding_cuts: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
     pub search: search::Strategy,
@@ -39,6 +40,7 @@ impl Default for Limits {
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
+            rounding_cuts: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,
@@ -60,6 +62,7 @@ pub struct Result {
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
+    pub rounding_cuts_enabled: bool,
     pub cut_proofs: Vec<cuts::Cut>,
     pub cut_stats: cuts::Stats,
     pub cut_rounds: usize,
@@ -487,9 +490,9 @@ fn prepare_cuts(
     lp_stats: &mut revised::Stats,
 ) -> CutPreparation {
     let mut prepared = CutPreparation::default();
-    if !limits.cover_cuts
-        || !matches!(limits.engine, Engine::Revised)
-        || !cuts::applicable(model)
+    if !matches!(limits.engine, Engine::Revised)
+        || !((limits.cover_cuts && cuts::applicable(model))
+            || (limits.rounding_cuts && cuts::rounding_applicable(model)))
         || Instant::now() >= deadline
     {
         return prepared;
@@ -534,7 +537,14 @@ fn prepare_cuts(
         if limits.warm_start {
             root.warm = answer.warm;
         }
-        let generated = pool.separate(model, &point, 32, cut_deadline);
+        let mut generated = if limits.rounding_cuts {
+            pool.separate_rounding(model, &point, 32, cut_deadline)
+        } else {
+            vec![]
+        };
+        if limits.cover_cuts && generated.len() < 32 {
+            generated.extend(pool.separate(model, &point, 32 - generated.len(), cut_deadline));
+        }
         if generated.is_empty() {
             break;
         }
@@ -858,6 +868,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
+                    probe_limits.rounding_cuts = false;
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
@@ -1013,6 +1024,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,
+        rounding_cuts_enabled: limits.rounding_cuts,
         cut_proofs: prepared.cuts,
         cut_stats: prepared.stats,
         cut_rounds: prepared.rounds,

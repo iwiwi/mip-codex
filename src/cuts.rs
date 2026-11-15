@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, time::Instant};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Proof {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub divisor: Option<i64>,
     pub source_row: usize,
     pub source_name: String,
     pub upper_side: bool,
@@ -19,6 +21,10 @@ pub struct Cut {
 }
 #[derive(Default, Debug, Serialize)]
 pub struct Stats {
+    pub rounding_calls: usize,
+    pub rounding: usize,
+    pub rounding_projected: usize,
+    pub rounding_work: usize,
     pub calls: usize,
     pub eligible: usize,
     pub candidates: usize,
@@ -170,6 +176,9 @@ fn lower_product(a: [f64; 2], b: [f64; 2]) -> Option<f64> {
 /// 選択された二値変数を強制した元行の最小活動量を、原境界から検査する。
 /// i128で正確に扱える行は整数、それ以外は外向き区間。選択用の近似容量は使わない。
 fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
+    if cut.proof.divisor.is_some() {
+        return rounding_verify(model, cut).then_some(ProofKind::Rounding);
+    }
     let Some(row) = model.rows.get(cut.proof.source_row) else {
         return None;
     };
@@ -253,6 +262,7 @@ fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
 enum ProofKind {
     Integer,
     Interval,
+    Rounding,
 }
 pub fn verify(model: &Model, cut: &Cut) -> bool {
     proof_kind(model, cut).is_some()
@@ -260,7 +270,7 @@ pub fn verify(model: &Model, cut: &Cut) -> bool {
 
 #[derive(Default)]
 pub struct Pool {
-    seen: HashSet<(Vec<(usize, i8)>, i64)>,
+    seen: HashSet<(Vec<(usize, i64)>, i64)>,
     pub stats: Stats,
 }
 impl Pool {
@@ -367,6 +377,7 @@ impl Pool {
                             coefficients,
                         },
                         proof: Proof {
+                            divisor: None,
                             source_row: i,
                             source_name: row.name.clone(),
                             upper_side,
@@ -381,7 +392,7 @@ impl Pool {
                         cut.row
                             .coefficients
                             .iter()
-                            .map(|&(j, a)| (j, a as i8))
+                            .map(|&(j, a)| (j, a as i64))
                             .collect(),
                         rhs,
                     );
@@ -390,6 +401,7 @@ impl Pool {
                         match kind {
                             ProofKind::Integer => self.stats.integer += 1,
                             ProofKind::Interval => self.stats.interval += 1,
+                            ProofKind::Rounding => unreachable!(),
                         }
                         if row
                             .coefficients
@@ -406,6 +418,194 @@ impl Pool {
                 }
                 if cuts.len() >= limit || Instant::now() >= deadline {
                     break;
+                }
+            }
+        }
+        cuts
+    }
+}
+
+// 一行を正整数dで割り、非負整数変数の係数と右辺をfloorするCG cut。
+// Fabricio Oliveira, Linear Optimisation Notes, §10.2:
+// https://gamma-opt.github.io/linopt-notes/pdfs/linopt-notes.pdf
+// 数学的定義のみ参照。コード移植/最適化委譲なし。
+fn rounding_row(model: &Model, source: &Row, upper: bool, d: i64) -> Option<Row> {
+    if d < 2 || d > (1i64 << 52) || !source.exact_integral || source.coefficients.len() > 16384 {
+        return None;
+    }
+    let sign = if upper { 1i128 } else { -1 };
+    let mut bound = integer(if upper { source.upper? } else { source.lower? })? * sign;
+    let mut coefficients = Vec::new();
+    let mut previous = None;
+    for &(j, a) in &source.coefficients {
+        if previous.is_some_and(|k| j <= k) {
+            return None;
+        }
+        previous = Some(j);
+        let a = integer(a)? * sign;
+        if a == 0 {
+            continue;
+        }
+        let v = model.variables.get(j)?;
+        if !(v.integer && finite(v.lower_enclosure).is_some_and(|b| b[0] >= 0.)) {
+            let (interval, b) = column_bounds(model, j, a as f64)?;
+            if interval[0] != interval[1] {
+                return None;
+            }
+            bound = bound.checked_sub(a.checked_mul(integer(b)?)?)?;
+            continue;
+        }
+        let c = a.div_euclid(d as i128);
+        if c != 0 {
+            coefficients.push((j, c as f64));
+        }
+    }
+    if bound.abs() > (1i128 << 52) {
+        return None;
+    }
+    let rhs = bound.div_euclid(d as i128);
+    Some(Row {
+        name: String::new(),
+        exact_integral: true,
+        lower: None,
+        upper: Some(rhs as f64),
+        lower_enclosure: None,
+        upper_enclosure: Some([rhs as f64, rhs as f64]),
+        coefficients,
+    })
+}
+fn rounding_verify(model: &Model, cut: &Cut) -> bool {
+    let Some(source) = model.rows.get(cut.proof.source_row) else {
+        return false;
+    };
+    if cut.proof.source_name != source.name || !cut.proof.cover.is_empty() {
+        return false;
+    }
+    let Some(row) = rounding_row(
+        model,
+        source,
+        cut.proof.upper_side,
+        cut.proof.divisor.unwrap_or(0),
+    ) else {
+        return false;
+    };
+    cut.row.exact_integral
+        && cut.row.lower.is_none()
+        && cut.row.upper == row.upper
+        && cut.row.coefficients == row.coefficients
+}
+pub fn rounding_applicable(model: &Model) -> bool {
+    model.rows.iter().any(|r| {
+        [true, false]
+            .into_iter()
+            .any(|side| rounding_row(model, r, side, 2).is_some())
+    })
+}
+impl Pool {
+    pub fn separate_rounding(
+        &mut self,
+        model: &Model,
+        x: &[f64],
+        limit: usize,
+        deadline: Instant,
+    ) -> Vec<Cut> {
+        self.stats.rounding_calls += 1;
+        let mut cuts = Vec::new();
+        if x.len() != model.variables.len() || x.iter().any(|v| !v.is_finite()) {
+            return cuts;
+        }
+        for (i, source) in model.rows.iter().enumerate() {
+            if cuts.len() >= limit
+                || Instant::now() >= deadline
+                || self.stats.rounding_work >= 500_000
+            {
+                break;
+            }
+            if !source.exact_integral || source.coefficients.len() > 16384 {
+                continue;
+            }
+            if ![true, false]
+                .into_iter()
+                .any(|side| rounding_row(model, source, side, 2).is_some())
+            {
+                continue;
+            }
+            let mut divisors = vec![2i64, 3, 4, 5, 10];
+            let mut gcd = 0i64;
+            for &(_, a) in &source.coefficients {
+                let Some(a) = integer(a) else {
+                    continue;
+                };
+                let mut b = (a as i64).abs();
+                if b >= 2 && divisors.len() < 24 && !divisors.contains(&b) {
+                    divisors.push(b);
+                }
+                while b != 0 {
+                    (gcd, b) = (b, gcd % b);
+                }
+            }
+            if gcd >= 2 && !divisors.contains(&gcd) {
+                divisors.push(gcd);
+            }
+            for side in [true, false] {
+                if rounding_row(model, source, side, 2).is_none() {
+                    continue;
+                }
+                for &d in &divisors {
+                    if cuts.len() >= limit
+                        || Instant::now() >= deadline
+                        || self.stats.rounding_work >= 500_000
+                    {
+                        break;
+                    }
+                    self.stats.rounding_work = self
+                        .stats
+                        .rounding_work
+                        .saturating_add(source.coefficients.len());
+                    let Some(mut row) = rounding_row(model, source, side, d) else {
+                        continue;
+                    };
+                    let rhs = row.upper.unwrap();
+                    let activity: f64 = row.coefficients.iter().map(|&(j, a)| a * x[j]).sum();
+                    if !activity.is_finite() || activity - rhs <= 1e-5 {
+                        continue;
+                    }
+                    let key = (
+                        row.coefficients
+                            .iter()
+                            .map(|&(j, a)| (j, a as i64))
+                            .collect(),
+                        rhs as i64,
+                    );
+                    row.name = format!("__rounding_{}", self.seen.len());
+                    let cut = Cut {
+                        row,
+                        proof: Proof {
+                            divisor: Some(d),
+                            source_row: i,
+                            source_name: source.name.clone(),
+                            upper_side: side,
+                            cover: vec![],
+                        },
+                    };
+                    self.stats.candidates += 1;
+                    if !verify(model, &cut) {
+                        self.stats.rejected += 1;
+                        continue;
+                    }
+                    if self.seen.insert(key) {
+                        self.stats.added += 1;
+                        self.stats.rounding += 1;
+                        if source.coefficients.iter().any(|&(j, a)| {
+                            a != 0.
+                                && !(model.variables[j].integer
+                                    && finite(model.variables[j].lower_enclosure)
+                                        .is_some_and(|b| b[0] >= 0.))
+                        }) {
+                            self.stats.rounding_projected += 1;
+                        }
+                        cuts.push(cut);
+                    }
                 }
             }
         }

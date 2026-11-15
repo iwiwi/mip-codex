@@ -104,6 +104,30 @@ def validate_cut_proofs(model_path,result):
             selected={names[j] for j in cover};sign=1 if side else -1
             bound=source['upper' if side else 'lower']
             if bound is None:raise AssertionError('source side missing')
+            divisor=proof.get('divisor')
+            if divisor is not None:
+                if type(divisor)!=int or divisor<2 or divisor>2**52 or cover:raise AssertionError('bad rounding divisor/cover')
+                oriented_rhs=sign*bound
+                if oriented_rhs.denominator!=1:raise AssertionError('rounding requires an integral source RHS')
+                coeff=[]
+                for name,a in source['coefficients'].items():
+                    if not a:continue
+                    var=variables[name]
+                    if a.denominator!=1:raise AssertionError('rounding requires integer source coefficients')
+                    a*=sign
+                    if not (var['integer'] and var['lower'] is not None and var['lower']>=0):
+                        projected_bound=var['lower'] if a>0 else var['upper']
+                        if projected_bound is None:raise AssertionError('rounding projection requires a finite bound')
+                        oriented_rhs-=a*projected_bound
+                        continue
+                    c=a//divisor
+                    if c:coeff.append([indices[name],Fraction(c)])
+                coeff.sort(key=lambda p:p[0]);row=cut['row']
+                actual=[[j,Fraction(a)] for j,a in row['coefficients']]
+                if row['lower'] is not None or Fraction(row['upper'])!=oriented_rhs//divisor or actual!=coeff:
+                    raise AssertionError('derived inequality does not match floor division')
+                metadata['checked']+=1
+                continue
             minimum=Fraction(0);coeff=[];negative=0;found=set()
             for name,a in source['coefficients'].items():
                 if a==0:continue
