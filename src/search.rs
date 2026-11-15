@@ -71,6 +71,13 @@ impl<T> Queue<T> {
         }
         self.max_open = self.max_open.max(self.stack.len() + self.heap.len());
     }
+    /// Preserve every pending entry and choose a best-bound region on the next pop.
+    /// Newly generated children still use the requested stack/heap strategy.
+    pub fn restart_best(&mut self) -> bool {
+        self.transfers += self.stack.len();
+        self.heap.extend(self.stack.drain(..));
+        !self.heap.is_empty()
+    }
     pub fn pop(&mut self) -> Option<T> {
         if matches!(self.strategy, Strategy::Hybrid) && self.pops > 0 && self.pops % 64 == 0 {
             self.transfers += self.stack.len();
@@ -216,5 +223,56 @@ mod deferred_tests {
         d.prune(0.);
         assert_eq!(d.minimum, f64::NEG_INFINITY);
         assert_eq!(d.pending, 2);
+    }
+}
+
+#[cfg(test)]
+mod restart_tests {
+    use super::*;
+    #[test]
+    fn restart_selects_best_then_keeps_new_child_preference() {
+        let mut q = Queue::new(Strategy::DepthFirst, |v: &(usize, f64)| v.1);
+        for v in [(0, 5.), (1, -10.), (2, 1.)] {
+            q.push(v);
+        }
+        assert!(q.restart_best());
+        assert_eq!(q.pop().unwrap().0, 1);
+        q.push((3, -2.));
+        q.push((4, 0.));
+        assert_eq!(q.pop().unwrap().0, 4);
+        assert_eq!(q.pop().unwrap().0, 3);
+        assert_eq!(q.pop().unwrap().0, 2);
+        assert_eq!(q.pop().unwrap().0, 0);
+        assert!(!q.restart_best());
+        assert!(q.pop().is_none());
+    }
+    #[test]
+    fn repeated_restarts_preserve_every_pending_entry_and_minimum() {
+        use std::collections::BTreeMap;
+        for strategy in [Strategy::DepthFirst, Strategy::Hybrid, Strategy::BestBound] {
+            let mut q = Queue::new(strategy, |v: &(usize, f64)| v.1);
+            let mut remaining = BTreeMap::new();
+            for j in 0..400 {
+                let b = ((j * 73) % 401) as f64;
+                remaining.insert(j, b);
+                q.push((j, b));
+            }
+            while !remaining.is_empty() {
+                let minimum = remaining.values().copied().fold(f64::INFINITY, f64::min);
+                assert_eq!(q.min_bound(f64::INFINITY), minimum);
+                let restarted = q.pops % 37 == 0;
+                if restarted {
+                    assert!(q.restart_best());
+                }
+                let (j, b) = q.pop().unwrap();
+                if restarted {
+                    assert_eq!(b, minimum);
+                }
+                assert_eq!(remaining.remove(&j), Some(b));
+            }
+            assert_eq!(q.pops, 400);
+            assert!(!q.restart_best());
+            assert!(q.pop().is_none());
+        }
     }
 }

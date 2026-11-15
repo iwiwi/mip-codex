@@ -28,6 +28,7 @@ pub struct Limits {
     pub graph_local_diversify: bool,
     pub graph_adaptive_local: bool,
     pub defer_infeasibility: bool,
+    pub numerical_restart: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -63,6 +64,7 @@ impl Default for Limits {
             graph_local_diversify: true,
             graph_adaptive_local: true,
             defer_infeasibility: true,
+            numerical_restart: false,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -141,6 +143,8 @@ pub struct Result {
     pub fixed_leaves: usize,
     pub lp_solves: usize,
     pub defer_infeasibility_enabled: bool,
+    pub numerical_restart_enabled: bool,
+    pub numerical_search_restarts: usize,
     pub deferred_infeasibilities: usize,
     pub deferred_infeasibilities_pending: usize,
     pub deferred_infeasibilities_pruned: usize,
@@ -947,6 +951,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut status = "optimal".to_string();
     let mut terminal_bound = f64::INFINITY;
     let mut deferred = search::DeferredBounds::default();
+    let mut numerical_search_restarts = 0;
     while let Some(mut node) = stack.pop() {
         if node.bound >= incumbent {
             continue;
@@ -1173,6 +1178,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                         }
                         if limits.defer_infeasibility {
                             deferred.record(node.bound);
+                            if limits.numerical_restart && stack.restart_best() {
+                                numerical_search_restarts += 1;
+                            }
                             continue;
                         }
                         stack.push(node);
@@ -1754,7 +1762,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     Result {
         binary_graph_enabled: limits.binary_graph,
         defer_infeasibility_enabled: limits.defer_infeasibility,
+        numerical_restart_enabled: limits.numerical_restart,
         binary_graph: None,
+        numerical_search_restarts,
         deferred_infeasibilities: deferred.observed,
         deferred_infeasibilities_pending: deferred.pending,
         deferred_infeasibilities_pruned: deferred.pruned,

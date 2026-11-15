@@ -22,6 +22,13 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(value) = std::env::var("MIP_NUMERICAL_RESTART") {
+            limits.numerical_restart = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_NUMERICAL_RESTART must be 0 or 1".into()),
+            };
+        }
         if let Ok(value) = std::env::var("MIP_DEFER_INFEASIBILITY") {
             limits.defer_infeasibility = match value.as_str() {
                 "0" => false,
