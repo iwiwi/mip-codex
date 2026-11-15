@@ -1,0 +1,37 @@
+{
+  "build_info": {
+    "library_source_directory": "/home/ubuntu/mip-codex",
+    "library_source_fingerprint": "2c42a3f960782f20",
+    "package_version": "0.1.0",
+    "source_directory": "/home/ubuntu/mip-codex",
+    "source_fingerprint": "2c42a3f960782f20"
+  },
+  "source_git_sha": "be70fe46d19a3c13f5c1fe570d8a5e3b4d84f7bc",
+  "binary_sha256": "7005091cee0169e725b41068deab1580d7597466617e61801660752e49b31d42",
+  "input_sha256": "cb37e723fa2187947981215bf9c8ba40d452984d7b9be3467e9f9d18f0343f78",
+  "split": "development",
+  "cpu": 7,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/exact-point-profile/resource.log",
+    "sudo",
+    "perf",
+    "record",
+    "-F",
+    "99",
+    "-e",
+    "cpu-clock",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/exact-point-profile/perf.data",
+    "--",
+    "/home/ubuntu/mip-codex/target/release/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz",
+    "5"
+  ],
+  "kind": "profile_not_performance_comparison"
+}

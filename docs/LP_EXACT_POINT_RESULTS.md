@@ -23,3 +23,5 @@ standard変換でshift全成分のpoint_error=0を既に確認した場合だけ
 旧profile313sample/new297sample、lost0で、旧activity_error17.25%が仮説の出発点だった。新は旧method8.75%、新helper3.70%、coefficient_error3.03%等に分かれるので、個々の割合だけから速度比は推定しない。固定作業の実測を根拠にする。旧profileの原記録はgraph-adaptive-evaluation/revised-profile-next、新は今回archiveに保存する。
 
 初期試作も検査に合格したが、整数係数行の旧即時ゼロ経路を明示的に維持する修正を加えてから正式比較した。check_synthetic.pyへ--helpを渡してint変換で失敗した呼び出しも保存する（測定や最適化の失敗ではない）。Rust本体の最適化を外部ソルバーへ委譲していない。
+
+採用コアbe70fe46、FP2c42a3f960782f20、binary SHA7005091cee0169e725b41068deab1580d7597466617e61801660752e49b31d42。snapshotのgit SHAは結果文書追加後のe3e81bc4で、Rustコードは同一。experiments/exact-point-snapshot-20261115.jsonはcreate-onlyであり、全件Rust最終測定は未開始。全生データと移動SHA台帳はartifacts/exact-point-evaluation。
