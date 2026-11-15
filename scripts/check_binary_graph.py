@@ -37,13 +37,20 @@ for case in range(int(sys.argv[1])if len(sys.argv)>1 else 200):
    primary=validate(model,r);assert primary['valid']is True,primary
    proof=validate_cut_proofs(model,r);assert proof['valid']is True,proof
    rejected=0
-   for mode in ['bound','permutation','edge_count']+(['prefix_permutation','prefix_color','prefix_remaining']if s.get('root_prefix_colorings')else[]):
+   for mode in ['bound','permutation','edge_count']+(['prefix_permutation','prefix_color','prefix_remaining']if s.get('root_prefix_colorings')else[])+(['fractional_weight','fractional_group','fractional_total','fractional_minimum','fractional_upper']if (s.get('fractional_cover')or{}).get('certificate')else[]):
     bad=copy.deepcopy(r)
     if mode=='bound':bad['dual_bound']+=-1 if maximize else 1
     elif mode=='permutation':bad['binary_graph']['order'][1]=bad['binary_graph']['order'][0]
     elif mode=='edge_count':bad['binary_graph']['conflict_edges']+=1
     elif mode=='prefix_permutation':bad['binary_graph']['root_search_order'][1]=bad['binary_graph']['root_search_order'][0]
     elif mode=='prefix_color':bad['binary_graph']['root_prefix_colorings'][0][0]=0
+    elif mode.startswith('fractional_'):
+     c=bad['binary_graph']['fractional_cover']['certificate']
+     if mode=='fractional_weight':c['counts'][0]=0
+     elif mode=='fractional_group':c['cliques'][0].append(c['cliques'][0][0])
+     elif mode=='fractional_total':c['total']+=1
+     elif mode=='fractional_minimum':c['minimum']+=1
+     else:c['upper']+=1
     else:bad['binary_graph']['remaining_upper']=0
     assert validate_cut_proofs(model,bad)['valid']is False,mode
     rejected+=1

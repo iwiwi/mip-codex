@@ -28,6 +28,7 @@ pub struct Limits {
     pub graph_local_diversify: bool,
     pub graph_adaptive_local: bool,
     pub graph_cover_local: bool,
+    pub graph_fractional_cover: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
     pub aggregate_infeasibility: bool,
@@ -67,6 +68,7 @@ impl Default for Limits {
             graph_local_diversify: true,
             graph_adaptive_local: true,
             graph_cover_local: true,
+            graph_fractional_cover: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
             aggregate_infeasibility: true,
@@ -92,6 +94,7 @@ impl Default for Limits {
 pub struct Result {
     pub binary_graph_enabled: bool,
     pub graph_cover_local_enabled: bool,
+    pub graph_fractional_cover_enabled: bool,
     pub binary_graph: Option<crate::binary_graph::Stats>,
     pub branching: String,
     pub child_order: String,
@@ -941,7 +944,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
-            if let Some(answer) = crate::binary_graph::solve_with_cover(
+            if let Some(answer) = crate::binary_graph::solve_with_fractional(
                 model,
                 limits.dense_bytes,
                 deadline,
@@ -952,6 +955,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 limits.graph_local_diversify,
                 limits.graph_adaptive_local,
                 limits.graph_cover_local,
+                limits.graph_fractional_cover,
             ) {
                 let sign = if model.maximize { -1. } else { 1. };
                 let objective = model.objective(&answer.point);
@@ -974,6 +978,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 return Result {
                     binary_graph_enabled: true,
                     graph_cover_local_enabled: limits.graph_cover_local,
+                    graph_fractional_cover_enabled: limits.graph_fractional_cover,
                     nodes: answer.stats.nodes,
                     first_primal_seconds: answer.stats.first_seconds,
                     binary_graph: Some(answer.stats),
@@ -1995,6 +2000,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     Result {
         binary_graph_enabled: limits.binary_graph,
         graph_cover_local_enabled: limits.graph_cover_local,
+        graph_fractional_cover_enabled: limits.graph_fractional_cover,
         defer_infeasibility_enabled: limits.defer_infeasibility,
         joint_infeasibility_enabled: limits.joint_infeasibility,
         aggregate_infeasibility_enabled: limits.aggregate_infeasibility,
