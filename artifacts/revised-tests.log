@@ -1,0 +1,69 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.70s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/543b08d65459b292/out/mip_codex-543b08d65459b292)
+
+running 1 test
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/build/mip-codex/d349582408c85666/out/mip_codex-d349582408c85666)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lp.rs (target/debug/build/mip-codex/a58e84069aad6845/out/lp-a58e84069aad6845)
+
+running 8 tests
+test empty ... ok
+test bounded ... ok
+test infeasible ... ok
+test limit ... ok
+test malformed ... ok
+test phase_one ... ok
+test redundant ... ok
+test unbounded ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mps.rs (target/debug/build/mip-codex/9014873f60e65c52/out/mps-9014873f60e65c52)
+
+running 4 tests
+test explicit_objective_and_exponents ... ok
+test integer_defaults_and_bounds ... ok
+test ranges_offset_and_duplicates ... ok
+test reject_unsafe_model_changes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/revised.rs (target/debug/build/mip-codex/2cadbcbdb2de17b0/out/revised-2cadbcbdb2de17b0)
+
+running 7 tests
+test infeasible_bounds_and_equations ... ok
+test finite_upper_bound_flips ... ok
+test unbounded_ray ... ok
+test negative_rhs ... ok
+test ranged_slack_starts_at_upper_bound ... ok
+test phase_one_and_fixed_artificial_degeneracy ... ok
+test sparse_factorization_after_many_updates ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/solve.rs (target/debug/build/mip-codex/0014a8babc83ecce/out/solve-0014a8babc83ecce)
+
+running 5 tests
+test integer_infeasible_from_domain ... ok
+test limits_do_not_claim_infeasibility ... ok
+test branching_and_dual_bound ... ok
+test unbounded_relaxation_is_not_mip_claim ... ok
+test free_and_upper_only_and_offset ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests mip_codex
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

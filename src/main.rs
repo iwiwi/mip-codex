@@ -9,6 +9,13 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(engine) = std::env::var("MIP_LP_ENGINE") {
+            limits.engine = match engine.as_str() {
+                "dense" => mip_codex::solve::Engine::Dense,
+                "revised" => mip_codex::solve::Engine::Revised,
+                _ => return Err("unknown MIP_LP_ENGINE".into()),
+            };
+        }
         if let Some(s) = args.get(3) {
             limits.seconds = s.parse().map_err(|_| "invalid seconds")?;
         }

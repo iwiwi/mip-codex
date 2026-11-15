@@ -64,7 +64,7 @@ elif solver=='glpk':
                 matches=re.findall(r'mip\s*=\s*([-+\deE.]+)\s*(?:>=|<=)\s*([-+\deE.]+)',completed.stdout)
                 if matches:
                     result['dual_bound']=finite(float(matches[-1][1]))
-                    if result['objective'] is not None:result['gap']=abs(result['objective']-result['dual_bound'])/max(1.,abs(result['objective']))
+                    if result['objective'] is not None and result['dual_bound'] is not None:result['gap']=abs(result['objective']-result['dual_bound'])/max(1.,abs(result['objective']))
         else:result['status']='unsupported_raw_lp_status'
 else:raise ValueError(solver)
 (out/'result.json').write_text(json.dumps(result,allow_nan=False)+'\n')
