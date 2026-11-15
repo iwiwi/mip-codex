@@ -62,7 +62,7 @@ impl Default for Limits {
             graph_root_prefix: true,
             graph_local_diversify: true,
             graph_adaptive_local: true,
-            defer_infeasibility: false,
+            defer_infeasibility: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
