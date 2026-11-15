@@ -18,7 +18,7 @@ for case in range(int(sys.argv[1])if len(sys.argv)>1 else 200):
  model=out/f'{case:04d}.mps';model.write_text('\n'.join(['NAME box','OBJSENSE',' MAX'if maximize else' MIN','ROWS',' N obj',*[f' {"G"if cover else"L"} r{k}'for k in range(len(edges))],'COLUMNS',*columns,'RHS',f' rhs obj {-offset}',*[f' rhs r{k} 1'for k in range(len(edges))],'BOUNDS',*[f' BV b x{j}'for j in range(n)],'ENDATA'])+'\n')
  objectives=[offset+sum(c*x for c,x in zip(cost,point))for point in itertools.product([0,1],repeat=n)if all((point[a]+point[b]>=1)if cover else(point[a]+point[b]<=1)for a,b in edges)]
  optimum=(max if maximize else min)(objectives);baseline=offset+(sum(cost)if cover else 0)
- env=dict(os.environ,MIP_BOX_PRIMAL='1',MIP_COVER_CUTS='0',MIP_ROUNDING_CUTS='0',MIP_STRONG_BRANCHING='0',MIP_PRIMAL_REPAIR='0',MIP_LP_DIVING='0',MIP_PRIMAL_PROBE='0',MIP_RINS='0')
+ env=dict(os.environ,MIP_BINARY_GRAPH='0',MIP_BOX_PRIMAL='1',MIP_COVER_CUTS='0',MIP_ROUNDING_CUTS='0',MIP_STRONG_BRANCHING='0',MIP_PRIMAL_REPAIR='0',MIP_LP_DIVING='0',MIP_PRIMAL_PROBE='0',MIP_RINS='0')
  with (out/f'{case:04d}.json').open('w')as stream,(out/f'{case:04d}.err').open('w')as err:p=subprocess.run([str(binary),'solve',str(model),'5','0'],env=env,stdout=stream,stderr=err,timeout=15)
  r=json.loads((out/f'{case:04d}.json').read_text(),parse_float=Decimal)
  try:

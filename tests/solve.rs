@@ -90,6 +90,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
     let cold = solve(
         &model,
         &Limits {
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -104,6 +105,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
     let prop = solve(
         &model,
         &Limits {
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -136,6 +138,7 @@ fn dense_reference_handles_row_and_objective_scales() {
         let result = solve(
             &model,
             &Limits {
+                binary_graph: false,
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,

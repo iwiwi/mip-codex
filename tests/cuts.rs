@@ -138,6 +138,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
     let model = read("2", "3");
     let limits = Limits {
         box_primal: false,
+        binary_graph: false,
         objective_rounding: false,
         rins: false,
         strong_branching: false,
@@ -153,6 +154,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -178,6 +180,7 @@ fn ranged_lower_side_cuts_keep_the_maximization_offset() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -250,6 +253,7 @@ fn fractional_coefficients_project_a_continuous_lower_bound_safely() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -366,6 +370,7 @@ fn root_cut_incumbent_does_not_replace_the_fractional_global_bound() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,

@@ -5,6 +5,7 @@ use mip_codex::{
 fn limits() -> Limits {
     Limits {
         box_primal: false,
+        binary_graph: false,
         objective_rounding: false,
         rins: false,
         cover_cuts: false,
@@ -23,6 +24,7 @@ fn infeasible_probes_do_not_prove_the_main_problem() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             nodes: 1,
@@ -44,6 +46,7 @@ fn optimal_probes_only_train_costs_and_preserve_the_parent_bound() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             nodes: 1,
@@ -54,6 +57,7 @@ fn optimal_probes_only_train_costs_and_preserve_the_parent_bound() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             nodes: 1,
@@ -78,6 +82,7 @@ fn expired_deadline_does_not_start_probing() {
         &model,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             rins: false,
             seconds: 0.,
@@ -143,6 +148,7 @@ fn strong_branching_matches_exhaustive_min_and_max_integer_optima() {
                 &model,
                 &Limits {
                     box_primal: false,
+                    binary_graph: false,
                     strong_objective: objective,
                     strong_infeasible_hint: hints,
                     ..limits()
@@ -173,6 +179,7 @@ fn infeasible_hints_select_a_variable_but_do_not_prune_or_change_parent_bound() 
             &model,
             &Limits {
                 box_primal: false,
+                binary_graph: false,
                 strong_objective: mixed,
                 strong_infeasible_hint: true,
                 nodes: 1,

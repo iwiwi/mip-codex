@@ -21,6 +21,7 @@ pub struct Limits {
     pub propagation: bool,
     pub primal_repair: bool,
     pub box_primal: bool,
+    pub binary_graph: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -49,6 +50,7 @@ impl Default for Limits {
             propagation: false,
             primal_repair: true,
             box_primal: true,
+            binary_graph: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -66,8 +68,10 @@ impl Default for Limits {
         }
     }
 }
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default)]
 pub struct Result {
+    pub binary_graph_enabled: bool,
+    pub binary_graph: Option<crate::binary_graph::Stats>,
     pub branching: String,
     pub child_order: String,
     pub search_strategy: String,
@@ -732,6 +736,63 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
 }
 fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result {
     let start = Instant::now();
+    if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
+        let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
+        if Instant::now() < deadline {
+            if let Some(answer) =
+                crate::binary_graph::solve(model, limits.dense_bytes, deadline, limits.nodes)
+            {
+                let sign = if model.maximize { -1. } else { 1. };
+                let objective = model.objective(&answer.point);
+                let bound = crate::exact::dot_lower(
+                    [
+                        (sign * model.offset, 1.),
+                        (
+                            sign * model.variables[0].objective,
+                            answer.stats.upper as f64,
+                        ),
+                    ]
+                    .into_iter(),
+                )
+                .map(|v| if v.fract() == 0. { v } else { v.next_down() });
+                let valid = objective.is_finite()
+                    && model.check(&answer.point, true, 1e-7).is_ok()
+                    && bound.is_some();
+                let dual_bound = valid.then(|| sign * bound.unwrap());
+                let gap = dual_bound.map(|b| (objective - b).abs() / objective.abs().max(1.));
+                return Result {
+                    binary_graph_enabled: true,
+                    nodes: answer.stats.nodes,
+                    first_primal_seconds: answer.stats.first_seconds,
+                    binary_graph: Some(answer.stats),
+                    status: if valid {
+                        answer.status.into()
+                    } else {
+                        "numerical_error".into()
+                    },
+                    objective: valid.then_some(objective),
+                    dual_bound,
+                    gap,
+                    values: valid.then(|| {
+                        model
+                            .variables
+                            .iter()
+                            .zip(answer.point)
+                            .map(|(v, x)| (v.name.clone(), x))
+                            .collect()
+                    }),
+                    seconds: start.elapsed().as_secs_f64(),
+                    lp_engine: "BinaryGraph".into(),
+                    branching: "GraphColoring".into(),
+                    child_order: "ColorReverse".into(),
+                    search_strategy: "DepthFirst".into(),
+                    lp_workspace_bytes: limits.dense_bytes,
+                    box_primal_enabled: limits.box_primal,
+                    ..Result::default()
+                };
+            }
+        }
+    }
     let requested_fixed_columns = limits.fixed_columns;
     let root_fixed_columns = if requested_fixed_columns {
         model
@@ -1635,6 +1696,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let propagation_stats = propagator.map_or_else(propagate::Stats::default, |p| p.stats);
     let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
+        binary_graph_enabled: limits.binary_graph,
+        binary_graph: None,
         branching: format!("{:?}", limits.branching),
         child_order: format!("{:?}", limits.child_order),
         search_strategy: format!("{:?}", limits.search),

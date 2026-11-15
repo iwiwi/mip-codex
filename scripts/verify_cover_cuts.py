@@ -137,13 +137,17 @@ def verify_objective_grid(names,variables,rows,objective,offset,proof):
 def validate_cut_proofs(model_path,result):
     cuts=result.get('cut_proofs',[])
     grid=result.get('objective_grid')
+    graph=result.get('binary_graph')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts and grid is None:return dict(metadata,valid=True)
+    if not cuts and grid is None and graph is None:return dict(metadata,valid=True)
     try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
     try:
+        if graph is not None:
+            from verify_binary_graph import verify
+            metadata['binary_graph']=verify(model_path,result,(names,variables,rows,objective,offset))
         if grid is not None:
             metadata['objective_grid_valid']=False
             metadata.update(verify_objective_grid(names,variables,rows,objective,offset,grid))

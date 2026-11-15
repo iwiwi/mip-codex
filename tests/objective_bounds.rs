@@ -101,6 +101,7 @@ fn a_tiny_negative_reduced_cost_on_an_unbounded_column_is_not_a_bound() {
 fn optimization_limits() -> mip_codex::solve::Limits {
     mip_codex::solve::Limits {
         box_primal: false,
+        binary_graph: false,
         nodes: 1,
         objective_rounding: true,
         cover_cuts: false,
@@ -123,6 +124,7 @@ fn certified_lattice_bound_strengthens_the_root_without_a_primal_or_extra_lp() {
         &m,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             objective_rounding: false,
             ..limits.clone()
         },
@@ -156,6 +158,7 @@ fn maximization_offset_lower_side_and_bounded_range_use_original_row_multipliers
             &m,
             &Limits {
                 box_primal: false,
+                binary_graph: false,
                 nodes: usize::MAX,
                 ..optimization_limits()
             },
@@ -173,6 +176,7 @@ fn unsupported_bounds_and_propagation_disable_additional_rounding() {
         &m,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             propagation: true,
             ..optimization_limits()
         },
@@ -259,6 +263,7 @@ fn certified_pruning_preserves_exhaustive_min_max_optima_with_offsets_and_gcds()
             &model,
             &Limits {
                 box_primal: false,
+                binary_graph: false,
                 nodes: usize::MAX,
                 ..optimization_limits()
             },
@@ -289,6 +294,7 @@ fn original_free_and_lossy_ranged_rows_receive_correct_multipliers() {
         &m,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             nodes: usize::MAX,
             ..optimization_limits()
         },
@@ -303,6 +309,7 @@ fn original_free_and_lossy_ranged_rows_receive_correct_multipliers() {
         &m,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             nodes: usize::MAX,
             ..optimization_limits()
         },
@@ -341,6 +348,7 @@ fn certified_positive_gap_rejects_tolerance_only_zero_and_prunes_its_box() {
         &m,
         &Limits {
             box_primal: false,
+            binary_graph: false,
             nodes: usize::MAX,
             ..optimization_limits()
         },
