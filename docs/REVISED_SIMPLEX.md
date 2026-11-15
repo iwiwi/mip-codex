@@ -9,7 +9,7 @@
 - 双対乗数から有界変数のLagrangian boundを算出。LP元行列で主実行可能性、上下限、双対残差、目的値一致を検査。人工変数残量だけで実行不能を宣言せず双対境界も確認。非有界時も原方向のrayを数値検査する。
 - 人工変数は第2段階で上限0とし、冗長行の基底を残せる。退化の連続時はBlandの entering/ratio tie 選択に切替。
 
-汎用線形代数のみfaer 0.24.4を使用 (MIT OR Apache-2.0)。疎行列LU、前進・転置解法に限定。価格付け・比率検定・二段階法・境界処理・MILP探索・判定は本リポジトリのRustコード。既存LP/MIP実装の移植・委譲はない。
+汎用線形代数のみfaer 0.24.4を使用 (MIT)。疎行列LU、前進・転置解法に限定。価格付け・比率検定・二段階法・境界処理・MILP探索・判定は本リポジトリのRustコード。既存LP/MIP実装の移植・委譲はない。
 参考APIは取得したcrateのsrc/sparse/solvers.rsおよびsrc/linalg/solvers.rs。https://github.com/sarah-quinones/faer-rs
 
 現時点では各MILPノードを新規にLP化する。ノード間の基底再利用、dual simplex、スケーリング、Harris比率検定、安定した低ランクLU更新、部分価格付け、前処理は未実装。基底LUのfill-inに対するメモリ上限はOS側制限で保証し、初期行列の保守的推定も使う。時間制限はLP反復境界で監視する。
