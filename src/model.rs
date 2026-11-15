@@ -23,7 +23,7 @@ pub struct Row {
     #[serde(default)]
     pub upper_enclosure: Option<[f64; 2]>,
     /// MPSの係数/RHS/RANGESが小さい整数そのもので、加算も正確だった行。
-    /// 外部JSON/手作りModelは既定false。カットの適用可否だけに使用する。
+    /// 外部JSON/手作りModelは既定false。整数性の証明と係数区間の確定だけに使用する。
     #[serde(default)]
     pub exact_integral: bool,
     pub name: String,

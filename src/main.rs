@@ -51,6 +51,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PRIMAL_PROBE must be 0 or 1".into()),
             };
         }
+        if let Ok(value) = std::env::var("MIP_OBJECTIVE_ROUNDING") {
+            limits.objective_rounding = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_OBJECTIVE_ROUNDING must be 0 or 1".into()),
+            };
+        }
         if let Ok(value) = std::env::var("MIP_RINS") {
             limits.rins = match value.as_str() {
                 "0" => false,

@@ -1,4 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
+use crate::objective_bound::{Certifier, Grid};
 use crate::{branching, cuts, heuristic, lp, model::Model, propagate, revised, rins, search};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
@@ -24,6 +25,7 @@ pub struct Limits {
     pub rounding_cuts: bool,
     pub strong_branching: bool,
     pub rins: bool,
+    pub objective_rounding: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
     pub search: search::Strategy,
@@ -45,6 +47,7 @@ impl Default for Limits {
             rounding_cuts: false,
             strong_branching: true,
             rins: true,
+            objective_rounding: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,
@@ -71,6 +74,9 @@ pub struct Result {
     pub strong: StrongStats,
     pub rins_enabled: bool,
     pub rins: RinsStats,
+    pub objective_rounding: bool,
+    pub objective_grid: Option<Grid>,
+    pub objective_bound_stats: ObjectiveBoundStats,
     pub cut_proofs: Vec<cuts::Cut>,
     pub cut_stats: cuts::Stats,
     pub cut_rounds: usize,
@@ -125,6 +131,7 @@ struct Node {
     edge: Option<branching::Edge>,
 }
 struct Standard {
+    row_sources: Vec<(usize, f64)>,
     sparse: Option<revised::Problem>,
     a: Vec<Vec<f64>>,
     b: Vec<f64>,
@@ -210,6 +217,7 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
         }
     }
     Relaxation::Ready(Standard {
+        row_sources: vec![],
         sparse: None,
         a,
         b,
@@ -224,7 +232,7 @@ fn split_range(row: &crate::model::Row) -> bool {
         l < u && (!width.is_finite() || u - width != l || l + width != u)
     })
 }
-fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
+fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -> Relaxation {
     let mut shift = Vec::new();
     let mut terms = Vec::new();
     let mut costs = Vec::new();
@@ -272,7 +280,8 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
     let mut rhs = Vec::new();
     let mut equality = Vec::new();
     let mut slack_upper = Vec::new();
-    for row in &model.rows {
+    let mut row_sources = Vec::new();
+    for (source, row) in model.rows.iter().enumerate() {
         if row.lower.is_none() && row.upper.is_none() {
             continue;
         }
@@ -302,6 +311,9 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
                 offset - row.lower.unwrap()
             };
             rhs.push(bound);
+            if track_rows {
+                row_sources.push((source, row_sign));
+            }
             equality.push(!split && row.lower.zip(row.upper).is_some_and(|(l, u)| l == u));
             slack_upper.push(if split {
                 f64::INFINITY
@@ -321,6 +333,7 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
         slack_upper,
     };
     Relaxation::Ready(Standard {
+        row_sources,
         sparse: Some(p),
         a: vec![],
         b: vec![],
@@ -413,7 +426,7 @@ fn dive(
             } else {
                 child.upper[j] = Some(child.upper[j].map_or(floor, |u| u.min(floor)));
             }
-            let q = match standard_sparse(model, &child, limits.dense_bytes) {
+            let q = match standard_sparse(model, &child, limits.dense_bytes, false) {
                 Relaxation::Ready(q) => q,
                 Relaxation::Infeasible => {
                     stats.infeasible += 1;
@@ -514,7 +527,7 @@ fn prepare_cuts(
         if Instant::now() >= cut_deadline {
             break;
         }
-        let Relaxation::Ready(q) = standard_sparse(&work, root, limits.dense_bytes) else {
+        let Relaxation::Ready(q) = standard_sparse(&work, root, limits.dense_bytes, false) else {
             break;
         };
         let answer = revised::minimize_warm(
@@ -593,6 +606,28 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut lp_stats = revised::Stats::default();
     let prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let lp_model = prepared.model.as_ref().unwrap_or(model);
+    let objective_grid = if limits.objective_rounding
+        && !limits.propagation
+        && matches!(limits.engine, Engine::Revised)
+        && Grid::supported_bounds(model)
+        && (lp_model
+            .rows
+            .iter()
+            .map(|r| r.coefficients.len() as u128)
+            .sum::<u128>()
+            + lp_model.rows.len() as u128
+            + lp_model.variables.len() as u128)
+            * 64
+            <= limits.dense_bytes as u128
+    {
+        Grid::from_model(model)
+    } else {
+        None
+    };
+    let objective_certifier = objective_grid
+        .as_ref()
+        .and_then(|_| Certifier::new(lp_model));
+    let mut objective_bound_stats = ObjectiveBoundStats::default();
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
     let mut costs = branching::Costs::new(model.variables.len());
@@ -684,7 +719,12 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         }
         let relaxation = match limits.engine {
             Engine::Dense => standard_dense(lp_model, &node, limits.dense_bytes),
-            Engine::Revised => standard_sparse(lp_model, &node, limits.dense_bytes),
+            Engine::Revised => standard_sparse(
+                lp_model,
+                &node,
+                limits.dense_bytes,
+                objective_certifier.is_some(),
+            ),
         };
         let p = match relaxation {
             Relaxation::Infeasible => continue,
@@ -697,7 +737,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         };
         lp_solves += 1;
         let mut next_warm = None;
-        let (answer, relaxation_dual) = if let Some(sparse) = &p.sparse {
+        let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
             let answer = if limits.warm_start {
                 revised::minimize_warm(sparse, limits.pivots, Some(deadline), node.warm.as_deref())
             } else {
@@ -707,10 +747,11 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             if limits.warm_start {
                 next_warm = answer.warm;
             }
-            (Ok(answer.outcome), answer.dual)
+            (Ok(answer.outcome), answer.dual, answer.witness)
         } else {
             (
                 lp::minimize_until(&p.a, &p.b, &p.c, limits.pivots, Some(deadline)),
+                None,
                 None,
             )
         };
@@ -755,6 +796,51 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 };
                 // Small negative roundoff in a child must not decrease inherited bounds.
                 node.bound = node.bound.max(bound);
+                if let (Some(grid), Some(certifier), Some(y)) = (
+                    &objective_grid,
+                    &objective_certifier,
+                    relaxation_witness.as_deref(),
+                ) {
+                    let profitable = node.bound < incumbent
+                        && grid
+                            .round_lower(node.bound, model.maximize)
+                            .is_some_and(|candidate| {
+                                candidate > node.bound + 1e-9 * (1. + node.bound.abs())
+                                    && (nodes == 1
+                                        || candidate + 1e-8 * (1. + candidate.abs()) >= incumbent)
+                            });
+                    // 近似値は計算を省く判定だけに使い、採用するboundは必ず別に証明する。
+                    if profitable {
+                        let started = Instant::now();
+                        objective_bound_stats.calls += 1;
+                        if y.len() == p.row_sources.len() {
+                            let mut original_y = vec![0.; lp_model.rows.len()];
+                            for (&value, &(i, s)) in y.iter().zip(&p.row_sources) {
+                                original_y[i] += s * value;
+                            }
+                            for factor in [1., 1. - 2f64.powi(-40), 1. + 2f64.powi(-40)] {
+                                objective_bound_stats.trials += 1;
+                                let multipliers: Vec<_> =
+                                    original_y.iter().map(|y| y * factor).collect();
+                                if let Some(rigorous) =
+                                    certifier.bound(&node.lower, &node.upper, &multipliers)
+                                {
+                                    objective_bound_stats.valid += 1;
+                                    if let Some(rounded) =
+                                        grid.round_lower(rigorous, model.maximize)
+                                    {
+                                        if rounded > node.bound {
+                                            node.bound = rounded;
+                                            objective_bound_stats.rounded += 1;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        objective_bound_stats.seconds += started.elapsed().as_secs_f64();
+                    }
+                }
                 if node.bound >= incumbent {
                     continue;
                 }
@@ -783,7 +869,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                 }
                             }
                             if let Relaxation::Ready(q) =
-                                standard_sparse(lp_model, &fixed, limits.dense_bytes)
+                                standard_sparse(lp_model, &fixed, limits.dense_bytes, false)
                             {
                                 let answer = revised::minimize_warm(
                                     q.sparse.as_ref().unwrap(),
@@ -894,6 +980,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     probe_limits.rounding_cuts = false;
                     probe_limits.strong_branching = false;
                     probe_limits.rins = false;
+                    probe_limits.objective_rounding = false;
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
@@ -962,6 +1049,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                         if Instant::now() < local_deadline {
                             let mut local = limits.clone();
                             local.rins = false;
+                            local.objective_rounding = false;
                             local.primal_probe = false;
                             local.primal_repair = false;
                             local.lp_diving = false;
@@ -1148,6 +1236,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         strong,
         rins_enabled: limits.rins,
         rins,
+        objective_rounding: limits.objective_rounding,
+        objective_grid,
+        objective_bound_stats,
         cut_proofs: prepared.cuts,
         cut_stats: prepared.stats,
         cut_rounds: prepared.rounds,
@@ -1273,7 +1364,7 @@ fn strong_branch(
                 child.upper[j] =
                     Some(child.upper[j].map_or(point[j].floor(), |b| b.min(point[j].floor())));
             }
-            let relaxation = standard_sparse(model, &child, limits.dense_bytes);
+            let relaxation = standard_sparse(model, &child, limits.dense_bytes, false);
             let q = match relaxation {
                 Relaxation::Ready(q) => q,
                 Relaxation::Infeasible => {
@@ -1392,4 +1483,13 @@ mod seed_tests {
         let fractional = solve_seeded(&m, &limits, Some(&[0.5]));
         assert_eq!(fractional.objective, None);
     }
+}
+
+#[derive(Default, Debug, Serialize)]
+pub struct ObjectiveBoundStats {
+    pub calls: usize,
+    pub trials: usize,
+    pub valid: usize,
+    pub rounded: usize,
+    pub seconds: f64,
 }

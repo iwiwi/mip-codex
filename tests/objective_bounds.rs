@@ -96,3 +96,209 @@ fn a_tiny_negative_reduced_cost_on_an_unbounded_column_is_not_a_bound() {
             <= 1.
     );
 }
+fn optimization_limits() -> mip_codex::solve::Limits {
+    mip_codex::solve::Limits {
+        nodes: 1,
+        objective_rounding: true,
+        cover_cuts: false,
+        rounding_cuts: false,
+        strong_branching: false,
+        rins: false,
+        primal_repair: false,
+        lp_diving: false,
+        primal_probe: false,
+        ..mip_codex::solve::Limits::default()
+    }
+}
+#[test]
+fn certified_lattice_bound_strengthens_the_root_without_a_primal_or_extra_lp() {
+    use mip_codex::solve::{Limits, solve};
+    let text = "NAME grid\nROWS\n N obj\n L r\nCOLUMNS\n x obj -2 r 2\n y obj -2 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
+    let m = mps::parse(std::io::Cursor::new(text)).unwrap();
+    let limits = optimization_limits();
+    let before = solve(
+        &m,
+        &Limits {
+            objective_rounding: false,
+            ..limits.clone()
+        },
+    );
+    let after = solve(&m, &limits);
+    assert_eq!(before.dual_bound, Some(-3.));
+    assert_eq!(after.dual_bound, Some(-2.));
+    assert_eq!(after.status, "node_limit");
+    assert_eq!(after.objective, None);
+    assert_eq!(after.lp_solves, before.lp_solves);
+    assert!(after.objective_bound_stats.valid > 0);
+    assert_eq!(after.objective_bound_stats.rounded, 1);
+}
+#[test]
+fn maximization_offset_lower_side_and_bounded_range_use_original_row_multipliers() {
+    use mip_codex::solve::{Limits, solve};
+    for (sense, kind, rhs, range, expected) in [
+        ("MAX", "L", 3, "", 5.),
+        ("MIN", "G", 1, "", 5.),
+        ("MIN", "L", 5, "RANGES\n rng r 4\n", 5.),
+    ] {
+        let text = format!(
+            "NAME grid\nOBJSENSE\n {sense}\nROWS\n N obj\n {kind} r\nCOLUMNS\n x obj 2 r 2\n y obj 2 r 2\nRHS\n rhs obj -3 r {rhs}\n{range}BOUNDS\n BV b x\n BV b y\nENDATA\n"
+        );
+        let m = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let result = solve(&m, &optimization_limits());
+        assert_eq!(result.status, "node_limit");
+        assert_eq!(result.dual_bound, Some(expected), "{sense} {kind} {range}");
+        assert!(result.objective_bound_stats.valid > 0);
+        let full = solve(
+            &m,
+            &Limits {
+                nodes: usize::MAX,
+                ..optimization_limits()
+            },
+        );
+        assert_eq!(full.status, "optimal");
+        assert_eq!(full.objective, Some(expected));
+    }
+}
+#[test]
+fn unsupported_bounds_and_propagation_disable_additional_rounding() {
+    use mip_codex::solve::{Limits, solve};
+    let text = "NAME grid\nROWS\n N obj\n L r\nCOLUMNS\n x obj -2 r 2\n y obj -2 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
+    let m = mps::parse(std::io::Cursor::new(text)).unwrap();
+    let p = solve(
+        &m,
+        &Limits {
+            propagation: true,
+            ..optimization_limits()
+        },
+    );
+    assert!(p.objective_grid.is_none());
+    let uncertain = mps::parse(std::io::Cursor::new(
+        text.replace(" BV b x", " LI b x 0.1\n UP b x 1"),
+    ))
+    .unwrap();
+    let result = solve(&uncertain, &optimization_limits());
+    assert!(result.objective_grid.is_none());
+    assert_eq!(result.objective_bound_stats.calls, 0);
+}
+#[test]
+fn certified_pruning_preserves_exhaustive_min_max_optima_with_offsets_and_gcds() {
+    use mip_codex::solve::{Limits, solve};
+    let mut seed = 44521u64;
+    let mut next = || {
+        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        seed
+    };
+    let mut rounded = 0;
+    for case in 0..160 {
+        let step = 1 + (next() % 4) as i64;
+        let offset = (next() % 11) as i64 - 5;
+        let cost: Vec<i64> = (0..6).map(|_| ((next() % 9) as i64 - 4) * step).collect();
+        let a: Vec<Vec<i64>> = (0..5)
+            .map(|_| (0..6).map(|_| (next() % 9) as i64 - 4).collect())
+            .collect();
+        let plant: Vec<i64> = (0..6).map(|_| (next() % 2) as i64).collect();
+        let rhs: Vec<i64> = a
+            .iter()
+            .map(|a| {
+                if case % 2 == 0 {
+                    a.iter().zip(&plant).map(|(a, x)| a * x).sum::<i64>() + (next() % 4) as i64
+                } else {
+                    (next() % 11) as i64 - 5
+                }
+            })
+            .collect();
+        let maximize = case % 3 == 0;
+        let mut text = format!(
+            "NAME grid\nOBJSENSE\n {}\nROWS\n N obj\n",
+            if maximize { "MAX" } else { "MIN" }
+        );
+        for i in 0..5 {
+            text += &format!(" L r{i}\n");
+        }
+        text += "COLUMNS\n";
+        for j in 0..6 {
+            text += &format!(" x{j} obj {}\n", cost[j]);
+            for i in 0..5 {
+                text += &format!(" x{j} r{i} {}\n", a[i][j]);
+            }
+        }
+        text += &format!("RHS\n rhs obj {}\n", -offset);
+        for i in 0..5 {
+            text += &format!(" rhs r{i} {}\n", rhs[i]);
+        }
+        text += "BOUNDS\n";
+        for j in 0..6 {
+            text += &format!(" BV b x{j}\n");
+        }
+        text += "ENDATA\n";
+        let model = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let mut expected: Option<i64> = None;
+        for mask in 0..64 {
+            let x: Vec<i64> = (0..6).map(|j| (mask >> j) & 1).collect();
+            if a.iter()
+                .zip(&rhs)
+                .all(|(a, b)| a.iter().zip(&x).map(|(a, x)| a * x).sum::<i64>() <= *b)
+            {
+                let value = offset + cost.iter().zip(&x).map(|(c, x)| c * x).sum::<i64>();
+                expected = Some(expected.map_or(value, |old| {
+                    if maximize {
+                        old.max(value)
+                    } else {
+                        old.min(value)
+                    }
+                }));
+            }
+        }
+        let result = solve(
+            &model,
+            &Limits {
+                nodes: usize::MAX,
+                ..optimization_limits()
+            },
+        );
+        rounded += result.objective_bound_stats.rounded;
+        match expected {
+            None => assert_eq!(result.status, "infeasible", "case{case}"),
+            Some(value) => {
+                assert_eq!(result.status, "optimal", "case{case}");
+                assert!(
+                    (result.objective.unwrap() - value as f64).abs() < 1e-6,
+                    "case{case}"
+                );
+            }
+        }
+    }
+    assert!(
+        rounded > 40,
+        "too few actual bound strengthenings: {rounded}"
+    );
+}
+#[test]
+fn original_free_and_lossy_ranged_rows_receive_correct_multipliers() {
+    use mip_codex::solve::{Limits, solve};
+    let free = "NAME free\nROWS\n N obj\n E r\nCOLUMNS\n x obj 1 r 1\nRHS\n rhs r -2\nBOUNDS\n FR b x\nENDATA\n";
+    let m = mps::parse(std::io::Cursor::new(free)).unwrap();
+    let result = solve(
+        &m,
+        &Limits {
+            nodes: usize::MAX,
+            ..optimization_limits()
+        },
+    );
+    assert_eq!(result.status, "optimal");
+    assert_eq!(result.objective, Some(-2.));
+    assert_eq!(result.objective_bound_stats.calls, 0);
+    assert_eq!(result.objective_grid.unwrap().implied.len(), 1);
+    let ranged = "NAME ranged\nROWS\n N obj\n E r\nCOLUMNS\n x obj 2 r 1\nRHS\n rhs r 10000000000000001\nRANGES\n rng r -9999999999999999.5\nBOUNDS\n LI b x 0\nENDATA\n";
+    let m = mps::parse(std::io::Cursor::new(ranged)).unwrap();
+    let result = solve(
+        &m,
+        &Limits {
+            nodes: usize::MAX,
+            ..optimization_limits()
+        },
+    );
+    assert_eq!(result.status, "optimal");
+    assert_eq!(result.objective, Some(4.));
+    assert!(result.objective_bound_stats.valid > 0);
+}

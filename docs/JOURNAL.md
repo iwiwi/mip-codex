@@ -261,3 +261,7 @@
 - 原整数変数と厳密整数等式のunit係数から暗黙整数性をqueueで導くGrid、任意の原行乗数と原境界によるLagrangian下界を外向き計算するCertifierを実装。非有界方向の微小負reduced costを許容しない。曖昧なpoint積和の符号は既存exact累算で再検査。まだ主探索への丸めは未接続、既定動作は不変。
 - Python Fractionで元十進MPS/任意f64乗数の厳密下界1000fixtureを生成し、Rustで証明を返した場合は必ずそれ以下であることに合格。125 Rust回帰が成功 (極小積のunderflow/厳密0、暗黙整数性chain、微小負reduced cost、min/maxのlattice境界を含む)。初期2失敗はfixtureの一行MPSに3組を書いた構文誤りと、3.next_upの厳密下界からstep2で5へ上げられるのに3を期待した試験誤り。修正前ログも保持。metadata試験の比較演算子<-構文誤りも保存し修正済み。
 - 原MPS Fractionの目的整数性proof checkerを既存cover checkerへ追加。OBJNAME/offsetとunit等式chain/費用gcdを別計算する。初期OBJNAMEテストもMPS一行3組のfixtureミスを修正。さらにfake infeasible+不正objective grid+cut空+主解なしの実プロセス試験で、benchmark_caseがcut空なら検査を起動しない実際のガード抜けを検出。objective_gridがあれば必ず検査するよう修正し、smoke/auditもfieldなしのobjective proofに対応。稼働baseline snapshotは不変。まだmain solverはobjective_gridを出しておらず、このガードは新機能接続前に修正した。
+
+- 探索へMIP_OBJECTIVE_ROUNDING=0/1 (既定無効) として接続。原有限境界がpoint小整数・伝播無効・revisedの場合だけ、原ModelからGrid proofを作り、cut追加後LP Modelの原row乗数/boxで追加boundを保証する。RINS/probe内部では無効。原dual witnessをrow index/向きで戻し、必要なら乗数1±2^-40の別候補を全再検証する。通常float boundは従来通りで、追加lattice boundだけがこの厳密な検査を必要とする。全LP証明を形式証明化したものではない。
+- mainLPの近似値は、rootまたはceilでincumbentへ届く見込みのあるnodeの計算選別にだけ使う。既にprune可能/丸め幅が微小/改善見込みなしなら余分な原行計算を省き、実際のbound採用には必ず外向きLagrangianを使う。flag無効や適用不可、補助LPではrow mapを作らない。
+- 130 Rust回帰、1000 Fraction bound fixture、160 min/max全列挙が成功。step2/offset、下側/範囲制約、負rhs自由変数、RANGES端点消失ケースでの乗数復元、propagation/不明境界の適用拒否を確認。Python目的proof5/cover7/stage2回帰も成功。既定動作の数値自体は不変。次はflag onの小1000/二値1000/中規模200と固定18問の原MPS proof/point検査付き対照。
