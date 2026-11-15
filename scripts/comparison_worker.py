@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """比較専用プロセス。Rustソルバーはこのファイルを呼ばない。"""
 import json
+import hashlib
 import math
 import os
 from pathlib import Path
@@ -20,19 +21,20 @@ def read_glpk_values(directory):
             if fields[:2] == ['n', 'j']:
                 names[int(fields[2])] = fields[3]
     values = {}
-    with (directory/'solution.raw').open() as stream:
-        header = None
+    # glp_write_sol/glp_write_mip text truncates precision. Read the direct API sidecar instead.
+    with (directory/'values-api.tsv').open() as stream:
         for line in stream:
-            fields = line.split()
-            if not fields:
-                continue
-            if fields[0] == 's':
-                header = fields
-            elif fields[0] == 'j':
-                if header is None:
-                    raise ValueError('GLPK raw header missing')
-                values[names[int(fields[1])]] = float(fields[2] if header[1] == 'mip' else fields[3])
+            index,token = line.split()
+            values[names[int(index)]] = json.loads(token)
+    if set(values) != set(names.values()):
+        raise ValueError('GLPK API solution variable names incomplete')
     return values
+
+
+def exact_output_number(value):
+    if isinstance(value,float) and math.isfinite(value) and abs(value)>=2**53 and value.is_integer():
+        return int(value)
+    return value
 
 
 def run(solver, filename, seconds, out):
@@ -85,10 +87,12 @@ def run(solver, filename, seconds, out):
     elif solver == 'glpk':
         driver = os.environ.get('MIP_GLPK_DRIVER', str(Path(__file__).resolve().parents[1]/'target/glpk-benchmark'))
         command = [driver, filename, str(seconds), str(out), str(memory)]
+        (out/'values-api.tsv').unlink(missing_ok=True)
         completed = subprocess.run(command)
         if completed.returncode != 0:
             raise RuntimeError(f'GLPK driver exited {completed.returncode}')
         result = json.load((out/'native.json').open())
+        result['driver_sha256'] = hashlib.sha256(Path(driver).read_bytes()).hexdigest()
         if result['status'] == 'unknown' and result['return_code'] == 9:
             result['status'] = 'time_limit'
         result.update(nodes=None, options=dict(command=command, presolve=True, fpump=True, cuts=True, mip_gap=0.),
@@ -99,6 +103,13 @@ def run(solver, filename, seconds, out):
         (out/'options.txt').write_text(json.dumps(result['options'], indent=2)+'\n')
     else:
         raise ValueError('unknown comparison solver '+solver)
+    for field in ('objective','dual_bound'):
+        result[field] = exact_output_number(result.get(field))
+    if result.get('values') is not None:
+        result['values'] = {name:exact_output_number(value)for name,value in result['values'].items()}
+    result['solution_encoding'] = 'binary64_exact_large_integers_v1'
+    if solver == 'glpk':
+        result['values_source'] = 'direct_api_binary64' if result.get('values')is not None else 'no_primal'
     with (out/'result.json').open('w') as stream:
         json.dump(result, stream, allow_nan=False)
         stream.write('\n')

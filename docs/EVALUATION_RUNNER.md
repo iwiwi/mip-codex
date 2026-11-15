@@ -48,3 +48,6 @@ coordinatorが停止した場合も、同じsnapshotのrunを再実行する。c
 比較3ソルバー×240問×1時間を8枠で回す最悪平均90時間 (コア固定による偏りと検査時間は別)。Rust全240問も最悪平均30時間。最終Rust版は遅くとも2026-11-20 UTC中に固定し、再測定・検査・報告の余裕を確保する。期限は2026-11-22 14:59 UTC。
 
 出典: https://miplib.zib.de/download.html (testscript v1.0.4)、https://www.scipopt.org/doc-10.0.0/html/FAQ.php (相対実行可能性許容誤差)、https://www.ibm.com/docs/en/cofz/12.9.0?topic=extensions-objective-sense-name-offset-in-mps-files (負RHSの目的定数規約)。
+
+
+2026-11-15 保存精度プロトコル更新: GLPKの15桁raw解を採用せず直接API sidecarを採用し、全比較ソルバーの2^53以上の整数は全桁JSON整数で保存する。旧baseline-v1は保存精度の理由でsupersededとして保持し、最終比較には新規baseline-v2を用いる。詳細はdocs/SERIALIZATION_PLAN.md。資源条件とライブラリ版は同一。
