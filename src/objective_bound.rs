@@ -356,7 +356,7 @@ impl Certifier {
     }
     // Only fill missing sides. These bounds are used in certificates, never LP search.
     fn infer_finite_box(&self, model: &Model) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
-        let mut lower: Vec<_> = model
+        let lower: Vec<_> = model
             .variables
             .iter()
             .map(|v| {
@@ -365,7 +365,7 @@ impl Certifier {
                     .map(|b| b.lo)
             })
             .collect();
-        let mut upper: Vec<_> = model
+        let upper: Vec<_> = model
             .variables
             .iter()
             .map(|v| {
@@ -374,6 +374,40 @@ impl Certifier {
                     .map(|b| b.hi)
             })
             .collect();
+        self.fill_finite_box(lower, upper)
+    }
+    pub(crate) fn node_box(
+        &self,
+        lower: &[Option<f64>],
+        upper: &[Option<f64>],
+    ) -> Option<(Vec<Option<f64>>, Vec<Option<f64>>)> {
+        if lower.len() != self.costs.len()
+            || upper.len() != lower.len()
+            || lower.iter().chain(upper).flatten().any(|v| !v.is_finite())
+        {
+            return None;
+        }
+        let mut lower = lower.to_vec();
+        let mut upper = upper.to_vec();
+        if let Some((global_lower, global_upper)) = &self.implied_box {
+            for j in 0..lower.len() {
+                lower[j] = match (lower[j], global_lower[j]) {
+                    (Some(a), Some(b)) => Some(a.max(b)),
+                    (a, b) => a.or(b),
+                };
+                upper[j] = match (upper[j], global_upper[j]) {
+                    (Some(a), Some(b)) => Some(a.min(b)),
+                    (a, b) => a.or(b),
+                };
+            }
+        }
+        Some(self.fill_finite_box(lower, upper))
+    }
+    fn fill_finite_box(
+        &self,
+        mut lower: Vec<Option<f64>>,
+        mut upper: Vec<Option<f64>>,
+    ) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
         let mut rows = vec![Vec::new(); self.rows.len()];
         for (j, col) in self.columns.iter().enumerate() {
             for &(i, a) in col {
@@ -608,5 +642,78 @@ mod implied_box_tests {
         let certifier = Certifier::feasibility(&model).unwrap();
         let (lower, upper) = certifier.implied_box.unwrap();
         assert!(lower.iter().chain(&upper).all(Option::is_none));
+    }
+}
+
+#[cfg(test)]
+mod node_box_tests {
+    use super::*;
+    fn model(extra: bool) -> Model {
+        let text = if extra {
+            "NAME nodebox\nROWS\n N c\n L relation\n G lo\n L hi\nCOLUMNS\n x c 0 relation 1\n x lo 0.1 hi 0.1\n y c 0 relation -2\n z c 0 lo 1\n z hi 1\nRHS\n rhs relation 3 lo 1\n rhs hi 0\nBOUNDS\n LO b x 0\n LO b y 0\n FR b z\nENDATA\n"
+        } else {
+            "NAME nodebox\nROWS\n N c\n L relation\nCOLUMNS\n x c 0 relation 1\n y c 0 relation -2\nRHS\n rhs relation 3\nBOUNDS\n LO b x 0\n LO b y 0\nENDATA\n"
+        };
+        crate::mps::parse(std::io::Cursor::new(text)).unwrap()
+    }
+    #[test]
+    fn node_upper_bound_fills_missing_sides_and_preserves_feasible_points() {
+        let c = Certifier::feasibility(&model(false)).unwrap();
+        assert!(c.implied_box.as_ref().unwrap().1[0].is_none());
+        let (l, u) = c
+            .node_box(&[Some(0.), Some(0.)], &[None, Some(4.)])
+            .unwrap();
+        assert!(u[0].unwrap() >= 11. && u[0].unwrap() < 11.0001);
+        for x in 0..=140 {
+            for y in 0..=40 {
+                if x - 2 * y <= 30 {
+                    let p = [x as f64 / 10., y as f64 / 10.];
+                    for j in 0..2 {
+                        assert!(l[j].is_none_or(|b| b <= p[j]) && u[j].is_none_or(|b| p[j] <= b));
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn node_finite_box_can_certify_a_previously_unbounded_residual() {
+        let c = Certifier::feasibility(&model(true)).unwrap();
+        let lower = [Some(0.), Some(0.), None];
+        let upper = [None, Some(4.), None];
+        let y = [0., 1., -1.];
+        assert!(c.bound(&lower, &upper, &y).is_none());
+        let (l, u) = c.node_box(&lower, &upper).unwrap();
+        assert!(u.iter().all(Option::is_some));
+        assert!(c.bound(&l, &u, &y).is_some_and(|b| b > 0.));
+    }
+    #[test]
+    fn derived_empty_box_is_a_contradiction_of_the_node_domain() {
+        let c = Certifier::feasibility(&model(false)).unwrap();
+        let (l, u) = c
+            .node_box(&[Some(4.), Some(0.)], &[None, Some(0.)])
+            .unwrap();
+        assert!(l[0].unwrap() > u[0].unwrap());
+    }
+    #[test]
+    #[ignore = "requires MIP_PROOF_DUMP from a saved numerical development run"]
+    fn inspect_saved_node_box() {
+        let path = std::env::var("MIP_PROOF_DUMP").expect("MIP_PROOF_DUMP");
+        let d: serde_json::Value =
+            serde_json::from_reader(std::fs::File::open(path).unwrap()).unwrap();
+        let model: Model = serde_json::from_value(d["model"].clone()).unwrap();
+        let lower: Vec<Option<f64>> = serde_json::from_value(d["lower"].clone()).unwrap();
+        let upper: Vec<Option<f64>> = serde_json::from_value(d["upper"].clone()).unwrap();
+        let weights: Vec<f64> = serde_json::from_value(d["multipliers"].clone()).unwrap();
+        let c = Certifier::feasibility(&model).unwrap();
+        let (l, u) = c.node_box(&lower, &upper).unwrap();
+        let opposite: Vec<_> = weights.iter().map(|v| -v).collect();
+        println!(
+            "{}",
+            serde_json::json!({"missing_before":upper.iter().filter(|v|v.is_none()).count(),
+            "missing_after":u.iter().filter(|v|v.is_none()).count(),"lower":l,"upper":u,
+            "conflicts":l.iter().zip(&u).enumerate().filter_map(|(j,(l,u))|l.zip(*u).and_then(|(l,u)|(l>u).then_some(j))).collect::<Vec<_>>(),
+            "before":[c.bound(&lower,&upper,&weights),c.bound(&lower,&upper,&opposite)],
+            "after":[c.bound(&l,&u,&weights),c.bound(&l,&u,&opposite)]})
+        );
     }
 }
