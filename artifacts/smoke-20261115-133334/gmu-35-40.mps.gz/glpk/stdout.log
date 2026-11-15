@@ -1,0 +1,51 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/gmu-35-40.mps.gz'...
+Problem: gmu-35-40
+Objective: obj
+425 rows, 1205 columns, 5530 non-zeros
+1200 integer variables, all of which are binary
+7929 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-133334/gmu-35-40.mps.gz/glpk/model.glp'...
+7587 lines were written
+GLPK Integer Optimizer 5.0
+424 rows, 1205 columns, 4843 non-zeros
+1200 integer variables, all of which are binary
+Preprocessing...
+424 rows, 842 columns, 4843 non-zeros
+837 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  8.000e-01  max|aij| =  2.574e+03  ratio =  3.218e+03
+GM: min|aij| =  3.631e-01  max|aij| =  2.754e+00  ratio =  7.586e+00
+EQ: min|aij| =  1.335e-01  max|aij| =  1.000e+00  ratio =  7.488e+00
+2N: min|aij| =  7.383e-02  max|aij| =  1.588e+00  ratio =  2.151e+01
+Constructing initial basis...
+Size of triangular part is 424
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+424 rows, 842 columns, 4843 non-zeros
+*     0: obj =   0.000000000e+00 inf =   0.000e+00 (687)
+*   475: obj =  -2.406943556e+06 inf =   1.379e-13 (0) 3
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 12
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 837 + 2 = 839 vertices
++   475: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 2; mir = 4;
+Cuts on level 160: gmi = 2; mir = 9;
++ 17050: >>>>>  -2.301097536e+06 >=  -2.406924005e+06   4.6% (3198; 68)
++ 22147: mip =  -2.301097536e+06 >=  -2.406924004e+06   4.6% (4258; 112)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-133334/gmu-35-40.mps.gz/glpk/solution.raw'...
+1638 lines were written

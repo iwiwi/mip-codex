@@ -317,3 +317,12 @@ source directoryだけでなく同一rootの旧revisionも拒否するため、b
 整数伝播の純粋domain検査は成功しexact-integer-propagation branchへ保存したが、統合前に既存の数値誤答を再現した。exact-transformation-sums branchをmain001cbc5eから作成。固定x=y=z=1、費用1e16/1/-1e16で旧optimal0、GMPは目的1/誤差1。同じ固定点の等式1e16*x+y-1e16*z=1では旧infeasible。さらにx=1e16,y=1,free zの等式で旧optimal点にGMP行違反1。before出力と原MPSをartifacts/exact-shift-diagnosisに保持。旧binaryのbuild-infoも保存、compiled fingerprint19a8a69a7a6e183fの旧mainを診断した。
 
 68limb積和を目的/offset/行shift/LP certificateへ使い、個々の積のoverflowも打消し前に失わない。最も狭いf64上下界・残差を求め、dualは下へ丸める。RHS/幅の絶対誤差が1e-9を超えれば数値エラーへ。Model行チェックは前方誤差区間→厳密fallback。Dense/Revisedの回帰は成功、1200 Fraction積和oracleも成功。最終確認/性能測定はこれから。詳細docs/EXACT_TRANSFORMATION_PLAN.md。
+
+
+## 2026-11-15 13:55 UTC：PR25・元入力精度と積和相殺
+
+旧mainの誤objective0/誤infeasible/無効なpointを元MPS GMPで再現し、厳密f64積和と元十進数のprecision guardを追加。f64の0.1を元十進数0.1と同一視した未採用試作3f1cd1cbも反例とともに棄却記録。主探索の非点データinfeasibleは元区間の零目的証明を要求し、証明器内の有限box/乗数候補を検査する。証明不能節点は残してnumerical_error。
+
+最終ソース922e7cd4：Rust145、Fraction1200fixture、合成2700、純粋根LP300、全240行列/格子が通過。桁落ち回帰22件は8有効点/14未解決/誤答0。最終18問+mark60の14点はGMP絶対/公式とも全合格、70cuts/19runsの格子も合格。保存済み旧18問とのprimalは3改善/4悪化/11同等で速度改善とは扱わない。markshare約1の証明は35.750s（旧30.417s、同じ1,486,619節点）で負担増。gen-ip002は1節点の未証明infeasibleで数値停止が残る。比較native8問の21点中HiGHS pk1のみ絶対行違反1.000000008e-6、公式は全点合格。
+
+詳細 docs/EXACT_TRANSFORMATION_RESULTS.md と docs/EXACT_TRANSFORMATION_PLAN.md。全生ログ/失敗を保存。固定snapshotはartifacts/runs/exact-sums-922e7cd4-20261115（createのみ、coordinator実行なし）。次のPair accumulatorは別worktree/別の実targetで開始し、source/binaryの混在を避ける。計画 docs/EXACT_ACCUMULATOR_NEXT.md。その後checked i128整数伝播checkpointも継続評価する。全Rust本測定は11月19日頃までに開始する期限を維持。
