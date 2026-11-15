@@ -2,7 +2,7 @@
 """Run all solvers with identical external wall/memory/CPU limits.
 Each result, log, incumbent and independent check survives interruption.
 """
-import argparse,datetime,gzip,hashlib,json,os,pathlib,re,resource,signal,subprocess,sys,time
+import argparse,datetime,gzip,hashlib,json,os,pathlib,re,resource,shutil,signal,subprocess,sys,time
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser();p.add_argument('--seconds',type=float,default=10);p.add_argument('--count',type=int,default=3);p.add_argument('--output',required=True);p.add_argument('--instances',nargs='*');p.add_argument('--solvers',nargs='+',default=['rust','scip','highs','glpk']);p.add_argument('--cpu',type=int,default=min(os.sched_getaffinity(0)));args=p.parse_args()
 out=pathlib.Path(args.output).resolve();out.mkdir(parents=True,exist_ok=True)
@@ -14,7 +14,9 @@ if args.instances:
 else:chosen=sorted([r for r in manifest if r['split']=='development'],key=lambda r:(ROOT/r['path']).stat().st_size)[:args.count]
 env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',RAYON_NUM_THREADS='1')
 metadata=dict(started=datetime.datetime.now(datetime.timezone.utc).isoformat(),seconds=args.seconds,outer_grace_seconds=5,memory_bytes=16*1024**3,cpu=args.cpu,instances=[r['name'] for r in chosen],solvers=args.solvers,command=sys.argv)
-metadata['rust_binary_sha256']=hashlib.sha256((ROOT/'target/release/mip-codex').read_bytes()).hexdigest()
+frozen_binary=out/'mip-codex.binary';shutil.copy2(ROOT/'target/release/mip-codex',frozen_binary)
+metadata['rust_binary_sha256']=hashlib.sha256(frozen_binary.read_bytes()).hexdigest()
+metadata['rust_binary_file']=frozen_binary.name
 metadata['source_sha256']={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'src').glob('*.rs')}
 metadata['git_head']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
 (out/'run.json').write_text(json.dumps(metadata,indent=2)+'\n')
@@ -24,7 +26,7 @@ for row in chosen:
  mps=out/(row['name']+'.mps');mps.write_bytes(gzip.decompress((ROOT/row['path']).read_bytes()))
  for solver in args.solvers:
   prefix=out/(row['name']+'.'+solver);resultpath=pathlib.Path(str(prefix)+'.solution.json');logpath=pathlib.Path(str(prefix)+'.log');timepath=pathlib.Path(str(prefix)+'.time')
-  command=[str(ROOT/'target/release/mip-codex'),'solve',str(mps),str(args.seconds)] if solver=='rust' else [str(ROOT/'.venv/bin/python'),str(ROOT/'scripts/solver_worker.py'),solver,str(mps),str(args.seconds),str(resultpath)]
+  command=[str(frozen_binary),'solve',str(mps),str(args.seconds)] if solver=='rust' else [str(ROOT/'.venv/bin/python'),str(ROOT/'scripts/solver_worker.py'),solver,str(mps),str(args.seconds),str(resultpath)]
   start=time.monotonic();status='finished';code=None
   with logpath.open('w') as log:
    try:
