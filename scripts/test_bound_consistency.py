@@ -36,16 +36,18 @@ class Consistency(unittest.TestCase):
             status = record.get('status', 'time_limit')
             d = folder/'cases'/str(k)
             d.mkdir(parents=True, exist_ok=True)
-            result = dict(objective=point, values=None if point is None else dict(x=point),
+            result = dict(objective=record.get('reported', point), values=None if point is None else dict(x=point),
                           dual_bound=record.get('dual'), status=status)
             (d/'result.json').write_text(dump(result, record.get('raw')))
             valid = record.get('valid', point is not None)
             summary = dict(job_id=str(k), name='toy.mps', input_sha256=digest(model),
                            solver='fixture-'+str(k), solver_status=status,
                            result_sha256=digest(d/'result.json'),
-                           strict_validation=dict(valid=valid),
+                           strict_validation=dict(valid=valid, exact=dict(objective=record.get('exact',str(point)))if point is not None else {}),
                            primal_bound=point if valid else None,
                            dual_bound=record.get('dual'))
+            if record.get('missing_exact'):
+                summary['strict_validation'].pop('exact')
             if record.get('unindexed'):
                 summary.pop('result_sha256')
             if record.get('bad_hash'):
@@ -135,6 +137,26 @@ class Consistency(unittest.TestCase):
     def test_changed_result_is_rejected(self):
         run = self.fixture([dict(point=2, dual=1, bad_hash=True)])
         self.assertIn('result hash mismatch', self.check_runs([run], True).stderr)
+
+    def test_original_objective_is_used_instead_of_rounded_report(self):
+        value = 2**60
+        run = self.fixture([dict(point=value, reported=value+256, dual=value+1)])
+        report = self.check_runs([run])
+        self.assertEqual(report['findings'][0]['absolute_excess'], '1')
+        self.assertEqual(report['findings'][0]['point_objective_exact'], str(value))
+        self.assertIn('GMP', report['findings'][0]['point_objective_source'])
+        self.assertEqual(report['reference_points'][0]['objective_exact'], str(value))
+
+    def test_missing_exact_objective_has_an_explicit_fallback_warning(self):
+        run = self.fixture([dict(point=2, dual=1, missing_exact=True)])
+        report = self.check_runs([run])
+        self.assertEqual(report['findings'], [])
+        self.assertEqual(report['warnings'][0]['error'], 'exact_objective_unavailable_using_reported_value')
+        self.assertIsNone(report['reference_points'][0]['objective_exact'])
+
+    def test_malformed_exact_objective_is_rejected(self):
+        run = self.fixture([dict(point=2, dual=1, exact='not-a-number')])
+        self.check_runs([run], True)
 
     def test_duplicate_run_is_rejected(self):
         run = self.fixture([dict(point=2, dual=1)])

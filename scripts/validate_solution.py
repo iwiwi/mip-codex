@@ -82,7 +82,7 @@ def absolute_checker():
 def validate(path, solution, feasibility=1e-6, integrality=1e-6):
     diagnostics = validate_float(path, solution, feasibility, integrality)
     checker = absolute_checker()
-    result = dict(valid=None, float_diagnostics=diagnostics, arithmetic='GMP rational absolute',
+    result = dict(valid=None, float_diagnostics=diagnostics, arithmetic='GMP rational; absolute feasibility/integrality, relative objective',
                   feasibility_tolerance=feasibility, integrality_tolerance=integrality)
     if not checker.is_file():
         return dict(result, error='absolute rational checker unavailable')
@@ -117,7 +117,17 @@ def validate(path, solution, feasibility=1e-6, integrality=1e-6):
         if not math.isfinite(number):
             return dict(result, error='nonfinite exact diagnostic', exact=exact)
         result[field] = number
-    result.update(valid=all(v == '1' for v in match.groups()), exact=exact)
+    objective_tolerance = Fraction(1, 100000000)*(1+abs(Fraction(exact['objective'])))
+    objective_ok = Fraction(exact['objective_error']) <= objective_tolerance
+    if objective_ok != (match.group(3) == '1'):
+        return dict(result, error='objective tolerance policy mismatch', exact=exact)
+    result.update(valid=all(v == '1' for v in match.groups()), exact=exact,
+                  objective_evaluation=dict(criterion='relative',
+                      relative_tolerance='1/100000000',
+                      absolute_tolerance_at_point=str(objective_tolerance),
+                      absolute_error=exact['objective_error'],
+                      recomputed_exact=exact['objective'],
+                      reported_token=str(solution['objective'])))
     return result
 
 

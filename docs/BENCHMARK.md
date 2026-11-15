@@ -363,3 +363,9 @@ source d9e9c41で18開発問4設定 (113501/113503、8×5秒+10×2秒、1thread/
 
 
 2026-11-15 保存精度プロトコル更新: GLPKの15桁raw解を採用せず直接API sidecarを採用し、全比較ソルバーの2^53以上の整数は全桁JSON整数で保存する。旧baseline-v1は保存精度の理由でsupersededとして保持し、最終比較には新規baseline-v2を用いる。詳細はdocs/SERIALIZATION_PLAN.md。資源条件とライブラリ版は同一。
+
+## 目的値の再計算値と表示値 (2026-11-15 19:22 UTC)
+
+既存のprimaryは制約・境界・整数性を絶対1e-6、目的値を1e-8*(1+abs(元問題から再計算した目的値))で判定する。目的値まで絶対1e-6と解釈しない。今回この基準は変更せず、validate_solutionのラベルとobjective_evaluationへ相対基準・点ごとの許容幅・絶対誤差・GMP厳密再計算値・報告トークンを明示した。詳細はOBJECTIVE_REPORTING.md。
+
+benchmark_caseは従来の浮動小数点primal_boundを互換のため維持し、primal_bound_exactへGMPの厳密再計算文字列を加える。bound整合性診断はstrict_validation.exact.objectiveを優先し、これがない旧形式は明示警告付きで報告値へ戻る。稼働中baseline-v2は不変。既存の元解・exact診断があれば再最適化なしで同じ目的値の基準を再構成できる。目的値の許容基準・solver設定・時間測定を変更したものではない。

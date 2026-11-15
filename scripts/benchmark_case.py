@@ -91,6 +91,7 @@ def run(config_path, job_id):
         summary['native_primal_bound'] = parsed.get('objective')
         summary['native_gap'] = parsed.get('gap')
         summary['primal_bound'] = None
+        summary['primal_bound_exact'] = None
         summary['verified_optimal'] = False
         if parsed.get('cut_proofs') or parsed.get('objective_grid') is not None:
             cut_command=[config['python'],str(root/'snapshot/scripts/verify_cover_cuts.py'),
@@ -113,6 +114,7 @@ def run(config_path, job_id):
                 summary[mode+'_validation'] = json.loads(path.read_text()) if path.exists() else dict(valid=None, error='validator did not finish')
             if summary['strict_validation']['valid'] is True:
                 summary['primal_bound'] = summary['strict_validation']['objective']
+                summary['primal_bound_exact'] = summary['strict_validation'].get('exact', {}).get('objective')
                 summary['verified_optimal'] = parsed['status'].lower() == 'optimal'
             else:
                 summary['status'] = 'invalid_solution' if summary['strict_validation']['valid'] is False else 'unverified_solution'

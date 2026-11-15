@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/scripts/check_bound_consistency.py", line 148, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/ubuntu/mip-codex/scripts/check_bound_consistency.py", line 133, in main
+    groups, sources, warnings = collect(args.runs)
+                                ^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/mip-codex/scripts/check_bound_consistency.py", line 70, in collect
+    primal = Fraction(exact)
+             ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/fractions.py", line 239, in __new__
+    raise ValueError('Invalid literal for Fraction: %r' %
+ValueError: Invalid literal for Fraction: 'not-a-number'

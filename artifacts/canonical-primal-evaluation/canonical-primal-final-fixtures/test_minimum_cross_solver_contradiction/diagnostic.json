@@ -1,0 +1,48 @@
+{
+  "updated_utc": "2026-11-15T19:20:37Z",
+  "status": "diagnostic_not_a_dual_certificate",
+  "absolute_tolerance": "1/1000000",
+  "input_groups": 1,
+  "bound_comparisons": 2,
+  "findings": [
+    {
+      "type": "reported_dual_exceeds_verified_point",
+      "name": "toy.mps",
+      "input_sha256": "20aa2a571fb06e661bd5e7b7362909ede62a415ca41d423fda15638edfcc8622",
+      "maximize": false,
+      "bound_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_minimum_cross_solver_contradiction/run/cases/1/result.json",
+      "bound_solver": "fixture-1",
+      "reported_dual": "3",
+      "point_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_minimum_cross_solver_contradiction/run/cases/0/result.json",
+      "point_solver": "fixture-0",
+      "point_objective_used": "2",
+      "point_objective_exact": "2",
+      "point_objective_source": "GMP original-model objective of serialized point",
+      "absolute_excess": "1"
+    }
+  ],
+  "reference_points": [
+    {
+      "name": "toy.mps",
+      "input_sha256": "20aa2a571fb06e661bd5e7b7362909ede62a415ca41d423fda15638edfcc8622",
+      "maximize": false,
+      "point_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_minimum_cross_solver_contradiction/run/cases/0/result.json",
+      "point_solver": "fixture-0",
+      "objective_used": "2",
+      "objective_exact": "2",
+      "objective_source": "GMP original-model objective of serialized point",
+      "reported_objective_token": "2"
+    }
+  ],
+  "warnings": [],
+  "sources": [
+    {
+      "run": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_minimum_cross_solver_contradiction/run",
+      "results_sha256": "baeb1a054db512c9c4af9fc7eaf13adeeb4fdd38bd12062e07229b13fc41232f",
+      "results_bytes": 722,
+      "terminated_by_newline": true,
+      "config_sha256": "ed2d9106246862cfee2a7a50b421595956a2fc6a3852eff7de3f6a96fb87e7a9"
+    }
+  ],
+  "limitation": "Points passed absolute-tolerance checks, not necessarily zero-tolerance feasibility. Findings require review and can reflect allowed point tolerances or numerical reporting; absence of findings does not certify bounds or replay optimality proofs."
+}

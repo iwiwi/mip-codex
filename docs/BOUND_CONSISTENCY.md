@@ -2,7 +2,7 @@
 
 scripts/check_bound_consistency.py RUN... --output REPORT.json は全件評価の保存結果を読み、同じ入力SHAの検証済み主解と各報告下界を照合する。最小化はdual-primal、最大化はprimal-dualが絶対1e-6を超えた場合に要確認を出力する。infeasibleの明確な宣言と許容誤差検査済み主解が併存する場合も記録する。曖昧なinfeasible_or_unboundedを断定的な実行不能宣言とは扱わない。
 
-数値はJSONの十進トークンからDecimal/Fractionで読み、大きな整数や1e-6付近をbinary64へ丸めない。元MPSのハッシュとOBJSENSE、結果SHAを確認する。入力SHAが違う場合は比較しない。主解はstrict_validation=trueかつprimal_boundありの記録だけを使い、目的値は検証対象の元result.jsonから読む。無効な主解をbest referenceへ混ぜない。
+数値はJSONの十進トークンからDecimal/Fractionで読み、大きな整数や1e-6付近をbinary64へ丸めない。目的値自体の合否は既存の相対1e-8基準であり、この診断の絶対差1e-6とは別である。元MPSのハッシュとOBJSENSE、結果SHAを確認する。入力SHAが違う場合は比較しない。主解はstrict_validation=trueかつprimal_boundありの記録だけを使い、目的値はstrict_validation.exact.objective（元MPSと保存点からGMPが再計算した有理数）を優先する。値がない旧形式は警告付きで元result.jsonの報告値へ戻る。reference_pointsへ使用値・厳密値の有無・報告トークン・出典を保存する。無効な主解をbest referenceへ混ぜない。
 
 比較する記録のSHAは読んだbytesから作る。稼働中のresults.jsonlが後で追記されても、実際に読んだ範囲のSHA/byte数を残す。途中のJSON行、結果欠損・未索引は警告として記録し、元のrun・snapshot・coordinatorには書き込まない。結果SHAの不一致は診断自体を失敗させる。要確認ありは終了2、問題なしは0。警告は出力JSONに必ず残す。
 
@@ -13,3 +13,8 @@ scripts/check_bound_consistency.py RUN... --output REPORT.json は全件評価�
 13個のCLI全体検証: min/maxの別solver点との比較、無効点の除外、明確/曖昧なinfeasible、大整数2^100での差1、1e-6境界と境界の外の十進数、異なる入力SHA、追記途中、欠損索引、結果SHA改変、run二重指定を検査した。これらは解析的に構成した合成metadataであり、最適化の測定結果として数えない。初回も最終も全成功。
 
 baseline-v2の途中結果は13入力・30報告boundの比較で要確認0、警告0。対象read bytes/configのSHAをartifacts/bound-consistency-evaluationに保存する。途中結果から全件の正しさを主張しない。Rust本体と稼働中のnative snapshotは変更していない。
+
+
+## 目的値の精度に関する補強
+
+16CLI合成検証（追加: 丸めた報告値よりGMP再計算値を優先、厳密値欠損の警告、壊れた厳密値の拒否）を通過。GMPを実際に呼ぶ2数値例、8preflight、32数値回帰も成功。途中native v2は15入力/39boundで要確認0・警告0。大きな目的値での相対許容と表示丸めの実例はOBJECTIVE_REPORTING.mdに保存した。最適化や評価基準の変更ではない。
