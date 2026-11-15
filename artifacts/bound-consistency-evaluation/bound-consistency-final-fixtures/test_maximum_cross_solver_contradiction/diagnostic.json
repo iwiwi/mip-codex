@@ -1,0 +1,33 @@
+{
+  "updated_utc": "2026-11-15T18:36:02Z",
+  "status": "diagnostic_not_a_dual_certificate",
+  "absolute_tolerance": "1/1000000",
+  "input_groups": 1,
+  "bound_comparisons": 2,
+  "findings": [
+    {
+      "type": "reported_dual_exceeds_verified_point",
+      "name": "toy.mps",
+      "input_sha256": "e6773fbc8e791cf80c8500b2f3a4696aec52ed1e1eb1ec586ec4d029bd5a9a0a",
+      "maximize": true,
+      "bound_source": "/home/ubuntu/mip-codex/artifacts/bound-consistency-final-fixtures/test_maximum_cross_solver_contradiction/run/cases/0/result.json",
+      "bound_solver": "fixture-0",
+      "reported_dual": "3",
+      "point_source": "/home/ubuntu/mip-codex/artifacts/bound-consistency-final-fixtures/test_maximum_cross_solver_contradiction/run/cases/1/result.json",
+      "point_solver": "fixture-1",
+      "verified_reported_objective": "4",
+      "absolute_excess": "1"
+    }
+  ],
+  "warnings": [],
+  "sources": [
+    {
+      "run": "/home/ubuntu/mip-codex/artifacts/bound-consistency-final-fixtures/test_maximum_cross_solver_contradiction/run",
+      "results_sha256": "bb3f0c139168e653e0488ea95c185b5c34ce8b0ba6ae144b187cadad8b2ce094",
+      "results_bytes": 665,
+      "terminated_by_newline": true,
+      "config_sha256": "e6317eecf16e2cea6d063e79ca68762f0768f1af92bb1abf51b84bdc9f5d9e71"
+    }
+  ],
+  "limitation": "Points passed absolute-tolerance checks, not necessarily zero-tolerance feasibility. Findings require review and can reflect allowed point tolerances or numerical reporting; absence of findings does not certify bounds or replay optimality proofs."
+}
