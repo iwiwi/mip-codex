@@ -1,0 +1,58 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/germanrr.mps.gz'...
+Problem: germanrr
+Objective: R0010780
+10780 rows, 10813 columns, 175548 non-zeros
+10574 integer variables, 5288 of which are binary
+202513 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-234155-25apj1xs/germanrr.mps.gz/glpk/model.glp'...
+213209 lines were written
+GLPK Integer Optimizer 5.0
+10779 rows, 10813 columns, 175547 non-zeros
+10574 integer variables, 5288 of which are binary
+Preprocessing...
+111 hidden covering inequaliti(es) were detected
+5635 rows, 10539 columns, 208379 non-zeros
+10539 integer variables, 5288 of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  8.000e+00  ratio =  8.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 5635
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+5635 rows, 10539 columns, 208379 non-zeros
+      0: obj =   4.364373494e+06 inf =   5.789e+03 (178)
+Perturbing LP to avoid stalling [596]...
+   4348: obj =   5.031384434e+07 inf =   8.681e-08 (0) 11
+Removing LP perturbation [7844]...
+*  7844: obj =   4.598013542e+07 inf =   6.998e-14 (0) 9
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 349
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 812 + 1 = 813 vertices
++  7844: mip =     not found yet >=              -inf        (1; 0)
+FPUMP heuristic cannot be applied due to general integer variables
++ 11128: mip =     not found yet >=   4.605861487e+07        (1; 0)
++ 14570: mip =     not found yet >=   4.608399387e+07        (1; 0)
+Cuts on level 0: gmi = 40; cov = 21;
++ 15130: mip =     not found yet >=   4.609458837e+07        (12; 0)
++ 17857: mip =     not found yet >=   4.609458837e+07        (22; 0)
++ 18854: mip =     not found yet >=   4.609458837e+07        (33; 0)
++ 19936: mip =     not found yet >=   4.609458837e+07        (44; 0)
++ 21204: mip =     not found yet >=   4.609458837e+07        (55; 0)
++ 21604: mip =     not found yet >=   4.609458837e+07        (67; 0)
++ 24407: mip =     not found yet >=   4.609458837e+07        (78; 0)
++ 25562: mip =     not found yet >=   4.609458837e+07        (91; 0)
++ 28248: mip =     not found yet >=   4.609601366e+07        (97; 1)
+Time used: 60.5 secs.  Memory used: 113.5 Mb.
++ 28368: mip =     not found yet >=   4.609601366e+07        (99; 1)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-234155-25apj1xs/germanrr.mps.gz/glpk/solution.raw'...
+21601 lines were written
