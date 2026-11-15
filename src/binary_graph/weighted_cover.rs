@@ -6,6 +6,8 @@ pub struct Stats {
     pub initial: usize,
     pub best: usize,
     pub iterations: usize,
+    pub first_improvement_iteration: Option<usize>,
+    pub last_improvement_iteration: usize,
     pub additions: usize,
     pub removals: usize,
     pub weight_increases: usize,
@@ -220,7 +222,11 @@ pub(super) fn improve(
     };
     stats.edges = state.edges.len();
     let mut rng = 0xd1b54a32d192ed03u64;
-    for step in 1..=stats.iteration_limit {
+    let extended_limit = graph.n.saturating_mul(1024).min(2_000_000);
+    for step in 1..=extended_limit {
+        if step > stats.iteration_limit {
+            break;
+        }
         if Instant::now() >= deadline {
             stats.stop_reason = "deadline";
             break;
@@ -236,6 +242,9 @@ pub(super) fn improve(
                 }
                 best = candidate;
                 stats.best = best.len();
+                stats.first_improvement_iteration.get_or_insert(step);
+                stats.last_improvement_iteration = step;
+                stats.iteration_limit = extended_limit;
             }
             let Some(v) = state.remove_choice() else {
                 stats.stop_reason = "complete";
@@ -284,6 +293,10 @@ pub(super) fn improve(
         if candidate.len() > best.len() && strict_clique(graph, &candidate) {
             best = candidate;
             stats.best = best.len();
+            stats
+                .first_improvement_iteration
+                .get_or_insert(stats.iterations);
+            stats.last_improvement_iteration = stats.iterations;
         }
     }
     stats.seconds = started.elapsed().as_secs_f64();
