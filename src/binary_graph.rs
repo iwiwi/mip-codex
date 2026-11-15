@@ -2,9 +2,12 @@
 //! Theory reference: Prosser, Algorithms 2012, doi:10.3390/a5040545; no source-code port.
 use crate::model::Model;
 use std::time::Instant;
+mod weighted_cover;
+pub use weighted_cover::Stats as CoverStats;
 #[derive(Debug, Default, serde::Serialize)]
 pub struct Stats {
     pub local: Option<LocalStats>,
+    pub cover_local: Option<CoverStats>,
     pub root_initial_upper: usize,
     pub root_variants: usize,
     pub root_variant_uppers: Vec<usize>,
@@ -406,6 +409,31 @@ pub fn solve_with_adaptive(
     diversify: bool,
     adaptive: bool,
 ) -> Option<Answer> {
+    solve_with_cover(
+        model,
+        memory,
+        deadline,
+        limit,
+        local,
+        stronger_root,
+        preserve_order,
+        diversify,
+        adaptive,
+        false,
+    )
+}
+pub fn solve_with_cover(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+    adaptive: bool,
+    cover: bool,
+) -> Option<Answer> {
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -508,9 +536,20 @@ pub fn solve_with_adaptive(
             .min(if adaptive { 2.0 } else { 0.25 });
         let local_deadline =
             deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
-        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline, diversify, adaptive);
+        let first_deadline = if cover {
+            Instant::now() + local_deadline.saturating_duration_since(Instant::now()) / 5
+        } else {
+            local_deadline
+        };
+        let (seed, stats) = improve_seed(&graph, &search.best, first_deadline, diversify, adaptive);
         search.best = seed;
         search.stats.local = Some(stats);
+        if cover && Instant::now() < local_deadline {
+            let (seed, stats) =
+                weighted_cover::improve(&graph, &search.best, memory / 2, local_deadline);
+            search.best = seed;
+            search.stats.cover_local = Some(stats);
+        }
     }
     if search.best.len() < search.stats.root_upper {
         if let Some(root) = root {
