@@ -1,0 +1,49 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.51s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/b843d3488fc759aa/out/mip_codex-b843d3488fc759aa)
+
+running 28 tests
+test exact::pair_tests::a_pair_preserves_a_halfway_bit_and_can_collapse_after_cancellation ... ok
+test exact::enclosure_tests::exact_zero_and_products_below_smallest_subnormal_are_enclosed ... ok
+test exact::pair_tests::a_third_separated_component_falls_back_without_losing_either_tail ... ok
+test binary_graph::local_tests::pair_exchange_improves_a_feasible_seed_and_invalid_seeds_fail_closed ... ok
+test exact::tests::cancellation_preserves_smallest_products_and_overflowing_products ... ok
+test exact::tests::nonfinite_values_are_not_certified ... ok
+test objective_bound::joint_proof_diagnostic::inspect_joint_perturbations ... ignored, saved development failure via MIP_PROOF_DUMP
+test branching::strong_candidate_tests::mixed_candidates_keep_fractional_variables_and_include_rare_cost_variable ... ok
+test objective_bound::implied_box_tests::two_unbounded_terms_do_not_imply_an_individual_bound ... ok
+test objective_bound::joint_proof_diagnostic::joint_trials_reject_bad_shapes_and_nonfinite_weights ... FAILED
+test revised::ratio_regressions::stable_pivot_ties_use_basic_variable_order ... ok
+test revised::ratio_regressions::near_tie_chooses_stable_pivot_and_preserves_tolerance ... ok
+test revised::ratio_regressions::entering_width_and_upper_bound_are_respected ... ok
+test revised::ratio_regressions::tiny_bound_roundoff_is_not_amplified_by_small_pivot ... ok
+test search::deferred_tests::unbounded_inherited_lower_bound_cannot_be_dropped ... ok
+test search::deferred_tests::unresolved_regions_hold_the_global_bound_until_all_are_prunable ... ok
+test revised::tests::cached_multipliers_preserve_bits_cost_keys_updates_and_siblings ... ok
+test search::tests::best_bound_uses_minimum_and_deterministic_ties ... ok
+test search::tests::depth_first_keeps_last_child_preference ... ok
+test solve::seed_tests::seed_is_checked_and_cannot_prove_optimality_at_zero_budget ... ok
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+test search::tests::hybrid_keeps_each_pending_node_exactly_once ... ok
+test exact::tests::arbitrary_exponents_match_independent_python_fraction_fixtures ... ok
+test model::activity_error_tests::exact_point_specialization_matches_the_full_outward_sum_bit_for_bit ... ok
+test objective_bound::implied_box_tests::decimal_interval_bounds_preserve_every_enumerated_feasible_point ... ok
+test exact::tests::correctly_rounded_sums_match_python_fraction ... ok
+test exact::value_tests::nearest_tight_bounds_and_fast_enclosures_match_fraction_oracle ... ok
+test objective_bound::joint_proof_diagnostic::joint_trials_never_certify_a_planted_feasible_decimal_model ... ok
+
+failures:
+
+---- objective_bound::joint_proof_diagnostic::joint_trials_reject_bad_shapes_and_nonfinite_weights stdout ----
+
+thread 'objective_bound::joint_proof_diagnostic::joint_trials_reject_bad_shapes_and_nonfinite_weights' (827626) panicked at src/objective_bound.rs:693:160:
+called `Result::unwrap()` on an `Err` value: "line 7: expected column and row/value pairs"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    objective_bound::joint_proof_diagnostic::joint_trials_reject_bad_shapes_and_nonfinite_weights
+
+test result: FAILED. 26 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+error: test failed, to rerun pass `--lib`
