@@ -69,7 +69,7 @@ fn validation_diagnostic(p: &Problem, answer: &Answer, stage: &str) {
         {
             let _ = serde_json::to_writer(
                 file,
-                &serde_json::json!({"event":event,"problem":{"columns":p.columns,"rhs":p.rhs,"costs":p.costs,"upper":p.upper.iter().map(|v|v.is_finite().then_some(*v)).collect::<Vec<_>>(),"equality":p.equality,"slack_upper":p.slack_upper.iter().map(|v|v.is_finite().then_some(*v)).collect::<Vec<_>>()},"point":x,"witness":answer.witness,"dual":answer.dual}),
+                &serde_json::json!({"event":event,"problem":{"columns":p.columns,"rhs":p.rhs,"costs":p.costs,"upper":p.upper.iter().map(|v|v.is_finite().then_some(*v)).collect::<Vec<_>>(),"equality":p.equality,"slack_upper":p.slack_upper.iter().map(|v|v.is_finite().then_some(*v)).collect::<Vec<_>>()},"point":x,"unverified_point":answer.witness_point,"witness":answer.witness,"dual":answer.dual}),
             );
         }
     }
@@ -333,6 +333,16 @@ pub(crate) fn solve(
     };
     let mut answer = revised::raw(&q, limit, deadline, warm, retain);
     if matches!(answer.outcome, Outcome::NumericalError) {
+        if std::env::var_os("MIP_LP_TRACE").is_some() {
+            if let (Some(x), Some(y)) = (answer.witness_point.as_ref(), answer.witness.as_ref()) {
+                let x: Vec<_> = x.iter().zip(&factors).map(|(x, s)| x / s).collect();
+                let y: Vec<_> = y.iter().zip(&rows).map(|(y, r)| y / r).collect();
+                eprintln!(
+                    "LP unverified candidate original validation {:?}",
+                    primal_dual(p, &x, &y)
+                );
+            }
+        }
         validation_diagnostic(p, &answer, "raw_scaled");
     }
     answer.stats.scaled_columns += factors.iter().filter(|s| **s != 1.).count();

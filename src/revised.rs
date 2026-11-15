@@ -375,6 +375,12 @@ impl Simplex {
     fn reduced(&self, c: &[f64], y: &[f64], j: usize) -> f64 {
         self.reduced_with_tolerance(c, y, j).0
     }
+    #[track_caller]
+    fn certificate_failure(&mut self, c: &[f64]) -> Outcome {
+        self.witness = Some(self.multipliers(c).values.clone());
+        self.witness_point = Some(self.x[..self.original].to_vec());
+        numerical()
+    }
     /// Validate primal and bounded-variable dual residuals independently of pricing.
     fn certificate(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
         if self
@@ -391,20 +397,20 @@ impl Simplex {
                 .any(|&j| self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7)
                 && !self.refine_basic_point()
             {
-                return Err(numerical());
+                return Err(self.certificate_failure(c));
             }
         }
         let mut residual = self.rhs.clone();
         for j in 0..self.columns.len() {
             if !self.x[j].is_finite() || self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7 {
-                return Err(numerical());
+                return Err(self.certificate_failure(c));
             }
             for &(i, a) in &self.columns[j] {
                 residual[i] -= a * self.x[j];
             }
         }
         if residual.iter().any(|r| !r.is_finite() || r.abs() > 1e-6) {
-            return Err(numerical());
+            return Err(self.certificate_failure(c));
         }
         let pricing = self.multipliers(c);
         let y = &pricing.values;
@@ -412,12 +418,12 @@ impl Simplex {
         for j in 0..self.columns.len() {
             let r = self.reduced(c, &y, j);
             if !r.is_finite() {
-                return Err(numerical());
+                return Err(self.certificate_failure(c));
             }
             if self.upper[j].is_finite() {
                 dual_terms.push((r.min(0.), self.upper[j]));
             } else if r < -1e-7 {
-                return Err(numerical());
+                return Err(self.certificate_failure(c));
             }
         }
         let dual = crate::exact::dot_lower(dual_terms.into_iter()).ok_or_else(numerical)?;
@@ -427,7 +433,7 @@ impl Simplex {
             || !dual.is_finite()
             || (primal - dual).abs() > 1e-6 * (1.0 + primal.abs())
         {
-            return Err(numerical());
+            return Err(self.certificate_failure(c));
         }
         self.witness = Some(y.clone());
         Ok((primal, dual.min(primal)))
