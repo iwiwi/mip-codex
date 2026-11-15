@@ -289,3 +289,7 @@
 ### PR20候補: 費用変更時の主単体法warm
 
 PR19はa4705cbへマージ。別worktree warm-objective-source、branch warm-objectiveで開発しmainへrebaseした。行列構造一致と費用変更を区別し、primal feasibleな基底だけ主単体法へ渡す。違反ならcoldへ戻す。snapshot費用は更新、元Arcは不変。Stats集約のフィールド不足による初回コンパイル失敗を保持し修正。Rust136回帰成功。1000変更のcold/dense照合、別の1100解のHiGHS/Fraction検査も失敗0。部品時間はwarm0.1071秒/cold0.1468秒/HiGHS0.1440秒、pivot37035/53057、warm成功1000。小さい部品測定に限り、MILP全体の高速化とはしない。詳細docs/WARM_OBJECTIVE.md。次は主解専用の根feasibility pump。
+
+### 強分枝の混合候補と実行不能hint試作
+
+PR21はマージせず閉じ、main PR20からstrong-objective branchへ。候補を分数度と元費用×分数距離の混合にできるようにし、実行不能hintは独立flagに分けた。初期既定はいずれもfalse。8候補/256pivot/.1秒は維持する。評価候補indexと選択indexも出力し、非零費用の少数変数が実際に候補へ入るかを確認可能にする。子LPのbound/主解/証明の不採用は維持。両子実行不能でもmain node_limit/bound不変のテストと、混合候補が上位分数度6を保つ単体検査、80二値min/max全列挙を4設定へ広げた。実験計画はdocs/STRONG_OBJECTIVE_PLAN.md。

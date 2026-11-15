@@ -80,6 +80,20 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_RINS must be 0 or 1".into()),
             };
         }
+        for name in ["MIP_STRONG_OBJECTIVE", "MIP_STRONG_INFEASIBLE_HINT"] {
+            if let Ok(value) = std::env::var(name) {
+                let enabled = match value.as_str() {
+                    "0" => false,
+                    "1" => true,
+                    _ => return Err(format!("{name} must be 0 or 1").into()),
+                };
+                if name == "MIP_STRONG_OBJECTIVE" {
+                    limits.strong_objective = enabled;
+                } else {
+                    limits.strong_infeasible_hint = enabled;
+                }
+            }
+        }
         if let Ok(value) = std::env::var("MIP_STRONG_BRANCHING") {
             limits.strong_branching = match value.as_str() {
                 "0" => false,
