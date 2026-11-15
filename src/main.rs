@@ -47,7 +47,11 @@ fn run() -> Result<(), String> {
             limits.integer_propagation = match value.as_str() {
                 "0" => false,
                 "1" => true,
-                _ => return Err("MIP_INTEGER_PROPAGATION must be 0 or 1".into()),
+                "root" => {
+                    limits.integer_propagation_root_only = true;
+                    true
+                }
+                _ => return Err("MIP_INTEGER_PROPAGATION must be 0, 1, or root".into()),
             };
         }
         if limits.integer_propagation && limits.propagation {

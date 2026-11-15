@@ -19,3 +19,11 @@ Limits.integer_propagation（初期既定false）、MIP_INTEGER_PROPAGATION=0/1�
 予算/deadlineで中断しても既に導いた厳密なdomainだけを保ち、未知/overflowはfail-open。
 根整数矛盾2x=1はLP前に証明し、2x=2の固定実行可能leafはDense/Revisedとも通常LPを通す統合回帰を追加。
 次は既定off/onで合成2700、十進数回帰、18開発問対照を測定し、採用を判断する。
+
+
+## 全節点版の測定と根限定仮説
+
+154Rust/合成2700/十進回帰22件は通過。全節点onの18問はmadが0.3766→0.4532で悪化、他17問の主解は同等。
+markshare60秒はoff35.343s/1,486,619節点、on40.551s/1,543,063節点。702,002tighteningsがあってもpruned0で、仕事が増えた。
+全節点版は既定採用しない。MIP_INTEGER_PROPAGATION=rootを追加し、根の有効なdomainだけを子へ継承して、節点ごとの追加走査を省く対照を行う。
+同時Rootプロセスの同秒出力先衝突でonの最初の8問runが開始前に失敗した。生ログを保持し、mkdtempで一意なrun名へ修正後に両方を取り直した。事前確認8回帰も全合格。

@@ -200,3 +200,23 @@ fn no_eligible_rows_skip_per_node_propagation_work() {
     assert_eq!(r.status, "optimal");
     assert_eq!(r.integer_propagation_stats.calls, 0);
 }
+
+#[test]
+fn root_only_scope_propagates_once_and_preserves_integer_optimum() {
+    use mip_codex::solve::{Engine, solve};
+    let model=mps::parse(std::io::Cursor::new("NAME rootscope\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 2\n y c -1 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n")).unwrap();
+    for engine in [Engine::Dense, Engine::Revised] {
+        let r = solve(
+            &model,
+            &mip_codex::solve::Limits {
+                integer_propagation_root_only: true,
+                ..solver_limits(engine)
+            },
+        );
+        assert_eq!(r.status, "optimal");
+        assert_eq!(r.objective, Some(-1.));
+        assert!(r.nodes >= 2);
+        assert_eq!(r.integer_propagation_stats.calls, 1);
+        assert!(r.integer_propagation_root_only);
+    }
+}

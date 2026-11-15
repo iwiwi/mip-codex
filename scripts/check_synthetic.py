@@ -75,7 +75,8 @@ for case in range(count):
             path=Path(directory)/'case.mps';path.write_text(text)
             result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10'],timeout=15))
             if 'MIP_INTEGER_PROPAGATION' in os.environ:
-                assert result.get('integer_propagation_enabled') == (os.environ['MIP_INTEGER_PROPAGATION']=='1'), 'unexpected integer propagation mode'
+                assert result.get('integer_propagation_enabled') == (os.environ['MIP_INTEGER_PROPAGATION']!='0'), 'unexpected integer propagation mode'
+                assert result.get('integer_propagation_root_only') == (os.environ['MIP_INTEGER_PROPAGATION']=='root'), 'unexpected integer propagation scope'
             if 'MIP_OBJECTIVE_ROUNDING' in os.environ:
                 assert result.get('objective_rounding') == (os.environ['MIP_OBJECTIVE_ROUNDING']!='0'), 'unexpected objective rounding mode'
                 assert result.get('objective_rounding_all') == (os.environ['MIP_OBJECTIVE_ROUNDING']=='all'), 'unexpected objective rounding scope'

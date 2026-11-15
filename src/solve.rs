@@ -22,6 +22,7 @@ pub struct Limits {
     pub warm_start: bool,
     pub propagation: bool,
     pub integer_propagation: bool,
+    pub integer_propagation_root_only: bool,
     pub primal_repair: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
@@ -49,6 +50,7 @@ impl Default for Limits {
             warm_start: true,
             propagation: false,
             integer_propagation: false,
+            integer_propagation_root_only: false,
             primal_repair: true,
             lp_diving: true,
             primal_probe: true,
@@ -116,6 +118,7 @@ pub struct Result {
     pub lp_engine: String,
     pub propagation: bool,
     pub integer_propagation_enabled: bool,
+    pub integer_propagation_root_only: bool,
     pub integer_propagation_stats: integer_propagate::Stats,
     pub propagation_calls: usize,
     pub propagation_rows: usize,
@@ -818,7 +821,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 }
             }
         }
-        if let Some(p) = &mut integer_propagator {
+        if let Some(p) = &mut integer_propagator
+            && (!limits.integer_propagation_root_only || nodes == 1)
+        {
             match p.propagate(
                 &mut node.lower,
                 &mut node.upper,
@@ -1574,6 +1579,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         repair_work: repair_stats.work,
         propagation: limits.propagation,
         integer_propagation_enabled: limits.integer_propagation && !limits.propagation,
+        integer_propagation_root_only: limits.integer_propagation_root_only,
         integer_propagation_stats,
         propagation_calls: propagation_stats.calls,
         propagation_rows: propagation_stats.rows,
