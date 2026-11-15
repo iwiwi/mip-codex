@@ -67,10 +67,24 @@ def verify(model_path,result,exact):
  assert type(completed)is int and 0<=completed<=n
  assert type(remaining)is int and 0<=remaining<=root_upper
  if colors:
-  rank={j:k for k,j in enumerate(stats['order'])}
-  root_order=sorted(range(n),key=lambda j:(colors[j],rank[j]))
-  prefix=root_order[:n-completed]
-  assert remaining>=max((colors[j]for j in prefix),default=0)
+  candidates=stats.get('root_prefix_colorings',[])
+  if candidates:
+   root_order=stats['root_search_order']
+   assert len(root_order)==n and all(type(j)is int for j in root_order)and set(root_order)==set(range(n))
+   for coloring in candidates:
+    assert len(coloring)==n and all(type(c)is int and 1<=c<=n for c in coloring)
+    groups={}
+    for j,c in enumerate(coloring):groups.setdefault(c,[]).append(j)
+    for group in groups.values():
+     assert all((a,b)in edges for a,b in itertools.combinations(group,2))
+   assert root_upper==min(len(set(c))for c in candidates)
+   prefix=root_order[:n-completed]
+   assert remaining>=min(len({c[j]for j in prefix})for c in candidates)
+  else:
+   rank={j:k for k,j in enumerate(stats['order'])}
+   root_order=sorted(range(n),key=lambda j:(colors[j],rank[j]))
+   prefix=root_order[:n-completed]
+   assert remaining>=max((colors[j]for j in prefix),default=0)
  else:assert completed==0 and remaining==n
  assert upper==(best if complete else max(best,remaining))
  point=result['values'];chosen=[j for j,name in enumerate(names)if Fraction(point[name])==1]

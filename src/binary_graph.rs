@@ -22,6 +22,8 @@ pub struct Stats {
     pub best: usize,
     pub complete: bool,
     pub root_colors: Vec<usize>,
+    pub root_prefix_colorings: Vec<Vec<usize>>,
+    pub root_search_order: Vec<usize>,
     pub order: Vec<usize>,
     pub first_seconds: Option<f64>,
 }
@@ -349,6 +351,17 @@ pub fn solve_with_options(
     local: bool,
     stronger_root: bool,
 ) -> Option<Answer> {
+    solve_with_prefix(model, memory, deadline, limit, local, stronger_root, false)
+}
+pub fn solve_with_prefix(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+) -> Option<Answer> {
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -391,6 +404,8 @@ pub fn solve_with_options(
     search.stats.first_seconds = Some(started.elapsed().as_secs_f64());
     let mut root = search.color(&all);
     search.stats.root_initial_upper = search.stats.root_upper;
+    let original_root = root.clone();
+    let mut prefix_colorings = vec![search.stats.root_colors.clone()];
     if stronger_root && root.is_some() && search.best.len() < search.stats.root_upper {
         let phase = Instant::now();
         let budget = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(0.15);
@@ -400,6 +415,11 @@ pub fn solve_with_options(
                 search.stats.root_variants += 1;
                 let upper = colors.iter().copied().max().unwrap_or(0);
                 search.stats.root_variant_uppers.push(upper);
+                let mut original_colors = vec![0; graph.n];
+                for v in 0..graph.n {
+                    original_colors[graph.order[v]] = colors[v];
+                }
+                prefix_colorings.push(original_colors);
                 if upper < search.stats.root_upper {
                     let mut order: Vec<_> = (0..graph.n).collect();
                     order.sort_unstable_by_key(|&v| (colors[v], v));
@@ -414,6 +434,26 @@ pub fn solve_with_options(
             }
         }
         search.stats.root_color_seconds = phase.elapsed().as_secs_f64();
+    }
+    if preserve_order {
+        if let Some((order, _)) = original_root {
+            let mut seen = vec![vec![false; graph.n + 1]; prefix_colorings.len()];
+            let mut counts = vec![0usize; prefix_colorings.len()];
+            let mut bounds = Vec::with_capacity(graph.n);
+            for &v in &order {
+                for (k, colors) in prefix_colorings.iter().enumerate() {
+                    let color = colors[graph.order[v]];
+                    if !seen[k][color] {
+                        seen[k][color] = true;
+                        counts[k] += 1;
+                    }
+                }
+                bounds.push(*counts.iter().min().unwrap());
+            }
+            search.stats.root_search_order = order.iter().map(|&v| graph.order[v]).collect();
+            search.stats.root_prefix_colorings = prefix_colorings;
+            root = Some((order, bounds));
+        }
     }
     if local
         && root.is_some()

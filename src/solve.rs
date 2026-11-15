@@ -24,6 +24,7 @@ pub struct Limits {
     pub binary_graph: bool,
     pub graph_local_search: bool,
     pub graph_root_coloring: bool,
+    pub graph_root_prefix: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -55,6 +56,7 @@ impl Default for Limits {
             binary_graph: true,
             graph_local_search: true,
             graph_root_coloring: true,
+            graph_root_prefix: false,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -743,13 +745,14 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
-            if let Some(answer) = crate::binary_graph::solve_with_options(
+            if let Some(answer) = crate::binary_graph::solve_with_prefix(
                 model,
                 limits.dense_bytes,
                 deadline,
                 limits.nodes,
                 limits.graph_local_search,
                 limits.graph_root_coloring,
+                limits.graph_root_prefix,
             ) {
                 let sign = if model.maximize { -1. } else { 1. };
                 let objective = model.objective(&answer.point);
