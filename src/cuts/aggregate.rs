@@ -180,7 +180,7 @@ impl Pool {
                 .then(a.term.source_row.cmp(&b.term.source_row))
                 .then(a.term.upper_side.cmp(&b.term.upper_side))
         });
-        sides.truncate(128);
+        sides.truncate(512);
         let mut incidence = vec![Vec::<(usize, i64)>::new(); x.len()];
         for (i, row) in sides.iter().enumerate() {
             for &(j, a) in &row.coefficients {
