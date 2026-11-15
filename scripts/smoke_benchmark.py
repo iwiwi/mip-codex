@@ -8,10 +8,12 @@ import resource
 import subprocess
 import sys
 import time
-from validate_solution import validate
+from validate_solution import validate, absolute_checker
 from verify_cover_cuts import validate_cut_proofs
 
 root=Path(__file__).resolve().parents[1]
+if not absolute_checker().is_file():
+    raise SystemExit('required absolute rational checker unavailable: '+str(absolute_checker()))
 seconds=int(sys.argv[1]) if len(sys.argv)>1 else 10
 names=sys.argv[2:] or ['pk1.mps.gz','mad.mps.gz','markshare_4_0.mps.gz']
 manifest=json.load(open(root/'data/manifest.json'))
@@ -24,6 +26,7 @@ solvers=os.environ.get('MIP_BENCH_SOLVERS','rust,highs,scip,glpk').split(',')
 source_files=sorted([*root.glob('src/*.rs'),*root.glob('scripts/*.py'),root/'Cargo.toml',root/'Cargo.lock'])
 source_hashes={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
 meta=dict(solvers=solvers,source_sha256=source_hashes,binary_sha256=hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest(),seconds=seconds,threads=1,cpu=core,memory_bytes=16*1024**3,git_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),dirty=bool(subprocess.check_output(['git','status','--porcelain','--','src','scripts','Cargo.toml','Cargo.lock'],cwd=root)),names=names)
+meta['absolute_checker_sha256']=hashlib.sha256(absolute_checker().read_bytes()).hexdigest()
 (output/'experiment.json').write_text(json.dumps(meta,indent=2)+'\n')
 
 def restrict():

@@ -297,3 +297,9 @@ PR21はマージせず閉じ、main PR20からstrong-objective branchへ。候�
 強分枝d9e9c41の18問4設定 (113501/113503) は全72時間制限、18主解全同等、併用だけ30n下界51→51.7547169811。56主解GMP/公式有効、268cut/72構造証明全有効。小1000/二値1000/中規模200全失敗0、Rust138回帰と80二値×4設定全列挙成功。30n60秒113850もclassic51/併用51.7547、両方主解なし。主ノード486→330/LP549→390は同時間枠の異なる探索であり高速化の証拠とはしない。両方のcut/構造証明有効。両設定を既定候補へ変更し最終確認中。
 
 既定8e95f9eのfresh8×5秒114252でも30n下界51.7547と7主解の品質を再現した。native3参照は103709の同条件測定を明示再利用。新既定138回帰も成功。全件native baselineは11:43 UTCに99/720完了、旧primary最適41/error8、生存。次のdive-fixation-source worktreeで、一括整数固定を省く反例(min/max)と全139回帰が成功。releaseはmainの測定完了まで変更せず、PR採用後のrebase/対照実験へ進む。
+
+### 潜り探索の一括固定を省く候補
+
+PR22はa5a3b196へマージ。別worktree dive-fixation-source、flexible-diving branchをrebaseし139回帰成功。最初の1000小/1000二値/200中規模は457/1000/200件失敗。調査すると全失敗は返却optimal点の独立検査段階で、worktreeにGMP checker実行ファイルが無くvalid=Noneとなっていた。原MPS float診断は通るが検証完了として採用しない。両checkerをprimaryからコピーしhashを保存した。diagnosis.jsonに全失敗のstatus内訳を記録。最初の18問のvalidationも未完了なので採用指標から外し、別artifactへ再測定する。
+
+同じ事故を防ぐため、smoke/synthetic開始時にabsolute checkerの存在を必須化し、smoke metadataにchecker hashを追加。validate自体のvalid=Noneという挙動は維持する。既存validator回帰と、存在しないcheckerで0件syntheticが開始前にexit1になる確認を保存した。稼働native snapshotへは変更しない。

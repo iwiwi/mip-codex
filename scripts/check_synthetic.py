@@ -11,10 +11,12 @@ import subprocess
 import sys
 import tempfile
 import highspy
-from validate_solution import validate
+from validate_solution import validate, absolute_checker
 from verify_cover_cuts import validate_cut_proofs
 
 root = Path(__file__).resolve().parents[1]
+if not absolute_checker().is_file():
+    raise SystemExit('required absolute rational checker unavailable: '+str(absolute_checker()))
 rng = random.Random(20261115)
 count = int(sys.argv[1]) if len(sys.argv)>1 else 500
 failed = 0

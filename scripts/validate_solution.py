@@ -73,11 +73,15 @@ def validate_float(path, solution, feasibility=1e-6, integrality=1e-6):
                 integrality_tolerance=integrality, reader='HiGHS '+'.'.join(str(getattr(highspy,'HIGHS_VERSION_'+k)) for k in ('MAJOR','MINOR','PATCH')))
 
 
-def validate(path, solution, feasibility=1e-6, integrality=1e-6):
-    diagnostics = validate_float(path, solution, feasibility, integrality)
+def absolute_checker():
     root = Path(__file__).resolve().parents[1]
     candidates = [root/'bin/solchecker-absolute', root/'third_party/miplib-checker/bin/solchecker-absolute']
-    checker = Path(os.environ['MIP_ABSOLUTE_CHECKER']) if 'MIP_ABSOLUTE_CHECKER' in os.environ else next((p for p in candidates if p.is_file()), candidates[-1])
+    return Path(os.environ['MIP_ABSOLUTE_CHECKER']) if 'MIP_ABSOLUTE_CHECKER' in os.environ else next((p for p in candidates if p.is_file()), candidates[-1])
+
+
+def validate(path, solution, feasibility=1e-6, integrality=1e-6):
+    diagnostics = validate_float(path, solution, feasibility, integrality)
+    checker = absolute_checker()
     result = dict(valid=None, float_diagnostics=diagnostics, arithmetic='GMP rational absolute',
                   feasibility_tolerance=feasibility, integrality_tolerance=integrality)
     if not checker.is_file():
