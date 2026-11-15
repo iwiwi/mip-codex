@@ -257,6 +257,21 @@ fn two_sum(a: f64, b: f64) -> Option<(f64, f64)> {
     let error = (a - (value - z)) + (b - z);
     (value.is_finite() && error.is_finite()).then_some((value, error))
 }
+#[inline]
+fn add_pair(point: f64, tail: f64, value: f64) -> Option<(f64, f64)> {
+    let (next, residue) = two_sum(point, value)?;
+    if tail == 0. {
+        return Some((next, residue));
+    }
+    if residue == 0. {
+        return two_sum(next, tail);
+    }
+    let (low, discarded) = two_sum(tail, residue)?;
+    if discarded != 0. {
+        return None;
+    }
+    two_sum(next, low)
+}
 fn accumulated(terms: impl Iterator<Item = (f64, f64)>) -> Option<Accumulated> {
     let mut point = 0.;
     let mut tail = 0.;
@@ -281,17 +296,26 @@ fn accumulated(terms: impl Iterator<Item = (f64, f64)>) -> Option<Accumulated> {
                     && a.abs() <= (1u64 << 52) as f64
                     && b.abs() <= (1u64 << 52) as f64
                     && p.abs() <= (1u64 << 52) as f64));
-        if exact_product {
-            if let Some((next, residue)) = two_sum(point, p) {
-                if let Some((low, discarded)) = two_sum(tail, residue) {
-                    if discarded == 0. {
-                        if let Some((hi, lo)) = two_sum(next, low) {
-                            point = hi;
-                            tail = lo;
-                            continue;
-                        }
-                    }
+        let product_error = if exact_product {
+            Some(0.)
+        } else {
+            // Every bit of the exact product must be representable down to 2^-1074.
+            // Under this sufficient condition the fused residual is exact, not rounded away.
+            let (_, _, ae) = parts(a)?;
+            let (_, _, be) = parts(b)?;
+            (p.is_finite() && ae + be >= -1074).then(|| a.mul_add(b, -p))
+        };
+        if let Some(error) = product_error {
+            if let Some((hi, lo)) = add_pair(point, tail, p).and_then(|(hi, lo)| {
+                if error == 0. {
+                    Some((hi, lo))
+                } else {
+                    add_pair(hi, lo, error)
                 }
+            }) {
+                point = hi;
+                tail = lo;
+                continue;
             }
         }
         // The pair stores an exact real sum, never an approximate compensation.
@@ -397,8 +421,14 @@ mod value_tests {
     }
     #[test]
     fn nearest_tight_bounds_and_fast_enclosures_match_fraction_oracle() {
-        let cases: Vec<Case> =
+        let mut cases: Vec<Case> =
             serde_json::from_str(include_str!("../tests/fixtures/exact-dot-values.json")).unwrap();
+        cases.extend(
+            serde_json::from_str::<Vec<Case>>(include_str!(
+                "../tests/fixtures/exact-fma-values.json"
+            ))
+            .unwrap(),
+        );
         let mut fast = 0;
         for (i, c) in cases.iter().enumerate() {
             let terms = || {
