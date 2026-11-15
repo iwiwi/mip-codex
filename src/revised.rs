@@ -35,6 +35,8 @@ pub struct Stats {
     pub scaled_rows: usize,
     pub multiplier_cache_hits: usize,
     pub multiplier_cache_misses: usize,
+    pub certificate_repair_trials: usize,
+    pub certificate_repairs: usize,
 }
 #[derive(Debug)]
 pub struct Answer {
@@ -792,6 +794,8 @@ impl Stats {
         self.scaled_rows += other.scaled_rows;
         self.multiplier_cache_hits += other.multiplier_cache_hits;
         self.multiplier_cache_misses += other.multiplier_cache_misses;
+        self.certificate_repair_trials += other.certificate_repair_trials;
+        self.certificate_repairs += other.certificate_repairs;
     }
 }
 fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> Answer {

@@ -28,3 +28,5 @@ pub const BUILD_SOURCE_DIRECTORY: &str = env!("CARGO_MANIFEST_DIR");
 pub const BUILD_SOURCE_FINGERPRINT: &str = env!("MIP_SOURCE_FINGERPRINT");
 
 pub mod binary_graph;
+
+pub(crate) mod certificate;

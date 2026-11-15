@@ -1,0 +1,74 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/glass4.mps.gz'...
+Problem: glass4
+Objective: obj
+397 rows, 322 columns, 1834 non-zeros
+302 integer variables, all of which are binary
+1867 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-210513-4us3kh14/glass4.mps.gz/glpk/model.glp'...
+2972 lines were written
+GLPK Integer Optimizer 5.0
+396 rows, 322 columns, 1815 non-zeros
+302 integer variables, all of which are binary
+Preprocessing...
+44 constraint coefficient(s) were reduced
+396 rows, 317 columns, 1807 non-zeros
+298 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  8.400e+06  ratio =  8.400e+06
+GM: min|aij| =  2.665e-01  max|aij| =  3.753e+00  ratio =  1.408e+01
+EQ: min|aij| =  7.227e-02  max|aij| =  1.000e+00  ratio =  1.384e+01
+2N: min|aij| =  4.883e-02  max|aij| =  1.758e+00  ratio =  3.600e+01
+Constructing initial basis...
+Size of triangular part is 396
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+396 rows, 317 columns, 1807 non-zeros
+      0: obj =   7.000024000e+08 inf =   6.326e+01 (40)
+     40: obj =   1.100003200e+09 inf =   1.409e-16 (0)
+*    45: obj =   8.000024000e+08 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 36
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 298 + 0 = 298 vertices
++    45: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 3691696333.33
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 11; mir = 142;
+Cuts on level 178: gmi = 13; mir = 146;
++  1705: >>>>>   2.980027180e+09 >=   8.000036917e+08  73.2% (290; 2)
+Cuts on level 148: gmi = 13; mir = 145;
++  2279: >>>>>   2.783360148e+09 >=   8.000036917e+08  71.3% (406; 9)
+Cuts on level 118: gmi = 12; mir = 148;
++  5309: >>>>>   2.500020950e+09 >=   8.000038974e+08  68.0% (957; 43)
+Cuts on level 168: gmi = 14; mir = 145;
++ 14542: >>>>>   2.240020202e+09 >=   8.000042845e+08  64.3% (2757; 173)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
++ 53782: mip =   2.240020202e+09 >=   8.000047126e+08  64.3% (9328; 779)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
++ 78107: mip =   2.240020202e+09 >=   8.000048206e+08  64.3% (13325; 847)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-210513-4us3kh14/glass4.mps.gz/glpk/solution.raw'...
+727 lines were written

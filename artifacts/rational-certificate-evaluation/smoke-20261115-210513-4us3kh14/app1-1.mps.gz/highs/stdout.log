@@ -1,0 +1,71 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261115-210513-4us3kh14/app1-1.mps.gz/highs/options.txt
+Number of PL entries in BOUNDS section is 1255
+Number of BV entries in BOUNDS section is 1225
+MIP app1-1 has 4926 rows; 2480 cols; 18275 nonzeros; 1225 integer variables (1225 binary)
+Coefficient ranges:
+  Matrix  [1e-04, 1e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e-04, 1e+00]
+Presolving model
+4926 rows, 2480 cols, 18275 nonzeros 0s
+3649 rows, 1253 cols, 24981 nonzeros 0s
+3242 rows, 1059 cols, 19029 nonzeros 0s
+Presolve reductions: rows 3242(-1684); columns 1059(-1421); nonzeros 19029(+754) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   3242 rows
+   1059 cols (1030 binary, 0 integer, 0 implied int., 29 continuous, 0 domain fixed)
+   19029 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            0                  Large        0      0      0         0     0.2s
+         0       0         0   0.00%   -20.95666514    0                  Large        0      0      0        67     0.2s
+
+2.8% inactive integer columns, restarting
+Model after restart has 3184 rows, 1030 cols (1001 bin., 0 int., 0 impl., 29 cont., 0 dom.fix.), and 18652 nonzeros
+
+         0       0         0   0.00%   -5.426867041    0                  Large      261      0      0     10219     3.7s
+         0       0         0   0.00%   -5.426867041    0                  Large      261     98      2     10478     3.8s
+ T     981       2       467  99.96%   -4.966679094    -3                65.56%     7250    180    527     30145     7.7s
+       988       0       470 100.00%   -3              -3                 0.00%     7250    180    530     30369     7.8s
+
+Solving report
+  Model             app1-1
+  Status            Optimal
+  Primal bound      -3
+  Dual bound        -3
+  Gap               0%
+  P-D integral      7.74
+  Solution status   feasible
+                    -3 (objective)
+                    1.11022302463e-16 (integrality violation)
+  Timing            7.75
+                    1.54 (Presolve)
+                        MIP    time [calls] = 0.17 [1]
+                        subMIP time [calls] = 1.37 [37]
+                    6.21 (Solve)
+                        MIP    time [calls] = 3.07 [1]
+                        subMIP time [calls] = 3.14 [33]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [37]
+  Max sub-MIP depth 8
+  Nodes             988
+  Repair LPs        0
+  LP iterations     30369
+                    0 (strong br.)
+                    1616 (separation)
+                    11316 (heuristics)

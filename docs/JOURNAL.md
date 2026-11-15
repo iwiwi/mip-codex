@@ -441,3 +441,7 @@ be70fe46で既にpoint_error=0と確認したshiftだけ、dxを掛けるゼロ�
 無条件pumpはgmu-35-50を悪化させたため不採用。初回主解なしに限定すると固定18問の主解/dual/statusは全て直前版と一致。binkar10_1の初回時刻3回中央値0.39120→0.27456秒、最終点は同じ。追加開発6問中blp-ic98で10秒主解なし→18526.1675を発見、追加3回同じ点。nativeの10秒主解/下界は両問題ともなお強い。2700合成/300根LP/32数値、初回限定で追加1500合成、173Rustテスト成功。候補7412.420071を別保存しGMP/公式検査成功。全保存点の再検査中。次は整数固定後の元目的LPによる連続部分polishingを調べる。
 
 native v2は57/720・strict optimal24・error2。新しい044-glpk/ex10はGLPK入力parserが元MPS 69612行でmissing row type in field 1、driver exit3、worker exit1となり結果ファイルなし。精度捕捉とは別の入力読込失敗として原ログを保持し、測定snapshotや720件計画は変更しない。
+
+## 2026-11-15 21:09 UTC: 整数乗数候補でLP不能証明を補完
+
+通常証明が失敗したときだけRust連分数から小分母比/共通整数乗数を提案し、既存の外向きcontradictionで必ず再証明する。glass4は92節点/主解なし→163節点/主解3466706233.3333354、追加3回同じ点と40補完を再現。後続raw LP数値失敗は残る。app1-1は59節点失敗で不変。全native10秒の点/下界はなお優れ、HS/SCIPはapp1-1を最適証明。177Rust/2700合成/300根LP/32数値成功、固定18問主解/dual/status一致、37保存点GMP/公式/140切断検査成功。全件Rust snapshotはcreate-only、native v2は63/720・strict optimal25・error3で継続。次はfresh LU後のratio失敗を残差から診断し、閾値を緩めず基底解の精度を改善する。
