@@ -441,3 +441,7 @@ be70fe46で既にpoint_error=0と確認したshiftだけ、dxを掛けるゼロ�
 無条件pumpはgmu-35-50を悪化させたため不採用。初回主解なしに限定すると固定18問の主解/dual/statusは全て直前版と一致。binkar10_1の初回時刻3回中央値0.39120→0.27456秒、最終点は同じ。追加開発6問中blp-ic98で10秒主解なし→18526.1675を発見、追加3回同じ点。nativeの10秒主解/下界は両問題ともなお強い。2700合成/300根LP/32数値、初回限定で追加1500合成、173Rustテスト成功。候補7412.420071を別保存しGMP/公式検査成功。全保存点の再検査中。次は整数固定後の元目的LPによる連続部分polishingを調べる。
 
 native v2は57/720・strict optimal24・error2。新しい044-glpk/ex10はGLPK入力parserが元MPS 69612行でmissing row type in field 1、driver exit3、worker exit1となり結果ファイルなし。精度捕捉とは別の入力読込失敗として原ログを保持し、測定snapshotや720件計画は変更しない。
+
+## 2026-11-15 20:53 UTC: 整数固定のpump polishingは不採用
+
+binkar10_1の主解/dualは不変、blp-ic98も4e-12の最下位差だけで追加LP約0.016秒。実質改善がなく60秒拡大せず未統合で保存する。174Rust/1500合成、4保存点GMP/公式/34切断が有効。次はglass4/app1-1の本探索数値失敗を調査。warmからcoldへの数値fallbackは既にあり、traceの452行はwarm失敗後の通常fallbackにも現れるため単独では最終原因と見なせない。scaling後の元単位証明チェックを診断する。
