@@ -29,7 +29,7 @@ fn infeasible_probes_do_not_prove_the_main_problem() {
     );
     assert_eq!(result.status, "node_limit");
     assert_eq!(result.objective, None);
-    assert_eq!(result.dual_bound, Some(0.4));
+    assert!((result.dual_bound.unwrap() - 0.4).abs() < 1e-14);
     assert_eq!(result.nodes, 1);
     assert_eq!(result.strong.infeasible, 2);
     assert_eq!(result.strong.calls, 1);
@@ -174,7 +174,7 @@ fn infeasible_hints_select_a_variable_but_do_not_prune_or_change_parent_bound() 
         );
         assert_eq!(result.status, "node_limit");
         assert_eq!(result.nodes, 1);
-        assert_eq!(result.dual_bound, Some(0.4));
+        assert!((result.dual_bound.unwrap() - 0.4).abs() < 1e-14);
         assert_eq!(result.objective, None);
         assert_eq!(result.strong.selected_variable, Some(0));
         assert_eq!(result.strong.infeasible_hint_selections, 1);

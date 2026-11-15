@@ -150,6 +150,7 @@ pub(crate) fn dot_enclosure(terms: impl Iterator<Item = (f64, f64)>) -> Option<[
     };
     (lo.is_finite() && hi.is_finite()).then_some([lo, hi])
 }
+#[cfg(test)]
 pub(crate) fn sum(terms: impl Iterator<Item = f64>) -> Option<f64> {
     let mut total = Sum::default();
     for x in terms {
@@ -242,5 +243,161 @@ mod enclosure_tests {
             Some([0., 0.])
         );
         assert_eq!(dot_enclosure([(f64::MAX, f64::MAX)].into_iter()), None);
+    }
+}
+
+enum Accumulated {
+    Point(f64),
+    Wide(Sum),
+}
+fn accumulated(terms: impl Iterator<Item = (f64, f64)>) -> Option<Accumulated> {
+    let mut point = 0.;
+    let mut wide: Option<Sum> = None;
+    for (a, b) in terms {
+        if a == 0. || b == 0. {
+            if !a.is_finite() || !b.is_finite() {
+                return None;
+            }
+            continue;
+        }
+        if let Some(sum) = &mut wide {
+            sum.product(a, b)?;
+            continue;
+        }
+        let p = a * b;
+        let exact_product = p.is_finite()
+            && (a.abs() == 1.
+                || b.abs() == 1.
+                || (a.fract() == 0.
+                    && b.fract() == 0.
+                    && a.abs() <= (1u64 << 52) as f64
+                    && b.abs() <= (1u64 << 52) as f64
+                    && p.abs() <= (1u64 << 52) as f64));
+        if exact_product {
+            let next = point + p;
+            let z = next - point;
+            let residue = (point - (next - z)) + (p - z);
+            if next.is_finite() && residue == 0. {
+                point = next;
+                continue;
+            }
+        }
+        // TwoSumで無損失と証明できたprefixだけpointに保持し、以後は元の積を累算する。
+        let mut sum = Sum::default();
+        sum.product(point, 1.)?;
+        sum.product(a, b)?;
+        wide = Some(sum);
+    }
+    Some(wide.map_or(Accumulated::Point(point), Accumulated::Wide))
+}
+/// 各積も丸めずに累算し、最後の一度だけ最近接へ丸める。
+pub(crate) fn dot(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> {
+    match accumulated(terms)? {
+        Accumulated::Point(v) => Some(v),
+        Accumulated::Wide(s) => s.rounded(),
+    }
+}
+/// f64で表せる最も狭い上下界。表現可能な積和はpointになる。
+pub(crate) fn dot_bounds(terms: impl Iterator<Item = (f64, f64)>) -> Option<[f64; 2]> {
+    let mut sum = match accumulated(terms)? {
+        Accumulated::Point(v) => return Some([v, v]),
+        Accumulated::Wide(s) => s,
+    };
+    let value = sum.rounded()?;
+    sum.product(-value, 1.)?;
+    let direction = sum.sign();
+    let lo = if direction == Ordering::Less {
+        value.next_down()
+    } else {
+        value
+    };
+    let hi = if direction == Ordering::Greater {
+        value.next_up()
+    } else {
+        value
+    };
+    (lo.is_finite() && hi.is_finite()).then_some([lo, hi])
+}
+pub(crate) fn dot_lower(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> {
+    dot_bounds(terms).map(|b| b[0])
+}
+/// 最近接値と、丸め残差の絶対値の上界。
+pub(crate) fn dot_error(terms: impl Iterator<Item = (f64, f64)>) -> Option<(f64, f64)> {
+    let mut sum = match accumulated(terms)? {
+        Accumulated::Point(v) => return Some((v, 0.)),
+        Accumulated::Wide(s) => s,
+    };
+    let value = sum.rounded()?;
+    sum.product(-value, 1.)?;
+    let error = if sum.sign() == Ordering::Equal {
+        0.
+    } else {
+        sum.rounded()?.abs().next_up()
+    };
+    error.is_finite().then_some((value, error))
+}
+/// 通常の有限dot用の保守的な前方誤差区間。不確か/overflowなら厳密累算へ戻す。
+pub(crate) fn fast_dot_bounds(terms: impl Iterator<Item = (f64, f64)>) -> Option<[f64; 2]> {
+    let mut value = 0.;
+    let mut magnitude = 0.;
+    let mut count = 0usize;
+    for (a, b) in terms {
+        let p = a * b;
+        value += p;
+        magnitude += p.abs();
+        count = count.checked_add(1)?;
+    }
+    let n = count as f64;
+    if !value.is_finite() || !magnitude.is_finite() || n * f64::EPSILON > 1e-4 {
+        return None;
+    }
+    let error = (8. * f64::EPSILON * (n + 1.) * magnitude + 4. * n * f64::from_bits(1)).next_up();
+    let lo = (value - error).next_down();
+    let hi = (value + error).next_up();
+    (lo.is_finite() && hi.is_finite()).then_some([lo, hi])
+}
+
+#[cfg(test)]
+mod value_tests {
+    use super::*;
+    #[derive(serde::Deserialize)]
+    struct Case {
+        terms: Vec<[u64; 2]>,
+        nearest: Option<u64>,
+        bounds: Option<[u64; 2]>,
+        error: Option<u64>,
+    }
+    #[test]
+    fn nearest_tight_bounds_and_fast_enclosures_match_fraction_oracle() {
+        let cases: Vec<Case> =
+            serde_json::from_str(include_str!("../tests/fixtures/exact-dot-values.json")).unwrap();
+        let mut fast = 0;
+        for (i, c) in cases.iter().enumerate() {
+            let terms = || {
+                c.terms
+                    .iter()
+                    .map(|&[a, b]| (f64::from_bits(a), f64::from_bits(b)))
+            };
+            assert_eq!(dot(terms()).map(f64::to_bits), c.nearest, "nearest case{i}");
+            assert_eq!(
+                dot_bounds(terms()).map(|b| b.map(f64::to_bits)),
+                c.bounds,
+                "bounds case{i}"
+            );
+            assert_eq!(
+                dot_error(terms()).map(|(v, e)| (v.to_bits(), e.to_bits())),
+                c.nearest.zip(c.error),
+                "error case{i}"
+            );
+            if let Some(b) = fast_dot_bounds(terms()) {
+                fast += 1;
+                let expected = c.bounds.unwrap();
+                assert!(
+                    b[0] <= f64::from_bits(expected[0]) && b[1] >= f64::from_bits(expected[1]),
+                    "fast case{i}"
+                );
+            }
+        }
+        assert!(fast > 200, "{fast}");
     }
 }

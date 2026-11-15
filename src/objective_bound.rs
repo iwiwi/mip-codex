@@ -292,6 +292,7 @@ impl I {
     }
 }
 pub struct Certifier {
+    implied_box: Option<(Vec<Option<f64>>, Vec<Option<f64>>)>,
     costs: Vec<I>,
     offset: I,
     rows: Vec<[Option<I>; 2]>,
@@ -299,12 +300,24 @@ pub struct Certifier {
 }
 impl Certifier {
     pub fn new(model: &Model) -> Option<Self> {
+        Self::with_objective(model, false)
+    }
+    pub fn feasibility(model: &Model) -> Option<Self> {
+        Self::with_objective(model, true)
+    }
+    fn with_objective(model: &Model, feasibility: bool) -> Option<Self> {
         let sign = if model.maximize { -1. } else { 1. };
         let s = I::point(sign)?;
         let costs: Option<Vec<_>> = model
             .variables
             .iter()
-            .map(|v| I::metadata(v.objective, v.objective_enclosure)?.mul(s))
+            .map(|v| {
+                if feasibility {
+                    I::point(0.)
+                } else {
+                    I::metadata(v.objective, v.objective_enclosure)?.mul(s)
+                }
+            })
             .collect();
         let mut rows = Vec::new();
         let mut columns = vec![vec![]; model.variables.len()];
@@ -313,8 +326,11 @@ impl Certifier {
                 row.lower.and_then(|v| I::metadata(v, row.lower_enclosure)),
                 row.upper.and_then(|v| I::metadata(v, row.upper_enclosure)),
             ]);
-            for &(j, a) in &row.coefficients {
-                let interval = if row.exact_integral {
+            for (index, &(j, a)) in row.coefficients.iter().enumerate() {
+                let interval = if row.exact_integral
+                    || row.exact_coefficients
+                    || row.exact_coefficient_flags.get(index) == Some(&true)
+                {
                     I::point(a)?
                 } else {
                     I::new(a.next_down(), a.next_up())?
@@ -322,12 +338,125 @@ impl Certifier {
                 columns.get_mut(j)?.push((i, interval));
             }
         }
-        Some(Self {
+        let mut result = Self {
+            implied_box: None,
             costs: costs?,
-            offset: I::metadata(model.offset, model.offset_enclosure)?.mul(s)?,
+            offset: if feasibility {
+                I::point(0.)?
+            } else {
+                I::metadata(model.offset, model.offset_enclosure)?.mul(s)?
+            },
             rows,
             columns,
-        })
+        };
+        if feasibility {
+            result.implied_box = Some(result.infer_finite_box(model));
+        }
+        Some(result)
+    }
+    // Only fill missing sides. These bounds are used in certificates, never LP search.
+    fn infer_finite_box(&self, model: &Model) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
+        let mut lower: Vec<_> = model
+            .variables
+            .iter()
+            .map(|v| {
+                v.lower
+                    .and_then(|x| I::metadata(x, v.lower_enclosure))
+                    .map(|b| b.lo)
+            })
+            .collect();
+        let mut upper: Vec<_> = model
+            .variables
+            .iter()
+            .map(|v| {
+                v.upper
+                    .and_then(|x| I::metadata(x, v.upper_enclosure))
+                    .map(|b| b.hi)
+            })
+            .collect();
+        let mut rows = vec![Vec::new(); self.rows.len()];
+        for (j, col) in self.columns.iter().enumerate() {
+            for &(i, a) in col {
+                rows[i].push((j, a));
+            }
+        }
+        for _ in 0..4 {
+            let mut changed = false;
+            for (i, row) in rows.iter().enumerate() {
+                for (sign, side) in [(1., 1), (-1., 0)] {
+                    let Some(rhs) = self.rows[i][side].and_then(|b| b.mul(I::point(sign)?)) else {
+                        continue;
+                    };
+                    let mut terms = Vec::with_capacity(row.len());
+                    let mut total = Some(I::point(0.).unwrap());
+                    let mut unknown = 0;
+                    for &(j, a) in row {
+                        let a = if sign > 0. {
+                            a
+                        } else {
+                            I {
+                                lo: -a.hi,
+                                hi: -a.lo,
+                            }
+                        };
+                        let domain = match (lower[j], upper[j]) {
+                            (Some(l), Some(u)) => I::new(l, u),
+                            (Some(l), None) if a.lo >= 0. => I::point(l),
+                            (None, Some(u)) if a.hi <= 0. => I::point(u),
+                            _ => None,
+                        };
+                        let minimum = if a.zero() {
+                            Some(0.)
+                        } else {
+                            domain.and_then(|d| a.mul(d)).map(|p| p.lo)
+                        };
+                        if let Some(v) = minimum {
+                            total = total.and_then(|t| t.add(I::point(v)?));
+                        } else {
+                            unknown += 1;
+                        }
+                        terms.push((j, a, minimum));
+                    }
+                    let Some(total) = total else {
+                        continue;
+                    };
+                    for (j, a, minimum) in terms {
+                        if !(a.lo > 0. && upper[j].is_none() || a.hi < 0. && lower[j].is_none()) {
+                            continue;
+                        }
+                        let others = match (unknown, minimum) {
+                            (0, Some(v)) => total.sub(I::point(v).unwrap()).map(|v| v.lo),
+                            (1, None) => Some(total.lo),
+                            _ => None,
+                        };
+                        let Some(numerator) =
+                            others.and_then(|v| rhs.sub(I::point(v)?)).map(|v| v.hi)
+                        else {
+                            continue;
+                        };
+                        let a1 = numerator / a.lo;
+                        let a2 = numerator / a.hi;
+                        if a.lo > 0. {
+                            let value = a1.max(a2).next_up();
+                            if value.is_finite() {
+                                upper[j] = Some(value);
+                                changed = true;
+                            }
+                        } else {
+                            let value = a1.min(a2).next_down();
+                            if value.is_finite() {
+                                lower[j] = Some(value);
+                                changed = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+        (lower, upper)
     }
     /// 任意の有限行乗数に対する、指定されたbox内の元問題の下界。
     /// 乗数が双対実行可能であるとの仮定は置かない。
@@ -344,6 +473,22 @@ impl Certifier {
         {
             return None;
         }
+        let lower_extended = self.implied_box.as_ref().map(|(l, _)| {
+            lower
+                .iter()
+                .zip(l)
+                .map(|(&a, &b)| a.or(b))
+                .collect::<Vec<_>>()
+        });
+        let upper_extended = self.implied_box.as_ref().map(|(_, u)| {
+            upper
+                .iter()
+                .zip(u)
+                .map(|(&a, &b)| a.or(b))
+                .collect::<Vec<_>>()
+        });
+        let lower = lower_extended.as_deref().unwrap_or(lower);
+        let upper = upper_extended.as_deref().unwrap_or(upper);
         let mut y = multipliers.to_vec();
         let mut total = self.offset;
         for (i, v) in y.iter_mut().enumerate() {
@@ -401,5 +546,67 @@ impl Certifier {
             total = total.add(I::point(contribution)?)?;
         }
         Some(total.lo)
+    }
+}
+
+#[cfg(test)]
+mod implied_box_tests {
+    use super::*;
+    #[test]
+    fn decimal_interval_bounds_preserve_every_enumerated_feasible_point() {
+        let mut seed = 98173u64;
+        for _ in 0..100 {
+            let mut next = || {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                seed
+            };
+            let a: Vec<i64> = (0..3).map(|_| (next() % 11) as i64 - 5).collect();
+            let rhs = (next() % 21) as i64 - 10;
+            let mut text = String::from("NAME proofbox\nROWS\n N c\n L mixed\n");
+            for j in 0..3 {
+                text += &format!(" L up{j}\n L lo{j}\n");
+            }
+            text += "COLUMNS\n";
+            for (j, a) in a.iter().enumerate() {
+                text += &format!(
+                    " x{j} c 0 mixed {}\n x{j} up{j} 0.1 lo{j} -0.2\n",
+                    *a as f64 / 10.
+                );
+            }
+            text += &format!("RHS\n rhs mixed {}\n", rhs as f64 / 10.);
+            for j in 0..3 {
+                text += &format!(" rhs up{j} 0.3 lo{j} 0.4\n");
+            }
+            text += "BOUNDS\n";
+            for j in 0..3 {
+                text += &format!(" FR b x{j}\n");
+            }
+            text += "ENDATA\n";
+            let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+            let certifier = Certifier::feasibility(&model).unwrap();
+            let (lower, upper) = certifier.implied_box.as_ref().unwrap();
+            assert!(lower.iter().chain(upper).all(Option::is_some));
+            for x in -2..=3 {
+                for y in -2..=3 {
+                    for z in -2..=3 {
+                        let point = [x, y, z];
+                        if a.iter().zip(point).map(|(a, x)| a * x).sum::<i64>() > rhs {
+                            continue;
+                        }
+                        for j in 0..3 {
+                            assert!(lower[j].unwrap() <= point[j] as f64);
+                            assert!(upper[j].unwrap() >= point[j] as f64);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn two_unbounded_terms_do_not_imply_an_individual_bound() {
+        let model=crate::mps::parse(std::io::Cursor::new("NAME free\nROWS\n N c\n L r\nCOLUMNS\n x c 0 r 0.1\n y c 0 r -0.2\nRHS\n rhs r 1\nBOUNDS\n FR b x\n FR b y\nENDATA\n")).unwrap();
+        let certifier = Certifier::feasibility(&model).unwrap();
+        let (lower, upper) = certifier.implied_box.unwrap();
+        assert!(lower.iter().chain(&upper).all(Option::is_none));
     }
 }

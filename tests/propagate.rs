@@ -18,6 +18,7 @@ fn model(variables: Vec<Variable>, rows: Vec<Row>) -> Model {
     Model {
         name: "propagation".into(),
         maximize: false,
+        original_decimal: false,
         offset_enclosure: None,
         offset: 0.,
         variables,
@@ -28,6 +29,8 @@ fn row(lower: Option<f64>, upper: Option<f64>, coefficients: Vec<(usize, f64)>) 
     Row {
         lower_enclosure: None,
         upper_enclosure: None,
+        exact_coefficients: false,
+        exact_coefficient_flags: vec![],
         exact_integral: false,
         name: "row".into(),
         lower,
