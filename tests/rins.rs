@@ -8,6 +8,7 @@ fn model() -> mip_codex::model::Model {
 }
 fn limits() -> Limits {
     Limits {
+        box_primal: false,
         objective_rounding: false,
         cover_cuts: false,
         rounding_cuts: false,
@@ -44,6 +45,7 @@ fn local_neighborhood_optimal_does_not_become_a_global_proof() {
     let result = solve(
         &m,
         &Limits {
+            box_primal: false,
             objective_rounding: false,
             nodes: 1,
             ..limits()
@@ -65,6 +67,7 @@ fn no_incumbent_or_expired_deadline_does_not_start_a_local_search() {
     let result = solve(
         &m,
         &Limits {
+            box_primal: false,
             objective_rounding: false,
             nodes: 1,
             primal_repair: false,
@@ -77,6 +80,7 @@ fn no_incumbent_or_expired_deadline_does_not_start_a_local_search() {
     let result = solve(
         &m,
         &Limits {
+            box_primal: false,
             objective_rounding: false,
             seconds: 0.,
             ..limits()
@@ -91,6 +95,7 @@ fn later_incumbent_does_not_trigger_an_unbudgeted_retry() {
     let result = solve(
         &m,
         &Limits {
+            box_primal: false,
             objective_rounding: false,
             nodes: 3,
             primal_repair: false,

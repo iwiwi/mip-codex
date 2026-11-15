@@ -27,7 +27,7 @@ for case in range(int(sys.argv[1])if len(sys.argv)>1 else 200):
   actual=float(r['objective'])
   if maximize:assert baseline<=actual<=optimum,(baseline,actual,optimum)
   else:assert optimum<=actual<=baseline,(optimum,actual,baseline)
-  record=dict(case=case,valid=True,objective=actual,optimum=optimum,baseline=baseline,improved=actual!=baseline,optimal_point=actual==optimum)
+  record=dict(case=case,valid=True,objective=actual,optimum=optimum,baseline=baseline,improved=actual!=baseline,optimal_point=actual==optimum,validation=check)
  except Exception as error:record=dict(case=case,valid=False,error=str(error))
  records.append(record);print(json.dumps(record),flush=True)
 summary=dict(cases=len(records),failures=sum(not r['valid']for r in records),improved=sum(r.get('improved',False)for r in records),optimal_points=sum(r.get('optimal_point',False)for r in records))

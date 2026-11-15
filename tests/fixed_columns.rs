@@ -4,6 +4,7 @@ use mip_codex::{
 };
 fn limits(engine: Engine, enabled: bool) -> Limits {
     Limits {
+        box_primal: false,
         engine,
         fixed_columns: enabled,
         cover_cuts: false,

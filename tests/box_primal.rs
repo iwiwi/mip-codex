@@ -68,3 +68,36 @@ fn approximate_activity_updates_cannot_accept_a_cancellation_violation() {
     assert!(model.check(&x, true, 1e-7).is_ok());
     assert_ne!(x, vec![1., 1.]);
 }
+
+#[test]
+fn a_tolerance_feasible_box_point_cannot_turn_root_infeasibility_into_optimality() {
+    let model=mps::parse(Cursor::new("NAME near_bounds\nROWS\n N c\nCOLUMNS\n x c 0\nRHS\n rhs c 0\nBOUNDS\n LO b x 0.00000005\n UP b x 0\nENDATA\n")).unwrap();
+    let r = solve(
+        &model,
+        &Limits {
+            box_primal: false,
+            ..limits()
+        },
+    );
+    assert_eq!(r.status, "infeasible");
+    let r = solve(&model, &limits());
+    assert_eq!(r.status, "numerical_error");
+    assert!(r.root_incumbent_conflict);
+    assert!(r.values.is_some());
+    assert!(r.dual_bound.is_none());
+}
+
+#[test]
+fn tolerance_feasibility_cannot_override_phase_one_infeasibility() {
+    let model=mps::parse(Cursor::new("NAME phase_one\nROWS\n N c\n G a\n G b\n G d\n G e\n L zero\nCOLUMNS\n x c 0 a 1\n x b 1 d 1\n x e 1 zero 1\nRHS\n rhs a 0.00000005 b 0.00000005\n rhs d 0.00000005 e 0.00000005\n rhs zero 0\nBOUNDS\n LO b x 0\n UP b x 1\nENDATA\n")).unwrap();
+    let r = solve(
+        &model,
+        &Limits {
+            dense_bytes: 512 * 1024 * 1024,
+            ..limits()
+        },
+    );
+    assert_eq!(r.status, "numerical_error");
+    assert!(r.root_incumbent_conflict);
+    assert!(r.values.is_some());
+}

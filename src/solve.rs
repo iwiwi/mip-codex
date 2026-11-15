@@ -48,7 +48,7 @@ impl Default for Limits {
             fixed_columns: true,
             propagation: false,
             primal_repair: true,
-            box_primal: false,
+            box_primal: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -80,6 +80,7 @@ pub struct Result {
     pub primal_repair: bool,
     pub box_primal_enabled: bool,
     pub box_primal: heuristic::BoxStats,
+    pub root_incumbent_conflict: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
@@ -835,6 +836,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut incumbent = f64::INFINITY;
     let mut best = None;
     let mut first_primal_seconds = None;
+    let mut root_incumbent_conflict = false;
     if let Some(x) = box_candidate {
         incumbent = sign * model.objective(&x);
         first_primal_seconds = box_primal.first_seconds;
@@ -931,7 +933,15 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             ),
         };
         let p = match relaxation {
-            Relaxation::Infeasible => continue,
+            Relaxation::Infeasible => {
+                if nodes == 1 && best.is_some() {
+                    root_incumbent_conflict = true;
+                    stack.push(node);
+                    status = "numerical_error".into();
+                    break;
+                }
+                continue;
+            }
             Relaxation::ResourceLimit => {
                 stack.push(node);
                 status = "resource_limit".into();
@@ -961,6 +971,12 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         };
         match answer {
             Ok(lp::Outcome::Infeasible) => {
+                if nodes == 1 && best.is_some() {
+                    root_incumbent_conflict = true;
+                    stack.push(node);
+                    status = "numerical_error".into();
+                    break;
+                }
                 if check_original_infeasibility {
                     let proof_started = Instant::now();
                     infeasibility_proof_calls += 1;
@@ -1631,6 +1647,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         primal_repair: limits.primal_repair,
         box_primal_enabled: limits.box_primal,
         box_primal,
+        root_incumbent_conflict,
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,

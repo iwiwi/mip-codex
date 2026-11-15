@@ -29,6 +29,7 @@ fn incumbent_does_not_change_open_node_lower_bound() {
     let cold = solve(
         &model,
         &Limits {
+            box_primal: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -43,6 +44,7 @@ fn incumbent_does_not_change_open_node_lower_bound() {
     let repair = solve(
         &model,
         &Limits {
+            box_primal: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
@@ -92,6 +94,7 @@ fn fixed_integer_lp_repairs_linked_continuous_variables() {
     let result = solve(
         &model,
         &Limits {
+            box_primal: false,
             objective_rounding: false,
             rins: false,
             strong_branching: false,
