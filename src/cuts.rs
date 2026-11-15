@@ -717,6 +717,9 @@ impl Pool {
         let mut edges: HashMap<(usize, usize), Cut> = HashMap::new();
         let mut adjacent: HashMap<usize, Vec<usize>> = HashMap::new();
         'rows: for (i, row) in model.rows.iter().enumerate() {
+            if Instant::now() >= deadline || self.stats.work >= 200_000 {
+                break;
+            }
             if row.coefficients.len() > 128 {
                 continue;
             }

@@ -356,3 +356,7 @@ v2の最初のnohupバックグラウンド起動はcoordinator identity生成�
 152Rust/2700合成/300根LP/22変換/10大整数が合格。固定18問のprimal/dual/status同一、28保存解140cuts/38証明は全件独立検査有効。30n20b8の7282列を省略、同CPU交互3回の50節点/50LP・下界51の内部中央値5.064→4.140秒。根のみ0.08817→0.07579秒。標準10秒で48→57節点、同じ下界で主解なし。markshareは対象列0、同じ証明量で35.642→35.683秒。限定的改善として既定有効にする。新既定でも152Rustと32数値回帰は合格、CLIで省略7282列を確認。
 
 最初の10問引数で存在しない問題名を誤記し両側n5-3後に停止した記録も保存、正しい固定10問を再測定。詳細docs/FIXED_COLUMNS_RESULTS.md、artifacts/fixed-columns-evaluation。全件native v2は720件のうち8件完了、継続中。次は行間の二値競合を集約したclique cutを、原行から独立検査できる証明付きで実験する。
+
+## 2026-11-15 16:09 UTC：clique cutは未採用
+
+clique-cutsの全ペア証明付き試作はRust154、200graph全列挙/45新cuts/180偽証明拒否、合成2700、根LP300、32数値回帰を通過。固定18問と追加の開発6問で新cliqueは0本、primal/dual/statusも同一だったため採用しない。26保存点と262cuts/48証明記録は全件独立検査有効だが、既存のcutであり新機能の改善とはしない。deadline修正後の同じ200graphも成功。失敗fixtureログを含む全データはartifacts/clique-evaluation。次は座標修復の局所最小からのbreakout。
