@@ -1,0 +1,23 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.10s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/b843d3488fc759aa/out/mip_codex-b843d3488fc759aa)
+
+running 2 tests
+test cuts::aggregate::tests::cancels_free_continuous_variable_and_rejects_corruption ... FAILED
+test cuts::aggregate::tests::aggregate_cuts_preserve_every_binary_feasible_point ... ok
+
+failures:
+
+---- cuts::aggregate::tests::cancels_free_continuous_variable_and_rejects_corruption stdout ----
+
+thread 'cuts::aggregate::tests::cancels_free_continuous_variable_and_rejects_corruption' (1037433) panicked at src/cuts/aggregate.rs:303:13:
+assertion failed: model.check(&x, false, 0.).is_ok()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cuts::aggregate::tests::cancels_free_continuous_variable_and_rejects_corruption
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 43 filtered out; finished in 0.50s
+
+error: test failed, to rerun pass `--lib`

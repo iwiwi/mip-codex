@@ -6,7 +6,7 @@
 
 元の2行・側・正整数重み・除数をJSONに保存。Rustは出力直前に元行から再合成して確認し、Python独立検査器も元MPSのFractionから合成・投影・床除算を再計算する。元行からだけ導出し、切断間の循環証明を作らない。浮動小数の根点と違反量は候補選択だけに使う。
 
-近い128行側、各共有変数16行まで、4096行対、総100万係数処理を上限に、既存の根cut準備枠（総時間の5%、最大0.25秒、既定2round）内で実行する。既存の単一丸め・coverと同じPoolで既知切断を重複除去する。`MIP_AGGREGATE_CUTS=0/1`、最終既定true。丸め対象の非負整数変数がない入力は新しい準備処理を省く。入力名/既知値による例外はない。
+近い128行側、各共有変数16行まで、4096行対、約100万係数処理を予算に、既存の根cut準備枠（総時間の5%、最大0.25秒、既定2round）内で実行する。既存の単一丸め・coverと同じPoolで既知切断を重複除去する。`MIP_AGGREGATE_CUTS=0/1`、最終既定true。丸め対象の非負整数変数がない入力は新しい準備処理を省く。入力名/既知値による例外はない。
 
 ## 測定結果
 
@@ -36,12 +36,12 @@ nativeの下界はなお大幅に強く、Rustが上回ったとは主張しな�
 
 別途試したDenseの単位変換100例では50件のnumerical_error。保存した全50入力をPR56の凍結版と現在版に同じDense設定で与え、status/objective/dual_bound/nodesが全て一致した。既存Denseの失敗として元ログを残し、合格した400例と混ぜて隠さない。主要ベンチマークは既定Revisedを使う。
 
-初期の保存28点は元MPSのGMP/公式とも有効、38記録/175切断の独立検査も有効。最終測定等の追加点は追記する。独立検査は切断の数学的導出と実行可能点を対象とし、探索木全体の再生ではない。
+最終smokeの28点と根収集/toyの6点、計34点は元MPSのGMP/公式とも有効。46記録/222切断の導出も独立再検査有効（反復を含む）。別途32数値fixtureは専用GMP/Fraction検査で有効。これらを通常経路へ追加監査した最初の試行では、極大bound/costの4記録でHiGHS reader拒否、2記録で公式checkerのobjective行RHS parser assertion/abortがあった。これを解不正や公式合格へ付け替えず、失敗ログを保持して専用検査と区別する。独立検査は切断の数学的導出と実行可能点を対象とし、探索木全体の再生ではない。
 
 ## 診断と次の対象
 
 最初に自作根LP点18問を保存し、Fractionで全LP点の原制約/境界違反が絶対1e-6以内と確認。2行集約は18問中2問で違反候補があった。比較専用native連続LPはtimtab28694→52566、fhnw0のまま。その解/重みをRustへ渡さず、独自Rust実装で同じ改善を測ってから採用する。
 
-理論の方向はSCIP公式aggregation概要を参照し、外部ソースのコード移植はしていない。詳細はAGGREGATE_CUT_DIAGNOSTIC.md。原データとSHA台帳はaggregate-cuts/aggregate-cut関連archiveへ保存。
+理論の方向はSCIP公式aggregation概要を参照し、外部ソースのコード移植はしていない。詳細はAGGREGATE_CUT_DIAGNOSTIC.md。原データとSHA台帳は`artifacts/aggregate-cuts-evaluation`へ保存。全240問snapshotはcreate-onlyで未開始、source core876099b61、再帰source FP8262e2efdce05367を検証済。受領票`experiments/aggregate-cuts-snapshot-20261115.json`。進行中nativeの凍結設定は変更しない。
 
 次は開発用188問だけから根LP診断を広げ、候補が得られる構造と数値的な失敗を調べる。holdout52問は調整に使わず、全240問の凍結本評価へ残す。

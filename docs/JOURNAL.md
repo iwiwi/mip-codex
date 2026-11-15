@@ -465,3 +465,7 @@ source core `3125227a`、既定有効。sorrell7 15秒193/242、60秒197/241、�
 `aggregate-rounding-cuts`。原行の正整数結合+既存床除算、証明を元MPSで再合成する独自Rust切断を実装。10秒固定18問はtimtab1の下界28694→52566のみ改善、他17問status/primal/dual一致、60秒も改善維持。主解は両方なしでnative10秒下界374243〜652312にはなお大幅に劣る。既定trueへ変更、非負整数対象がないモデルは新準備をskip。183Rust/2700合成+最終500/400根LP/32数値/8独立checker/8preflight成功。初期保存28点GMP/公式有効、38記録175cut有効。toyの許容差0テスト設定、根LP比較で新cutを切り忘れた2ケース、Dense単位変換既存50失敗はログ保持。Dense50はPR56凍結対照と全指標一致で回帰なし。次は開発188問の根LP診断を広げ、holdout52は触れない。
 
 原native全体80/720、32独立optimal、6error。追加HiGHS/chromaticindex1024-7は3660.18679秒watchdog/SIGKILL/resultなし、OOMなし。missing resultを解けた/正常timeoutに付替えず保持する。
+
+### 2026-11-15 23:05 UTC 集約切断の採用前監査
+
+最終source core876099b61/FP8262e2efdce05367、create-only全240問snapshotを再帰FP照合済。通常34点GMP/公式有効、46記録222cut独立検査有効。別に数値32fixtureは専用GMP/Fractionで有効。通常経路で追加監査した6数値記録は4reader拒否・2公式checkerのobjective行RHS parser abortで未検証となったため、公式合格と混ぜず失敗試行を保存。製品やchecker許容差は変えない。最終unit183、最終500合成、孤立400根LP、32数値、checker8/preflight8、既定trueのtimtab10秒52566再現。PRへ全原データと全失敗を掲載する。
