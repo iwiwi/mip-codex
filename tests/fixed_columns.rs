@@ -11,6 +11,7 @@ fn limits(engine: Engine, enabled: bool) -> Limits {
         cover_cuts: false,
         rounding_cuts: false,
         primal_repair: false,
+        feasibility_pump: false,
         lp_diving: false,
         primal_probe: false,
         rins: false,

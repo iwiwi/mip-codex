@@ -22,6 +22,7 @@ fn verified_candidate_does_not_replace_open_node_bound() {
                 nodes: 1,
                 primal_probe: true,
                 primal_repair: false,
+                feasibility_pump: false,
                 lp_diving: false,
                 ..Limits::default()
             },
@@ -55,6 +56,7 @@ fn local_proof_is_not_promoted_to_global_infeasibility() {
             nodes: 1,
             primal_probe: true,
             primal_repair: false,
+            feasibility_pump: false,
             lp_diving: false,
             ..Limits::default()
         },

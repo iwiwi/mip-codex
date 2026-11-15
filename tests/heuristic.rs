@@ -37,6 +37,7 @@ fn incumbent_does_not_change_open_node_lower_bound() {
             cover_cuts: false,
             nodes: 1,
             primal_repair: false,
+            feasibility_pump: false,
             primal_probe: false,
             lp_diving: false,
             ..Limits::default()

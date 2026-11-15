@@ -8,6 +8,7 @@ fn limits() -> Limits {
         box_primal: true,
         dense_bytes: 1,
         primal_repair: false,
+        feasibility_pump: false,
         cover_cuts: false,
         lp_diving: false,
         primal_probe: false,

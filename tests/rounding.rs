@@ -32,6 +32,7 @@ fn division_closes_a_root_that_pairwise_covers_cannot_close() {
         nodes: 1,
         cover_cuts: false,
         primal_repair: false,
+        feasibility_pump: false,
         lp_diving: false,
         primal_probe: false,
         ..Limits::default()
