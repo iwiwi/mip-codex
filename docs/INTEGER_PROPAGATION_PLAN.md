@@ -27,3 +27,14 @@ Limits.integer_propagation（初期既定false）、MIP_INTEGER_PROPAGATION=0/1�
 markshare60秒はoff35.343s/1,486,619節点、on40.551s/1,543,063節点。702,002tighteningsがあってもpruned0で、仕事が増えた。
 全節点版は既定採用しない。MIP_INTEGER_PROPAGATION=rootを追加し、根の有効なdomainだけを子へ継承して、節点ごとの追加走査を省く対照を行う。
 同時Rootプロセスの同秒出力先衝突でonの最初の8問runが開始前に失敗した。生ログを保持し、mkdtempで一意なrun名へ修正後に両方を取り直した。事前確認8回帰も全合格。
+
+## 棄却判断
+
+根限定はRust155、合成2700、十進回帰22件を通過。18問の主解全同等だが、30n下界51.7547→51、mcschedの終了下界193774.75→未取得と悪化した。markshareはoff35.337s/on34.660s、同じ1,486,619節点だが根でtightening0なので、この時間差を伝播の性能改善とはしない。
+全節点と根限定の最終保存56点・280cuts/76runsはGMP絶対/公式/Fractionとも全合格。根のみは3065bound更新(30n)、64(mcsched)、10(fhnw)があったが、正しいdomain縮約だけではLP計算と探索品質の改善につながらなかった。
+
+いずれも既定採用しない。試作コード・domain全列挙・両方式の生ログをbranch/PRに保存して未マージで閉じる。
+次は固定された根の列をLPから静的に省き、後続のwarm互換を保つ変換を検討する。新たな基底や伝播との組合せは別測定で判断する。
+
+同秒出力先の衝突修正だけは独立してmainへ切り出す。監査の最初のbackground起動は親を待機させなかったため終了状態/summaryを得られず、プロセス不在と空ログを記録して待機wrapperで再実行し全合格を確認した。
+全新規実験はartifacts/integer-propagation-evaluationへhash検証付きで移動し、台帳を保存。初期checkpointと既にcommit済みの回帰ログは従来のartifacts位置にも残す。

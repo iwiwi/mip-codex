@@ -334,3 +334,7 @@ source directoryだけでなく同一rootの旧revisionも拒否するため、b
 ### 整数伝播checkpointの再開時に保持した旧記録
 
 整数伝播の純粋なdomain1000例全列挙、free列/負係数/等式/元十進拒否/時間切れの4試験が成功。主探索への統合前に、既存の大きな目的係数の変数間相殺を調査し、固定x=y=z=1、費用1e16/1/-1e16で旧mainが誤optimal0、原MPS GMPでは目的1/目的誤差1と確認した。伝播の統合は保留し、この既存数値不具合を別branchで先に修正する。診断は旧main001cbc5eのcompiled source fingerprint19a8a69a7a6e183fを持つbinaryで行い、性能記録には使わない。
+
+## 2026-11-15 14:34 UTC：checked i128伝播は両方式とも未採用
+
+PR26後にexact-integer-propagationをrebaseし、全節点/根限定を探索へ統合した。Root155、両方式それぞれ合成2700/十進回帰22件が通過し、最終56点/280cuts/76runsも独立検査全有効。ただし全節点はmadのprimal悪化・markshare35.343→40.551s、根限定は主解全同等でも30n下界51.7547→51/mcsched下界未取得という悪化があり、いずれもmain採用しない。詳細docs/INTEGER_PROPAGATION_PLAN.md、全データartifacts/integer-propagation-evaluation。Source155/4行LP前矛盾/固定leaf通常LP/根呼出1回を確認し、数学的に有効なboundだけでは現在のLP基底/探索を速められないと判断。次は根固定列の静的省略を別実験にする。ベンチマークの同秒ディレクトリ衝突だけは一意なrun名へ修正し別PRへ切り出す。元の失敗と訂正ログ、background監査の終了状態取り損ないも保持した。
