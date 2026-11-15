@@ -69,7 +69,7 @@ impl Default for Limits {
             joint_infeasibility: true,
             aggregate_infeasibility: true,
             lp_diving: true,
-            feasibility_pump: false,
+            feasibility_pump: true,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 2,
@@ -580,6 +580,36 @@ fn binary_pump(
         }
         if checker.candidate_check(&rounded) {
             stats.candidates += 1;
+            if let Some(path) = std::env::var_os("MIP_PUMP_CANDIDATE_DUMP") {
+                #[derive(Serialize)]
+                struct Candidate {
+                    #[serde(serialize_with = "crate::model::serialize_optional_solution_number")]
+                    objective: Option<f64>,
+                    #[serde(serialize_with = "crate::model::serialize_solution_values")]
+                    values: Option<std::collections::BTreeMap<String, f64>>,
+                }
+                let objective = model.objective(&rounded);
+                if objective.is_finite() {
+                    if let Ok(file) = std::fs::OpenOptions::new()
+                        .write(true)
+                        .create_new(true)
+                        .open(path)
+                    {
+                        let candidate = Candidate {
+                            objective: Some(objective),
+                            values: Some(
+                                model
+                                    .variables
+                                    .iter()
+                                    .zip(&rounded)
+                                    .map(|(v, &x)| (v.name.clone(), x))
+                                    .collect(),
+                            ),
+                        };
+                        let _ = serde_json::to_writer(file, &candidate);
+                    }
+                }
+            }
             return Some(rounded);
         }
         let mut target: Vec<_> = binary.iter().map(|&j| current[j] >= 0.5).collect();
