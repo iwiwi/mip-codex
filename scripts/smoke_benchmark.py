@@ -93,7 +93,7 @@ with (output/'results.jsonl').open('w') as summary:
                 run_env['MIP_LP_ENGINE']='revised'
                 run_env['MIP_LP_WARM_START']='1' if solver=='rust-warm' else '0'
             elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
-            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_STRONG_BRANCHING','MIP_RINS','MIP_OBJECTIVE_ROUNDING','MIP_COVER_ROUNDS','MIP_STRONG_OBJECTIVE','MIP_STRONG_INFEASIBLE_HINT']})+'\n')
+            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['MIP_CLIQUE_CUTS','MIP_FIXED_COLUMNS','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_STRONG_BRANCHING','MIP_RINS','MIP_OBJECTIVE_ROUNDING','MIP_COVER_ROUNDS','MIP_STRONG_OBJECTIVE','MIP_STRONG_INFEASIBLE_HINT']})+'\n')
             if solver.startswith('rust'):
                 assert hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest() == meta['binary_sha256'], 'solver binary changed during smoke run'
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
@@ -115,6 +115,8 @@ with (output/'results.jsonl').open('w') as summary:
             result=dict(name=name,solver=solver,exit_code=exit_code,wall_seconds=elapsed,input_sha256=record['sha256'])
             try:
                 parsed=json.loads((directory/('stdout.log' if solver.startswith('rust') else 'result.json')).read_text())
+                if solver.startswith('rust') and run_env.get('MIP_CLIQUE_CUTS') is not None:
+                    assert parsed['clique_cuts_enabled'] == (run_env['MIP_CLIQUE_CUTS']=='1')
                 if solver in ('rust-cuts', 'rust-no-cuts'):
                     assert parsed['cover_cuts_enabled'] == (solver == 'rust-cuts')
                 if solver in ('rust-probe', 'rust-no-probe'):

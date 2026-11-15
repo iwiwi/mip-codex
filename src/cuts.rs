@@ -4,9 +4,14 @@
 //! 外部実装のコード移植は行わず、単純な貪欲選択と独立の整数証明検査を実装。
 use crate::model::{Model, Row};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, time::Instant};
+use std::{
+    collections::{HashMap, HashSet},
+    time::Instant,
+};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Proof {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clique: Option<Vec<Cut>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub divisor: Option<i64>,
     pub source_row: usize,
@@ -21,6 +26,9 @@ pub struct Cut {
 }
 #[derive(Default, Debug, Serialize)]
 pub struct Stats {
+    pub clique_calls: usize,
+    pub clique_edges: usize,
+    pub clique_added: usize,
     pub rounding_calls: usize,
     pub rounding: usize,
     pub rounding_projected: usize,
@@ -176,6 +184,9 @@ fn lower_product(a: [f64; 2], b: [f64; 2]) -> Option<f64> {
 /// 選択された二値変数を強制した元行の最小活動量を、原境界から検査する。
 /// i128で正確に扱える行は整数、それ以外は外向き区間。選択用の近似容量は使わない。
 fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
+    if cut.proof.clique.is_some() {
+        return clique_verify(model, cut).then_some(ProofKind::Clique);
+    }
     if cut.proof.divisor.is_some() {
         return rounding_verify(model, cut).then_some(ProofKind::Rounding);
     }
@@ -260,6 +271,7 @@ fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
 }
 #[derive(Clone, Copy)]
 enum ProofKind {
+    Clique,
     Integer,
     Interval,
     Rounding,
@@ -379,6 +391,7 @@ impl Pool {
                             coefficients,
                         },
                         proof: Proof {
+                            clique: None,
                             divisor: None,
                             source_row: i,
                             source_name: row.name.clone(),
@@ -401,6 +414,7 @@ impl Pool {
                     if self.seen.insert(key) {
                         self.stats.added += 1;
                         match kind {
+                            ProofKind::Clique => unreachable!(),
                             ProofKind::Integer => self.stats.integer += 1,
                             ProofKind::Interval => self.stats.interval += 1,
                             ProofKind::Rounding => unreachable!(),
@@ -585,6 +599,7 @@ impl Pool {
                     let cut = Cut {
                         row,
                         proof: Proof {
+                            clique: None,
                             divisor: Some(d),
                             source_row: i,
                             source_name: source.name.clone(),
@@ -612,6 +627,216 @@ impl Pool {
                     }
                 }
             }
+        }
+        cuts
+    }
+}
+
+fn literal_row(name: String, literals: &[usize]) -> Row {
+    let mut coefficients: Vec<_> = literals
+        .iter()
+        .map(|&k| (k / 2, if k % 2 == 0 { 1. } else { -1. }))
+        .collect();
+    coefficients.sort_unstable_by_key(|p| p.0);
+    let rhs = 1. - literals.iter().filter(|&&k| k % 2 != 0).count() as f64;
+    Row {
+        name,
+        coefficients,
+        lower: None,
+        upper: Some(rhs),
+        lower_enclosure: None,
+        upper_enclosure: Some([rhs, rhs]),
+        exact_integral: true,
+        exact_coefficients: true,
+        exact_coefficient_flags: vec![],
+    }
+}
+fn clique_verify(model: &Model, cut: &Cut) -> bool {
+    let Some(edges) = &cut.proof.clique else {
+        return false;
+    };
+    let c = &cut.row.coefficients;
+    if !(3..=32).contains(&c.len())
+        || cut.proof.divisor.is_some()
+        || cut.proof.source_row != 0
+        || !cut.proof.source_name.is_empty()
+        || !cut.proof.upper_side
+        || c.windows(2).any(|w| w[0].0 >= w[1].0)
+        || c.iter()
+            .any(|&(j, a)| !binary(model, j) || (a != 1. && a != -1.))
+        || cut.proof.cover != c.iter().map(|p| p.0).collect::<Vec<_>>()
+    {
+        return false;
+    }
+    let literals: Vec<_> = c
+        .iter()
+        .map(|&(j, a)| 2 * j + usize::from(a < 0.))
+        .collect();
+    let expected = literal_row(String::new(), &literals);
+    if cut.row.lower.is_some()
+        || cut.row.upper != expected.upper
+        || !cut.row.exact_integral
+        || edges.len() != c.len() * (c.len() - 1) / 2
+    {
+        return false;
+    }
+    let mut found = HashSet::new();
+    for edge in edges {
+        if edge.proof.clique.is_some()
+            || edge.proof.divisor.is_some()
+            || edge.row.coefficients.len() != 2
+            || !verify(model, edge)
+        {
+            return false;
+        }
+        let mut ids = Vec::new();
+        for &(j, a) in &edge.row.coefficients {
+            let Some(k) = c.iter().position(|&(v, b)| v == j && b == a) else {
+                return false;
+            };
+            ids.push(k);
+        }
+        if ids[0] >= ids[1] || !found.insert((ids[0], ids[1])) {
+            return false;
+        }
+    }
+    true
+}
+impl Pool {
+    pub fn separate_cliques(
+        &mut self,
+        model: &Model,
+        x: &[f64],
+        limit: usize,
+        deadline: Instant,
+    ) -> Vec<Cut> {
+        self.stats.clique_calls += 1;
+        if x.len() != model.variables.len() || x.iter().any(|v| !v.is_finite()) {
+            return vec![];
+        }
+        let mut edges: HashMap<(usize, usize), Cut> = HashMap::new();
+        let mut adjacent: HashMap<usize, Vec<usize>> = HashMap::new();
+        'rows: for (i, row) in model.rows.iter().enumerate() {
+            if row.coefficients.len() > 128 {
+                continue;
+            }
+            for upper_side in [true, false] {
+                let Some((items, capacity)) = packing(model, row, upper_side) else {
+                    continue;
+                };
+                for a in 0..items.len() {
+                    for b in a + 1..items.len() {
+                        if self.stats.work >= 200_000
+                            || edges.len() >= 20_000
+                            || Instant::now() >= deadline
+                        {
+                            break 'rows;
+                        }
+                        self.stats.work += 1;
+                        let p = &items[a];
+                        let q = &items[b];
+                        if (p.weight + q.weight).next_down() <= capacity {
+                            continue;
+                        }
+                        let mut literals = [
+                            2 * p.j + usize::from(p.negative),
+                            2 * q.j + usize::from(q.negative),
+                        ];
+                        literals.sort_unstable();
+                        let key = (literals[0], literals[1]);
+                        if edges.contains_key(&key) {
+                            continue;
+                        }
+                        let edge = Cut {
+                            row: literal_row(String::new(), &literals),
+                            proof: Proof {
+                                clique: None,
+                                divisor: None,
+                                source_row: i,
+                                source_name: row.name.clone(),
+                                upper_side,
+                                cover: vec![p.j, q.j],
+                            },
+                        };
+                        if !verify(model, &edge) {
+                            continue;
+                        }
+                        adjacent.entry(key.0).or_default().push(key.1);
+                        adjacent.entry(key.1).or_default().push(key.0);
+                        edges.insert(key, edge);
+                    }
+                }
+            }
+        }
+        self.stats.clique_edges += edges.len();
+        let value = |k: usize| if k % 2 == 0 { x[k / 2] } else { 1. - x[k / 2] };
+        let order = |a: &usize, b: &usize| value(*b).total_cmp(&value(*a)).then(a.cmp(b));
+        let mut seeds: Vec<_> = adjacent
+            .keys()
+            .copied()
+            .filter(|&k| value(k) > 1e-6)
+            .collect();
+        seeds.sort_unstable_by(order);
+        let mut cuts = Vec::new();
+        for seed in seeds.into_iter().take(128) {
+            if cuts.len() >= limit || Instant::now() >= deadline || self.stats.work >= 400_000 {
+                break;
+            }
+            let mut candidates = adjacent[&seed].clone();
+            candidates.sort_unstable_by(order);
+            let mut clique = vec![seed];
+            for k in candidates.into_iter().take(256) {
+                if clique.len() >= 32 {
+                    break;
+                }
+                self.stats.work += clique.len();
+                if clique
+                    .iter()
+                    .all(|&j| j / 2 != k / 2 && edges.contains_key(&(j.min(k), j.max(k))))
+                {
+                    clique.push(k)
+                }
+            }
+            if clique.len() < 3 || clique.iter().map(|&k| value(k)).sum::<f64>() <= 1. + 1e-5 {
+                continue;
+            }
+            clique.sort_unstable();
+            let row = literal_row(format!("__clique_{}", self.seen.len()), &clique);
+            let key = (
+                row.coefficients
+                    .iter()
+                    .map(|&(j, a)| (j, a as i64))
+                    .collect(),
+                row.upper.unwrap() as i64,
+            );
+            if self.seen.contains(&key) {
+                continue;
+            }
+            let mut proof_edges = Vec::new();
+            for a in 0..clique.len() {
+                for b in a + 1..clique.len() {
+                    proof_edges.push(edges[&(clique[a], clique[b])].clone());
+                }
+            }
+            let cut = Cut {
+                proof: Proof {
+                    clique: Some(proof_edges),
+                    divisor: None,
+                    source_row: 0,
+                    source_name: String::new(),
+                    upper_side: true,
+                    cover: row.coefficients.iter().map(|p| p.0).collect(),
+                },
+                row,
+            };
+            if !verify(model, &cut) {
+                self.stats.rejected += 1;
+                continue;
+            }
+            self.seen.insert(key);
+            self.stats.clique_added += 1;
+            self.stats.added += 1;
+            cuts.push(cut);
         }
         cuts
     }

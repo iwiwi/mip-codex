@@ -134,13 +134,13 @@ def verify_objective_grid(names,variables,rows,objective,offset,proof):
     return dict(objective_grid_valid=True,objective_step=step,implied_integer_variables=len(implications),objective_domains=domains)
 
 
-def validate_cut_proofs(model_path,result):
+def validate_cut_proofs(model_path,result,_model=None):
     cuts=result.get('cut_proofs',[])
     grid=result.get('objective_grid')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
     if not cuts and grid is None:return dict(metadata,valid=True)
-    try:names,variables,rows,objective,offset=exact_model(model_path,True)
+    try:names,variables,rows,objective,offset=_model if _model is not None else exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
     try:
@@ -148,7 +148,26 @@ def validate_cut_proofs(model_path,result):
             metadata['objective_grid_valid']=False
             metadata.update(verify_objective_grid(names,variables,rows,objective,offset,grid))
         for cut in cuts:
-            proof=cut['proof'];i=proof['source_row'];cover=proof['cover'];side=proof['upper_side']
+            proof=cut['proof']
+            edges=proof.get('clique')
+            if edges is not None:
+                row=cut['row'];coeff=[[j,Fraction(a)] for j,a in row['coefficients']]
+                if not 3<=len(coeff)<=32 or any(type(j)!=int or j<0 or j>=len(names) or a not in (-1,1) for j,a in coeff):raise AssertionError('bad clique literals')
+                if [j for j,a in coeff]!=sorted(set(j for j,a in coeff)):raise AssertionError('duplicate clique variable')
+                if proof.get('divisor') is not None or proof['source_row']!=0 or proof['source_name']!='' or proof['upper_side'] is not True or proof['cover']!=[j for j,a in coeff]:raise AssertionError('bad clique metadata')
+                if row['lower'] is not None or Fraction(row['upper'])!=1-sum(a<0 for j,a in coeff):raise AssertionError('bad clique inequality')
+                if not isinstance(edges,list) or len(edges)!=len(coeff)*(len(coeff)-1)//2:raise AssertionError('missing clique pair')
+                found=set()
+                for edge in edges:
+                    if edge['proof'].get('clique') is not None or edge['proof'].get('divisor') is not None or len(edge['row']['coefficients'])!=2:raise AssertionError('clique edge must be an original cover pair')
+                    pair=tuple(coeff.index([j,Fraction(a)]) for j,a in edge['row']['coefficients'])
+                    if pair[0]>=pair[1] or pair in found:raise AssertionError('duplicate or unordered clique edge')
+                    found.add(pair)
+                checked=validate_cut_proofs(model_path,dict(cut_proofs=edges),(names,variables,rows,objective,offset))
+                if checked['valid'] is not True:raise AssertionError('invalid clique edge: '+str(checked))
+                metadata['checked']+=1
+                continue
+            i=proof['source_row'];cover=proof['cover'];side=proof['upper_side']
             if type(i)!=int or i<0 or i>=len(rows):raise AssertionError('bad source index')
             source=rows[i]
             if proof['source_name']!=source['name'] or type(side)!=bool:raise AssertionError('bad source row/side')

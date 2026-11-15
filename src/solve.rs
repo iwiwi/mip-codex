@@ -23,6 +23,7 @@ pub struct Limits {
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
+    pub clique_cuts: bool,
     pub cover_rounds: usize,
     pub rounding_cuts: bool,
     pub strong_branching: bool,
@@ -50,6 +51,7 @@ impl Default for Limits {
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
+            clique_cuts: false,
             cover_rounds: 2,
             rounding_cuts: false,
             strong_branching: true,
@@ -79,6 +81,7 @@ pub struct Result {
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
+    pub clique_cuts_enabled: bool,
     pub cover_round_limit: usize,
     pub rounding_cuts_enabled: bool,
     pub strong_branching: bool,
@@ -651,7 +654,7 @@ fn prepare_cuts(
 ) -> CutPreparation {
     let mut prepared = CutPreparation::default();
     if !matches!(limits.engine, Engine::Revised)
-        || !((limits.cover_cuts && cuts::applicable(model))
+        || !(((limits.cover_cuts || limits.clique_cuts) && cuts::applicable(model))
             || (limits.rounding_cuts && cuts::rounding_applicable(model)))
         || Instant::now() >= deadline
     {
@@ -704,6 +707,14 @@ fn prepare_cuts(
         } else {
             vec![]
         };
+        if limits.clique_cuts && generated.len() < 32 {
+            generated.extend(pool.separate_cliques(
+                model,
+                &point,
+                32 - generated.len(),
+                cut_deadline,
+            ));
+        }
         if limits.cover_cuts && generated.len() < 32 {
             generated.extend(pool.separate(model, &point, 32 - generated.len(), cut_deadline));
         }
@@ -1318,6 +1329,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
+                    probe_limits.clique_cuts = false;
                     probe_limits.rounding_cuts = false;
                     probe_limits.strong_branching = false;
                     probe_limits.rins = false;
@@ -1405,6 +1417,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             local.lp_diving = false;
                             local.strong_branching = false;
                             local.cover_cuts = false;
+                            local.clique_cuts = false;
                             local.rounding_cuts = false;
                             local.propagation = false;
                             local.nodes = 1024;
@@ -1599,6 +1612,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,
+        clique_cuts_enabled: limits.clique_cuts,
         cover_round_limit: limits.cover_rounds,
         rounding_cuts_enabled: limits.rounding_cuts,
         strong_branching: limits.strong_branching,
