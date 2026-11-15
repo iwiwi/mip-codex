@@ -356,3 +356,9 @@ v2の最初のnohupバックグラウンド起動はcoordinator identity生成�
 152Rust/2700合成/300根LP/22変換/10大整数が合格。固定18問のprimal/dual/status同一、28保存解140cuts/38証明は全件独立検査有効。30n20b8の7282列を省略、同CPU交互3回の50節点/50LP・下界51の内部中央値5.064→4.140秒。根のみ0.08817→0.07579秒。標準10秒で48→57節点、同じ下界で主解なし。markshareは対象列0、同じ証明量で35.642→35.683秒。限定的改善として既定有効にする。新既定でも152Rustと32数値回帰は合格、CLIで省略7282列を確認。
 
 最初の10問引数で存在しない問題名を誤記し両側n5-3後に停止した記録も保存、正しい固定10問を再測定。詳細docs/FIXED_COLUMNS_RESULTS.md、artifacts/fixed-columns-evaluation。全件native v2は720件のうち8件完了、継続中。次は行間の二値競合を集約したclique cutを、原行から独立検査できる証明付きで実験する。
+
+## 2026-11-15 16:15 UTC：breakout修復は未採用
+
+repair-breakoutは違反行の重みを局所最小で倍にする試作。154Rust/2700合成/32数値回帰成功。00で動けない小例を解けるが、固定18問のprimal/dual/statusは全同一だったため採用しない。更新数だけで速度悪化とせず、markshareは10秒節点423769→428359とほぼ同等。26保存点/134cuts/36証明は全件独立検査有効。詳細docs/REPAIR_BREAKOUT_RESULTS.md、全データartifacts/breakout-evaluation。
+
+先行のclique-cutsもPR31で未採用として閉じた（24開発問で新clique0本、全検査は有効）。次は外部16GiBに対して内部LP推定作業領域が256MiBで止めている問題への汎用設定と、LP前の箱候補による主解探索を検討する。native baseline-v2はPID556757、実行session89978、CPU8..15、同一版/資源で継続中。Rust最終版はNov19 UTC中に固定し、最悪native完了Nov20の後でも240問を期限までに測定する時間を確保する。
