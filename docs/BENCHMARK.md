@@ -222,3 +222,15 @@ bppc4-08を新規同CPU1/2秒で比較したHiGHS57、SCIP58、GLPK64は3解と�
 返却28解はGMP絶対27合格/1不合格/未検証0、公式相対28合格。HiGHS pk1 native約15は既知の絶対違反1.000000008e-6により除外し、Rust7解は両検査すべて合格。gmu50でRustはGLPKの主解を上回るがHiGHS/SCIPには及ばず、gmu40でも大幅な不足が残る。dual/共通gap/全失敗/検証の詳細はartifacts/search-default-summary.json。
 
 86 Rustテスト、best/hybrid各1000小問+200中規模、probe有効と最終既定各1000+200は失敗0。80二値MILP (min/max各40問) ×3探索を独立整数全列挙で照合し、打切り時の下界と局所証明を使わない回帰も追加。07:21 UTC baseline保存解35件の別GMP監査は34合格/既知invalid1/未検証0。最適化snapshotと共有依存は不変。
+
+## 2026-11-15 証明付きcover・重複入力の修正
+
+整数証明付き二値coverを任意追加、既定無効。元MPSの小整数を原文字列で確認し、i128と独立Python Fractionで全cutを検査。主解のない終了も検査し、不合格/未完了は下界と証明を採用しない。詳しくはdocs/CUTS.md。
+
+開発18問のon/off (8問CPU0×各5秒、10問CPU1×各2秒、1thread/16GiB) は全36run時間制限・証明0、返却26解双方合格。実際のcutは全18問0本。pk1の19→17をcut効果とせず、根LPのwarm経路差として記録する。probe有効の5探索×18問も全90run時間制限・返却62解双方合格。gmuのprobe後改善なし、悪化もあり既定depth/downは維持。全失敗/悪化をcover-summary.jsonへ保存。
+
+純二値1000問の隔離比較 (既存の修復/diving/probe無効、同じseed/input hash) はcut off nodes5320/LP5320/solve時間合計0.106726秒、on nodes3676/LP5424/0.201837秒。477問2969cutは全て元MPS Fraction検査に合格し、全問HiGHS/整数全列挙と一致。node減少だけを速度改善と扱わず、総LPと極小問題時間の悪化も報告する。
+
+MPS重複項の逐次丸めが制約/目的を変える3反例を修正。旧誤optimal -2/optimal0/unboundedに対し、修正版は真の最適値-1/-2/0。元MPS Fractionで独立照合し、行を持つ例はGMP絶対でも確認。目的のみのRHS省略MPSはchecker構文制限によりGMP未検証と明記する。汎用num-bigintで重複十進項だけを正確に合計する。solver最適化は自作Rustのまま。
+
+96 Rustテスト、f64合計624/十進合計612の独立fixture、最終混合1000+中規模200、純二値on/off各1000は全成功。最終全240 MPS行列照合も失敗0。最終既定8問×Rust各5秒CPU0/1thread/16GiB (smoke-20261115-075311、source670f15b、cut無効) は全時間制限/証明0、返却7解GMP絶対/公式相対とも合格。主解/下界は前PR13と同等。3solver参照は前回同資源smoke-20261115-071815を再利用・今回未再測定。全体優位は未達成。

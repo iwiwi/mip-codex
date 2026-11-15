@@ -22,6 +22,7 @@ fn model(variables: Vec<Variable>, rows: Vec<Row>) -> Model {
 }
 fn row(lower: Option<f64>, upper: Option<f64>, coefficients: Vec<(usize, f64)>) -> Row {
     Row {
+        exact_integral: false,
         name: "row".into(),
         lower,
         upper,

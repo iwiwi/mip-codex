@@ -56,6 +56,7 @@ fn all_search_orders_match_binary_enumeration() {
                 .zip(&rhs)
                 .enumerate()
                 .map(|(i, (a, b))| Row {
+                    exact_integral: false,
                     name: format!("r{i}"),
                     lower: None,
                     upper: Some(*b as f64),
@@ -115,6 +116,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
             })
             .collect(),
         rows: vec![Row {
+            exact_integral: false,
             name: "half".into(),
             lower: Some(35.5),
             upper: Some(35.5),

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "cover-duplicate-cancellation",
+    "input_sha256": "1325f48f767085d1bf9e3ea8e81c07e2f61d40300de02ca87a0ab78b8ca24b8d",
+    "exact_objective_coefficient": "-1",
+    "expected_optimum": "-1",
+    "before": {
+      "status": "optimal",
+      "primal_feasible": false,
+      "objective_valid": true,
+      "optimal_claim_correct": false,
+      "result_sha256": "b3ae068c7b53d9ed9f951c429f9aa8d82421c4f4d3d6749f0bfdeb501de50a1d"
+    },
+    "after": {
+      "status": "optimal",
+      "primal_feasible": true,
+      "objective_valid": true,
+      "optimal_claim_correct": true,
+      "result_sha256": "8b43977a885abbd87f56bc486edf87464f76701392305940a732c66dc4a63bfa"
+    }
+  },
+  {
+    "name": "cover-duplicate-objective",
+    "input_sha256": "ac3702d9989360edbd49dc9762b12e5da0e9576d15215a90b0bbd6424cea3a90",
+    "exact_objective_coefficient": "-1",
+    "expected_optimum": "-2",
+    "before": {
+      "status": "optimal",
+      "primal_feasible": true,
+      "objective_valid": true,
+      "optimal_claim_correct": false,
+      "result_sha256": "eeae11d99c1f44cdb4e92680aedc363c36eb1cd46ff5ac34c2723b55ec985318"
+    },
+    "after": {
+      "status": "optimal",
+      "primal_feasible": true,
+      "objective_valid": true,
+      "optimal_claim_correct": true,
+      "result_sha256": "2c1ac6dec18d5336719c4bde32f02da17162010217519724b54a1f2f69418d94"
+    }
+  },
+  {
+    "name": "cover-decimal-objective",
+    "input_sha256": "98e22a1f051058f4f1db012a0861356a5f42043642bfda72de21479e306931eb",
+    "exact_objective_coefficient": "0",
+    "expected_optimum": "0",
+    "before": {
+      "status": "unbounded_relaxation",
+      "primal_feasible": false,
+      "objective_valid": false,
+      "optimal_claim_correct": false,
+      "result_sha256": "6119cc24c8f9cfb77ce4944a29192d9267f63340328d41b9e2e55d6a63eec2d3"
+    },
+    "after": {
+      "status": "optimal",
+      "primal_feasible": true,
+      "objective_valid": true,
+      "optimal_claim_correct": true,
+      "result_sha256": "33093816f6cf5a0f4890e9e7941deddc6a1ad0c3aa12a0ad6ce50de871b709bf"
+    }
+  }
+]

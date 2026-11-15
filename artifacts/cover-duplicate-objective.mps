@@ -1,0 +1,10 @@
+NAME duplicateobj
+ROWS
+ N obj
+COLUMNS
+ x obj -10000000000000000
+ x obj -1
+ x obj 10000000000000000
+BOUNDS
+ UP b x 2
+ENDATA

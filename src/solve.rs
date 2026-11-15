@@ -1,5 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{branching, heuristic, lp, model::Model, propagate, revised, search};
+use crate::{branching, cuts, heuristic, lp, model::Model, propagate, revised, search};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -20,6 +20,7 @@ pub struct Limits {
     pub primal_repair: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
+    pub cover_cuts: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
     pub search: search::Strategy,
@@ -37,6 +38,7 @@ impl Default for Limits {
             primal_repair: true,
             lp_diving: true,
             primal_probe: true,
+            cover_cuts: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,
@@ -57,6 +59,12 @@ pub struct Result {
     pub primal_repair: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
+    pub cover_cuts_enabled: bool,
+    pub cut_proofs: Vec<cuts::Cut>,
+    pub cut_stats: cuts::Stats,
+    pub cut_rounds: usize,
+    pub cut_lp_solves: usize,
+    pub cut_seconds: f64,
     pub probe: ProbeStats,
     pub diving: DivingStats,
     pub repair_calls: usize,
@@ -441,6 +449,85 @@ pub struct ProbeStats {
     pub candidates: usize,
     pub improvements: usize,
 }
+#[derive(Default)]
+struct CutPreparation {
+    model: Option<Model>,
+    cuts: Vec<cuts::Cut>,
+    stats: cuts::Stats,
+    rounds: usize,
+    lp_solves: usize,
+    seconds: f64,
+}
+fn prepare_cuts(
+    model: &Model,
+    root: &mut Node,
+    limits: &Limits,
+    deadline: Instant,
+    lp_stats: &mut revised::Stats,
+) -> CutPreparation {
+    let mut prepared = CutPreparation::default();
+    if !limits.cover_cuts
+        || !matches!(limits.engine, Engine::Revised)
+        || !cuts::applicable(model)
+        || Instant::now() >= deadline
+    {
+        return prepared;
+    }
+    let started = Instant::now();
+    let cut_deadline = deadline
+        .min(started + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)));
+    let mut work = model.clone();
+    let mut pool = cuts::Pool::default();
+    for _ in 0..4 {
+        if Instant::now() >= cut_deadline {
+            break;
+        }
+        let Relaxation::Ready(q) = standard_sparse(&work, root, limits.dense_bytes) else {
+            break;
+        };
+        let answer = revised::minimize_warm(
+            q.sparse.as_ref().unwrap(),
+            limits.pivots,
+            Some(cut_deadline),
+            if limits.warm_start {
+                root.warm.as_deref()
+            } else {
+                None
+            },
+        );
+        prepared.lp_solves += 1;
+        prepared.rounds += 1;
+        lp_stats.add(&answer.stats);
+        let lp::Outcome::Optimal { x, .. } = answer.outcome else {
+            break;
+        };
+        let point: Vec<_> = q
+            .terms
+            .iter()
+            .enumerate()
+            .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+            .collect();
+        if work.check(&point, false, 1e-6).is_err() {
+            break;
+        }
+        if limits.warm_start {
+            root.warm = answer.warm;
+        }
+        let generated = pool.separate(model, &point, 32, cut_deadline);
+        if generated.is_empty() {
+            break;
+        }
+        work.rows
+            .extend(generated.iter().map(|cut| cut.row.clone()));
+        prepared.cuts.extend(generated);
+    }
+    if !prepared.cuts.is_empty() {
+        prepared.model = Some(work);
+    }
+    prepared.stats = pool.stats;
+    prepared.seconds = started.elapsed().as_secs_f64();
+    prepared
+}
 pub fn solve(model: &Model, limits: &Limits) -> Result {
     let start = Instant::now();
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
@@ -453,23 +540,26 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             upper[j] = upper[j].map(f64::floor);
         }
     }
-    let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
-    stack.push(Node {
+    let mut root = Node {
         lower,
         upper,
         bound: f64::NEG_INFINITY,
         warm: None,
         changed: None,
         edge: None,
-    });
+    };
+    let mut lp_stats = revised::Stats::default();
+    let prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
+    let lp_model = prepared.model.as_ref().unwrap_or(model);
+    let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
+    stack.push(root);
     let mut costs = branching::Costs::new(model.variables.len());
     let mut nodes = 0;
-    let mut lp_solves = 0;
+    let mut lp_solves = prepared.lp_solves;
     let mut fixed_leaves = 0;
     let mut propagator = limits
         .propagation
         .then(|| propagate::Propagator::new(model));
-    let mut lp_stats = revised::Stats::default();
     let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
     let mut diving = DivingStats::default();
     let mut probe = ProbeStats::default();
@@ -539,8 +629,8 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
             }
         }
         let relaxation = match limits.engine {
-            Engine::Dense => standard_dense(model, &node, limits.dense_bytes),
-            Engine::Revised => standard_sparse(model, &node, limits.dense_bytes),
+            Engine::Dense => standard_dense(lp_model, &node, limits.dense_bytes),
+            Engine::Revised => standard_sparse(lp_model, &node, limits.dense_bytes),
         };
         let p = match relaxation {
             Relaxation::Infeasible => continue,
@@ -746,6 +836,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                 {
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
+                    probe_limits.cover_cuts = false;
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
@@ -900,6 +991,12 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         primal_repair: limits.primal_repair,
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
+        cover_cuts_enabled: limits.cover_cuts,
+        cut_proofs: prepared.cuts,
+        cut_stats: prepared.stats,
+        cut_rounds: prepared.rounds,
+        cut_lp_solves: prepared.lp_solves,
+        cut_seconds: prepared.seconds,
         probe,
         diving,
         repair_calls: repair_stats.calls,

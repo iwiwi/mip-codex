@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 from validate_solution import validate
+from verify_cover_cuts import validate_cut_proofs
 
 root=Path(__file__).resolve().parents[1]
 seconds=int(sys.argv[1]) if len(sys.argv)>1 else 10
@@ -58,6 +59,8 @@ with (output/'results.jsonl').open('w') as summary:
             elif solver in branching_modes:
                 rule, order = branching_modes[solver]
                 run_env.update(MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_BRANCHING=rule, MIP_CHILD_ORDER=order, MIP_SEARCH='depth')
+            elif solver in ('rust-cuts', 'rust-no-cuts'):
+                run_env.update(MIP_COVER_CUTS='1' if solver=='rust-cuts' else '0', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
             elif solver in ('rust-probe', 'rust-no-probe'):
                 run_env.update(MIP_PRIMAL_PROBE='1' if solver=='rust-probe' else '0', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
             elif solver in ('rust-dive', 'rust-no-dive'):
@@ -70,7 +73,7 @@ with (output/'results.jsonl').open('w') as summary:
                 run_env['MIP_LP_ENGINE']='revised'
                 run_env['MIP_LP_WARM_START']='1' if solver=='rust-warm' else '0'
             elif solver.startswith('rust-'):run_env['MIP_LP_ENGINE']=solver.removeprefix('rust-')
-            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE']})+'\n')
+            (directory/'environment.json').write_text(json.dumps({k:run_env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','MIP_LP_ENGINE','MIP_LP_WARM_START','MIP_PROPAGATION','MIP_PRIMAL_REPAIR','MIP_BRANCHING','MIP_CHILD_ORDER','MIP_LP_DIVING','MIP_SEARCH','MIP_PRIMAL_PROBE','MIP_COVER_CUTS']})+'\n')
             if solver.startswith('rust'):
                 assert hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest() == meta['binary_sha256'], 'solver binary changed during smoke run'
             if solver.startswith('rust'):cmd=[str(root/'target/release/mip-codex'),'solve',str(path),str(seconds)]
@@ -92,6 +95,8 @@ with (output/'results.jsonl').open('w') as summary:
             result=dict(name=name,solver=solver,exit_code=exit_code,wall_seconds=elapsed,input_sha256=record['sha256'])
             try:
                 parsed=json.loads((directory/('stdout.log' if solver.startswith('rust') else 'result.json')).read_text())
+                if solver in ('rust-cuts', 'rust-no-cuts'):
+                    assert parsed['cover_cuts_enabled'] == (solver == 'rust-cuts')
                 if solver in ('rust-probe', 'rust-no-probe'):
                     assert parsed['primal_probe'] == (solver == 'rust-probe')
                     assert parsed['search_strategy'] == 'DepthFirst' and parsed['child_order'] == 'Down'
@@ -111,6 +116,14 @@ with (output/'results.jsonl').open('w') as summary:
                 if solver in ('rust-prop', 'rust-no-prop'):
                     assert parsed['propagation'] == (solver == 'rust-prop'), 'unexpected propagation mode'
                 result.update({k:v for k,v in parsed.items() if k!='values'})
+                if 'cut_proofs' in parsed:
+                    cut_check=validate_cut_proofs(path,parsed)
+                    (directory/'cut-validation.json').write_text(json.dumps(cut_check)+'\n')
+                    result['cut_validation']=cut_check
+                    if cut_check['valid'] is not True:
+                        result['status']='invalid_cut_proof' if cut_check['valid'] is False else 'unverified_cut_proof'
+                        result['native_dual_bound']=result.get('dual_bound');result['dual_bound']=None;result['gap']=None
+
                 if solver.startswith('rust'):(directory/'result.json').write_text(json.dumps(parsed)+'\n')
                 if parsed.get('values') is not None:
                     validation=validate(path,parsed)

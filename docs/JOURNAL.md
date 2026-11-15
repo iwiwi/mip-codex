@@ -171,3 +171,19 @@
 - 最終sourcef1c8a2fの新規8問×4solver各5秒は全32run時間制限・証明0、返却28解GMP絶対27合格/1不合格 (既知HiGHS pk1)/未検証0、公式相対28合格。Rust7解は双方全合格。gmu50Rust -2532435.2987はGLPK -2396821.7722を上回るがHiGHS -2605437.3597/SCIP -2603755.2784に未達。gmu40Rust -1860472.4551も3solverより大幅に劣る。pk1は19で前PR12の17より悪化。詳細はsearch-default-summary.jsonとBENCHMARKの全表。
 - 86 Rustテスト、best/hybrid各1000+200、probe有効1000+200、最終既定1000+200は全成功。全試作・失敗/悪化を保存。07:21 UTC保存baseline解35件の新GMP再監査は34合格/既知invalid1/未検証0。snapshot/共有依存は不変。
 - 次はprobeで強い主解を持った状態でbest/hybridを再評価 (今回queue比較はprobe無効)。さらに予算付き強分枝・カットで下界を強化する。全240問最終Rust評価は未実施で、期限の時間予算を維持する。
+
+## 2026-11-15: 整数証明付きcoverとMPS重複項 (PR14で採用)
+- 前ターンはPR13 merge (833da9e) の進捗。cover-cuts branch。probeを有効にしたまま5探索×18開発問を比較 (smoke-20261115-072502/072504)。全90run時間制限・証明0、返却62解はGMP絶対/公式相対とも合格。gmu両問は全方式がprobe由来の主解を保持したが、それ以上の改善なし。既定depth/downを維持。
+- 元MPSの係数/RHS/RANGESが厳密な小整数 (絶対値2^52以下) の行にexact_integralメタデータ追加。原文字列を検査し、f64で整数に丸まっただけの1.000...001を信用しない。二値変数だけの行のupper/lower両側を正のpackingへ変換し、貪欲選択したcoverをi128で検査。元行の最小活動量がRHSを超えることを別関数で検査し、全カットへ元行/side/coverを証明として保存。最大4round×32cut、根時間5%/0.25秒。既定無効。
+- Python Fractionで元MPSの十進文字列を独立に読み直すverify_cover_cuts.pyを追加。主解なしの終了でも検査し、不合格/未完了なら下界と全体の最適/実行不能主張を採用しないよう将来snapshot用benchmark_caseとsmokeを修正。稼働snapshotは不変。実行不能を装った偽ソルバーの不正cutがguardで除外される4 Python回帰と、既存stage2回帰が成功。
+- 初期18問のcuts on/off (073944/073946) は全36run時間制限、返却26解双方検査合格。実際のcutは全18問0本。pk1の主解19→17の差はroot LP warm経路によるもので、cut効果と主張しない。純二値1000問では477問に2969cut、全て元MPS Fraction検査と整数全列挙/HiGHSに合格。
+- 入力監査で重複項1e16+1-1e16の相殺を発見。旧版は元のx<=1を0*x<=1としてoptimal -2,x=2を返し、GMP絶対で行違反1。目的だけの重複項でも誤optimal0 (真opt -2)、-0.1-0.2+0.3では誤unbounded (真opt0) を保存。整数配列でf64積和を一度丸めする関数とPython Fraction624fixtureを追加し、元十進値が丸めで相殺する場合もあるためnum-bigint0.4.8 (MIT OR Apache-2.0、汎用整数演算のみ) で重複十進項を合計してから一度f64へ丸める。LP/MIP最適化は委譲しない。非ゼロの入力/合計が0へunderflowする場合はエラー。
+- Source670f15bが最終候補。95 Rustテスト成功。整数重複12順序と十進相殺を回帰化。初期全240 MPS行列照合は全成功、最終版の全240照合が進行中 (cover-final-mps-matrix.jsonl、実プロセス確認してから再開)。最後の最終1,000混合+200中規模、純二値cut on/off各1,000は全成功。
+- 純二値の隔離比較 (repair/diving/probeを無効) は同じ1000入力/hash。cut off nodes5320/LP5320/solve時間合計0.106726秒、on nodes3676/LP5424/0.201837秒。nodeは減るが総LPは増え、極小問題の時間は悪化。MIPLIB18問でcut0も合わせ、性能既定化はしない。証明付きの任意機能として保ち、混合行・lifting等は次の課題。
+- 07:45 UTC baseline47/720、旧primary最適19、errors3、coordinator生存。新しいerrorはbuildingenergy/SCIPの旧診断600秒時間切れ。保存解40件の新GMP別監査39合格/既知GLPK invalid1/未検証0。snapshot/共有依存/CPU8..15は変更しない。
+- 残り: 最終240行列照合と8Rust5秒smokeを確認、証明と原MPS解の最終監査、文書/AI資源量/PR/merge。重複objectiveだけのMPSは公式checkerがRHS省略を拒否するため、独立Fractionの一変数モデル検査で真の最適値とafter点を検査し、元行を含む反例は元MPSのGMPでも確認する。失敗checkerログと最初の監査パス誤りも保持。
+
+- 最終全240 MPS行列/目的/境界/整数性照合は全成功 (cover-final-mps-matrix.jsonl)。96 Rustテストと元十進612/F64合計624fixture、最終1,000混合+200中規模、純二値on/off各1,000も成功。最終既定8Rust各5秒 (075311/source670f15b、cut無効) は全時間制限/証明0、返却7解双方検査合格、主解/下界はPR13同等。比較3solverは前回071815を再利用・今回は未再測定。
+- 新機能の採用は任意coverだけ、既定は無効を維持。入力の誤最適/誤非有界の修正は採用。原MPS Fractionの3反例検査は全成功、RHS省略のGMP構文制限ログは未検証として保存し合格に混ぜない。次は混合行・非整数係数・lifting等の一般化または強分枝で、実MIPLIBでも下界を強化する。全240最終Rust比較と全体優位は未達成。
+
+- 08:04 UTC baseline49/720、旧primary最適19、errors3、kernel coordinator生存。PR14で入力の相殺修正と証明付き任意coverを採用。coverは実MIPLIB信号不足と極小問題時間悪化から既定無効を維持。

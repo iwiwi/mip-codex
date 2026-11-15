@@ -60,6 +60,7 @@ def run(config_path, job_id):
     fcntl.flock(case_lock,fcntl.LOCK_EX | fcntl.LOCK_NB)
     atomic_json(directory/'case-identity.json',process(os.getpid()))
     if (directory/'summary.json').exists():
+        case_lock.close()
         return
     record = config['instances'][job['instance_index']]
     summary = dict(job_id=job_id, name=record['name'], split=record['split'], solver=job['solver'],
@@ -91,6 +92,17 @@ def run(config_path, job_id):
         summary['native_gap'] = parsed.get('gap')
         summary['primal_bound'] = None
         summary['verified_optimal'] = False
+        if parsed.get('cut_proofs'):
+            cut_command=[config['python'],str(root/'snapshot/scripts/verify_cover_cuts.py'),
+                         record['absolute_path'],str(directory/'result.json'),str(directory/'cut-validation.json')]
+            summary['cut_validation_execution']=stage(directory,'cut-validation',cut_command,config['validation_seconds'])
+            check_path=directory/'cut-validation.json'
+            summary['cut_validation']=json.loads(check_path.read_text()) if check_path.exists() else dict(valid=None,error='cut validator did not finish')
+            execution=summary['cut_validation_execution']
+            if execution['exit_code'] != 0 or execution['watchdog'] or execution['boot_changed']:
+                if summary['cut_validation'].get('valid') is not False:
+                    summary['cut_validation']=dict(valid=None,error='cut validator process did not finish successfully')
+
         if parsed.get('values') is not None:
             validation_command = [config['python'], str(root/'snapshot/scripts/benchmark_validate.py'),
                                   record['absolute_path'], str(directory/'result.json'),
@@ -114,6 +126,11 @@ def run(config_path, job_id):
         if solver_exit['exit_code'] != 0 or solver_exit['watchdog'] or solver_exit['boot_changed']:
             summary['status'] = 'watchdog' if solver_exit['watchdog'] else 'process_error'
             summary['verified_optimal'] = False
+        if summary.get('cut_validation',{}).get('valid',True) is not True:
+            summary['status']='invalid_cut_proof' if summary['cut_validation']['valid'] is False else 'unverified_cut_proof'
+            summary['verified_optimal']=False
+            summary['native_dual_bound']=summary.get('dual_bound')
+            summary['dual_bound']=None;summary['gap']=None
         summary['result_sha256'] = sha256(directory/'result.json')
         if parsed.get('values') is not None:
             summary['solution_sha256'] = summary['result_sha256']
@@ -123,6 +140,7 @@ def run(config_path, job_id):
     summary['cgroup_resources']=cgroup_stats(config,job)
     summary['finished_utc'] = utc()
     atomic_json(directory/'summary.json', summary)
+    case_lock.close()
 
 
 if __name__ == '__main__':
