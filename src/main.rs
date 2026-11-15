@@ -73,6 +73,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_OBJECTIVE_ROUNDING must be 0, 1, or all".into()),
             }
         }
+        if let Ok(value) = std::env::var("MIP_FEASIBILITY_PUMP") {
+            limits.feasibility_pump = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_FEASIBILITY_PUMP must be 0 or 1".into()),
+            };
+        }
         if let Ok(value) = std::env::var("MIP_RINS") {
             limits.rins = match value.as_str() {
                 "0" => false,

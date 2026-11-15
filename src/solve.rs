@@ -26,6 +26,7 @@ pub struct Limits {
     pub rounding_cuts: bool,
     pub strong_branching: bool,
     pub rins: bool,
+    pub feasibility_pump: bool,
     pub objective_rounding: bool,
     pub objective_rounding_all: bool,
     pub branching: branching::Rule,
@@ -50,6 +51,7 @@ impl Default for Limits {
             rounding_cuts: false,
             strong_branching: true,
             rins: true,
+            feasibility_pump: false,
             objective_rounding: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
@@ -78,6 +80,8 @@ pub struct Result {
     pub strong_branching: bool,
     pub strong: StrongStats,
     pub rins_enabled: bool,
+    pub feasibility_pump: bool,
+    pub pump: PumpStats,
     pub rins: RinsStats,
     pub objective_rounding: bool,
     pub objective_rounding_all: bool,
@@ -652,6 +656,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut probe = ProbeStats::default();
     let mut strong = StrongStats::default();
     let mut rins = RinsStats::default();
+    let mut pump = PumpStats::default();
     let mut repair_improvements = 0;
     let mut repair_lp_solves = 0;
     let mut repair_lp_candidates = 0;
@@ -1057,6 +1062,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     probe_limits.rounding_cuts = false;
                     probe_limits.strong_branching = false;
                     probe_limits.rins = false;
+                    probe_limits.feasibility_pump = false;
                     probe_limits.objective_rounding = false;
                     probe_limits.objective_rounding_all = false;
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
@@ -1134,6 +1140,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                         if Instant::now() < local_deadline {
                             let mut local = limits.clone();
                             local.rins = false;
+                            local.feasibility_pump = false;
                             local.objective_rounding = false;
                             local.objective_rounding_all = false;
                             local.primal_probe = false;
@@ -1195,6 +1202,47 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 }
                 if node.bound >= incumbent {
                     continue;
+                }
+                if limits.feasibility_pump
+                    && nodes == 1
+                    && branch.is_some()
+                    && best.is_none()
+                    && matches!(limits.engine, Engine::Revised)
+                    && Instant::now() < deadline
+                {
+                    let started = Instant::now();
+                    let local_deadline = deadline.min(
+                        started
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)),
+                    );
+                    let old_solves = pump.lp_solves;
+                    if let Some(x) = feasibility_pump(
+                        lp_model,
+                        &node,
+                        &original,
+                        limits,
+                        local_deadline,
+                        &mut pump,
+                        &mut lp_stats,
+                    ) {
+                        let value = sign * model.objective(&x);
+                        if value.is_finite()
+                            && value < incumbent
+                            && candidate_respects_bound(
+                                value,
+                                node.certified_bound,
+                                &mut objective_bound_stats,
+                            )
+                        {
+                            pump.improvements += 1;
+                            incumbent = value;
+                            best = Some(x);
+                            first_primal_seconds
+                                .get_or_insert_with(|| start.elapsed().as_secs_f64());
+                        }
+                    }
+                    lp_solves += pump.lp_solves - old_solves;
+                    pump.seconds += started.elapsed().as_secs_f64();
                 }
                 let branch = if limits.strong_branching
                     && nodes == 1
@@ -1340,6 +1388,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         strong_branching: limits.strong_branching,
         strong,
         rins_enabled: limits.rins,
+        feasibility_pump: limits.feasibility_pump,
+        pump,
         rins,
         objective_rounding: limits.objective_rounding,
         objective_rounding_all: limits.objective_rounding_all,
@@ -1619,4 +1669,142 @@ fn candidate_respects_bound(
     } else {
         true
     }
+}
+
+#[derive(Default, Debug, Serialize)]
+pub struct PumpStats {
+    pub calls: usize,
+    pub iterations: usize,
+    pub lp_solves: usize,
+    pub cycles: usize,
+    pub perturbations: usize,
+    pub binary: usize,
+    pub general: usize,
+    pub candidates: usize,
+    pub improvements: usize,
+    pub infeasible: usize,
+    pub numerical_errors: usize,
+    pub limited: usize,
+    pub seconds: f64,
+}
+fn feasibility_pump(
+    model: &Model,
+    root: &Node,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+    stats: &mut PumpStats,
+    lp_stats: &mut revised::Stats,
+) -> Option<Vec<f64>> {
+    stats.calls += 1;
+    let mut projection = crate::pump::Projection::new(model, &root.lower, &root.upper)?;
+    stats.binary = projection.binary;
+    stats.general = projection.general;
+    let mut local = root.clone();
+    local
+        .lower
+        .resize(projection.model.variables.len(), Some(0.));
+    local.upper.resize(projection.model.variables.len(), None);
+    if projection.general != 0 {
+        local.warm = None;
+    }
+    let mut point = point.to_vec();
+    let mut repair = heuristic::Repair::new(model);
+    for iteration in 0..32 {
+        if Instant::now() >= deadline {
+            stats.limited += 1;
+            return None;
+        }
+        stats.iterations += 1;
+        let mut rounded = point.clone();
+        for (j, v) in model.variables.iter().enumerate() {
+            if v.integer {
+                rounded[j] = rounded[j].round();
+            }
+        }
+        if repair.candidate_check(&rounded) {
+            stats.candidates += 1;
+            return Some(rounded);
+        }
+
+        let (mut candidate, cycle, changed) =
+            projection.target(&point, &root.lower, &root.upper, iteration)?;
+        stats.cycles += usize::from(cycle);
+        stats.perturbations += changed;
+        for (j, v) in model.variables.iter().enumerate() {
+            if v.integer {
+                candidate[j] = candidate[j].round();
+            }
+        }
+        if repair.candidate_check(&candidate) {
+            stats.candidates += 1;
+            return Some(candidate);
+        }
+        if limits.primal_repair {
+            if let Some(x) = repair.search(
+                &point,
+                &root.lower,
+                &root.upper,
+                deadline,
+                20000,
+                iteration as u64 + 20261115,
+            ) {
+                stats.candidates += 1;
+                return Some(x);
+            }
+        }
+        let q = match standard_sparse(&projection.model, &local, limits.dense_bytes, false) {
+            Relaxation::Ready(q) => q,
+            Relaxation::Infeasible => {
+                stats.infeasible += 1;
+                return None;
+            }
+            Relaxation::ResourceLimit => {
+                stats.limited += 1;
+                return None;
+            }
+        };
+        stats.lp_solves += 1;
+        let answer = revised::minimize_warm(
+            q.sparse.as_ref().unwrap(),
+            limits.pivots.min(4096),
+            Some(deadline),
+            if limits.warm_start {
+                local.warm.as_deref()
+            } else {
+                None
+            },
+        );
+        lp_stats.add(&answer.stats);
+        local.warm = answer.warm;
+        match answer.outcome {
+            lp::Outcome::Optimal { x, .. } => {
+                let original: Vec<_> = q
+                    .terms
+                    .iter()
+                    .enumerate()
+                    .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                    .collect();
+                if projection.model.check(&original, false, 1e-6).is_err() {
+                    stats.numerical_errors += 1;
+                    return None;
+                }
+                point = original[..projection.original_len].to_vec();
+            }
+            lp::Outcome::Infeasible => {
+                stats.infeasible += 1;
+                return None;
+            }
+            lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => {
+                stats.limited += 1;
+                return None;
+            }
+            _ => {
+                stats.numerical_errors += 1;
+                return None;
+            }
+        }
+    }
+    stats.limited += 1;
+    None
 }

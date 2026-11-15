@@ -289,3 +289,7 @@
 ### PR20候補: 費用変更時の主単体法warm
 
 PR19はa4705cbへマージ。別worktree warm-objective-source、branch warm-objectiveで開発しmainへrebaseした。行列構造一致と費用変更を区別し、primal feasibleな基底だけ主単体法へ渡す。違反ならcoldへ戻す。snapshot費用は更新、元Arcは不変。Stats集約のフィールド不足による初回コンパイル失敗を保持し修正。Rust136回帰成功。1000変更のcold/dense照合、別の1100解のHiGHS/Fraction検査も失敗0。部品時間はwarm0.1071秒/cold0.1468秒/HiGHS0.1440秒、pivot37035/53057、warm成功1000。小さい部品測定に限り、MILP全体の高速化とはしない。詳細docs/WARM_OBJECTIVE.md。次は主解専用の根feasibility pump。
+
+### 根feasibility pump試作
+
+PR20 (5ae57b6) をmainへ取り込み、feasibility-pump branch。新距離Modelとroot-only/主解なし/5%最大.25秒/32LP/4096pivotを実装、既定off。二値は目的符号変更、一般整数はd+2行。固定seedのtarget摂動。LP射影の直後に元整数解が得られた場合、循環摂動より先に検査して取り逃がさない。内部repairは既存primal_repair設定に従う。最初のテストはRustの`.8`表記でコンパイル失敗し、0.8へ修正。修正後のbinary warm/一般整数+連続補完/循環+整数不能/MAX/予算0の5件は成功。元bound/node数/終了状態が局所探索で証明へ化けないことを確認した。
