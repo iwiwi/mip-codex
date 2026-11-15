@@ -940,6 +940,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     continue;
                 }
                 if limits.rins
+                    && nodes == 1
                     && rins.attempts == 0
                     && branch.is_some()
                     && best.is_some()
@@ -951,7 +952,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     rins.at_node = Some(nodes);
                     let local_deadline = deadline.min(
                         started
-                            + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)),
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.1).min(0.5)),
                     );
                     if let Some(neighborhood) =
                         rins::neighborhood(model, &original, best.as_ref().unwrap())

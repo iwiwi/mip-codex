@@ -82,7 +82,7 @@ fn no_incumbent_or_expired_deadline_does_not_start_a_local_search() {
     assert_eq!(result.rins.calls, 0);
 }
 #[test]
-fn first_incumbent_found_below_root_can_start_one_local_search() {
+fn later_incumbent_does_not_trigger_an_unbudgeted_retry() {
     let m = model();
     let result = solve(
         &m,
@@ -95,8 +95,6 @@ fn first_incumbent_found_below_root_can_start_one_local_search() {
     assert_eq!(result.status, "node_limit");
     assert_eq!(result.objective, Some(-1.));
     assert_eq!(result.dual_bound, Some(-1.5));
-    assert_eq!(result.rins.attempts, 1);
-    assert_eq!(result.rins.calls, 1);
-    assert_eq!(result.rins.at_node, Some(3));
-    assert_eq!(result.rins.status.as_deref(), Some("optimal"));
+    assert_eq!(result.rins.attempts, 0);
+    assert_eq!(result.rins.calls, 0);
 }
