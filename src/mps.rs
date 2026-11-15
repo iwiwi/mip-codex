@@ -136,6 +136,21 @@ fn decimal_sum<'a>(entries: impl Iterator<Item = (f64, Option<&'a str>)>) -> Res
     }
     Ok(value)
 }
+fn enclose(value: f64, exact: bool) -> Option<[f64; 2]> {
+    let bounds = if exact {
+        [value, value]
+    } else {
+        [value.next_down(), value.next_up()]
+    };
+    bounds.iter().all(|x| x.is_finite()).then_some(bounds)
+}
+fn negate_token(s: &str) -> String {
+    if let Some(s) = s.strip_prefix('-') {
+        s.into()
+    } else {
+        format!("-{}", s.strip_prefix('+').unwrap_or(s))
+    }
+}
 pub fn read(path: impl AsRef<Path>) -> Result<Model, String> {
     let path = path.as_ref();
     let file = File::open(path).map_err(|e| e.to_string())?;
@@ -157,6 +172,8 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
     let mut columns = HashMap::new();
     let mut kinds = vec![];
     let mut rhs = vec![];
+    let mut rhs_tokens: Vec<Option<String>> = vec![];
+    let mut range_tokens: HashMap<usize, Option<String>> = HashMap::new();
     let mut ranges = HashMap::new();
     let mut explicit_bound = vec![];
     let mut raw_rows: Vec<Row> = vec![];
@@ -227,8 +244,11 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 }
                 kinds.push(t[0].to_string());
                 rhs.push(0.0);
+                rhs_tokens.push(None);
                 raw_lexical.push(Vec::new());
                 raw_rows.push(Row {
+                    lower_enclosure: None,
+                    upper_enclosure: None,
                     exact_integral: true,
                     name: t[1].into(),
                     lower: None,
@@ -254,6 +274,8 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                     let j = model.variables.len();
                     columns.insert(t[0].to_string(), j);
                     model.variables.push(Variable {
+                        lower_enclosure: Some([0., 0.]),
+                        upper_enclosure: None,
                         name: t[0].into(),
                         lower: Some(0.0),
                         upper: None,
@@ -296,12 +318,19 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                         .get(pair[0])
                         .ok_or_else(|| fail(format!("unknown row {}", pair[0])))?;
                     let value = number(pair[1]).map_err(&fail)?;
-                    raw_rows[i].exact_integral &=
-                        exact_integer(pair[1]).is_some_and(|n| n as f64 == value);
+                    let exact = exact_integer(pair[1]).is_some_and(|n| n as f64 == value);
+                    raw_rows[i].exact_integral &= exact;
+                    let token = if exact {
+                        None
+                    } else {
+                        Some(pair[1].to_string())
+                    };
                     if section == "RHS" {
                         rhs[i] = value;
+                        rhs_tokens[i] = token;
                     } else {
                         ranges.insert(i, value);
+                        range_tokens.insert(i, token);
                     }
                 }
             }
@@ -324,9 +353,12 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 } else {
                     None
                 };
+                let enclosure = value
+                    .and_then(|x| enclose(x, exact_integer(t[3]).is_some_and(|n| n as f64 == x)));
                 match t[0] {
                     "LO" | "LI" => {
                         v.lower = Some(value.ok_or_else(|| fail("missing bound value".into()))?);
+                        v.lower_enclosure = enclosure;
                         if t[0] == "LI" {
                             v.integer = true;
                         }
@@ -336,8 +368,10 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                         // Standard MPS negative upper bounds imply -infinity lower if still default.
                         if b < 0.0 && !explicit_bound[j] {
                             v.lower = None;
+                            v.lower_enclosure = None;
                         }
                         v.upper = Some(b);
+                        v.upper_enclosure = enclosure;
                         if t[0] == "UI" {
                             v.integer = true;
                         }
@@ -345,21 +379,29 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                     "FX" => {
                         let b = value.ok_or_else(|| fail("missing bound value".into()))?;
                         v.lower = Some(b);
+                        v.lower_enclosure = enclosure;
                         v.upper = Some(b);
+                        v.upper_enclosure = enclosure;
                     }
                     "FR" => {
                         v.lower = None;
+                        v.lower_enclosure = None;
                         v.upper = None;
+                        v.upper_enclosure = None;
                     }
                     "MI" => {
                         v.lower = None;
+                        v.lower_enclosure = None;
                     }
                     "PL" => {
                         v.upper = None;
+                        v.upper_enclosure = None;
                     }
                     "BV" => {
                         v.lower = Some(0.0);
+                        v.lower_enclosure = Some([0., 0.]);
                         v.upper = Some(1.0);
+                        v.upper_enclosure = Some([1., 1.]);
                         v.integer = true;
                     }
                     _ => return Err(fail(format!("unsupported bound type {}", t[0]))),
@@ -387,6 +429,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
     for (j, v) in model.variables.iter_mut().enumerate() {
         if v.integer && !explicit_bound[j] {
             v.upper = Some(1.0);
+            v.upper_enclosure = Some([1., 1.]);
         }
     }
     for (i, (mut row, lexical)) in raw_rows.into_iter().zip(raw_lexical).enumerate() {
@@ -429,22 +472,63 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             continue;
         }
         let b = rhs[i];
+        let enclosure = enclose(b, rhs_tokens[i].is_none());
         match kinds[i].as_str() {
-            "L" => row.upper = Some(b),
-            "G" => row.lower = Some(b),
+            "L" => {
+                row.upper = Some(b);
+                row.upper_enclosure = enclosure;
+            }
+            "G" => {
+                row.lower = Some(b);
+                row.lower_enclosure = enclosure;
+            }
             "E" => {
                 row.lower = Some(b);
                 row.upper = Some(b);
+                row.lower_enclosure = enclosure;
+                row.upper_enclosure = enclosure;
             }
             "N" => continue,
             _ => unreachable!(),
         }
         if let Some(&r) = ranges.get(&i) {
+            let flip = match kinds[i].as_str() {
+                "L" => r >= 0.,
+                "G" => r < 0.,
+                _ => false,
+            };
+            let token = range_tokens.get(&i).and_then(|s| s.as_deref());
+            let negated = if flip { token.map(negate_token) } else { None };
+            let range_token = if flip { negated.as_deref() } else { token };
+            let value = if rhs_tokens[i].is_none() && token.is_none() {
+                b + if flip { -r } else { r }
+            } else {
+                decimal_sum(
+                    [
+                        (b, rhs_tokens[i].as_deref()),
+                        (if flip { -r } else { r }, range_token),
+                    ]
+                    .into_iter(),
+                )?
+            };
+            let enclosure = enclose(value, rhs_tokens[i].is_none() && token.is_none());
             match kinds[i].as_str() {
-                "L" => row.lower = Some(b - r.abs()),
-                "G" => row.upper = Some(b + r.abs()),
-                "E" if r >= 0.0 => row.upper = Some(b + r),
-                "E" => row.lower = Some(b + r),
+                "L" => {
+                    row.lower = Some(value);
+                    row.lower_enclosure = enclosure;
+                }
+                "G" => {
+                    row.upper = Some(value);
+                    row.upper_enclosure = enclosure;
+                }
+                "E" if r >= 0. => {
+                    row.upper = Some(value);
+                    row.upper_enclosure = enclosure;
+                }
+                "E" => {
+                    row.lower = Some(value);
+                    row.lower_enclosure = enclosure;
+                }
                 _ => unreachable!(),
             }
         }

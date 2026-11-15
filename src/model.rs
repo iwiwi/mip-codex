@@ -3,6 +3,11 @@ use serde::{Deserialize, Serialize};
 /// None denotes an absent bound, never a NaN or a sentinel magnitude.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Variable {
+    /// 元入力の境界定数を外側から囲む有限区間。Noneは証明情報なし。
+    #[serde(default)]
+    pub lower_enclosure: Option<[f64; 2]>,
+    #[serde(default)]
+    pub upper_enclosure: Option<[f64; 2]>,
     pub name: String,
     pub lower: Option<f64>,
     pub upper: Option<f64>,
@@ -11,6 +16,10 @@ pub struct Variable {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Row {
+    #[serde(default)]
+    pub lower_enclosure: Option<[f64; 2]>,
+    #[serde(default)]
+    pub upper_enclosure: Option<[f64; 2]>,
     /// MPSの係数/RHS/RANGESが小さい整数そのもので、加算も正確だった行。
     /// 外部JSON/手作りModelは既定false。カットの適用可否だけに使用する。
     #[serde(default)]

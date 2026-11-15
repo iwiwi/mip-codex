@@ -20,6 +20,7 @@ count = int(sys.argv[1]) if len(sys.argv)>1 else 500
 failed = 0
 larger = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'larger'
 binary = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'binary'
+mixed_cuts = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'mixed_cuts'
 outdir = root/os.environ.get('MIP_SYNTHETIC_DIR','artifacts/synthetic')
 outdir.mkdir(exist_ok=True)
 for case in range(count):
@@ -27,6 +28,10 @@ for case in range(count):
     m=rng.randint(5,12) if binary else rng.randint(8,16) if larger else rng.randint(0,7)
     integer=[binary or case%3==0 or (case%3==1 and rng.random()<0.5) for _ in range(n)]
     bounds=[(0,1) if binary else (rng.randint(-3,0),rng.randint(1,4)) for _ in range(n)]
+    if mixed_cuts:
+        n=rng.randint(5,9);m=rng.randint(5,12)
+        integer=[j<n-2 for j in range(n)]
+        bounds=[(0,1) if flag else (-0.2,0.7) if j==n-2 else (-0.6,1.3) for j,flag in enumerate(integer)]
     cost=[rng.randint(-5,5) for _ in range(n)]
     offset=rng.randint(-4,4)
     maximize=rng.choice([False,True])
@@ -34,6 +39,13 @@ for case in range(count):
     if larger or binary:
         planted=[rng.randint(lo,up) for lo,up in bounds]
         rows=[(a,sum(v*x for v,x in zip(a,planted))+rng.randint(0,5)*(1 if kind=='L' else -1 if kind=='G' else 0),kind) for a,_,kind in rows]
+    if mixed_cuts:
+        planted_units=[10*rng.randint(0,1) if flag else rng.randint(-2,7) if j==n-2 else rng.randint(-6,13) for j,flag in enumerate(integer)]
+        rows=[]
+        for _ in range(m):
+            weights=[rng.randint(-9,9) for _ in range(n)];kind=rng.choice(['L','G','E'])
+            rhs_units=sum(w*x for w,x in zip(weights,planted_units))+rng.randint(0,50)*(1 if kind=='L' else -1 if kind=='G' else 0)
+            rows.append(([w/10 for w in weights],rhs_units/100,kind))
     lines=['NAME synthetic','OBJSENSE',' MAX' if maximize else ' MIN','ROWS',' N obj']
     lines += [f' {kind} r{i}' for i,(_,_,kind) in enumerate(rows)]
     lines+=['COLUMNS']
@@ -100,7 +112,7 @@ for case in range(count):
                         feasible.append(offset+sum(v*t for v,t in zip(cost,x)))
                 if not feasible: assert result['status']=='infeasible'
                 else: assert abs((max(feasible) if maximize else min(feasible))-result['objective'])<1e-6
-            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],seconds=result.get('seconds'),cut_count=len(result.get('cut_proofs',[])),cut_rounds=result.get('cut_rounds'),cut_lp_solves=result.get('cut_lp_solves'),cut_verified=cut_check['valid'],search=result.get('search_strategy'),best_pops=result.get('search_best_pops'),max_open=result.get('max_open_nodes'),lp_solves=result.get('lp_solves'),branching=result.get('branching'),child_order=result.get('child_order'),pseudocost_selections=result.get('pseudocost_selections'),scaled_columns=result.get('lp_scaled_columns'),scaled_rows=result.get('lp_scaled_rows'),primal_repair=result.get('primal_repair'),lp_diving=result.get('lp_diving'),primal_probe=result.get('primal_probe'),probe=result.get('probe'),diving=result.get('diving'),repair_improvements=result.get('repair_improvements'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
+            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],seconds=result.get('seconds'),cut_count=len(result.get('cut_proofs',[])),cut_rounds=result.get('cut_rounds'),cut_lp_solves=result.get('cut_lp_solves'),cut_integer=result.get('cut_stats',{}).get('integer'),cut_interval=result.get('cut_stats',{}).get('interval'),cut_projected=result.get('cut_stats',{}).get('projected'),cut_verified=cut_check['valid'],search=result.get('search_strategy'),best_pops=result.get('search_best_pops'),max_open=result.get('max_open_nodes'),lp_solves=result.get('lp_solves'),branching=result.get('branching'),child_order=result.get('child_order'),pseudocost_selections=result.get('pseudocost_selections'),scaled_columns=result.get('lp_scaled_columns'),scaled_rows=result.get('lp_scaled_rows'),primal_repair=result.get('primal_repair'),lp_diving=result.get('lp_diving'),primal_probe=result.get('primal_probe'),probe=result.get('probe'),diving=result.get('diving'),repair_improvements=result.get('repair_improvements'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
     except Exception as error:
         failed+=1
         (outdir/f'failure-{case}.mps').write_text(text)

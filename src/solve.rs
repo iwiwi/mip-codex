@@ -207,6 +207,12 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
         terms,
     })
 }
+fn split_range(row: &crate::model::Row) -> bool {
+    row.lower.zip(row.upper).is_some_and(|(l, u)| {
+        let width = u - l;
+        l < u && (!width.is_finite() || u - width != l || l + width != u)
+    })
+}
 fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
     let mut shift = Vec::new();
     let mut terms = Vec::new();
@@ -240,10 +246,14 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
     let nonzeros = model
         .rows
         .iter()
-        .map(|r| r.coefficients.len())
-        .sum::<usize>();
-    let estimate =
-        (nonzeros as u128) * 48 + (model.rows.len() as u128) * 2048 + (costs.len() as u128) * 128;
+        .map(|r| r.coefficients.len() as u128 * if split_range(r) { 2 } else { 1 })
+        .sum::<u128>();
+    let rows = model
+        .rows
+        .iter()
+        .map(|r| if split_range(r) { 2u128 } else { 1 })
+        .sum::<u128>();
+    let estimate = nonzeros * 48 + rows * 2048 + (costs.len() as u128) * 128;
     if estimate > limit as u128 {
         return Relaxation::ResourceLimit;
     }
@@ -255,29 +265,40 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
         if row.lower.is_none() && row.upper.is_none() {
             continue;
         }
-        let i = rhs.len();
-        let mut offset = 0.0;
-        let row_sign = if row.upper.is_some() { 1.0 } else { -1.0 };
-        for &(j, a) in &row.coefficients {
-            offset += a * shift[j];
-            for &(k, s) in &terms[j] {
-                columns[k].push((i, row_sign * a * s));
-            }
-        }
-        let bound = if let Some(u) = row.upper {
-            u - offset
-        } else {
-            offset - row.lower.unwrap()
-        };
-        rhs.push(bound);
-        equality.push(row.lower.zip(row.upper).is_some_and(|(l, u)| l == u));
-        slack_upper.push(
-            row.lower
-                .zip(row.upper)
-                .map_or(f64::INFINITY, |(l, u)| u - l),
-        );
         if row.lower.zip(row.upper).is_some_and(|(l, u)| l > u) {
             return Relaxation::Infeasible;
+        }
+        let split = split_range(row);
+        let orientations: &[f64] = if split {
+            &[1., -1.]
+        } else if row.upper.is_some() {
+            &[1.]
+        } else {
+            &[-1.]
+        };
+        for &row_sign in orientations {
+            let i = rhs.len();
+            let mut offset = 0.;
+            for &(j, a) in &row.coefficients {
+                offset += a * shift[j];
+                for &(k, s) in &terms[j] {
+                    columns[k].push((i, row_sign * a * s));
+                }
+            }
+            let bound = if row_sign > 0. {
+                row.upper.unwrap() - offset
+            } else {
+                offset - row.lower.unwrap()
+            };
+            rhs.push(bound);
+            equality.push(!split && row.lower.zip(row.upper).is_some_and(|(l, u)| l == u));
+            slack_upper.push(if split {
+                f64::INFINITY
+            } else {
+                row.lower
+                    .zip(row.upper)
+                    .map_or(f64::INFINITY, |(l, u)| u - l)
+            });
         }
     }
     let p = revised::Problem {

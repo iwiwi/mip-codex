@@ -22,7 +22,8 @@ fn literal_integer_provenance_does_not_trust_f64_rounding() {
             32,
             Instant::now() + Duration::from_secs(1),
         );
-        assert_eq!(!cuts.is_empty(), expected);
+        assert!(!cuts.is_empty());
+        assert!(cuts.iter().all(|cut| verify(&model, cut)));
     }
     for value in ["1e-400", "-1D-9999"] {
         let text = format!("NAME underflow\nROWS\n N obj\nCOLUMNS\n x obj {value}\nENDATA\n");
@@ -118,6 +119,8 @@ fn continuous_columns_and_unknown_provenance_are_skipped() {
     );
     model.variables[0].integer = true;
     model.rows[0].exact_integral = false;
+    model.rows[0].lower_enclosure = None;
+    model.rows[0].upper_enclosure = None;
     assert!(
         Pool::default()
             .separate(
@@ -225,4 +228,116 @@ fn decimal_duplicate_cancellation_is_not_a_spurious_unbounded_objective() {
     let model=mps::parse(std::io::Cursor::new("NAME decimal\nROWS\n N c\n L r\nCOLUMNS\n x c -1.000000000000000000001 r 1.000000000000000000001\n x c 1 r -1\nRHS\n rhs r 1\nENDATA\n")).unwrap();
     assert_eq!(model.variables[0].objective, -1e-21);
     assert_eq!(model.rows[0].coefficients, vec![(0, 1e-21)]);
+}
+#[test]
+fn fractional_coefficients_project_a_continuous_lower_bound_safely() {
+    use mip_codex::solve::{Limits, solve};
+    let model=mps::parse(std::io::Cursor::new("NAME mixed\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 0.2\n y c -1 r 0.2\n z r 1\nRHS\n rhs r 0.4\nBOUNDS\n BV b x\n BV b y\n LO b z 0.1\n UP b z 1\nENDATA\n")).unwrap();
+    let result = solve(
+        &model,
+        &Limits {
+            nodes: 1,
+            cover_cuts: true,
+            primal_probe: false,
+            primal_repair: false,
+            lp_diving: false,
+            ..Limits::default()
+        },
+    );
+    assert_eq!(result.status, "optimal");
+    assert_eq!(result.objective, Some(-1.));
+    assert!(result.cut_stats.interval > 0 && result.cut_stats.projected > 0);
+    assert!(result.cut_proofs.iter().all(|cut| verify(&model, cut)));
+    // x=1,y=0,z=.1は元の制約を満たし、単独変数を排除するcutは不可。
+    assert!(result.cut_proofs.iter().all(|cut| {
+        cut.row
+            .coefficients
+            .iter()
+            .filter(|(j, _)| *j == 0)
+            .map(|(_, a)| a)
+            .sum::<f64>()
+            <= cut.row.upper.unwrap()
+    }));
+}
+#[test]
+fn a_negative_continuous_term_needs_its_finite_upper_bound() {
+    let model=mps::parse(std::io::Cursor::new("NAME upper\nROWS\n N c\n L r\nCOLUMNS\n x r 0.2\n y r 0.2\n z r -1\nRHS\n rhs r 0.1\nBOUNDS\n BV b x\n BV b y\n UP b z 0.2\nENDATA\n")).unwrap();
+    let mut pool = Pool::default();
+    let cuts = pool.separate(
+        &model,
+        &[1., 0.5, 0.2],
+        32,
+        Instant::now() + Duration::from_secs(1),
+    );
+    assert!(!cuts.is_empty());
+    assert!(cuts.iter().all(|cut| verify(&model, cut)));
+    let mut unbounded = model.clone();
+    unbounded.variables[2].upper = None;
+    unbounded.variables[2].upper_enclosure = None;
+    assert!(!verify(&unbounded, &cuts[0]));
+}
+#[test]
+fn mixed_decimal_cuts_preserve_all_box_feasible_binary_assignments() {
+    let mut seed = 2026111515u64;
+    let mut checked = 0;
+    for case in 0..400 {
+        let mut draw = || {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+            (seed >> 32) as i64
+        };
+        let weights: Vec<_> = (0..8).map(|_| draw() % 19 - 9).collect();
+        let rhs = draw() % 21 - 10;
+        let sign = if case % 2 == 0 { 1 } else { -1 };
+        let mut text = format!(
+            "NAME mixed\nROWS\n N c\n {} r\nCOLUMNS\n",
+            if sign == 1 { "L" } else { "G" }
+        );
+        for (j, a) in weights.iter().enumerate() {
+            text += &format!(" x{j} c 0 r {}\n", *a as f64 / 10.);
+        }
+        text += &format!("RHS\n rhs r {}\nBOUNDS\n", rhs as f64 / 10.);
+        for j in 0..6 {
+            text += &format!(" BV b x{j}\n");
+        }
+        text += " LO b x6 -0.2\n UP b x6 0.7\n LO b x7 -0.6\n UP b x7 1.3\nENDATA\n";
+        let model = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let mut point: Vec<_> = (0..6).map(|_| (draw() % 1000) as f64 / 1000.).collect();
+        point.extend([0.2, 0.1]);
+        let cuts =
+            Pool::default().separate(&model, &point, 32, Instant::now() + Duration::from_secs(1));
+        for cut in cuts {
+            assert!(verify(&model, &cut));
+            checked += 1;
+            for mask in 0..64 {
+                let mut minimum = 10
+                    * (0..6)
+                        .filter(|j| mask & (1 << j) != 0)
+                        .map(|j| sign * weights[j])
+                        .sum::<i64>();
+                minimum += (sign * weights[6] * -2).min(sign * weights[6] * 7)
+                    + (sign * weights[7] * -6).min(sign * weights[7] * 13);
+                if minimum <= sign * 10 * rhs {
+                    let activity: f64 = cut
+                        .row
+                        .coefficients
+                        .iter()
+                        .filter(|(j, _)| mask & (1 << j) != 0)
+                        .map(|(_, a)| a)
+                        .sum();
+                    assert!(activity <= cut.row.upper.unwrap(), "case{case} {cut:?}");
+                }
+            }
+        }
+    }
+    assert!(checked > 20, "only {checked} cuts");
+}
+#[test]
+fn ranges_are_combined_as_original_decimal_values_before_rounding() {
+    let model=mps::parse(std::io::Cursor::new("NAME ranged\nROWS\n N c\n E r\nCOLUMNS\n x c 1 r 1\nRHS\n rhs r 10000000000000001\nRANGES\n range r -10000000000000000\nENDATA\n")).unwrap();
+    assert_eq!(model.rows[0].lower, Some(1.));
+    let interval = model.rows[0].lower_enclosure.unwrap();
+    assert!(interval[0] <= 1. && interval[1] >= 1.);
+    let result = mip_codex::solve::solve(&model, &mip_codex::solve::Limits::default());
+    assert_eq!(result.status, "optimal");
+    assert_eq!(result.objective, Some(1.));
 }
