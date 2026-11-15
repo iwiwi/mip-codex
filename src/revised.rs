@@ -27,6 +27,8 @@ pub struct Stats {
     pub warm_successes: usize,
     pub warm_fallbacks: usize,
     pub warm_rejections: usize,
+    pub warm_cost_attempts: usize,
+    pub warm_cost_successes: usize,
     pub dual_pivots: usize,
     pub dual_flips: usize,
     pub scaled_columns: usize,
@@ -131,7 +133,7 @@ pub struct WarmStart {
 impl WarmStart {
     fn compatible(&self, p: &Problem) -> bool {
         let a = &self.structure;
-        a.costs == p.costs
+        a.costs.len() == p.costs.len()
             && a.equality == p.equality
             && a.slack_upper == p.slack_upper
             && a.columns.len() >= p.columns.len()
@@ -666,17 +668,38 @@ fn warm_impl(
     let mut c = vec![0.0; total];
     c[..n].copy_from_slice(&p.costs);
     s.stats.warm_attempts = 1;
-    let outcome = s.recompute().and_then(|_| s.dual_run(&c));
+    let cost_changed = a.costs != p.costs;
+    s.stats.warm_cost_attempts = usize::from(cost_changed);
+    let outcome = s.recompute().and_then(|_| {
+        if cost_changed {
+            // 新目的ではdual feasibleを仮定できない。元の基底がprimal feasibleな場合だけ使う。
+            if s.x
+                .iter()
+                .zip(&s.upper)
+                .any(|(&x, &u)| x < -FEAS || x > u + FEAS)
+            {
+                return Err(numerical());
+            }
+            s.run(&c)
+        } else {
+            s.dual_run(&c)
+        }
+    });
     match outcome {
         Ok((objective, dual)) => {
             s.stats.warm_successes = 1;
+            s.stats.warm_cost_successes = usize::from(cost_changed);
             Answer {
                 outcome: Outcome::Optimal {
                     objective,
                     x: s.x[..n].to_vec(),
                 },
                 dual: Some(dual),
-                warm: Some(snapshot(p, &s, Some(a.clone()))),
+                warm: Some(snapshot(
+                    p,
+                    &s,
+                    if cost_changed { None } else { Some(a.clone()) },
+                )),
                 stats: s.stats,
                 witness: s.witness,
                 witness_point: s.witness_point,
@@ -719,6 +742,8 @@ impl Stats {
         self.warm_successes += other.warm_successes;
         self.warm_fallbacks += other.warm_fallbacks;
         self.warm_rejections += other.warm_rejections;
+        self.warm_cost_attempts += other.warm_cost_attempts;
+        self.warm_cost_successes += other.warm_cost_successes;
         self.dual_pivots += other.dual_pivots;
         self.dual_flips += other.dual_flips;
         self.scaled_columns += other.scaled_columns;

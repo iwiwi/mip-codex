@@ -84,14 +84,15 @@ fn impossible_box_row_requires_certificate() {
     assert_eq!(minimize(&child, 1000, None).outcome, Outcome::Infeasible);
 }
 #[test]
-fn cost_or_structure_changes_reject_warm_basis() {
+fn cost_changes_use_primal_warm_and_structure_changes_reject_basis() {
     let parent = problem(vec![0., 1.], vec![10., 10.], vec![1., 1.], 2.);
     let root = minimize_warm(&parent, 1000, None, None);
     let mut child = parent.clone();
     child.costs = vec![2., 1.];
     let warm = minimize_warm(&child, 1000, None, root.warm.as_deref());
     assert_eq!(value(&warm), 2.);
-    assert_eq!(warm.stats.warm_rejections, 1);
+    assert_eq!(warm.stats.warm_rejections, 0);
+    assert_eq!(warm.stats.warm_cost_successes, 1);
     child.columns[1][0].1 = 2.;
     let warm = minimize_warm(&child, 1000, None, root.warm.as_deref());
     assert_eq!(value(&warm), 1.);
@@ -252,4 +253,139 @@ fn expired_budget_does_not_restart_cold_phase_one() {
     );
     assert_eq!(answer.outcome, Outcome::TimeLimit);
     assert_eq!(answer.stats.warm_fallbacks, 0);
+}
+
+#[test]
+fn thousand_cost_changes_match_cold_and_keep_original_basis_reusable() {
+    let mut seed = 2026111512u64;
+    fn random(seed: &mut u64, n: u64) -> u64 {
+        *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        (*seed >> 32) % n
+    }
+    let mut successful = 0;
+    for case in 0..100 {
+        let n = 4 + random(&mut seed, 9) as usize;
+        let m = 2 + random(&mut seed, 5) as usize;
+        let mut columns = vec![vec![]; n];
+        let mut rhs = vec![0.; m];
+        for col in &mut columns {
+            for (i, b) in rhs.iter_mut().enumerate() {
+                let a = random(&mut seed, 7) as f64 - 3.;
+                if a != 0. {
+                    col.push((i, a));
+                    *b += a;
+                }
+            }
+        }
+        let parent = Problem {
+            columns,
+            rhs,
+            costs: (0..n).map(|_| random(&mut seed, 13) as f64 - 6.).collect(),
+            upper: vec![2.; n],
+            equality: (0..m).map(|i| (case + i) % 3 == 0).collect(),
+            slack_upper: vec![f64::INFINITY; m],
+        };
+        let root = minimize_warm(&parent, 100000, None, None);
+        value(&root);
+        let mut state = root.warm.clone();
+        for step in 0..10 {
+            let mut child = parent.clone();
+            child.costs = (0..n).map(|_| random(&mut seed, 21) as f64 - 10.).collect();
+            if step % 4 == 0 {
+                child.costs.fill(0.);
+            }
+            let warm = minimize_warm(&child, 100000, None, state.as_deref());
+            let cold = minimize(&child, 100000, None);
+            assert!((value(&warm) - value(&cold)).abs() < 1e-7 * (1. + value(&cold).abs()));
+            let mut dense_a = Vec::new();
+            let mut dense_b = Vec::new();
+            for i in 0..m {
+                let row = (0..n)
+                    .map(|j| {
+                        child.columns[j]
+                            .iter()
+                            .find(|&&(k, _)| k == i)
+                            .map_or(0., |&(_, a)| a)
+                    })
+                    .collect::<Vec<_>>();
+                dense_a.push(row.clone());
+                dense_b.push(child.rhs[i]);
+                if child.equality[i] {
+                    dense_a.push(row.iter().map(|a| -a).collect());
+                    dense_b.push(-child.rhs[i]);
+                }
+            }
+            for j in 0..n {
+                let mut row = vec![0.; n];
+                row[j] = 1.;
+                dense_a.push(row);
+                dense_b.push(child.upper[j]);
+            }
+            let dense = mip_codex::lp::minimize(&dense_a, &dense_b, &child.costs, 100000).unwrap();
+            let Outcome::Optimal {
+                objective: dense_value,
+                ..
+            } = dense
+            else {
+                panic!("{dense:?}")
+            };
+            assert!((value(&warm) - dense_value).abs() < 1e-7 * (1. + dense_value.abs()));
+            if let Outcome::Optimal { x, .. } = &warm.outcome {
+                for (a, &b) in dense_a.iter().zip(&dense_b) {
+                    assert!(a.iter().zip(x).map(|(a, x)| a * x).sum::<f64>() <= b + 1e-7);
+                }
+            }
+            successful += warm.stats.warm_cost_successes;
+            assert_eq!(warm.stats.warm_rejections, 0);
+            if let Outcome::Optimal { x, .. } = &warm.outcome {
+                assert!(x.iter().all(|&v| v >= -1e-7 && v <= 2. + 1e-7));
+            }
+            state = warm.warm;
+        }
+        let again = minimize_warm(&parent, 100000, None, root.warm.as_deref());
+        assert!((value(&again) - value(&root)).abs() < 1e-8);
+    }
+    assert!(successful > 900, "{successful}");
+}
+
+#[test]
+fn changed_cost_and_infeasible_basis_falls_back_to_phase_one() {
+    let p = problem(vec![0., 1.], vec![10., 10.], vec![1., 1.], 2.);
+    let root = minimize_warm(&p, 1000, None, None);
+    let mut child = p.clone();
+    child.costs = vec![2., 1.];
+    child.upper[0] = 0.;
+    let warm = minimize_warm(&child, 1000, None, root.warm.as_deref());
+    assert_eq!(value(&warm), 2.);
+    assert_eq!(warm.stats.warm_fallbacks, 1);
+    assert_eq!(warm.stats.warm_cost_successes, 0);
+    child.rhs[0] = -1.;
+    let warm = minimize_warm(&child, 1000, None, root.warm.as_deref());
+    assert_eq!(warm.outcome, Outcome::Infeasible);
+    assert_eq!(warm.stats.warm_fallbacks, 1);
+}
+
+#[test]
+fn cost_changes_preserve_scaled_units_and_unbounded_ray_checks() {
+    for scale in [1e-8, 1., 1e8] {
+        let p = problem(vec![0., scale], vec![10. / scale; 2], vec![scale; 2], 2.);
+        let root = minimize_warm(&p, 10000, None, None);
+        let mut child = p.clone();
+        child.costs = vec![2. * scale, scale];
+        let warm = minimize_warm(&child, 10000, None, root.warm.as_deref());
+        assert!((value(&warm) - 2.).abs() < 1e-7);
+        assert_eq!(warm.stats.warm_cost_successes, 1);
+        child.costs = vec![scale, -3. * scale];
+        let second = minimize_warm(&child, 10000, None, warm.warm.as_deref());
+        assert!((value(&second) + 6.).abs() < 1e-7);
+        let original = minimize_warm(&p, 10000, None, root.warm.as_deref());
+        assert!(value(&original).abs() < 1e-7);
+    }
+    let p = problem(vec![1., 1.], vec![f64::INFINITY; 2], vec![1., -1.], 0.);
+    let root = minimize_warm(&p, 10000, None, None);
+    let mut child = p.clone();
+    child.costs = vec![-1., 0.];
+    let warm = minimize_warm(&child, 10000, None, root.warm.as_deref());
+    assert_eq!(warm.outcome, Outcome::Unbounded);
+    assert_eq!(warm.stats.warm_cost_attempts, 1);
 }

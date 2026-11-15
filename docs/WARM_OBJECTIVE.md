@@ -1,0 +1,9 @@
+# 目的関数変更時の基底再利用（試作）
+
+目的関数だけを変えるfeasibility pumpの準備として、独自Rust LPのwarm基底を新費用でも再利用する。係数行列・等式属性・スラック構造の一致は維持する。費用が異なる場合は基底値を再計算して全変数が境界内なら主単体法で最適化する。primal infeasibleならcold phase-Iへ戻す。費用が同じ従来ケースは双対単体法のまま。
+
+親のArc構造は変更せず、新しい費用のsnapshotを作る。数値異常・非有界候補は既存cold fallbackと元単位の検査を通す。warm_cost_attempts/successesをLP統計とMILP集約へ追加する。外部の最適化処理は呼ばない。
+
+初回は集約Statsの構築に新フィールドを加え忘れてコンパイル失敗した（warm-objective-initial-tests.log）。修正後、従来warm9試験が成功。さらに1000費用変更をcold revisedと別のdense単体法に照合し、元行/境界も検査する。費用+境界変更時のcold fallback、元基底の再利用、行列変更の棄却、単位1e-8/1e8と非有界rayも検査する。現在は検証中で、通常MILP探索は目的を変えないため性能向上をまだ主張しない。
+
+次はrelease性能測定、全回帰と記録。その後、予算付きの根feasibility pumpを別変更として試す。元問題で有効な主解だけを採用し、局所探索のbound/infeasibleはグローバルへ持ち込まない。
