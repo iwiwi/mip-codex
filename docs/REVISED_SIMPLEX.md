@@ -12,6 +12,6 @@
 汎用線形代数のみfaer 0.24.4を使用 (MIT)。疎行列LU、前進・転置解法に限定。価格付け・比率検定・二段階法・境界処理・MILP探索・判定は本リポジトリのRustコード。既存LP/MIP実装の移植・委譲はない。
 参考APIは取得したcrateのsrc/sparse/solvers.rsおよびsrc/linalg/solvers.rs。https://github.com/sarah-quinones/faer-rs
 
-現時点では各MILPノードを新規にLP化する。ノード間の基底再利用、dual simplex、スケーリング、Harris比率検定、安定した低ランクLU更新、部分価格付け、前処理は未実装。基底LUのfill-inに対するメモリ上限はOS側制限で保証し、初期行列の保守的推定も使う。時間制限はLP反復境界で監視する。
+ノード間の基底・LU再利用とbounded dual simplexを追加し既定化した (docs/WARM_START_PLAN.md)。スケーリング、Harris比率検定、安定した低ランクLU更新、部分価格付け、前処理は未実装。基底LUのfill-inに対するメモリ上限はOS側制限で保証し、初期行列の保守的推定も使う。時間制限はLP反復境界で監視する。
 
 数値結果は厳密有理証明ではない。全返却整数解に元MPSへの独立検査を適用する。

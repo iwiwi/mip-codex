@@ -53,3 +53,24 @@
 2026-11-15 UTC、全240問×3比較ソルバーの720ケースを開始。固定条件とv0からの変更理由・再開方法はdocs/EVALUATION_RUNNER.md。snapshot source commit c431aa9、ソースclean。config・依存・機械・保存時点の進捗はexperiments/baseline-v1-20261115。
 
 最終評価はcgroup合計16GiBを加え、GLPK cuts/FPを公式testscriptに合わせ有効化したv1で統一する。以前の5秒smokeを同じ系列に混ぜない。全体成績・誤答/未検証の監査は完了後に行う。
+
+## ノード間基底再利用 (2026-11-15)
+
+source17c5872を固定し、開発CPU0/5秒/1thread/RLIMIT_AS16GiBでcold/warmと比較solverを逐次測定。GLPKは現行cuts/FP有効。この短期系列は長時間v1のcgroup全体測定とは区別する。
+
+| 問題 | cold Rust primal | warm Rust primal | HiGHS | SCIP | GLPK |
+|---|---:|---:|---:|---:|---:|
+| pk1 | 29 | 約20 | 約15 | 19 | 21 |
+| mad | 0.4938 | 0.2576 | 0.208 | 0.4208 | 0.3512 |
+| markshare_4_0 | 4 | 約2 | 約5 | 約5 | 8 |
+
+最終の小規模15run: artifacts/smoke-20261115-035415。全runが時間制限、証明0、返却15解は絶対誤差Python/公式GMP双方に合格。pk1ではGLPKのdual約0.241がRustの0より強く、primalの比較だけで全面優位と扱わない。raw gapはsolver固有定義も含むので、共通gapをartifacts/warm-final-summary.jsonに別途計算。
+
+大きめ3問: artifacts/smoke-20261115-035532。
+- 30n20b8: cold71/warm51ノード、両方primalなし、dual約1.56640765で同じ。改善は確認できない。
+- 50v-10: cold680ノード/primalなし、warm15591ノード/primal8244.969954。dualは両方約2879.065687。
+- binkar10_1: cold69ノード/primalなし、warm1845ノード/primal6944.740016。dualは両方約6637.188027。
+
+新しい2解もPython/GMP双方に合格。全21runで証明0、返却17解全て検証済み。単なるノード数比を速度倍率と同一視しない。warm/coldはLP最適頂点とbranch経路が異なる。
+
+初回版source554a057の失敗 (madのdual停滞、markshareのprimal悪化) もartifacts/smoke-20261115-034804に保持。dual退化判定をbetaへ修正し、Bland選択と構造依存pivot予算のfallbackを加えた後に再測定して採用した。35基本テスト、3000 bound/RHS変更のcold照合、1000小問題/200中規模のHiGHS比較、200合成根LP/6開発MIPLIB根LP照合が成功。全体優位は未達成。
