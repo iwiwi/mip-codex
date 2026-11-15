@@ -44,7 +44,7 @@ impl<'a> Repair<'a> {
             .max(row.upper.map_or(0., |u| (activity - u).max(0.)))
             * self.weights[i]
     }
-    fn candidate_check(&self, x: &[f64]) -> bool {
+    pub fn candidate_check(&self, x: &[f64]) -> bool {
         if self.model.check(x, true, 1e-7).is_err() {
             return false;
         }

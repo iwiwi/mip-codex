@@ -40,6 +40,9 @@ pub struct Result {
     pub repair_candidates: usize,
     pub repair_improvements: usize,
     pub repair_moves: usize,
+    pub first_primal_seconds: Option<f64>,
+    pub repair_lp_solves: usize,
+    pub repair_lp_candidates: usize,
     pub repair_work: usize,
     pub lp_engine: String,
     pub propagation: bool,
@@ -288,8 +291,11 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     let mut lp_stats = revised::Stats::default();
     let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
     let mut repair_improvements = 0;
+    let mut repair_lp_solves = 0;
+    let mut repair_lp_candidates = 0;
     let mut incumbent = f64::INFINITY;
     let mut best = None;
+    let mut first_primal_seconds = None;
     let mut status = "optimal".to_string();
     let mut terminal_bound = f64::INFINITY;
     while let Some(mut node) = stack.pop() {
@@ -342,6 +348,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     terminal_bound = terminal_bound.min(value);
                     if value < incumbent {
                         incumbent = value;
+                        first_primal_seconds.get_or_insert_with(|| start.elapsed().as_secs_f64());
                         best = Some(x);
                     }
                     continue;
@@ -431,6 +438,61 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                         let allocation = if nodes == 1 { 0.05 } else { 0.001 };
                         let repair_deadline = deadline
                             .min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
+                        // 整数値を固定した連続部分の修復。結果は主解だけに使う。
+                        if matches!(limits.engine, Engine::Revised)
+                            && Instant::now() < repair_deadline
+                        {
+                            let mut fixed = node.clone();
+                            for (j, v) in model.variables.iter().enumerate() {
+                                if v.integer {
+                                    let mut value = original[j].round();
+                                    if let Some(l) = node.lower[j] {
+                                        value = value.max(l.ceil());
+                                    }
+                                    if let Some(u) = node.upper[j] {
+                                        value = value.min(u.floor());
+                                    }
+                                    fixed.lower[j] = Some(value);
+                                    fixed.upper[j] = Some(value);
+                                }
+                            }
+                            if let Relaxation::Ready(q) =
+                                standard_sparse(model, &fixed, limits.dense_bytes)
+                            {
+                                let answer = revised::minimize_warm(
+                                    q.sparse.as_ref().unwrap(),
+                                    limits.pivots.min(256),
+                                    Some(repair_deadline),
+                                    node.warm.as_deref(),
+                                );
+                                lp_solves += 1;
+                                repair_lp_solves += 1;
+                                lp_stats.add(&answer.stats);
+                                if let lp::Outcome::Optimal { x, .. } = answer.outcome {
+                                    let x: Vec<_> = q
+                                        .terms
+                                        .iter()
+                                        .enumerate()
+                                        .map(|(j, t)| {
+                                            q.shift[j]
+                                                + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>()
+                                        })
+                                        .collect();
+                                    if h.candidate_check(&x) {
+                                        repair_lp_candidates += 1;
+                                        let value = sign * model.objective(&x);
+                                        if value.is_finite() && value < incumbent {
+                                            repair_improvements += 1;
+                                            incumbent = value;
+                                            first_primal_seconds.get_or_insert_with(|| {
+                                                start.elapsed().as_secs_f64()
+                                            });
+                                            best = Some(x);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         let budget = model
                             .rows
                             .iter()
@@ -450,6 +512,8 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                             if value.is_finite() && value < incumbent {
                                 repair_improvements += 1;
                                 incumbent = value;
+                                first_primal_seconds
+                                    .get_or_insert_with(|| start.elapsed().as_secs_f64());
                                 best = Some(x);
                             }
                         }
@@ -487,6 +551,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     terminal_bound = terminal_bound.min(node.bound.min(value));
                     if value < incumbent {
                         incumbent = value;
+                        first_primal_seconds.get_or_insert_with(|| start.elapsed().as_secs_f64());
                         best = Some(rounded);
                     }
                 }
@@ -532,6 +597,9 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         repair_candidates: repair_stats.candidates,
         repair_improvements,
         repair_moves: repair_stats.moves,
+        first_primal_seconds,
+        repair_lp_solves,
+        repair_lp_candidates,
         repair_work: repair_stats.work,
         propagation: limits.propagation,
         propagation_calls: propagation_stats.calls,

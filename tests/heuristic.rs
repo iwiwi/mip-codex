@@ -74,3 +74,19 @@ fn expired_deadline_produces_no_candidate() {
             .is_none()
     );
 }
+#[test]
+fn fixed_integer_lp_repairs_linked_continuous_variables() {
+    let model = mps::parse(std::io::Cursor::new("NAME linked\nROWS\n N c\n E balance\n G a\n G b\nCOLUMNS\n x balance 1\n p balance 1 a -1\n n balance -1 b -1\n z c 1 a 1\n z b 1\nRHS\n rhs balance 0.5\nBOUNDS\n BV bounds x\nENDATA\n")).unwrap();
+    let result = solve(
+        &model,
+        &Limits {
+            nodes: 1,
+            primal_repair: true,
+            ..Limits::default()
+        },
+    );
+    assert_eq!(result.status, "node_limit");
+    assert_eq!(result.objective, Some(0.5));
+    assert_eq!(result.dual_bound, Some(0.));
+    assert!(result.repair_lp_candidates > 0);
+}
