@@ -435,3 +435,9 @@ be70fe46で既にpoint_error=0と確認したshiftだけ、dxを掛けるゼロ�
 ## 2026-11-15 20:36 UTC: 元制約の非負結合で証明専用境界を補う
 
 保存20件を冷LPで解き直しても証明改善は1件だけだったので未統合。制約の非負結合から根問題の有限箱を区間演算で導く案は全20件を証明し、実行gen10/60秒でも失敗9/54→0、numerical_error→time_limitへ変化した。主解/dualは不変。固定18問の主解/dual一致、gen以外status不変、2700合成/300根LP/32数値成功、保存30点GMP/公式・134切断検査成功。既定有効版と固定節点比較を最終確認している。次はbinary feasibility pump等の汎用主解手法を調べる。native全件v2は52/720完了、strict optimal21/error1で継続中。
+
+## 2026-11-15 20:48 UTC: 初回主解に限定したbinary feasibility pump
+
+無条件pumpはgmu-35-50を悪化させたため不採用。初回主解なしに限定すると固定18問の主解/dual/statusは全て直前版と一致。binkar10_1の初回時刻3回中央値0.39120→0.27456秒、最終点は同じ。追加開発6問中blp-ic98で10秒主解なし→18526.1675を発見、追加3回同じ点。nativeの10秒主解/下界は両問題ともなお強い。2700合成/300根LP/32数値、初回限定で追加1500合成、173Rustテスト成功。候補7412.420071を別保存しGMP/公式検査成功。全保存点の再検査中。次は整数固定後の元目的LPによる連続部分polishingを調べる。
+
+native v2は57/720・strict optimal24・error2。新しい044-glpk/ex10はGLPK入力parserが元MPS 69612行でmissing row type in field 1、driver exit3、worker exit1となり結果ファイルなし。精度捕捉とは別の入力読込失敗として原ログを保持し、測定snapshotや720件計画は変更しない。
