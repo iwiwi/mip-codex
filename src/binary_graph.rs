@@ -8,6 +8,8 @@ pub struct Stats {
     pub conflict_edges: usize,
     pub nodes: usize,
     pub colorings: usize,
+    pub color_vertex_steps: usize,
+    pub color_clock_checks: usize,
     pub root_upper: usize,
     pub remaining_upper: usize,
     pub root_branches_completed: usize,
@@ -230,9 +232,14 @@ impl Search<'_> {
             color += 1;
             let mut available = remaining.clone();
             while let Some(v) = first(&available) {
-                if Instant::now() >= self.deadline {
-                    return None;
+                // Node entry/branch checks remain immediate; a long coloring also polls every 256 selections.
+                if self.stats.color_vertex_steps & 255 == 0 {
+                    self.stats.color_clock_checks += 1;
+                    if Instant::now() >= self.deadline {
+                        return None;
+                    }
                 }
+                self.stats.color_vertex_steps = self.stats.color_vertex_steps.wrapping_add(1);
                 order.push(v);
                 bounds.push(color);
                 clear(&mut remaining, v);
