@@ -42,7 +42,7 @@ impl Default for Limits {
             primal_probe: true,
             cover_cuts: true,
             rounding_cuts: false,
-            strong_branching: false,
+            strong_branching: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,

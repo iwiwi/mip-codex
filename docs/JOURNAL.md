@@ -220,3 +220,6 @@
 - PR16をedf67c2へmerge。root-strong-branching branch。cutの適用拡大だけでは18問に信号が薄いため、根の分枝選択を試す。最大fractionalの8候補について両側を自作warm LPで試し、各256pivot/全体5%最大.1秒に制限。両側がoptimalで点を原モデル照合できた候補だけ、目的改善のlog積スコアで選ぶ。成功した局所LPから擬似コストを学習するが、局所infeasible/下界/主解を主探索の枝刈り・証明・incumbentへ渡さない。probe側は明示的に無効。分枝前に既存repair/diving/probeを終えるため、既存の根主解機会を先に確保する。
 - MIP_STRONG_BRANCHING=0/1、既定無効。LP/ピボット/warm統計は総数へ含め、strong専用候補数/optimal/infeasible/limited/秒/分枝変更数も出す。数学的背景はSCIPのbranch_relpscost.h説明を参照 (https://scipopt.org/scip/doc/html/branch__relpscost_8h.php)、外部のコード移植は行わない。
 - 112 Rust回帰が成功。根ノード1で両側infeasibleでも本体node_limit/下界不変、両側optimalでも親下界とincumbent不変、期限0で呼び出し0、80二値問題のmin/max全列挙一致を追加。syntheticと18問性能は未測定。正しさだけで既定化しない。
+
+- sourcef7c2e58の18問on/off (090719/090725) は主解3改善/2悪化/13同等 (微小丸め差は同等)、下界全同じ。timtab1なし→1154004.99999986、gen-ip002 -4706.6170998→-4725.2015367、pg5_34 -13829.2868509→-14019.5666327。悪化: pk1 19→20、gmu40 -1882493.1696→-1860472.4551。全36時間制限/証明0。返却27解は元MPS GMP絶対/公式相対とも全合格、全134cutの証明も有効。主解あり問題が13→14に増えることと3改善から既定採用候補とする。悪化も保存し、全面優位と扱わない。
+- 初期strong有効の小1000/二値1000/中規模200は失敗0。strong呼出回数109/251/117、追加LP358/2784/1140で、無効機能を比較しただけではない。最終既定化後の112回帰/合成比較と、新規8問4solver5秒・新たに改善したextra3問4solver2秒を残作業とする。
