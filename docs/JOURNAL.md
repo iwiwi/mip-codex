@@ -330,3 +330,9 @@ source directoryだけでなく同一rootの旧revisionも拒否するため、b
 ## 2026-11-15 14:10 UTC：厳密Pair/FMAの評価
 
 別worktree/実targetでPoint/Pair/Wideを実装。和だけの初期版は18問のprimal全同等、markshare35.640→36.131sで不採用。通常Point経路の余計な演算を省き、最下位積bitがsubnormal下限以上と保証できる場合だけFMAの厳密残差を利用。最終50fe377dはRust147、Fraction3600bit fixture、合成2700、根LP300、十進回帰22件を通過。18問のprimal全同等。固定37,993節点のgenは3回中央値3.634→3.127s、CPU交換でも3.632→3.143s。ただし数値エラーの未解決節点で止まる状態は変えない。markshare目的約1の同じ証明は35.737→35.293s、CPU交換35.777→35.248sと小改善。保存68点/286cutsは独立検査全合格。反復で同名引数を重複して出力先衝突した診断runも保存し、個別3回で再測定した。詳細docs/PAIR_ACCUMULATOR_RESULTS.md、全データartifacts/pair-accumulator-evaluation（移動hash台帳あり）。一般的な大幅MIP高速化とは主張しない。
+
+## 2026-11-15 14:36 UTC：整数伝播棄却から測定出力の衝突修正を切り出す
+
+整数伝播の全節点/根限定はPR27で未マージとして閉じた。Rust155/両方式それぞれ合成2700/十進回帰22/最終56点280cuts全有効だが、全節点はmad主解とmarkshare証明時間、根限定は30n/mcsched下界が悪化した。コード・全列挙・生ログはexact-integer-propagation branchとPR27に保持する。
+
+同じ秒にsmokeを開始すると出力先が衝突するプロトコル不具合だけをunique-smoke-runsへcherry-pick。mkdtempで一意なディレクトリを作り、Rustコア/設定は変更しない。既存preflight8テスト合格。同秒の2並行0秒run(143630)が異なる保存先に成功し、両方探索0/time_limit。artifacts/unique-smoke-evaluationに保存。次は根で固定された列のLP省略を検討する。
