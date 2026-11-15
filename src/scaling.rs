@@ -358,9 +358,46 @@ pub(crate) fn solve(
                 false
             }
         }
-        Outcome::Infeasible => answer.witness.as_deref().is_some_and(|y| {
-            contradiction(p, y) || contradiction(p, &y.iter().map(|v| -v).collect::<Vec<_>>())
-        }),
+        Outcome::Infeasible => {
+            if let Some(y) = answer.witness.as_deref() {
+                if contradiction(p, y)
+                    || contradiction(p, &y.iter().map(|v| -v).collect::<Vec<_>>())
+                {
+                    true
+                } else {
+                    let mut repaired = None;
+                    for cap in [16, 256, 4096, 65536] {
+                        if deadline.is_some_and(|d| Instant::now() >= d) {
+                            break;
+                        }
+                        if let Some(mut candidate) = crate::certificate::integer_weights(y, cap) {
+                            for _ in 0..2 {
+                                answer.stats.certificate_repair_trials += 1;
+                                if contradiction(p, &candidate) {
+                                    repaired = Some(candidate);
+                                    break;
+                                }
+                                for v in &mut candidate {
+                                    *v = -*v;
+                                }
+                            }
+                            if repaired.is_some() {
+                                break;
+                            }
+                        }
+                    }
+                    if let Some(candidate) = repaired {
+                        answer.witness = Some(candidate);
+                        answer.stats.certificate_repairs += 1;
+                        true
+                    } else {
+                        false
+                    }
+                }
+            } else {
+                false
+            }
+        }
         Outcome::Unbounded => {
             let base = if let Some(point) = answer.witness_point.as_mut() {
                 for (v, &s) in point.iter_mut().zip(&factors) {
@@ -395,6 +432,24 @@ pub(crate) fn solve(
 #[cfg(test)]
 mod saved_validation_diagnostic {
     use super::*;
+    #[test]
+    fn integer_candidate_cancels_an_unbounded_flow_column_and_rejects_feasible_rhs() {
+        let mut p = Problem {
+            columns: vec![vec![(0, 1.), (1, -2.5)], vec![(0, -1.), (1, 2.5)]],
+            rhs: vec![-1., 0.],
+            costs: vec![0., 0.],
+            upper: vec![f64::INFINITY; 2],
+            equality: vec![false; 2],
+            slack_upper: vec![f64::INFINITY; 2],
+        };
+        let approximate = [-1., -0.4];
+        assert!(!contradiction(&p, &approximate));
+        let integer = crate::certificate::integer_weights(&approximate, 16).unwrap();
+        assert_eq!(integer, vec![-5., -2.]);
+        assert!(contradiction(&p, &integer));
+        p.rhs[0] = 1.;
+        assert!(!contradiction(&p, &integer));
+    }
     #[test]
     #[ignore = "saved validation failures via MIP_LP_DUMP_DIR"]
     fn inspect_saved_finite_box_certificates() {
@@ -471,6 +526,26 @@ mod saved_validation_diagnostic {
             let y: Vec<f64> = serde_json::from_value(d["witness"].clone()).unwrap();
             let inverse: Vec<_> = y.iter().map(|v| -v).collect();
             let lower = vec![Some(0.); upper.len()];
+            let standard = Problem {
+                columns: columns.clone(),
+                rhs: rhs.clone(),
+                costs: vec![0.; upper.len()],
+                upper: upper.iter().map(|v| v.unwrap_or(f64::INFINITY)).collect(),
+                equality: eq.clone(),
+                slack_upper: slack.iter().map(|v| v.unwrap_or(f64::INFINITY)).collect(),
+            };
+            let mut certified = false;
+            for cap in [16, 256, 4096, 65536] {
+                if let Some(weights) = crate::certificate::integer_weights(&y, cap) {
+                    if contradiction(&standard, &weights)
+                        || contradiction(&standard, &weights.iter().map(|v| -v).collect::<Vec<_>>())
+                    {
+                        certified = true;
+                        break;
+                    }
+                }
+            }
+            assert!(certified, "{}", path.display());
             let a = crate::objective_bound::Certifier::feasibility(&model).unwrap();
             let b = crate::objective_bound::Certifier::feasibility_with_aggregation(&model, true)
                 .unwrap();
