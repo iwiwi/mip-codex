@@ -11,6 +11,10 @@ pub struct Variable {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Row {
+    /// MPSの係数/RHS/RANGESが小さい整数そのもので、加算も正確だった行。
+    /// 外部JSON/手作りModelは既定false。カットの適用可否だけに使用する。
+    #[serde(default)]
+    pub exact_integral: bool,
     pub name: String,
     pub lower: Option<f64>,
     pub upper: Option<f64>,

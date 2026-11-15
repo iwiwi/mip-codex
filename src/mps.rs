@@ -18,7 +18,60 @@ fn number(s: &str) -> Result<f64, String> {
     if !x.is_finite() {
         return Err(format!("nonfinite number {s}"));
     }
+    // 非ゼロ十進数を0へ落とし、元の制約/目的を変えて解かない。
+    if x == 0.
+        && s.split(['e', 'E', 'd', 'D'])
+            .next()
+            .unwrap_or("")
+            .bytes()
+            .any(|b| matches!(b, b'1'..=b'9'))
+    {
+        return Err(format!("number underflow {s}"));
+    }
     Ok(x)
+}
+/// 元の十進トークンが厳密に小さい整数か。f64への丸めだけで判定しない。
+fn exact_integer(token: &str) -> Option<i64> {
+    let (negative, token) = if let Some(s) = token.strip_prefix('-') {
+        (true, s)
+    } else {
+        (false, token.strip_prefix('+').unwrap_or(token))
+    };
+    let split = token.find(['e', 'E', 'd', 'D']);
+    let (mantissa, exponent) = if let Some(i) = split {
+        (&token[..i], token[i + 1..].parse::<i32>().ok()?)
+    } else {
+        (token, 0)
+    };
+    let fractional = mantissa.find('.').map_or(0, |i| mantissa.len() - i - 1);
+    let digits: String = mantissa.chars().filter(|c| *c != '.').collect();
+    if !digits.bytes().all(|b| b.is_ascii_digit()) || digits.is_empty() {
+        return None;
+    }
+    let digits = digits.trim_start_matches('0');
+    if digits.is_empty() {
+        return Some(0);
+    }
+    let shift = i64::from(exponent).checked_sub(i64::try_from(fractional).ok()?)?;
+    let value = if shift >= 0 {
+        if digits.len() as i64 + shift > 16 {
+            return None;
+        }
+        digits
+            .parse::<i64>()
+            .ok()?
+            .checked_mul(10i64.checked_pow(shift as u32)?)?
+    } else {
+        let remove = usize::try_from(-shift).ok()?;
+        if remove >= digits.len() || !digits[digits.len() - remove..].bytes().all(|b| b == b'0') {
+            return None;
+        }
+        digits[..digits.len() - remove].parse::<i64>().ok()?
+    };
+    if value > (1i64 << 52) {
+        return None;
+    }
+    Some(if negative { -value } else { value })
 }
 pub fn read(path: impl AsRef<Path>) -> Result<Model, String> {
     let path = path.as_ref();
@@ -111,6 +164,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 kinds.push(t[0].to_string());
                 rhs.push(0.0);
                 raw_rows.push(Row {
+                    exact_integral: true,
                     name: t[1].into(),
                     lower: None,
                     upper: None,
@@ -151,9 +205,10 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                     let &i = row_names
                         .get(pair[0])
                         .ok_or_else(|| fail(format!("unknown row {}", pair[0])))?;
-                    raw_rows[i]
-                        .coefficients
-                        .push((j, number(pair[1]).map_err(&fail)?));
+                    let value = number(pair[1]).map_err(&fail)?;
+                    raw_rows[i].exact_integral &=
+                        exact_integer(pair[1]).is_some_and(|n| n as f64 == value);
+                    raw_rows[i].coefficients.push((j, value));
                 }
             }
             "RHS" | "RANGES" => {
@@ -171,6 +226,8 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                         .get(pair[0])
                         .ok_or_else(|| fail(format!("unknown row {}", pair[0])))?;
                     let value = number(pair[1]).map_err(&fail)?;
+                    raw_rows[i].exact_integral &=
+                        exact_integer(pair[1]).is_some_and(|n| n as f64 == value);
                     if section == "RHS" {
                         rhs[i] = value;
                     } else {
@@ -268,6 +325,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
         for (j, a) in row.coefficients {
             if let Some(last) = merged.last_mut().filter(|p| p.0 == j) {
                 last.1 += a;
+                row.exact_integral &= last.1.abs() <= (1u64 << 52) as f64 && last.1.fract() == 0.;
             } else {
                 merged.push((j, a));
             }
