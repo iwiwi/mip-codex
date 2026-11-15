@@ -30,3 +30,7 @@ PR58の新native10秒結果はHiGHS1.16.0主解795870/下界652312、SCIP10.0.2 
 11件のresource_limitは内部512MiB作業領域見積りでLP開始前に停止。同じ16GiB外側上限/凍結binaryで内部枠だけ2GiBへ増やすと10件はLPを開始したが10秒で根点を取得せず、残る1件はresource_limitのまま。今回はメモリ既定値を変更しない。次は数値エラー9件の停止段階と、十分な時間を与えた大規模根LPの進行を診断する。
 
 詳細な設定はDEVELOPMENT_ROOT_SURVEY.md。全収集点/入力SHA/終了状態/検査結果/失敗ログを保存し、全240問のnative比較は変更しない。
+
+追加監査：保存13整数点は元MPSのGMP/公式とも有効、24記録/295切断の独立導出検査も有効。探索木全体を独立再生したという主張ではない。原データは`artifacts/aggregate-row512-evaluation`、全240問snapshotはcreate-only、source d528c0000/FP86d368be7031b02eを照合。受領票`experiments/aggregate-row512-snapshot-20261115.json`。内部LP作業領域の既定は512MiBのまま。
+
+native全体比較の23:22 UTC状況は90/720、独立検査済optimal37、error7。追加GLPK/chromaticindex512-7は3660.22721秒のwatchdog/SIGKILL、OOMなし、result未生成。保存された整数点がないという意味であり、内部で実行可能解を発見しなかったとは推測しない。エラーを正常timeoutへ付替えず、前と同じ凍結設定を続ける。

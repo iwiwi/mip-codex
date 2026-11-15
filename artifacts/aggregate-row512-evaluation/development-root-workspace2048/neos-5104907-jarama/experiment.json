@@ -1,0 +1,47 @@
+{
+  "purpose": "workspace limit diagnostic only, not final benchmark",
+  "command": [
+    "/home/ubuntu/mip-codex/artifacts/runs/aggregate-cuts-final-20261115/snapshot/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-5104907-jarama.mps.gz",
+    "10",
+    "1"
+  ],
+  "input_sha256": "0a4a888837afdae3c11cbdcf1be7bc76a15ac796b448cef693a7e9a3e5b768cb",
+  "split": "development",
+  "build_info": {
+    "library_source_directory": "/home/ubuntu/mip-codex",
+    "library_source_fingerprint": "8262e2efdce05367",
+    "package_version": "0.1.0",
+    "source_directory": "/home/ubuntu/mip-codex",
+    "source_fingerprint": "8262e2efdce05367"
+  },
+  "binary_sha256": "4196b9165bd65b430672e2bdb3e43e988c950174be123846244a7cd5a2546ecd",
+  "frozen_config_sha256": "e30289e20452bfb21c581af0c974098e84a7f724e1aa4f7392319db8964e71ab",
+  "cpu": 5,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "memory_policy": "per-process RLIMIT_AS; diagnostic only",
+  "environment": {
+    "MIP_LP_ENGINE": "revised",
+    "MIP_ABSOLUTE_CHECKER": "/home/ubuntu/mip-codex/artifacts/runs/aggregate-cuts-final-20261115/snapshot/bin/solchecker-absolute",
+    "MIP_AGGREGATE_CUTS": "0",
+    "MIP_BINARY_GRAPH": "0",
+    "MIP_COVER_CUTS": "0",
+    "MIP_ROUNDING_CUTS": "0",
+    "MIP_LP_DIVING": "0",
+    "MIP_PRIMAL_REPAIR": "0",
+    "MIP_PRIMAL_PROBE": "0",
+    "MIP_RINS": "0",
+    "MIP_FEASIBILITY_PUMP": "0",
+    "MIP_STRONG_BRANCHING": "0",
+    "MIP_OBJECTIVE_ROUNDING": "0",
+    "MIP_PROPAGATION": "0",
+    "MIP_BOX_PRIMAL": "0",
+    "MIP_LP_WORKSPACE_MIB": "2048"
+  },
+  "partition": 1,
+  "baseline_status": "resource_limit",
+  "baseline_workspace_mib": 512,
+  "workspace_mib": 2048
+}
