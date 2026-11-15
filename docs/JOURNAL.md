@@ -390,3 +390,7 @@ native v2は22/720、strict optimal15、errors1（17:33時点）。020-glpk/cbs-
 ## 2026-11-15 18:05 UTC: 競合構造上の局所探索
 
 b45eeaf8を採用候補とした。sorrell7の15秒主解-168→-187を追加3回で再現、下界-449は不変。native同条件はHS-186/-236、SCIP-152/-670.6667、GLPK-21/-1024で、下界ではHSが強い。全保存点の元MPS検査成功。固定18問はprimal/dual/status一致、162Rust・最終1200CLI全列挙・32数値回帰成功。詳細はGRAPH_LOCAL_SEARCH_RESULTS.md。全件native継続、Rust snapshotはcreate-only。次は根の良い彩色を汎用Rust実装へ移し、既存の根prefix上界証明との整合を確かめる。
+
+## 2026-11-15 18:12 UTC: 根彩色を改善
+
+根だけ共通近傍/飽和次数の完成彩色を試し、元の完成彩色と最良を選ぶ。sorrell7の根色数449→379、15秒と60秒のdual-449→-379を主解-187のまま再現、追加15秒3回も一致した。構築約0.039秒。sorrell3の根36→31だが15秒最終-16/-24は同じ。固定18問の主解/下界/status一致、162Rust/7200内部全列挙/1200CLI/32数値回帰成功、42保存点GMP絶対/公式検査有効。初期のバイナリ更新によるsmoke中断とCPU重複は無効試行として保存し、専用CPU5/6で正式再測定した。詳細GRAPH_ROOT_COLORING_RESULTS.md。次はGRAPH_NEXT_HYPOTHESES.mdの彩色修復または局所探索幅を調べる。
