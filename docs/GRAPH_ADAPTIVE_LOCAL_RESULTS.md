@@ -22,3 +22,5 @@ sorrell7の追加15秒3回も-191/-379を再現した。最終改善は18048反�
 固定開発18問は主解/下界/終了状態一致。同じCPU/秒/メモリのPR41保存結果と比較したもので速度比較に用いない。保存26点・134cut/36証明記録に加え、新旧15/60秒8点と反復3点を元MPSのGMP絶対・公式検査で確認し、計37点すべて有効。Rust追加11点は根構造検査も成功。完了済み探索木の全外部再生とは区別する。
 
 PR39で棄却した旧探索への単純予算増加と異なり、再構築を多様化した探索へ適応停止を組み合わせた新比較である。MIP_GRAPH_ADAPTIVE_LOCAL=0で無効化できる。
+
+最終既定設定でも1200CLI/7200破損証明拒否/32数値回帰成功。採用コア513c479b、FPbd637b8b0651f63b、binary SHA411489c56ce9170f00620d5ddf6d1684026f958d5bec14c1e5c24a5cfadbce42。不変snapshotはexperiments/graph-adaptive-snapshot-20261115.jsonでcreate-only。全生データと移動SHA台帳はartifacts/graph-adaptive-evaluation、全件Rust最終測定は未開始。次のLP仮説用profileも同archiveのrevised-profile-nextに保存し、元コア4b8ea3e7のsource FP一致をgit archiveから確認した。
