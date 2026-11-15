@@ -48,3 +48,31 @@ fn reject_unsafe_model_changes() {
         assert!(parse(std::io::Cursor::new(s)).is_err(), "{s}");
     }
 }
+
+#[test]
+fn binary_representability_is_distinct_from_small_integer_provenance() {
+    for (token, exact) in [
+        ("0.5", true),
+        ("0.1", false),
+        ("10000000000000000", true),
+        ("10000000000000001", false),
+        ("1.0000000000000000001", false),
+    ] {
+        let model = read(&format!(
+            "NAME precision\nROWS\n N c\n E r\nCOLUMNS\n x c {token} r {token}\nRHS\n rhs r {token}\nBOUNDS\n FX b x {token}\nENDATA\n"
+        ));
+        let v = &model.variables[0];
+        assert_eq!(model.rows[0].exact_coefficients, exact, "{token}");
+        assert!(!model.rows[0].exact_integral, "{token}");
+        assert_eq!(
+            v.objective_enclosure == Some([v.objective, v.objective]),
+            exact,
+            "{token}"
+        );
+        assert_eq!(
+            v.lower_enclosure == v.lower.map(|v| [v, v]),
+            exact,
+            "{token}"
+        );
+    }
+}

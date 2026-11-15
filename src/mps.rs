@@ -106,7 +106,41 @@ fn decimal_parts(token: &str) -> Option<(BigInt, i32)> {
     }
     Some((value, exponent))
 }
-fn decimal_sum<'a>(entries: impl Iterator<Item = (f64, Option<&'a str>)>) -> Result<f64, String> {
+/// Compare the original decimal with the exact IEEE binary rational.
+fn exact_float_token(token: &str, value: f64) -> bool {
+    if exact_integer(token).is_some() {
+        return true;
+    }
+    let Some((mut decimal, exponent)) = decimal_parts(token) else {
+        return false;
+    };
+    let bits = value.to_bits();
+    let biased = ((bits >> 52) & 2047) as i32;
+    let mantissa = (bits & ((1u64 << 52) - 1)) | if biased == 0 { 0 } else { 1u64 << 52 };
+    let binary_exponent = if biased == 0 {
+        -1074
+    } else {
+        biased - 1023 - 52
+    };
+    let mut binary = BigInt::from(mantissa);
+    if bits >> 63 != 0 {
+        binary = -binary;
+    }
+    if exponent >= 0 {
+        decimal *= BigInt::from(10u8).pow(exponent as u32);
+    } else {
+        binary *= BigInt::from(10u8).pow((-exponent) as u32);
+    }
+    if binary_exponent >= 0 {
+        binary <<= binary_exponent as usize;
+    } else {
+        decimal <<= (-binary_exponent) as usize;
+    }
+    decimal == binary
+}
+fn decimal_sum_metadata<'a>(
+    entries: impl Iterator<Item = (f64, Option<&'a str>)>,
+) -> Result<(f64, bool), String> {
     let mut parts = Vec::new();
     for (value, token) in entries {
         let pair = if let Some(token) = token {
@@ -134,7 +168,10 @@ fn decimal_sum<'a>(entries: impl Iterator<Item = (f64, Option<&'a str>)>) -> Res
     if value == 0. && sum != BigInt::from(0) {
         return Err("coefficient underflow".into());
     }
-    Ok(value)
+    Ok((
+        value,
+        exact_float_token(&format!("{sum}e{exponent}"), value),
+    ))
 }
 fn enclose(value: f64, exact: bool) -> Option<[f64; 2]> {
     let bounds = if exact {
@@ -162,6 +199,7 @@ pub fn read(path: impl AsRef<Path>) -> Result<Model, String> {
 }
 pub fn parse(reader: impl BufRead) -> Result<Model, String> {
     let mut model = Model {
+        original_decimal: true,
         offset_enclosure: Some([0., 0.]),
         name: String::new(),
         maximize: false,
@@ -250,6 +288,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 raw_rows.push(Row {
                     lower_enclosure: None,
                     upper_enclosure: None,
+                    exact_coefficients: true,
                     exact_integral: true,
                     name: t[1].into(),
                     lower: None,
@@ -355,8 +394,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 } else {
                     None
                 };
-                let enclosure = value
-                    .and_then(|x| enclose(x, exact_integer(t[3]).is_some_and(|n| n as f64 == x)));
+                let enclosure = value.and_then(|x| enclose(x, exact_float_token(t[3], x)));
                 match t[0] {
                     "LO" | "LI" => {
                         v.lower = Some(value.ok_or_else(|| fail("missing bound value".into()))?);
@@ -428,7 +466,12 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
         return Err("objective must be a free row".into());
     }
     model.offset = -rhs[objective];
-    model.offset_enclosure = enclose(model.offset, rhs_tokens[objective].is_none());
+    model.offset_enclosure = enclose(
+        model.offset,
+        rhs_tokens[objective]
+            .as_deref()
+            .is_none_or(|t| exact_float_token(t, -model.offset)),
+    );
     for (j, v) in model.variables.iter_mut().enumerate() {
         if v.integer && !explicit_bound[j] {
             v.upper = Some(1.0);
@@ -451,20 +494,21 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             while end < entries.len() && entries[end].0 == j {
                 end += 1;
             }
-            let value = if end == first + 1 {
-                entries[first].1
-            } else if entries[first..end].iter().all(|p| p.2.is_none()) {
-                crate::exact::sum(entries[first..end].iter().map(|p| p.1))
-                    .ok_or("coefficient overflow")?
+            let (value, exact_coefficient) = if end == first + 1 {
+                (
+                    entries[first].1,
+                    entries[first]
+                        .2
+                        .as_deref()
+                        .is_none_or(|t| exact_float_token(t, entries[first].1)),
+                )
             } else {
-                decimal_sum(entries[first..end].iter().map(|p| (p.1, p.2.as_deref())))?
+                decimal_sum_metadata(entries[first..end].iter().map(|p| (p.1, p.2.as_deref())))?
             };
+            row.exact_coefficients &= exact_coefficient;
             row.exact_integral &= value.abs() <= (1u64 << 52) as f64 && value.fract() == 0.;
             if i == objective {
-                let exact = entries[first..end].iter().all(|p| p.2.is_none())
-                    && value.abs() <= (1u64 << 52) as f64
-                    && value.fract() == 0.;
-                model.variables[j].objective_enclosure = enclose(value, exact);
+                model.variables[j].objective_enclosure = enclose(value, exact_coefficient);
             }
             merged.push((j, value));
             first = end;
@@ -481,7 +525,12 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             continue;
         }
         let b = rhs[i];
-        let enclosure = enclose(b, rhs_tokens[i].is_none());
+        let enclosure = enclose(
+            b,
+            rhs_tokens[i]
+                .as_deref()
+                .is_none_or(|t| exact_float_token(t, b)),
+        );
         match kinds[i].as_str() {
             "L" => {
                 row.upper = Some(b);
@@ -509,18 +558,14 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             let token = range_tokens.get(&i).and_then(|s| s.as_deref());
             let negated = if flip { token.map(negate_token) } else { None };
             let range_token = if flip { negated.as_deref() } else { token };
-            let value = if rhs_tokens[i].is_none() && token.is_none() {
-                b + if flip { -r } else { r }
-            } else {
-                decimal_sum(
-                    [
-                        (b, rhs_tokens[i].as_deref()),
-                        (if flip { -r } else { r }, range_token),
-                    ]
-                    .into_iter(),
-                )?
-            };
-            let enclosure = enclose(value, rhs_tokens[i].is_none() && token.is_none());
+            let (value, exact_endpoint) = decimal_sum_metadata(
+                [
+                    (b, rhs_tokens[i].as_deref()),
+                    (if flip { -r } else { r }, range_token),
+                ]
+                .into_iter(),
+            )?;
+            let enclosure = enclose(value, exact_endpoint);
             match kinds[i].as_str() {
                 "L" => {
                     row.lower = Some(value);

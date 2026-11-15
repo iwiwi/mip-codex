@@ -12,6 +12,8 @@ import highspy
 os.environ['MIP_PRIMAL_REPAIR'] = '0'  # isolate LP engine work
 os.environ['MIP_PROPAGATION'] = '0'  # compare original continuous LP relaxations
 root=Path(__file__).resolve().parents[1]
+from benchmark_common import require_solver_origin, sha256
+solver_build_info=require_solver_origin(root,root/'target/release/mip-codex')
 rng=random.Random(2026111502)
 count=int(sys.argv[1]) if len(sys.argv)>1 else 100
 failed=0
@@ -21,6 +23,7 @@ engines=os.environ.get('MIP_ROOT_ENGINES','dense,revised').split(',')
 assert engines and all(e in ('dense','revised') for e in engines)
 outdir=Path(os.environ.get('MIP_ROOT_DIR',root/'artifacts'))
 outdir.mkdir(parents=True,exist_ok=True)
+(outdir/'solver-build-info.json').write_text(json.dumps(dict(build_info=solver_build_info,binary_sha256=sha256(root/'target/release/mip-codex')))+'\n')
 def mps_text(rows,bounds,costs,integers):
     n=len(costs)
     lines=['NAME root','ROWS',' N obj']+[f' {kind} r{i}' for i,(_,_,kind,_) in enumerate(rows)]+['COLUMNS']

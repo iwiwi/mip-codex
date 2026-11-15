@@ -19,9 +19,9 @@ for model in sorted((root/'tests/fixtures/exact-transformation').glob('*.mps')):
     r=json.loads((directory/'stdout.log').read_text());(directory/'result.json').write_text(json.dumps(r,indent=2)+'\n')
     try:
         assert completed.returncode==0,completed.returncode
-        if model.stem=='unrepresentable-shift':
+        if model.stem in ('unrepresentable-shift','product-overflow','decimal-objective','decimal-row','serialized-point','rounded-coefficient'):
             assert r['status']=='numerical_error' and r['values']is None
-            record=dict(model=model.name,engine=engine,status='unresolved',reason='absolute RHS precision unavailable')
+            record=dict(model=model.name,engine=engine,status='unresolved',reason='original decimal or absolute transformation precision unavailable')
         else:
             assert r['status']=='optimal' and r['objective']==1.,r
             solution=directory/'point.sol';solution.write_text('=obj= '+str(r['objective'])+'\n'+''.join(f'{name} {value}\n'for name,value in r['values'].items()))

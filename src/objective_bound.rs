@@ -299,12 +299,24 @@ pub struct Certifier {
 }
 impl Certifier {
     pub fn new(model: &Model) -> Option<Self> {
+        Self::with_objective(model, false)
+    }
+    pub fn feasibility(model: &Model) -> Option<Self> {
+        Self::with_objective(model, true)
+    }
+    fn with_objective(model: &Model, feasibility: bool) -> Option<Self> {
         let sign = if model.maximize { -1. } else { 1. };
         let s = I::point(sign)?;
         let costs: Option<Vec<_>> = model
             .variables
             .iter()
-            .map(|v| I::metadata(v.objective, v.objective_enclosure)?.mul(s))
+            .map(|v| {
+                if feasibility {
+                    I::point(0.)
+                } else {
+                    I::metadata(v.objective, v.objective_enclosure)?.mul(s)
+                }
+            })
             .collect();
         let mut rows = Vec::new();
         let mut columns = vec![vec![]; model.variables.len()];
@@ -314,7 +326,7 @@ impl Certifier {
                 row.upper.and_then(|v| I::metadata(v, row.upper_enclosure)),
             ]);
             for &(j, a) in &row.coefficients {
-                let interval = if row.exact_integral {
+                let interval = if row.exact_integral || row.exact_coefficients {
                     I::point(a)?
                 } else {
                     I::new(a.next_down(), a.next_up())?
@@ -324,7 +336,11 @@ impl Certifier {
         }
         Some(Self {
             costs: costs?,
-            offset: I::metadata(model.offset, model.offset_enclosure)?.mul(s)?,
+            offset: if feasibility {
+                I::point(0.)?
+            } else {
+                I::metadata(model.offset, model.offset_enclosure)?.mul(s)?
+            },
             rows,
             columns,
         })

@@ -39,6 +39,7 @@ fn all_search_orders_match_binary_enumeration() {
         let model = Model {
             name: "enumerated".into(),
             maximize,
+            original_decimal: false,
             offset_enclosure: None,
             offset: 3.,
             variables: costs
@@ -62,6 +63,7 @@ fn all_search_orders_match_binary_enumeration() {
                 .map(|(i, (a, b))| Row {
                     lower_enclosure: None,
                     upper_enclosure: None,
+                    exact_coefficients: false,
                     exact_integral: false,
                     name: format!("r{i}"),
                     lower: None,
@@ -115,6 +117,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
     let model = Model {
         name: "parity".into(),
         maximize: false,
+        original_decimal: false,
         offset_enclosure: None,
         offset: 0.,
         variables: (0..70)
@@ -132,6 +135,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
         rows: vec![Row {
             lower_enclosure: None,
             upper_enclosure: None,
+            exact_coefficients: false,
             exact_integral: false,
             name: "half".into(),
             lower: Some(35.5),

@@ -150,6 +150,7 @@ pub(crate) fn dot_enclosure(terms: impl Iterator<Item = (f64, f64)>) -> Option<[
     };
     (lo.is_finite() && hi.is_finite()).then_some([lo, hi])
 }
+#[cfg(test)]
 pub(crate) fn sum(terms: impl Iterator<Item = f64>) -> Option<f64> {
     let mut total = Sum::default();
     for x in terms {

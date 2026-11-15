@@ -164,12 +164,32 @@ fn checked_difference(a: f64, b: f64) -> f64 {
         .filter(|&(_, e)| e <= 1e-9)
         .map_or(f64::NAN, |(v, _)| v)
 }
-fn shifted_bound(row: &crate::model::Row, shift: &[f64], upper: bool) -> f64 {
-    let (bound, sign) = if upper {
+fn shifted_bound(
+    row: &crate::model::Row,
+    shift: &[f64],
+    upper: bool,
+    original_decimal: bool,
+) -> f64 {
+    let (mut bound, sign) = if upper {
         (row.upper.unwrap(), 1.)
     } else {
         (row.lower.unwrap(), -1.)
     };
+    if original_decimal {
+        let enclosure = if upper {
+            row.upper_enclosure
+        } else {
+            row.lower_enclosure
+        };
+        let Some([lo, hi]) = enclosure else {
+            return f64::NAN;
+        };
+        bound = if upper { hi } else { lo };
+        let error = row.activity_error(shift);
+        if !error.is_finite() || error > 1e-9 {
+            return f64::NAN;
+        }
+    }
     crate::exact::dot_error(
         std::iter::once((sign * bound, 1.))
             .chain(row.coefficients.iter().map(|&(j, a)| (-sign * a, shift[j]))),
@@ -232,11 +252,11 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
         }
         if row.upper.is_some() {
             a.push(coeff.clone());
-            b.push(shifted_bound(row, &shift, true));
+            b.push(shifted_bound(row, &shift, true, model.original_decimal));
         }
         if row.lower.is_some() {
             a.push(coeff.iter().map(|x| -x).collect());
-            b.push(shifted_bound(row, &shift, false));
+            b.push(shifted_bound(row, &shift, false, model.original_decimal));
         }
     }
     for j in 0..model.variables.len() {
@@ -334,7 +354,7 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -
                     columns[k].push((i, row_sign * a * s));
                 }
             }
-            let bound = shifted_bound(row, &shift, row_sign > 0.);
+            let bound = shifted_bound(row, &shift, row_sign > 0., model.original_decimal);
             rhs.push(bound);
             if track_rows {
                 row_sources.push((source, row_sign));
@@ -653,6 +673,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     let mut objective_certifier = objective_grid
         .as_ref()
         .and_then(|_| Certifier::new(lp_model));
+    let check_original_infeasibility = lp_model.needs_original_feasibility_check();
+    let mut infeasibility_certifier = None;
     let mut objective_bound_stats = ObjectiveBoundStats::default();
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
@@ -758,7 +780,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 lp_model,
                 &node,
                 limits.dense_bytes,
-                objective_certifier.is_some(),
+                objective_certifier.is_some() || check_original_infeasibility,
             ),
         };
         let p = match relaxation {
@@ -791,7 +813,60 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             )
         };
         match answer {
-            Ok(lp::Outcome::Infeasible) => continue,
+            Ok(lp::Outcome::Infeasible) => {
+                if check_original_infeasibility {
+                    let proof = (|| {
+                        let y = relaxation_witness.as_deref()?;
+                        if y.len() != p.row_sources.len() {
+                            return None;
+                        }
+                        if infeasibility_certifier.is_none() {
+                            let entries = lp_model
+                                .rows
+                                .iter()
+                                .map(|r| r.coefficients.len() as u128)
+                                .sum::<u128>()
+                                + lp_model.rows.len() as u128
+                                + lp_model.variables.len() as u128;
+                            if entries * 64 > limits.dense_bytes as u128 {
+                                return None;
+                            }
+                            infeasibility_certifier = Certifier::feasibility(lp_model);
+                        }
+                        let certifier = infeasibility_certifier.as_ref()?;
+                        let mut multipliers = vec![0.; lp_model.rows.len()];
+                        for (&value, &(i, sign)) in y.iter().zip(&p.row_sources) {
+                            multipliers[i] += value * sign;
+                        }
+                        let mut lower = node.lower.clone();
+                        let mut upper = node.upper.clone();
+                        for (j, v) in lp_model.variables.iter().enumerate() {
+                            if lower[j] == v.lower && v.lower.is_some() {
+                                lower[j] = Some(v.lower_enclosure?[0]);
+                            }
+                            if upper[j] == v.upper && v.upper.is_some() {
+                                upper[j] = Some(v.upper_enclosure?[1]);
+                            }
+                        }
+                        for sign in [1., -1.] {
+                            let scaled: Vec<_> = multipliers.iter().map(|v| sign * v).collect();
+                            if certifier
+                                .bound(&lower, &upper, &scaled)
+                                .is_some_and(|b| b > 0.)
+                            {
+                                return Some(());
+                            }
+                        }
+                        None
+                    })();
+                    if proof.is_none() {
+                        stack.push(node);
+                        status = "numerical_error".into();
+                        break;
+                    }
+                }
+                continue;
+            }
             Ok(lp::Outcome::Optimal { x, .. }) => {
                 node.warm = next_warm;
                 let original: Vec<f64> = p
