@@ -532,8 +532,15 @@ pub fn solve_with_cover(
         && search.best.len() < search.stats.root_upper
         && Instant::now() < deadline
     {
-        let allocation = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05)
-            .min(if adaptive { 2.0 } else { 0.25 });
+        let allocation = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(
+            if adaptive && cover {
+                15.0
+            } else if adaptive {
+                2.0
+            } else {
+                0.25
+            },
+        );
         let local_deadline =
             deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
         let first_deadline = if cover {
