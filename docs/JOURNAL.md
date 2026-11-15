@@ -459,3 +459,9 @@ native v2は57/720・strict optimal24・error2。新しい044-glpk/ex10はGLPK�
 source core `3125227a`、既定有効。sorrell7 15秒193/242、60秒197/241、追加15秒1回/60秒2回も再現。主解は直前版と同じで上界を379から強化、公開最良198超え/最適性証明は未達成、Benchmark v2外の探索例。sorrell3の同一CPU3組は6042153節点不変、中央値18.85908→19.37730秒（+2.75%）と悪化。固定18問status/primal/dual不変。181Rust、最終1200CLI/7410破損拒否成功。全240問snapshotはcreate-onlyで再帰FP検証済、receipt `experiments/fractional-cover-snapshot-20261115.json`。native全体は78/720、32独立optimal、5errorで設定を変えず継続。
 
 次の仮説は短時間でも全頂点に届く安価なmaximalクリーク生成。sorrell3の比較専用native被覆LPは別候補20000個で約23.004、Rust候補の偏りが疑われる。native重みは一切使わず、現在版のPR確定後に別branchで先頭bitによるgreedy maximal化等を比較する。詳細はFRACTIONAL_COVER_HYPOTHESIS/RESULTS。保存解の一括独立再検査・原データarchiveを作成中。
+
+### 2026-11-15 23:02 UTC 二行集約切断を検証
+
+`aggregate-rounding-cuts`。原行の正整数結合+既存床除算、証明を元MPSで再合成する独自Rust切断を実装。10秒固定18問はtimtab1の下界28694→52566のみ改善、他17問status/primal/dual一致、60秒も改善維持。主解は両方なしでnative10秒下界374243〜652312にはなお大幅に劣る。既定trueへ変更、非負整数対象がないモデルは新準備をskip。183Rust/2700合成+最終500/400根LP/32数値/8独立checker/8preflight成功。初期保存28点GMP/公式有効、38記録175cut有効。toyの許容差0テスト設定、根LP比較で新cutを切り忘れた2ケース、Dense単位変換既存50失敗はログ保持。Dense50はPR56凍結対照と全指標一致で回帰なし。次は開発188問の根LP診断を広げ、holdout52は触れない。
+
+原native全体80/720、32独立optimal、6error。追加HiGHS/chromaticindex1024-7は3660.18679秒watchdog/SIGKILL/resultなし、OOMなし。missing resultを解けた/正常timeoutに付替えず保持する。

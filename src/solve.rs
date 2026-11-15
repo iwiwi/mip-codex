@@ -69,7 +69,7 @@ impl Default for Limits {
             graph_local_diversify: true,
             graph_adaptive_local: true,
             graph_cover_local: true,
-            aggregate_cuts: false,
+            aggregate_cuts: true,
             graph_fractional_cover: true,
             defer_infeasibility: true,
             joint_infeasibility: true,

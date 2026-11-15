@@ -4,6 +4,14 @@ use super::*;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub fn applicable(model: &Model) -> bool {
+    if !model
+        .variables
+        .iter()
+        .any(|v| v.integer && finite(v.lower_enclosure).is_some_and(|b| b[0] >= 0.))
+    {
+        return false;
+    }
+
     model
         .rows
         .iter()
@@ -299,6 +307,12 @@ mod tests {
     fn cancels_free_continuous_variable_and_rejects_corruption() {
         for lower in [false, true] {
             let model = toy(lower);
+            assert!(applicable(&model));
+            let mut continuous = model.clone();
+            for variable in &mut continuous.variables {
+                variable.integer = false;
+            }
+            assert!(!applicable(&continuous));
             let x = [1., 0.5, 0.];
             assert!(model.check(&x, false, 1e-12).is_ok());
             assert!(
