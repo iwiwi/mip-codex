@@ -11,7 +11,7 @@ import highspy
 
 os.environ['MIP_PRIMAL_REPAIR'] = '0'  # isolate LP engine work
 os.environ['MIP_PROPAGATION'] = '0'  # compare original continuous LP relaxations
-for option in ['MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_OBJECTIVE_ROUNDING','MIP_STRONG_BRANCHING','MIP_LP_DIVING','MIP_PRIMAL_PROBE','MIP_RINS']:
+for option in ['MIP_INTEGER_PROPAGATION','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_OBJECTIVE_ROUNDING','MIP_STRONG_BRANCHING','MIP_LP_DIVING','MIP_PRIMAL_PROBE','MIP_RINS']:
     os.environ[option]='0'
 root=Path(__file__).resolve().parents[1]
 from benchmark_common import require_solver_origin, sha256
