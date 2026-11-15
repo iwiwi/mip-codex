@@ -1,0 +1,57 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/graph-local-native/highs/options.txt
+MIP sorrell7 has 78848 rows; 2048 cols; 157696 nonzeros; 2048 integer variables (2048 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 1e+00]
+Presolving model
+78848 rows, 2048 cols, 157696 nonzeros 0s
+39424 rows, 2048 cols, 78848 nonzeros 0s
+2281 rows, 2048 cols, 17231 nonzeros 0s
+2276 rows, 2024 cols, 17176 nonzeros 0s
+Presolve reductions: rows 2276(-76572); columns 2024(-24); nonzeros 17176(-140520) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   2276 rows
+   2024 cols (2024 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   17176 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ z       0       0         0   0.00%   -inf            -2                 Large        0      0      0         0     0.4s
+ J       0       0         0   0.00%   -inf            -186               Large        0      0      0         0     0.5s
+         0       0         0   0.00%   -237.4          -186              27.63%        0      0      0     12841     7.9s
+         0       0         0   0.00%   -236.6666667    -186              27.24%       23     14      0     16083    13.1s
+         0       0         0   0.00%   -236.4          -186              27.10%       32     22      0     17233    15.0s
+
+Solving report
+  Model             sorrell7
+  Status            Time limit reached
+  Primal bound      -186
+  Dual bound        -236
+  Gap               26.88%
+  P-D integral      9.83
+  Solution status   feasible
+                    -186 (objective)
+  Timing            15.00
+                    0.43 (Presolve)
+                    14.57 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     17233
+                    0 (strong br.)
+                    4392 (separation)
+                    0 (heuristics)

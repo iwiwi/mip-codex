@@ -1,0 +1,48 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz'...
+Problem: sorrell7
+Objective: obj
+78849 rows, 2048 columns, 159744 non-zeros
+2048 integer variables, all of which are binary
+319498 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/graph-local-native/glpk/model.glp'...
+319492 lines were written
+GLPK Integer Optimizer 5.0
+78848 rows, 2048 columns, 157696 non-zeros
+2048 integer variables, all of which are binary
+Preprocessing...
+78848 hidden packing inequaliti(es) were detected
+78848 rows, 2048 columns, 157696 non-zeros
+2048 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 78848
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+78848 rows, 2048 columns, 157696 non-zeros
+*     0: obj =   0.000000000e+00 inf =   0.000e+00 (2048)
+Perturbing LP to avoid stalling [2626]...
+Removing LP perturbation [2707]...
+*  2707: obj =  -1.024000000e+03 inf =   0.000e+00 (0) 10
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+No 0-1 knapsack inequalities detected
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 2048 + 0 = 2048 vertices
++  2707: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: -21
+Pass 1
++  2707: mip =  -2.100000000e+01 >=  -1.024000000e+03        (1; 0)
++  2707: mip =  -2.100000000e+01 >=  -1.024000000e+03        (1; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/graph-local-native/glpk/solution.raw'...
+80905 lines were written
