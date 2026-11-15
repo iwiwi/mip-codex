@@ -466,6 +466,7 @@ impl Certifier {
         lower: &[Option<f64>],
         upper: &[Option<f64>],
         weights: &[f64],
+        deadline: Option<std::time::Instant>,
     ) -> (Option<f64>, usize) {
         let mut active: Vec<_> = weights
             .iter()
@@ -482,6 +483,9 @@ impl Certifier {
         let mut trials = 0;
         for sign in [1., -1.] {
             for mask in 0..(1usize << active.len()) {
+                if deadline.is_some_and(|d| std::time::Instant::now() >= d) {
+                    return (None, trials);
+                }
                 for (v, w) in candidate.iter_mut().zip(weights) {
                     *v = sign * w;
                 }
@@ -652,6 +656,68 @@ mod implied_box_tests {
 mod joint_proof_diagnostic {
     use super::*;
     #[test]
+    fn joint_trials_never_certify_a_planted_feasible_decimal_model() {
+        let mut seed = 412983u64;
+        for _ in 0..80 {
+            let mut text = String::from("NAME planted\nROWS\n N obj\n");
+            for i in 0..5 {
+                text += &format!(" L r{i}\n");
+            }
+            text += "COLUMNS\n";
+            for j in 0..4 {
+                text += &format!(" x{j} obj 0\n");
+                for i in 0..5 {
+                    seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                    let a = (seed % 21) as i64 - 10;
+                    if a != 0 {
+                        text += &format!(" x{j} r{i} {}\n", a as f64 / 10.);
+                    }
+                }
+            }
+            text += "RHS\n";
+            for i in 0..5 {
+                text += &format!(" rhs r{i} 0.1\n");
+            }
+            text += "ENDATA\n";
+            let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+            // The origin is strictly feasible; all variables have their default [0,+inf) domain.
+            let c = Certifier::feasibility(&model).unwrap();
+            for mask in 0..8 {
+                let weights: Vec<_> = (0..5)
+                    .map(|j| if mask & (1 << (j % 3)) == 0 { -1. } else { 1. })
+                    .collect();
+                let (bound, trials) =
+                    c.joint_positive_bound(&[Some(0.); 4], &[None; 4], &weights, None);
+                assert_eq!(bound, None);
+                assert_eq!(trials, 64);
+            }
+        }
+    }
+    #[test]
+    fn joint_trials_reject_bad_shapes_and_nonfinite_weights() {
+        let model=crate::mps::parse(std::io::Cursor::new("NAME impossible\nROWS\n N obj\n L a\n G b\nCOLUMNS\n x obj 0 a 1\n x b 1\nRHS\n rhs a 0 b 1\nENDATA\n")).unwrap();
+        let c = Certifier::feasibility(&model).unwrap();
+        assert_eq!(
+            c.joint_positive_bound(
+                &[Some(0.)],
+                &[None],
+                &[-1., 1.],
+                Some(std::time::Instant::now())
+            ),
+            (None, 0)
+        );
+        assert!(
+            c.joint_positive_bound(&[Some(0.)], &[None], &[-1., 1.], None)
+                .0
+                .is_some()
+        );
+        assert_eq!(c.joint_positive_bound(&[], &[], &[-1., 1.], None).0, None);
+        assert_eq!(
+            c.joint_positive_bound(&[Some(0.)], &[None], &[f64::NAN, 1.], None),
+            (None, 0)
+        );
+    }
+    #[test]
     #[ignore = "saved development failure via MIP_PROOF_DUMP"]
     fn inspect_joint_perturbations() {
         let d: serde_json::Value = serde_json::from_reader(
@@ -663,7 +729,7 @@ mod joint_proof_diagnostic {
         let upper: Vec<Option<f64>> = serde_json::from_value(d["upper"].clone()).unwrap();
         let weights: Vec<f64> = serde_json::from_value(d["multipliers"].clone()).unwrap();
         let c = Certifier::feasibility(&model).unwrap();
-        let (bound, trials) = c.joint_positive_bound(&lower, &upper, &weights);
+        let (bound, trials) = c.joint_positive_bound(&lower, &upper, &weights, None);
         println!("{}", serde_json::json!({"bound":bound,"trials":trials}));
         assert!(bound.is_some_and(|b| b > 0.));
     }

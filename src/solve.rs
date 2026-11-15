@@ -64,7 +64,7 @@ impl Default for Limits {
             graph_local_diversify: true,
             graph_adaptive_local: true,
             defer_infeasibility: true,
-            joint_infeasibility: false,
+            joint_infeasibility: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -143,6 +143,7 @@ pub struct Result {
     pub fixed_leaves: usize,
     pub lp_solves: usize,
     pub defer_infeasibility_enabled: bool,
+    pub joint_infeasibility_enabled: bool,
     pub deferred_infeasibilities: usize,
     pub deferred_infeasibilities_pending: usize,
     pub deferred_infeasibilities_pruned: usize,
@@ -1141,8 +1142,12 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             }
                         }
                         if limits.joint_infeasibility {
-                            let (bound, trials) =
-                                certifier.joint_positive_bound(&lower, &upper, &multipliers);
+                            let (bound, trials) = certifier.joint_positive_bound(
+                                &lower,
+                                &upper,
+                                &multipliers,
+                                Some(deadline),
+                            );
                             infeasibility_proof_trials += trials;
                             if bound.is_some() {
                                 return Some(());
@@ -1764,6 +1769,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     Result {
         binary_graph_enabled: limits.binary_graph,
         defer_infeasibility_enabled: limits.defer_infeasibility,
+        joint_infeasibility_enabled: limits.joint_infeasibility,
         binary_graph: None,
         deferred_infeasibilities: deferred.observed,
         deferred_infeasibilities_pending: deferred.pending,
