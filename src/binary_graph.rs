@@ -362,6 +362,27 @@ pub fn solve_with_prefix(
     stronger_root: bool,
     preserve_order: bool,
 ) -> Option<Answer> {
+    solve_with_diversify(
+        model,
+        memory,
+        deadline,
+        limit,
+        local,
+        stronger_root,
+        preserve_order,
+        false,
+    )
+}
+pub fn solve_with_diversify(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+) -> Option<Answer> {
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -464,7 +485,7 @@ pub fn solve_with_prefix(
             (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(0.25);
         let local_deadline =
             deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
-        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline);
+        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline, diversify);
         search.best = seed;
         search.stats.local = Some(stats);
     }
@@ -510,6 +531,8 @@ pub struct LocalStats {
     pub neutral_swaps: usize,
     pub perturbations: usize,
     pub additions: usize,
+    pub restarts: usize,
+    pub restart_removals: usize,
     pub validation_failures: usize,
     pub seconds: f64,
 }
@@ -575,8 +598,8 @@ impl LocalState {
             .filter_map(|(j, &b)| b.then_some(j))
             .collect()
     }
-    fn augment(&mut self, graph: &Graph, stats: &mut LocalStats) {
-        for v in 0..graph.n {
+    fn augment(&mut self, graph: &Graph, stats: &mut LocalStats, order: &[usize]) {
+        for &v in order {
             if !self.selected[v] && self.counts[v] == 0 {
                 self.change(graph, v, true);
                 stats.additions += 1;
@@ -594,7 +617,12 @@ impl LocalState {
             })
     }
 }
-fn improve_seed(graph: &Graph, initial: &[usize], deadline: Instant) -> (Vec<usize>, LocalStats) {
+fn improve_seed(
+    graph: &Graph,
+    initial: &[usize],
+    deadline: Instant,
+    diversify: bool,
+) -> (Vec<usize>, LocalStats) {
     let started = Instant::now();
     let mut stats = LocalStats {
         initial: initial.len(),
@@ -612,12 +640,13 @@ fn improve_seed(graph: &Graph, initial: &[usize], deadline: Instant) -> (Vec<usi
     let mut tabu = vec![0usize; graph.n];
     let mut rng = 0x9e3779b97f4a7c15u64;
     let mut stale = 0;
+    let mut order: Vec<usize> = (0..graph.n).collect();
     for iteration in 0..graph.n.saturating_mul(8).min(50000) {
         if Instant::now() >= deadline {
             break;
         }
         stats.iterations += 1;
-        state.augment(graph, &mut stats);
+        state.augment(graph, &mut stats, &order);
         for group in &mut groups {
             group.clear();
         }
@@ -693,7 +722,7 @@ fn improve_seed(graph: &Graph, initial: &[usize], deadline: Instant) -> (Vec<usi
                 stats.perturbations += 1
             }
         }
-        state.augment(graph, &mut stats);
+        state.augment(graph, &mut stats, &order);
         let candidate = state.vertices();
         if candidate.len() > best.len() {
             if !strict_clique(graph, &candidate) {
@@ -709,6 +738,27 @@ fn improve_seed(graph: &Graph, initial: &[usize], deadline: Instant) -> (Vec<usi
         }
         if stale >= 64 {
             state = LocalState::new(graph, &best);
+            if diversify {
+                stats.restarts += 1;
+                for k in (1..order.len()).rev() {
+                    rng ^= rng << 13;
+                    rng ^= rng >> 7;
+                    rng ^= rng << 17;
+                    order.swap(k, rng as usize % (k + 1));
+                }
+                let count = (best.len() / 16).max(2).min(best.len());
+                let removed: Vec<_> = order
+                    .iter()
+                    .copied()
+                    .filter(|&v| state.selected[v])
+                    .take(count)
+                    .collect();
+                for v in removed {
+                    state.change(graph, v, false);
+                    stats.restart_removals += 1;
+                }
+                state.augment(graph, &mut stats, &order);
+            }
             stale = 0;
         }
     }
@@ -734,6 +784,7 @@ mod local_tests {
             &graph,
             &[0],
             Instant::now() + std::time::Duration::from_secs(1),
+            false,
         );
         assert_eq!(best, vec![1, 2]);
         assert!(stats.pair_swaps > 0);
@@ -742,6 +793,7 @@ mod local_tests {
             &graph,
             &[0, 1],
             Instant::now() + std::time::Duration::from_secs(1),
+            false,
         );
         assert!(best.is_empty());
         assert_eq!(stats.validation_failures, 1);
