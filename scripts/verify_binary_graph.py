@@ -51,15 +51,39 @@ def verify(model_path,result,exact):
   for a,b in itertools.combinations(sorted(j for j,_ in entries),2):edges.add((a,b))
  assert stats['conflict_edges']==len(edges)
  colors=stats['root_colors'];root_upper=stats['root_upper']
+ coloring_upper=stats.get('root_coloring_upper')
+ if coloring_upper is None:coloring_upper=root_upper
+ assert type(coloring_upper)is int and root_upper<=coloring_upper<=n
  assert type(root_upper)is int and 0<=root_upper<=n
  if colors:
-  assert len(colors)==n and all(type(c)is int and 1<=c<=root_upper for c in colors)
-  assert max(colors)==root_upper
+  assert len(colors)==n and all(type(c)is int and 1<=c<=coloring_upper for c in colors)
+  assert max(colors)==coloring_upper
   groups={}
   for j,c in enumerate(colors):groups.setdefault(c,[]).append(j)
   for group in groups.values():
    assert all((a,b)in edges for a,b in itertools.combinations(group,2))
  else:assert root_upper==n
+ fractional=stats.get('fractional_cover')
+ certificate=fractional.get('certificate')if fractional else None
+ coverage=[0]*n;weighted_groups=[]
+ if certificate:
+  cliques=certificate['cliques'];counts=certificate['counts']
+  assert len(cliques)==len(counts)>0
+  for group,count in zip(cliques,counts):
+   assert type(count)is int and 0<count<=2**32-1
+   assert group and all(type(j)is int and 0<=j<n for j in group)and len(set(group))==len(group)
+   assert all(tuple(sorted((a,b)))in edges for a,b in itertools.combinations(group,2))
+   for j in group:coverage[j]+=count
+   weighted_groups.append((set(group),count))
+  total=sum(counts);minimum=min(coverage)
+  assert minimum>0 and certificate['total']==total and certificate['minimum']==minimum
+  assert type(certificate['upper'])is int and certificate['upper']==total//minimum
+  assert root_upper==min(coloring_upper,certificate['upper'])
+ else:assert root_upper==coloring_upper
+ def fractional_prefix(prefix):
+  if not prefix:return 0
+  chosen=set(prefix)
+  return sum(w for group,w in weighted_groups if group&chosen)//min(coverage[j]for j in prefix)
  best=stats['best'];upper=stats['upper'];complete=stats['complete']
  assert type(best)is int and type(upper)is int and 0<=best<=upper<=root_upper and type(complete)is bool
  remaining=stats.get('remaining_upper',root_upper)
@@ -77,9 +101,11 @@ def verify(model_path,result,exact):
     for j,c in enumerate(coloring):groups.setdefault(c,[]).append(j)
     for group in groups.values():
      assert all((a,b)in edges for a,b in itertools.combinations(group,2))
-   assert root_upper==min(len(set(c))for c in candidates)
+   assert coloring_upper==min(len(set(c))for c in candidates)
    prefix=root_order[:n-completed]
-   assert remaining>=min(len({c[j]for j in prefix})for c in candidates)
+   prefix_bound=min(len({c[j]for j in prefix})for c in candidates)
+   if certificate:prefix_bound=min(prefix_bound,fractional_prefix(prefix))
+   assert remaining>=prefix_bound
   else:
    rank={j:k for k,j in enumerate(stats['order'])}
    root_order=sorted(range(n),key=lambda j:(colors[j],rank[j]))
@@ -97,5 +123,6 @@ def verify(model_path,result,exact):
  assert reported>=exact_bound if maximize else reported<=exact_bound
  return dict(valid=True,checker_sha256=sha256(Path(__file__)),vertices=n,conflict_edges=len(edges),root_coloring_valid=True,remaining_coloring_valid=True,completed_root_branches=completed,
              root_upper=root_upper,upper=upper,best=best,
-             final_bound_source='root coloring/trivial cardinality'if upper==root_upper else'internal completed branches and remaining-prefix coloring; not independently replayed',
+             fractional_cover_valid=bool(certificate),
+             final_bound_source='root coloring/fractional cover/trivial cardinality'if upper==root_upper else'internal completed branches and remaining-prefix coloring; not independently replayed',
              independent_optimality=best==root_upper)

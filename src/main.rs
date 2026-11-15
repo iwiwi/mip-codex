@@ -50,6 +50,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_DEFER_INFEASIBILITY must be 0 or 1".into()),
             };
         }
+        if let Ok(value) = std::env::var("MIP_GRAPH_FRACTIONAL_COVER") {
+            limits.graph_fractional_cover = match value.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_GRAPH_FRACTIONAL_COVER must be 0 or 1".into()),
+            };
+        }
         if let Ok(value) = std::env::var("MIP_GRAPH_COVER_LOCAL") {
             limits.graph_cover_local = match value.as_str() {
                 "0" => false,
