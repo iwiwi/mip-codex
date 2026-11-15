@@ -321,7 +321,6 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize) -> Relaxation {
 /// 主解探索の局所LPは探索木・下界・擬似コストには一切反映しない。
 #[derive(Default, Debug, Serialize)]
 pub struct DivingStats {
-    pub uncut_root_calls: usize,
     pub calls: usize,
     pub lp_solves: usize,
     pub reversals: usize,
@@ -473,7 +472,6 @@ pub struct ProbeStats {
 }
 #[derive(Default)]
 struct CutPreparation {
-    initial: Option<(Vec<f64>, Option<Arc<revised::WarmStart>>)>,
     model: Option<Model>,
     cuts: Vec<cuts::Cut>,
     stats: cuts::Stats,
@@ -536,9 +534,6 @@ fn prepare_cuts(
         if limits.warm_start {
             root.warm = answer.warm;
         }
-        if limits.lp_diving && prepared.initial.is_none() {
-            prepared.initial = Some((point.clone(), root.warm.clone()));
-        }
         let generated = pool.separate(model, &point, 32, cut_deadline);
         if generated.is_empty() {
             break;
@@ -549,8 +544,6 @@ fn prepare_cuts(
     }
     if !prepared.cuts.is_empty() {
         prepared.model = Some(work);
-    } else {
-        prepared.initial = None;
     }
     prepared.stats = pool.stats;
     prepared.seconds = started.elapsed().as_secs_f64();
@@ -577,7 +570,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         edge: None,
     };
     let mut lp_stats = revised::Stats::default();
-    let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
+    let prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let lp_model = prepared.model.as_ref().unwrap_or(model);
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
@@ -757,7 +750,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                                 }
                             }
                             if let Relaxation::Ready(q) =
-                                standard_sparse(model, &fixed, limits.dense_bytes)
+                                standard_sparse(lp_model, &fixed, limits.dense_bytes)
                             {
                                 let answer = revised::minimize_warm(
                                     q.sparse.as_ref().unwrap(),
@@ -834,7 +827,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     );
                     let old_solves = diving.lp_solves;
                     let candidate = dive(
-                        model,
+                        lp_model,
                         &node,
                         &original,
                         limits,
@@ -850,33 +843,6 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                             first_primal_seconds
                                 .get_or_insert_with(|| start.elapsed().as_secs_f64());
                             best = Some(x);
-                        }
-                    }
-                    // cutで根LPの点が変わっても、元の根から得られた主解を失わないよう再試行。
-                    // 共通の時間枠の残りだけを使い、元のwarm基底でLPを再利用する。
-                    if let Some((point, warm)) = prepared.initial.take() {
-                        if node.bound < incumbent && Instant::now() < diving_deadline {
-                            let mut uncut = node.clone();
-                            uncut.warm = warm;
-                            diving.uncut_root_calls += 1;
-                            if let Some(x) = dive(
-                                model,
-                                &uncut,
-                                &point,
-                                limits,
-                                diving_deadline,
-                                &mut diving,
-                                &mut lp_stats,
-                            ) {
-                                let value = sign * model.objective(&x);
-                                if value.is_finite() && value < incumbent {
-                                    diving.improvements += 1;
-                                    incumbent = value;
-                                    first_primal_seconds
-                                        .get_or_insert_with(|| start.elapsed().as_secs_f64());
-                                    best = Some(x);
-                                }
-                            }
                         }
                     }
                     lp_solves += diving.lp_solves - old_solves;
