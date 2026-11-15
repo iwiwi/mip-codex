@@ -26,6 +26,7 @@ pub struct Limits {
     pub graph_root_coloring: bool,
     pub graph_root_prefix: bool,
     pub graph_local_diversify: bool,
+    pub graph_adaptive_local: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -59,6 +60,7 @@ impl Default for Limits {
             graph_root_coloring: true,
             graph_root_prefix: true,
             graph_local_diversify: true,
+            graph_adaptive_local: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -747,7 +749,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
-            if let Some(answer) = crate::binary_graph::solve_with_diversify(
+            if let Some(answer) = crate::binary_graph::solve_with_adaptive(
                 model,
                 limits.dense_bytes,
                 deadline,
@@ -756,6 +758,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 limits.graph_root_coloring,
                 limits.graph_root_prefix,
                 limits.graph_local_diversify,
+                limits.graph_adaptive_local,
             ) {
                 let sign = if model.maximize { -1. } else { 1. };
                 let objective = model.objective(&answer.point);

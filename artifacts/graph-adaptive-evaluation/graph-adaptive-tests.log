@@ -1,0 +1,320 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.17s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/b843d3488fc759aa/out/mip_codex-b843d3488fc759aa)
+
+running 21 tests
+test exact::enclosure_tests::exact_zero_and_products_below_smallest_subnormal_are_enclosed ... ok
+test exact::pair_tests::a_pair_preserves_a_halfway_bit_and_can_collapse_after_cancellation ... ok
+test exact::pair_tests::a_third_separated_component_falls_back_without_losing_either_tail ... ok
+test binary_graph::local_tests::pair_exchange_improves_a_feasible_seed_and_invalid_seeds_fail_closed ... ok
+test exact::tests::cancellation_preserves_smallest_products_and_overflowing_products ... ok
+test exact::tests::nonfinite_values_are_not_certified ... ok
+test branching::strong_candidate_tests::mixed_candidates_keep_fractional_variables_and_include_rare_cost_variable ... ok
+test revised::ratio_regressions::entering_width_and_upper_bound_are_respected ... ok
+test revised::ratio_regressions::near_tie_chooses_stable_pivot_and_preserves_tolerance ... ok
+test revised::ratio_regressions::stable_pivot_ties_use_basic_variable_order ... ok
+test revised::ratio_regressions::tiny_bound_roundoff_is_not_amplified_by_small_pivot ... ok
+test objective_bound::implied_box_tests::two_unbounded_terms_do_not_imply_an_individual_bound ... ok
+test search::tests::best_bound_uses_minimum_and_deterministic_ties ... ok
+test search::tests::depth_first_keeps_last_child_preference ... ok
+test solve::seed_tests::seed_is_checked_and_cannot_prove_optimality_at_zero_budget ... ok
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+test search::tests::hybrid_keeps_each_pending_node_exactly_once ... ok
+test exact::tests::arbitrary_exponents_match_independent_python_fraction_fixtures ... ok
+test objective_bound::implied_box_tests::decimal_interval_bounds_preserve_every_enumerated_feasible_point ... ok
+test exact::tests::correctly_rounded_sums_match_python_fraction ... ok
+test exact::value_tests::nearest_tight_bounds_and_fast_enclosures_match_fraction_oracle ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running unittests src/main.rs (target/debug/build/mip-codex/b283bdf30b116108/out/mip_codex-b283bdf30b116108)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/binary_graph.rs (target/debug/build/mip-codex/99de3fa0edc49532/out/binary_graph-99de3fa0edc49532)
+
+running 4 tests
+test recognition_rejects_constraints_and_objectives_outside_the_exact_class ... ok
+test negative_lower_rows_have_the_same_conflict_meaning ... ok
+test dispatch_reports_the_original_objective_and_uses_no_lp ... ok
+test exact_search_and_interruption_bounds_match_enumeration_and_root_coloring ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.18s
+
+     Running tests/box_primal.rs (target/debug/build/mip-codex/8e9683c40fa8f8bb/out/box_primal-8e9683c40fa8f8bb)
+
+running 5 tests
+test box_primal_has_no_claim_when_all_endpoints_violate_the_model ... ok
+test a_tolerance_feasible_box_point_cannot_turn_root_infeasibility_into_optimality ... ok
+test approximate_activity_updates_cannot_accept_a_cancellation_violation ... ok
+test box_primal_preserves_a_greedy_feasible_point_when_lp_cannot_start ... ok
+test tolerance_feasibility_cannot_override_phase_one_infeasibility ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/branching.rs (target/debug/build/mip-codex/3e6072f7cdf2f618/out/branching-3e6072f7cdf2f618)
+
+running 3 tests
+test zero_costs_fall_back_and_direction_uses_distance ... ok
+test observed_costs_change_ranking_without_changing_feasible_region ... ok
+test all_rules_orders_and_objective_senses_preserve_optimum ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cuts.rs (target/debug/build/mip-codex/b6cc7368636202ea/out/cuts-b6cc7368636202ea)
+
+running 13 tests
+test continuous_columns_and_unknown_provenance_are_skipped ... ok
+test a_negative_continuous_term_needs_its_finite_upper_bound ... ok
+test decimal_duplicate_cancellation_is_not_a_spurious_unbounded_objective ... ok
+test signed_cover_is_valid_and_rejects_a_changed_certificate ... ok
+test literal_integer_provenance_does_not_trust_f64_rounding ... ok
+test ranges_are_combined_as_original_decimal_values_before_rounding ... ok
+test fractional_coefficients_project_a_continuous_lower_bound_safely ... ok
+test cover_changes_root_bound_without_excluding_integer_optimum ... ok
+test root_cut_incumbent_does_not_replace_the_fractional_global_bound ... ok
+test ranged_lower_side_cuts_keep_the_maximization_offset ... ok
+test duplicate_terms_are_summed_before_rounding_in_rows_and_objective ... ok
+test no_cover_excludes_any_binary_feasible_point ... ok
+test mixed_decimal_cuts_preserve_all_box_feasible_binary_assignments ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/decimal_input.rs (target/debug/build/mip-codex/3431189c06422e59/out/decimal_input-3431189c06422e59)
+
+running 1 test
+test duplicate_decimals_match_python_fraction_before_rounding ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/diving.rs (target/debug/build/mip-codex/f10a8fee7c1653b6/out/diving-f10a8fee7c1653b6)
+
+running 5 tests
+test expired_global_deadline_skips_all_local_solves ... ok
+test local_infeasibility_reverses_direction_without_pruning_parent ... ok
+test two_failed_sides_do_not_prove_mip_infeasibility ... ok
+test failed_integral_fixing_does_not_discard_a_feasible_integer_solution ... ok
+test diving_finds_cover_without_claiming_root_bound_is_integer_optimum ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/exact_transformation.rs (target/debug/build/mip-codex/89645a87a3da9f1a/out/exact_transformation-89645a87a3da9f1a)
+
+running 3 tests
+test a_shift_that_cannot_preserve_absolute_row_precision_is_unresolved ... ok
+test original_decimal_ill_conditioning_is_unresolved ... ok
+test objective_offset_row_shift_and_overflow_cancel_before_rounding ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fixed_columns.rs (target/debug/build/mip-codex/b27bfbb5f2d68f67/out/fixed_columns-b27bfbb5f2d68f67)
+
+running 3 tests
+test an_empty_lp_column_set_preserves_constant_row_infeasibility ... ok
+test an_integer_singleton_is_proved_from_the_original_bound_intervals ... ok
+test deleting_a_static_column_keeps_original_cost_and_child_warm_compatibility ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/heuristic.rs (target/debug/build/mip-codex/dfdba436aab113de/out/heuristic-dfdba436aab113de)
+
+running 5 tests
+test expired_deadline_produces_no_candidate ... ok
+test rounds_and_repairs_continuous_equality ... ok
+test cancellation_cannot_create_false_incumbent ... ok
+test incumbent_does_not_change_open_node_lower_bound ... ok
+test fixed_integer_lp_repairs_linked_continuous_variables ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lp.rs (target/debug/build/mip-codex/7889de19e1cb28f7/out/lp-7889de19e1cb28f7)
+
+running 9 tests
+test empty ... ok
+test infeasible ... ok
+test malformed ... ok
+test bounded ... ok
+test limit ... ok
+test phase_one ... ok
+test redundant ... ok
+test tiny_cost_with_large_width_is_not_ignored ... ok
+test unbounded ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mps.rs (target/debug/build/mip-codex/965e40c8a16a63f0/out/mps-965e40c8a16a63f0)
+
+running 5 tests
+test explicit_objective_and_exponents ... ok
+test integer_defaults_and_bounds ... ok
+test reject_unsafe_model_changes ... ok
+test ranges_offset_and_duplicates ... ok
+test binary_representability_is_distinct_from_small_integer_provenance ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/objective_bounds.rs (target/debug/build/mip-codex/4b0fbbc47e8af3a3/out/objective_bounds-4b0fbbc47e8af3a3)
+
+running 14 tests
+test a_tiny_negative_reduced_cost_on_an_unbounded_column_is_not_a_bound ... ok
+test lattice_rounding_is_conservative_at_integer_boundaries_and_for_maximization ... ok
+test cost_provenance_is_independent_of_fractional_objective_offset ... ok
+test objective_provenance_distinguishes_integer_literals_from_f64_rounding ... ok
+test objective_grid_follows_unit_equalities_without_circular_inference ... ok
+test certified_lattice_bound_strengthens_the_root_without_a_primal_or_extra_lp ... ok
+test certified_positive_gap_rejects_tolerance_only_zero_and_prunes_its_box ... ok
+test unsupported_bounds_and_propagation_disable_additional_rounding ... ok
+test first_positive_objective_gap_and_complemented_maximum_are_proved_from_costs ... ok
+test original_free_and_lossy_ranged_rows_receive_correct_multipliers ... ok
+test maximization_offset_lower_side_and_bounded_range_use_original_row_multipliers ... ok
+test objective_gap_rounding_cannot_skip_any_feasible_integer_box_value ... ok
+test arbitrary_multipliers_never_exceed_independent_original_decimal_fraction_bounds ... ok
+test certified_pruning_preserves_exhaustive_min_max_optima_with_offsets_and_gcds ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running tests/probe.rs (target/debug/build/mip-codex/5eeaa53f93515949/out/probe-5eeaa53f93515949)
+
+running 3 tests
+test zero_deadline_does_not_start_a_probe ... ok
+test local_proof_is_not_promoted_to_global_infeasibility ... ok
+test verified_candidate_does_not_replace_open_node_bound ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/propagate.rs (target/debug/build/mip-codex/7e333f536fdfbc6a/out/propagate-7e333f536fdfbc6a)
+
+running 8 tests
+test contradictory_activity_and_integer_domain ... ok
+test deadline_stops_without_infeasibility_claim ... ok
+test mixed_signs_integer_rounding_and_tolerance ... ok
+test overflow_and_cancellation_do_not_create_false_contradiction ... ok
+test unbounded_variables_can_acquire_both_bounds ... ok
+test branch_fixing_propagates_through_implication_chain ... ok
+test mixed_continuous_grid_points_are_preserved ... ok
+test enumeration_preserves_every_feasible_integer_point ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.96s
+
+     Running tests/revised.rs (target/debug/build/mip-codex/8f908a740beb343f/out/revised-8f908a740beb343f)
+
+running 10 tests
+test finite_upper_bound_flips ... ok
+test infeasible_bounds_and_equations ... ok
+test small_cost_and_large_finite_width_preserve_objective ... ok
+test duplicate_sparse_entries_are_summed ... ok
+test unbounded_ray ... ok
+test negative_rhs ... ok
+test ranged_slack_starts_at_upper_bound ... ok
+test phase_one_and_fixed_artificial_degeneracy ... ok
+test tiny_cost_does_not_hide_unbounded_direction ... ok
+test sparse_factorization_after_many_updates ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/rins.rs (target/debug/build/mip-codex/afc386b9bd6de120/out/rins-afc386b9bd6de120)
+
+running 5 tests
+test matching_fixes_preserve_the_seed_and_leave_the_original_model_intact ... ok
+test malformed_infeasible_and_unhelpful_neighborhoods_are_rejected ... ok
+test no_incumbent_or_expired_deadline_does_not_start_a_local_search ... ok
+test later_incumbent_does_not_trigger_an_unbudgeted_retry ... ok
+test local_neighborhood_optimal_does_not_become_a_global_proof ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/rounding.rs (target/debug/build/mip-codex/70cda1b1762982fc/out/rounding-70cda1b1762982fc)
+
+running 7 tests
+test lower_side_is_oriented_before_division ... ok
+test negative_coefficients_and_rhs_use_floor_not_truncation ... ok
+test unknown_noninteger_continuous_and_negative_domains_are_rejected ... ok
+test continuous_terms_project_from_the_correct_original_endpoint ... ok
+test division_closes_a_root_that_pairwise_covers_cannot_close ... ok
+test projected_random_rows_preserve_every_integer_point_with_a_continuous_box ... ok
+test all_small_nonnegative_integer_points_preserved_by_random_rows ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running tests/scaling.rs (target/debug/build/mip-codex/b766f6766fd67c6c/out/scaling-b766f6766fd67c6c)
+
+running 10 tests
+test nonrepresentable_transform_is_not_silently_clipped ... ok
+test scaled_box_contradiction_is_checked_in_original_units ... ok
+test fixed_normal_column_does_not_hide_tiny_column ... ok
+test coupled_normal_columns_do_not_hide_a_tiny_row ... ok
+test near_parallel_constraints_are_bounded_by_small_nonzero_pivot ... ok
+test scaled_unbounded_ray_is_checked_in_original_units ... ok
+test tiny_and_large_columns_have_bounded_optima ... ok
+test scaled_warm_equality_contradiction_has_original_witness ... ok
+test warm_bounds_keep_the_same_scaled_structure ... ok
+test known_fractional_knapsack_is_invariant_under_binary_units ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/search.rs (target/debug/build/mip-codex/feef0a91054dcb28/out/search-feef0a91054dcb28)
+
+running 2 tests
+test interruption_keeps_all_pending_nodes_in_global_bound ... ok
+test all_search_orders_match_binary_enumeration ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running tests/serialization.rs (target/debug/build/mip-codex/1e41aeeaddddf8ad/out/serialization-1e41aeeaddddf8ad)
+
+running 2 tests
+test fixed_large_integers_and_reported_bounds_are_exact_json_numbers ... ok
+test rounded_bound_plus_tolerance_never_accepts_an_invalid_decimal_point ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/solve.rs (target/debug/build/mip-codex/4e3058c6caefb2af/out/solve-4e3058c6caefb2af)
+
+running 7 tests
+test integer_infeasible_from_domain ... ok
+test limits_do_not_claim_infeasibility ... ok
+test unbounded_relaxation_is_not_mip_claim ... ok
+test branching_and_dual_bound ... ok
+test free_and_upper_only_and_offset ... ok
+test propagation_preserves_optimum_and_saves_lp_calls ... ok
+test dense_reference_handles_row_and_objective_scales ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.88s
+
+     Running tests/strong.rs (target/debug/build/mip-codex/9d51feadcff2d53a/out/strong-9d51feadcff2d53a)
+
+running 5 tests
+test expired_deadline_does_not_start_probing ... ok
+test optimal_probes_only_train_costs_and_preserve_the_parent_bound ... ok
+test infeasible_hints_select_a_variable_but_do_not_prune_or_change_parent_bound ... ok
+test infeasible_probes_do_not_prove_the_main_problem ... ok
+test strong_branching_matches_exhaustive_min_and_max_integer_optima ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.82s
+
+     Running tests/warm.rs (target/debug/build/mip-codex/3b7c5dc7b00a7f86/out/warm-3b7c5dc7b00a7f86)
+
+running 12 tests
+test box_only_bounds_and_zero_width_reactivation_fallback ... ok
+test changed_cost_and_infeasible_basis_falls_back_to_phase_one ... ok
+test expired_budget_does_not_restart_cold_phase_one ... ok
+test impossible_box_row_requires_certificate ... ok
+test entering_from_upper_bound ... ok
+test cost_changes_use_primal_warm_and_structure_changes_reject_basis ... ok
+test lower_violation_after_variable_shift ... ok
+test ranged_slack_and_parent_artificial_layout_are_reused ... ok
+test dual_bound_flips_and_siblings_keep_parent_immutable ... ok
+test cost_changes_preserve_scaled_units_and_unbounded_ray_checks ... ok
+test thousand_cost_changes_match_cold_and_keep_original_basis_reusable ... ok
+test repeated_random_rhs_and_bound_changes_match_cold_solver ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.98s
+
+   Doc-tests mip_codex
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

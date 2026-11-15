@@ -68,7 +68,7 @@ fn exact_search_and_interruption_bounds_match_enumeration_and_root_coloring() {
             .max()
             .unwrap();
         let model = model(n, &edges, case % 2 == 0);
-        for (limit, local, root, prefix, diversify) in [0, 1, 2, 3, 7, usize::MAX]
+        for (limit, local, root, prefix, diversify, adaptive) in [0, 1, 2, 3, 7, usize::MAX]
             .into_iter()
             .flat_map(|limit| [false, true].map(|local| (limit, local)))
             .flat_map(|(limit, local)| [false, true].map(|root| (limit, local, root)))
@@ -78,8 +78,11 @@ fn exact_search_and_interruption_bounds_match_enumeration_and_root_coloring() {
             .flat_map(|(limit, local, root, prefix)| {
                 [false, true].map(|diversify| (limit, local, root, prefix, diversify))
             })
+            .flat_map(|(limit, local, root, prefix, diversify)| {
+                [false, true].map(|adaptive| (limit, local, root, prefix, diversify, adaptive))
+            })
         {
-            let r = binary_graph::solve_with_diversify(
+            let r = binary_graph::solve_with_adaptive(
                 &model,
                 512 * 1024 * 1024,
                 Instant::now() + Duration::from_secs(1),
@@ -88,6 +91,7 @@ fn exact_search_and_interruption_bounds_match_enumeration_and_root_coloring() {
                 root,
                 prefix,
                 diversify,
+                adaptive,
             )
             .unwrap();
             if let Some(local) = &r.stats.local {
