@@ -16,6 +16,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("unknown MIP_LP_ENGINE".into()),
             };
         }
+        if let Ok(warm) = std::env::var("MIP_LP_WARM_START") {
+            limits.warm_start = match warm.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_LP_WARM_START must be 0 or 1".into()),
+            };
+        }
         if let Some(s) = args.get(3) {
             limits.seconds = s.parse().map_err(|_| "invalid seconds")?;
         }
