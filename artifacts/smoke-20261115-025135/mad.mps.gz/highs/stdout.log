@@ -1,0 +1,74 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261115-025135/mad.mps.gz/highs/options.txt
+Number of PL entries in BOUNDS section is 20
+MIP mad has 51 rows; 220 cols; 2808 nonzeros; 200 integer variables (200 binary)
+Coefficient ranges:
+  Matrix  [4e-04, 1e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 1e+01]
+Presolving model
+51 rows, 220 cols, 2808 nonzeros 0s
+40 rows, 220 cols, 2174 nonzeros 0s
+Presolve reductions: rows 40(-11); columns 220(-0); nonzeros 2174(-634) 
+
+Solving MIP model with:
+   40 rows
+   220 cols (200 binary, 0 integer, 0 implied int., 20 continuous, 0 domain fixed)
+   2174 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   0               inf                  inf        0      0      0         0     0.0s
+ R       0       0         0   0.00%   0               4.0346           100.00%        0      0      0        43     0.0s
+ C       0       0         0   0.00%   0               1.126            100.00%      350     33      0       109     0.0s
+ L       0       0         0   0.00%   0               0.5988           100.00%      745     52      0       189     0.2s
+ L       0       0         0   0.00%   0               0.5584           100.00%      745     10      0      1052     0.3s
+ L     100      14        43   0.02%   0               0.3814           100.00%     1184     25   1335      7366     0.6s
+ L     202      21        88   0.07%   0               0.348            100.00%     1236     22   1952     11514     1.0s
+ L     404      35       177   0.42%   0               0.3012           100.00%     1498     42   3154     17392     1.4s
+ L     807      43       367   1.94%   0               0.208            100.00%     1653     40   5984     30055     2.5s
+
+Restarting search from the root node
+Model after restart has 40 rows, 220 cols (200 bin., 0 int., 0 impl., 20 cont., 0 dom.fix.), and 2174 nonzeros
+
+      2093       0         0   0.00%   0               0.208            100.00%       14      0      0     55409     4.4s
+      2093       0         0   0.00%   0               0.208            100.00%       14      1      9     55410     4.4s
+      2778      44       316   0.64%   0               0.208            100.00%     1946     45   4636     62632     5.0s
+
+Solving report
+  Model             mad
+  Status            Time limit reached
+  Primal bound      0.208
+  Dual bound        0
+  Gap               100%
+  P-D integral      5.00
+  Solution status   feasible
+                    0.208 (objective)
+                    5.74744712479e-12 (integrality violation)
+  Timing            5.00
+                    0.17 (Presolve)
+                        MIP    time [calls] = 0.01 [1]
+                        subMIP time [calls] = 0.16 [152]
+                    4.83 (Solve)
+                        MIP    time [calls] = 2.89 [1]
+                        subMIP time [calls] = 1.94 [140]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [152]
+  Max sub-MIP depth 8
+  Nodes             2778
+  Repair LPs        0
+  LP iterations     62632
+                    16356 (strong br.)
+                    2184 (separation)
+                    18403 (heuristics)
