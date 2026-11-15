@@ -60,7 +60,9 @@ def verify(model_path,result,exact):
  else:assert root_upper==n
  best=stats['best'];upper=stats['upper'];complete=stats['complete']
  assert type(best)is int and type(upper)is int and 0<=best<=upper<=root_upper and type(complete)is bool
- assert upper==(best if complete else root_upper)
+ remaining=stats.get('remaining_upper',root_upper)
+ assert type(remaining)is int and 0<=remaining<=root_upper
+ assert upper==(best if complete else max(best,remaining))
  point=result['values'];chosen=[j for j,name in enumerate(names)if Fraction(point[name])==1]
  assert set(point)==set(names)and len(chosen)==best and all(Fraction(v)in [0,1]for v in point.values())
  assert all(not(a in chosen and b in chosen)for a,b in edges)
@@ -71,5 +73,5 @@ def verify(model_path,result,exact):
  assert reported>=exact_bound if maximize else reported<=exact_bound
  return dict(valid=True,vertices=n,conflict_edges=len(edges),root_coloring_valid=True,
              root_upper=root_upper,upper=upper,best=best,
-             final_bound_source='root coloring/trivial cardinality'if upper==root_upper else'internal exhaustive search completion; not independently replayed',
+             final_bound_source='root coloring/trivial cardinality'if upper==root_upper else'internal completed branches and remaining-prefix coloring; not independently replayed',
              independent_optimality=best==root_upper)

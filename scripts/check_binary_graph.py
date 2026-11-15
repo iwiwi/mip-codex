@@ -25,7 +25,7 @@ for case in range(int(sys.argv[1])if len(sys.argv)>1 else 200):
   columns.extend(f' x{j} r{k} {-a if case%3==1 else a}'for k,(terms,_)in enumerate(constraints)for v,a in terms if v==j)
  model=out/f'{case:04d}.mps';model.write_text('\n'.join(['NAME graph','OBJSENSE',' MAX'if maximize else' MIN','ROWS',' N obj',*[f' {"G"if case%3==1 else"L"} r{k}'for k in range(len(constraints))],'COLUMNS',*columns,'RHS',f' rhs obj {-offset}',*[f' rhs r{k} {-rhs if case%3==1 else rhs}'for k,(_,rhs)in enumerate(constraints)],'BOUNDS',*[f' BV b x{j}'for j in range(n)],'ENDATA'])+'\n')
  optimum=max(sum(point)for point in itertools.product([0,1],repeat=n)if all(point[a]+point[b]<=1 for a,b in edges))
- for limit in [0,1,100000]:
+ for limit in [0,1,2,3,7,100000]:
   env=dict(os.environ,MIP_BINARY_GRAPH='1');dest=out/f'{case:04d}-{limit}.json'
   with dest.open('w')as stream,(out/f'{case:04d}-{limit}.err').open('w')as err:p=subprocess.run([str(binary),'solve',str(model),'5',str(limit)],env=env,stdout=stream,stderr=err,timeout=15)
   r=json.loads(dest.read_text(),parse_float=Decimal)

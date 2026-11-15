@@ -68,7 +68,7 @@ fn exact_search_and_interruption_bounds_match_enumeration_and_root_coloring() {
             .max()
             .unwrap();
         let model = model(n, &edges, case % 2 == 0);
-        for limit in [0, 1, usize::MAX] {
+        for limit in [0, 1, 2, 3, 7, usize::MAX] {
             let r = binary_graph::solve(
                 &model,
                 512 * 1024 * 1024,

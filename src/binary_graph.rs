@@ -9,6 +9,8 @@ pub struct Stats {
     pub nodes: usize,
     pub colorings: usize,
     pub root_upper: usize,
+    pub remaining_upper: usize,
+    pub root_branches_completed: usize,
     pub upper: usize,
     pub best: usize,
     pub complete: bool,
@@ -243,6 +245,7 @@ impl Search<'_> {
         self.stats.colorings += 1;
         if self.stats.nodes == 0 {
             self.stats.root_upper = color;
+            self.stats.remaining_upper = color;
             self.stats.root_colors = vec![0; self.graph.n];
             for (&v, &c) in order.iter().zip(&bounds) {
                 self.stats.root_colors[self.graph.order[v]] = c;
@@ -256,6 +259,12 @@ impl Search<'_> {
         clique: &mut Vec<usize>,
         root: Option<(Vec<usize>, Vec<usize>)>,
     ) {
+        if clique.len() > self.best.len() {
+            self.best = clique.clone();
+            self.stats
+                .first_seconds
+                .get_or_insert_with(|| self.started.elapsed().as_secs_f64());
+        }
         if Instant::now() >= self.deadline || self.stats.nodes >= self.limit {
             self.interrupted = true;
             return;
@@ -270,6 +279,9 @@ impl Search<'_> {
             return;
         };
         for k in (0..order.len()).rev() {
+            if clique.is_empty() {
+                self.stats.remaining_upper = bounds[k];
+            }
             if clique.len() + bounds[k] <= self.best.len() {
                 return;
             }
@@ -297,6 +309,9 @@ impl Search<'_> {
             clique.pop();
             if self.interrupted {
                 return;
+            }
+            if clique.is_empty() {
+                self.stats.root_branches_completed += 1;
             }
             clear(&mut p, v);
         }
@@ -336,6 +351,7 @@ pub fn solve(model: &Model, memory: usize, deadline: Instant, limit: usize) -> O
             vertices: graph.n,
             conflict_edges: graph.n * (graph.n - 1) / 2 - edges,
             root_upper: graph.n,
+            remaining_upper: graph.n,
             order: graph.order.clone(),
             ..Stats::default()
         },
@@ -351,11 +367,12 @@ pub fn solve(model: &Model, memory: usize, deadline: Instant, limit: usize) -> O
         }
     }
     search.stats.best = search.best.len();
-    search.stats.complete = !search.interrupted || search.best.len() == search.stats.root_upper;
+    search.stats.complete =
+        !search.interrupted || search.best.len() >= search.stats.remaining_upper;
     search.stats.upper = if search.stats.complete {
         search.best.len()
     } else {
-        search.stats.root_upper
+        search.stats.remaining_upper.max(search.best.len())
     };
     let mut point = vec![0.; graph.n];
     for &v in &search.best {
