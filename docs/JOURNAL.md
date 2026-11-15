@@ -297,3 +297,9 @@ PR21はマージせず閉じ、main PR20からstrong-objective branchへ。候�
 強分枝d9e9c41の18問4設定 (113501/113503) は全72時間制限、18主解全同等、併用だけ30n下界51→51.7547169811。56主解GMP/公式有効、268cut/72構造証明全有効。小1000/二値1000/中規模200全失敗0、Rust138回帰と80二値×4設定全列挙成功。30n60秒113850もclassic51/併用51.7547、両方主解なし。主ノード486→330/LP549→390は同時間枠の異なる探索であり高速化の証拠とはしない。両方のcut/構造証明有効。両設定を既定候補へ変更し最終確認中。
 
 既定8e95f9eのfresh8×5秒114252でも30n下界51.7547と7主解の品質を再現した。native3参照は103709の同条件測定を明示再利用。新既定138回帰も成功。全件native baselineは11:43 UTCに99/720完了、旧primary最適41/error8、生存。次のdive-fixation-source worktreeで、一括整数固定を省く反例(min/max)と全139回帰が成功。releaseはmainの測定完了まで変更せず、PR採用後のrebase/対照実験へ進む。
+
+### 測定開始前の検査器確認
+
+PR23の一括固定解除は139回帰/訂正2200合成が成功したが、18問でbpp69→67/binkar6794.86→7429.76と利益・悪化が混在しLP増加のため未マージで閉じた。初回1657点の未検証はworktree checker配置漏れで、全失敗と訂正結果をfailed branchに保存。
+
+事前確認だけをvalidation-preflight branchへ切り出した。smoke/syntheticはchecker未配置なら開始前にexit、validator単独のvalid=Noneは維持、smoke metadataにchecker hashを追加。preflight3回帰と既存validator回帰が成功。通常solverコードは変更しない。次は元十進の厳密整数行と整数point境界だけを使うi128の境界伝播を検討する。既存の任意float伝播は引き続き既定off。

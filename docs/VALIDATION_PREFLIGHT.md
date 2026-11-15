@@ -1,0 +1,7 @@
+# 測定開始前に独立検査器を確認する
+
+別worktreeで潜り探索を試した際、無視対象のcompiled checkerを配置し忘れ、返却optimal点1657件のGMP検査がvalid=Noneになった。失敗を隠さず全入力/解/ログをPR23のflexible-diving branchへ保存し、checkerをコピーして独立照合をやり直した。訂正2200合成は失敗0、訂正18問の28主解もGMP/公式とも全有効。潜り探索の候補自体は利益と悪化が混在したため採用していない。
+
+同じ事故を防ぐため、開発smokeとsyntheticはabsolute checkerが無い場合、出力ディレクトリ作成やケースの実行より前にエラー終了する。MIP_ABSOLUTE_CHECKERを指定した場合はその場所を尊重する。validatorの単独呼出しでは従来どおりvalid=Noneを返し、未検証と誤答を区別する。smokeのexperiment.jsonには使うcompiled checkerのSHA256も追加する。
+
+3件のpreflight回帰と既存validator回帰で確認する。最適化アルゴリズム/既定設定の変更は含まない。稼働中のbaseline snapshotには適用せず、結果も書き換えない。コード変更による性能向上は主張しない。
