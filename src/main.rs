@@ -79,6 +79,12 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_ROUNDING_CUTS must be 0 or 1".into()),
             };
         }
+        if let Ok(value) = std::env::var("MIP_COVER_ROUNDS") {
+            limits.cover_rounds = value.parse().map_err(|_| "invalid MIP_COVER_ROUNDS")?;
+            if !(1..=16).contains(&limits.cover_rounds) {
+                return Err("MIP_COVER_ROUNDS must be 1..16".into());
+            }
+        }
         if let Ok(cuts) = std::env::var("MIP_COVER_CUTS") {
             limits.cover_cuts = match cuts.as_str() {
                 "0" => false,

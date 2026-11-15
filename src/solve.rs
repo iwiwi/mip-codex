@@ -22,6 +22,7 @@ pub struct Limits {
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
+    pub cover_rounds: usize,
     pub rounding_cuts: bool,
     pub strong_branching: bool,
     pub rins: bool,
@@ -44,6 +45,7 @@ impl Default for Limits {
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
+            cover_rounds: 4,
             rounding_cuts: false,
             strong_branching: true,
             rins: true,
@@ -69,6 +71,7 @@ pub struct Result {
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
+    pub cover_round_limit: usize,
     pub rounding_cuts_enabled: bool,
     pub strong_branching: bool,
     pub strong: StrongStats,
@@ -523,7 +526,7 @@ fn prepare_cuts(
         .min(started + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)));
     let mut work = model.clone();
     let mut pool = cuts::Pool::default();
-    for _ in 0..4 {
+    for _ in 0..limits.cover_rounds {
         if Instant::now() >= cut_deadline {
             break;
         }
@@ -1231,6 +1234,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,
+        cover_round_limit: limits.cover_rounds,
         rounding_cuts_enabled: limits.rounding_cuts,
         strong_branching: limits.strong_branching,
         strong,

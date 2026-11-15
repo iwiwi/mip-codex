@@ -265,3 +265,6 @@
 - 探索へMIP_OBJECTIVE_ROUNDING=0/1 (既定無効) として接続。原有限境界がpoint小整数・伝播無効・revisedの場合だけ、原ModelからGrid proofを作り、cut追加後LP Modelの原row乗数/boxで追加boundを保証する。RINS/probe内部では無効。原dual witnessをrow index/向きで戻し、必要なら乗数1±2^-40の別候補を全再検証する。通常float boundは従来通りで、追加lattice boundだけがこの厳密な検査を必要とする。全LP証明を形式証明化したものではない。
 - mainLPの近似値は、rootまたはceilでincumbentへ届く見込みのあるnodeの計算選別にだけ使う。既にprune可能/丸め幅が微小/改善見込みなしなら余分な原行計算を省き、実際のbound採用には必ず外向きLagrangianを使う。flag無効や適用不可、補助LPではrow mapを作らない。
 - 130 Rust回帰、1000 Fraction bound fixture、160 min/max全列挙が成功。step2/offset、下側/範囲制約、負rhs自由変数、RANGES端点消失ケースでの乗数復元、propagation/不明境界の適用拒否を確認。Python目的proof5/cover7/stage2回帰も成功。既定動作の数値自体は不変。次はflag onの小1000/二値1000/中規模200と固定18問の原MPS proof/point検査付き対照。
+
+- 最初の130-test候補5ae740e (102142/102149) の18問対照は主解すべて同等、30n下界2.0297169811→3のみ改善。短期全36時間制限、markshare60秒102211の双方optimal約1、off31.115413秒/1486619nodes、on33.847151秒/1607635nodesへ悪化。追加ceilの正しさと速度は別で、既定無効を維持。小1000/二値1000/中規模200は失敗0。監査は30解GMP絶対/公式全合格、全154cutと全目的整数性proofも有効。
+- ただしbinkarのoff/on双方が旧6794.860025から7394.229988へ悪化し、下界6646.232386→6646.313679へ上がった。cut proof照合で旧17本に対し双方24本と確認。cut前処理.25秒内に従来未完了だった3回目のLPが速く完了し、追加7cutで根の潜りが失敗、RINSもseedなしとなることを特定。追加目的丸めの効果ではない。root cut回数の上限をMIP_COVER_ROUNDSとして明示し、同じバイナリの2/4round比較を固定18問で行う。LP証明/制約を弱めて誤答を採用せず、少ないcutで既存の主解機会を保てるか調べる。まだdefault4。
