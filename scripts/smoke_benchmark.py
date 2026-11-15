@@ -8,6 +8,7 @@ import resource
 import subprocess
 import sys
 import time
+import tempfile
 from validate_solution import validate, absolute_checker
 from benchmark_common import require_solver_origin
 from verify_cover_cuts import validate_cut_proofs
@@ -20,8 +21,7 @@ seconds=int(sys.argv[1]) if len(sys.argv)>1 else 10
 names=sys.argv[2:] or ['pk1.mps.gz','mad.mps.gz','markshare_4_0.mps.gz']
 manifest=json.load(open(root/'data/manifest.json'))
 records={r['name']:r for r in manifest['instances']}
-output=root/'artifacts'/('smoke-'+time.strftime('%Y%m%d-%H%M%S',time.gmtime()))
-output.mkdir()
+output=Path(tempfile.mkdtemp(prefix='smoke-'+time.strftime('%Y%m%d-%H%M%S',time.gmtime())+'-',dir=root/'artifacts'))
 core=min(os.sched_getaffinity(0))
 env=os.environ.copy();env.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
 solvers=os.environ.get('MIP_BENCH_SOLVERS','rust,highs,scip,glpk').split(',')
