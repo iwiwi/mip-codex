@@ -1584,6 +1584,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     }
                 }
                 if limits.feasibility_pump
+                    && !incumbent.is_finite()
                     && nodes == 1
                     && branch.is_some()
                     && matches!(limits.engine, Engine::Revised)
