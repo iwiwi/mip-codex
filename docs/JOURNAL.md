@@ -356,3 +356,9 @@ v2の最初のnohupバックグラウンド起動はcoordinator identity生成�
 152Rust/2700合成/300根LP/22変換/10大整数が合格。固定18問のprimal/dual/status同一、28保存解140cuts/38証明は全件独立検査有効。30n20b8の7282列を省略、同CPU交互3回の50節点/50LP・下界51の内部中央値5.064→4.140秒。根のみ0.08817→0.07579秒。標準10秒で48→57節点、同じ下界で主解なし。markshareは対象列0、同じ証明量で35.642→35.683秒。限定的改善として既定有効にする。新既定でも152Rustと32数値回帰は合格、CLIで省略7282列を確認。
 
 最初の10問引数で存在しない問題名を誤記し両側n5-3後に停止した記録も保存、正しい固定10問を再測定。詳細docs/FIXED_COLUMNS_RESULTS.md、artifacts/fixed-columns-evaluation。全件native v2は720件のうち8件完了、継続中。次は行間の二値競合を集約したclique cutを、原行から独立検査できる証明付きで実験する。
+
+## 2026-11-15 16:21 UTC：内部LP作業領域の設定・観測と512MiB化
+
+256MiBの推定guardでsorrell3/supportcase10がLP開始前に停止していたため、MIP_LP_WORKSPACE_MIBと結果のlp_workspace_bytesを追加。既定512MiB候補で固定18問のprimal/dual/status全同一。2大規模開発問は15秒で1150/900pivots、23/18refactors、time_limitまで進み、RSS264468/264192KiB。主解/下界は未取得なので解けた数の改善とはしない。外部16GiB/1threadは同一。152Rust/32数値回帰/CLI6設定/26保存解/134cuts・40証明の検査合格。採用候補としてPRへまとめる。
+
+clique-cuts（PR31）とrepair-breakout（PR32）は未採用で閉じた。コード・全ログは各branchに保存。次はLP前の箱候補で、LPが時間/メモリ制限になる場合にも元問題に実行可能な主解を残せるよう試す。native v2はPID556757で継続中、snapshot/依存は変更していない。
