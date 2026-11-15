@@ -22,6 +22,7 @@ pub struct Limits {
     pub primal_probe: bool,
     pub cover_cuts: bool,
     pub rounding_cuts: bool,
+    pub strong_branching: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
     pub search: search::Strategy,
@@ -41,6 +42,7 @@ impl Default for Limits {
             primal_probe: true,
             cover_cuts: true,
             rounding_cuts: false,
+            strong_branching: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
             search: search::Strategy::DepthFirst,
@@ -63,6 +65,8 @@ pub struct Result {
     pub primal_probe: bool,
     pub cover_cuts_enabled: bool,
     pub rounding_cuts_enabled: bool,
+    pub strong_branching: bool,
+    pub strong: StrongStats,
     pub cut_proofs: Vec<cuts::Cut>,
     pub cut_stats: cuts::Stats,
     pub cut_rounds: usize,
@@ -594,6 +598,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
     let mut diving = DivingStats::default();
     let mut probe = ProbeStats::default();
+    let mut strong = StrongStats::default();
     let mut repair_improvements = 0;
     let mut repair_lp_solves = 0;
     let mut repair_lp_candidates = 0;
@@ -869,6 +874,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
                     probe_limits.rounding_cuts = false;
+                    probe_limits.strong_branching = false;
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
@@ -926,6 +932,36 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                 if node.bound >= incumbent {
                     continue;
                 }
+                let branch = if limits.strong_branching
+                    && nodes == 1
+                    && branch.is_some()
+                    && matches!(limits.engine, Engine::Revised)
+                    && Instant::now() < deadline
+                {
+                    let old_solves = strong.lp_solves;
+                    let strong_deadline = deadline.min(
+                        Instant::now()
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.1)),
+                    );
+                    let selected = strong_branch(
+                        lp_model,
+                        &node,
+                        &original,
+                        limits,
+                        strong_deadline,
+                        &mut costs,
+                        &mut strong,
+                        &mut lp_stats,
+                    )
+                    .or(branch);
+                    lp_solves += strong.lp_solves - old_solves;
+                    if selected != branch {
+                        strong.branch_changes += 1;
+                    }
+                    selected
+                } else {
+                    branch
+                };
                 if let Some(j) = branch {
                     let prefer_up = costs.prefer_up(j, original[j], limits.child_order);
                     let mut up = node.clone();
@@ -1025,6 +1061,8 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         primal_probe: limits.primal_probe,
         cover_cuts_enabled: limits.cover_cuts,
         rounding_cuts_enabled: limits.rounding_cuts,
+        strong_branching: limits.strong_branching,
+        strong,
         cut_proofs: prepared.cuts,
         cut_stats: prepared.stats,
         cut_rounds: prepared.rounds,
@@ -1081,4 +1119,136 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                 .collect()
         }),
     }
+}
+
+/// 根の候補を試して順位と擬似コストだけを学ぶ。局所status/下界で本体を枝刈りしない。
+/// 参考: SCIP branch_relpscost.hの数学的説明。実装コードの移植は行わない。
+/// https://scipopt.org/scip/doc/html/branch__relpscost_8h.php
+#[derive(Default, Debug, Serialize)]
+pub struct StrongStats {
+    pub calls: usize,
+    pub candidates: usize,
+    pub lp_solves: usize,
+    pub optimal: usize,
+    pub infeasible: usize,
+    pub limited: usize,
+    pub numerical_errors: usize,
+    pub branch_changes: usize,
+    pub seconds: f64,
+}
+fn strong_branch(
+    model: &Model,
+    root: &Node,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+    costs: &mut branching::Costs,
+    stats: &mut StrongStats,
+    lp_stats: &mut revised::Stats,
+) -> Option<usize> {
+    let started = Instant::now();
+    stats.calls += 1;
+    let mut candidates: Vec<_> = model
+        .variables
+        .iter()
+        .enumerate()
+        .filter_map(|(j, v)| {
+            let f = point[j] - point[j].floor();
+            (v.integer && f.min(1. - f) > 1e-7).then_some((j, f.min(1. - f)))
+        })
+        .collect();
+    candidates.sort_by(|a, b| b.1.total_cmp(&a.1).then(b.0.cmp(&a.0)));
+    candidates.truncate(8);
+    let sign = if model.maximize { -1. } else { 1. };
+    let parent = sign * model.objective(point);
+    let floor = (parent.abs() * 1e-9).max(1e-8);
+    let mut best: Option<(usize, f64)> = None;
+    for (j, _) in candidates {
+        if Instant::now() >= deadline {
+            break;
+        }
+        stats.candidates += 1;
+        let mut gains = [None, None];
+        for up in [false, true] {
+            if Instant::now() >= deadline {
+                stats.limited += 1;
+                break;
+            }
+            let mut child = root.clone();
+            child.changed = Some(j);
+            let distance = if up {
+                point[j].ceil() - point[j]
+            } else {
+                point[j] - point[j].floor()
+            };
+            if up {
+                child.lower[j] =
+                    Some(child.lower[j].map_or(point[j].ceil(), |b| b.max(point[j].ceil())));
+            } else {
+                child.upper[j] =
+                    Some(child.upper[j].map_or(point[j].floor(), |b| b.min(point[j].floor())));
+            }
+            let relaxation = standard_sparse(model, &child, limits.dense_bytes);
+            let q = match relaxation {
+                Relaxation::Ready(q) => q,
+                Relaxation::Infeasible => {
+                    stats.infeasible += 1;
+                    continue;
+                }
+                Relaxation::ResourceLimit => {
+                    stats.limited += 1;
+                    continue;
+                }
+            };
+            stats.lp_solves += 1;
+            let answer = revised::minimize_warm(
+                q.sparse.as_ref().unwrap(),
+                limits.pivots.min(256),
+                Some(deadline),
+                if limits.warm_start {
+                    root.warm.as_deref()
+                } else {
+                    None
+                },
+            );
+            lp_stats.add(&answer.stats);
+            match answer.outcome {
+                lp::Outcome::Optimal { x, .. } => {
+                    let original: Vec<_> = q
+                        .terms
+                        .iter()
+                        .enumerate()
+                        .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                        .collect();
+                    let objective = sign * model.objective(&original);
+                    if !objective.is_finite() || model.check(&original, false, 1e-6).is_err() {
+                        stats.numerical_errors += 1;
+                        continue;
+                    }
+                    stats.optimal += 1;
+                    gains[usize::from(up)] = Some((objective - parent).max(0.));
+                    costs.observe(
+                        branching::Edge {
+                            variable: j,
+                            up,
+                            distance,
+                            parent_objective: parent,
+                        },
+                        objective,
+                    );
+                }
+                lp::Outcome::Infeasible => stats.infeasible += 1,
+                lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => stats.limited += 1,
+                _ => stats.numerical_errors += 1,
+            }
+        }
+        if let [Some(down), Some(up)] = gains {
+            let score = down.max(floor).ln() + up.max(floor).ln();
+            if best.is_none_or(|(_, old)| score > old) {
+                best = Some((j, score));
+            }
+        }
+    }
+    stats.seconds += started.elapsed().as_secs_f64();
+    best.map(|(j, _)| j)
 }

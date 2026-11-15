@@ -47,6 +47,7 @@ fn limits_do_not_claim_infeasibility() {
     for (limits, status) in [
         (
             Limits {
+                strong_branching: false,
                 cover_cuts: false,
                 seconds: 0.,
                 ..Limits::default()
@@ -55,6 +56,7 @@ fn limits_do_not_claim_infeasibility() {
         ),
         (
             Limits {
+                strong_branching: false,
                 cover_cuts: false,
                 nodes: 0,
                 ..Limits::default()
@@ -63,6 +65,7 @@ fn limits_do_not_claim_infeasibility() {
         ),
         (
             Limits {
+                strong_branching: false,
                 cover_cuts: false,
                 dense_bytes: 0,
                 ..Limits::default()
@@ -83,6 +86,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
     let cold = solve(
         &model,
         &Limits {
+            strong_branching: false,
             cover_cuts: false,
             propagation: false,
             primal_repair: false,
@@ -94,6 +98,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
     let prop = solve(
         &model,
         &Limits {
+            strong_branching: false,
             cover_cuts: false,
             propagation: true,
             primal_repair: false,
@@ -123,6 +128,7 @@ fn dense_reference_handles_row_and_objective_scales() {
         let result = solve(
             &model,
             &Limits {
+                strong_branching: false,
                 cover_cuts: false,
                 engine: mip_codex::solve::Engine::Dense,
                 primal_repair: false,

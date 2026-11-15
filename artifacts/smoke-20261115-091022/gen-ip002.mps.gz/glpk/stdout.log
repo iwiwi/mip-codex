@@ -1,0 +1,57 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/gen-ip002.mps.gz'...
+Problem: gen-ip002
+Objective: OBJROW
+25 rows, 41 columns, 963 non-zeros
+41 integer variables, none of which are binary
+1062 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-091022/gen-ip002.mps.gz/glpk/model.glp'...
+1097 lines were written
+GLPK Integer Optimizer 5.0
+24 rows, 41 columns, 922 non-zeros
+41 integer variables, none of which are binary
+Preprocessing...
+24 rows, 41 columns, 922 non-zeros
+41 integer variables, none of which are binary
+Scaling...
+ A: min|aij| =  3.211e-03  max|aij| =  1.792e+01  ratio =  5.579e+03
+GM: min|aij| =  4.503e-02  max|aij| =  2.221e+01  ratio =  4.933e+02
+EQ: min|aij| =  2.046e-03  max|aij| =  1.000e+00  ratio =  4.888e+02
+2N: min|aij| =  1.514e-03  max|aij| =  1.557e+00  ratio =  1.028e+03
+Constructing initial basis...
+Size of triangular part is 24
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+24 rows, 41 columns, 922 non-zeros
+*     0: obj =   0.000000000e+00 inf =   0.000e+00 (41)
+*    47: obj =  -4.840541961e+03 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+No 0-1 knapsack inequalities detected
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++    47: mip =     not found yet >=              -inf        (1; 0)
+FPUMP heuristic cannot be applied due to general integer variables
+Solution found by heuristic: -4460.4002357
+Solution found by heuristic: -4640.8421368
+Cuts on level 0: gmi = 4;
+Solution found by heuristic: -4692.12270328
+Solution found by heuristic: -4701.1127414
+Solution found by heuristic: -4703.97433028
+Solution found by heuristic: -4712.8477155
+Solution found by heuristic: -4715.18399
+Solution found by heuristic: -4716.71169265
+Solution found by heuristic: -4730.1841767
+Solution found by heuristic: -4733.3680797
+Solution found by heuristic: -4735.45942408
+Solution found by heuristic: -4735.72811798
+Solution found by heuristic: -4766.6435686
++ 50188: mip =  -4.766643569e+03 >=  -4.828195378e+03   1.3% (7829; 1501)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-091022/gen-ip002.mps.gz/glpk/solution.raw'...
+74 lines were written
