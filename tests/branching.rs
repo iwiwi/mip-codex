@@ -71,6 +71,7 @@ fn all_rules_orders_and_objective_senses_preserve_optimum() {
                 let r = solve(
                     &m,
                     &Limits {
+                        box_primal: false,
                         objective_rounding: false,
                         rins: false,
                         strong_branching: false,

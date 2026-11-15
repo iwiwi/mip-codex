@@ -362,3 +362,11 @@ v2の最初のnohupバックグラウンド起動はcoordinator identity生成�
 256MiBの推定guardでsorrell3/supportcase10がLP開始前に停止していたため、MIP_LP_WORKSPACE_MIBと結果のlp_workspace_bytesを追加。既定512MiB候補で固定18問のprimal/dual/status全同一。2大規模開発問は15秒で1150/900pivots、23/18refactors、time_limitまで進み、RSS264468/264192KiB。主解/下界は未取得なので解けた数の改善とはしない。外部16GiB/1threadは同一。152Rust/32数値回帰/CLI6設定/26保存解/134cuts・40証明の検査合格。採用候補としてPRへまとめる。
 
 clique-cuts（PR31）とrepair-breakout（PR32）は未採用で閉じた。コード・全ログは各branchに保存。次はLP前の箱候補で、LPが時間/メモリ制限になる場合にも元問題に実行可能な主解を残せるよう試す。native v2はPID556757で継続中、snapshot/依存は変更していない。
+
+## 2026-11-15 16:46 UTC：LP前の箱主解を採用候補へ
+
+box-primal（最終コアddbc8ea4）はLP前の箱端点+実行可能端点降下。gmu-35-50の10秒primalが-402939.9877→-2577545.7294、同じ下界でgap約1.18425%。3反復とCPU交換で再現。sorrell3はLP根未完了でも-14を取得。他17固定開発問のprimal/dual/status同一。native同条件比較はHS/SCIPにgmuで届かず、GLPKより良い。sorrellはHS-15/SCIP-11/GLPK-1。全体優位とはしない。
+
+157Rust/200小例（184改善、188点が列挙最適値だがnode_limit）/300根LP/32数値回帰成功、主実験2700合成成功。46保存解/134cuts・50証明の全独立検査成功。許容誤差内の主解と根の実行不能が矛盾するとnumerical_errorで枝を保持し、誤ったoptimalを避ける。既定有効、機能別単体比較では新機能を明示無効にして条件を固定。詳細docs/BOX_PRIMAL_RESULTS.md、全生データartifacts/box-evaluation。
+
+create-only snapshotはexperiments/box-primal-snapshot-20261115.jsonを参照。全件Rustは未開始。native baseline-v2はPID556757/session89978、12/720完了で継続中。次は純粋な二値競合を構造認識し、彩色上界付きのRust組合せ探索を検討する。mainのLP/主解を維持し、問題名分岐や既知解は使わない。
