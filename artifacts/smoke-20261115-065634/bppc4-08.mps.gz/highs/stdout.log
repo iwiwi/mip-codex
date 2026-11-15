@@ -1,0 +1,61 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261115-065634/bppc4-08.mps.gz/highs/options.txt
+MIP bppc4-08 has 111 rows; 1456 cols; 23964 nonzeros; 1454 integer variables (1454 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 3e+01]
+  Cost    [1e+00, 1e+00]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 1e+00]
+Presolving model
+111 rows, 1456 cols, 23964 nonzeros 0s
+111 rows, 1455 cols, 23964 nonzeros 0s
+Presolve reductions: rows 111(-0); columns 1455(-1); nonzeros 23964(-0) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   111 rows
+   1455 cols (1454 binary, 0 integer, 1 implied int., 0 continuous, 0 domain fixed)
+   23964 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            75                 Large        0      0      0         0     0.1s
+         0       0         0   0.00%   51.59           75                31.21%        0      0      4       471     0.1s
+ L       0       0         0   0.00%   52              57                 8.77%     1078     33     11      1589     0.8s
+       102      10        46   0.37%   52              57                 8.77%     1286     21    298     15027     2.0s
+
+Solving report
+  Model             bppc4-08
+  Status            Time limit reached
+  Primal bound      57
+  Dual bound        52
+  Gap               8.77%
+  P-D integral      0.42
+  Solution status   feasible
+                    57 (objective)
+  Timing            2.01
+                    0.20 (Presolve)
+                        MIP    time [calls] = 0.04 [1]
+                        subMIP time [calls] = 0.16 [33]
+                    1.80 (Solve)
+                        MIP    time [calls] = 0.81 [1]
+                        subMIP time [calls] = 0.99 [6]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [33]
+  Max sub-MIP depth 6
+  Nodes             102
+  Repair LPs        0
+  LP iterations     15027
+                    228 (strong br.)
+                    1285 (separation)
+                    9469 (heuristics)

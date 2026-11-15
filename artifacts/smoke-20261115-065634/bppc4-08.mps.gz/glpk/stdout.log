@@ -1,0 +1,62 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/bppc4-08.mps.gz'...
+Problem: bppc4-08
+Objective: obj
+112 rows, 1456 columns, 23966 non-zeros
+1454 integer variables, all of which are binary
+25562 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-065634/bppc4-08.mps.gz/glpk/model.glp'...
+25650 lines were written
+GLPK Integer Optimizer 5.0
+111 rows, 1456 columns, 23964 non-zeros
+1454 integer variables, all of which are binary
+Preprocessing...
+111 rows, 1455 columns, 23964 non-zeros
+1454 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  3.100e+01  ratio =  3.100e+01
+GM: min|aij| =  9.581e-01  max|aij| =  1.044e+00  ratio =  1.089e+00
+EQ: min|aij| =  9.179e-01  max|aij| =  1.000e+00  ratio =  1.089e+00
+2N: min|aij| =  5.000e-01  max|aij| =  1.062e+00  ratio =  2.125e+00
+Constructing initial basis...
+Size of triangular part is 111
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+111 rows, 1455 columns, 23964 non-zeros
+      0: obj =   0.000000000e+00 inf =   5.466e+02 (30)
+     35: obj =   1.282500000e+02 inf =   0.000e+00 (0)
+*   236: obj =   5.159000000e+01 inf =   1.272e-13 (0) 1
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 20
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 1454 + 0 = 1454 vertices
++   236: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Pass 3
+Solution found by heuristic: 99
+Pass 1
+Solution found by heuristic: 78
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 2;
+Cuts on level 64: gmi = 2;
++  1839: >>>>>   7.000000000e+01 >=   5.159000000e+01  26.3% (65; 0)
+Cuts on level 59: gmi = 4;
++  3115: >>>>>   6.700000000e+01 >=   5.159000000e+01  23.0% (105; 5)
+Cuts on level 62: gmi = 4;
++  4126: >>>>>   6.400000000e+01 >=   5.159000000e+01  19.4% (126; 25)
++  9597: mip =   6.400000000e+01 >=   5.159000000e+01  19.4% (246; 64)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-065634/bppc4-08.mps.gz/glpk/solution.raw'...
+1576 lines were written
