@@ -68,18 +68,22 @@ fn exact_search_and_interruption_bounds_match_enumeration_and_root_coloring() {
             .max()
             .unwrap();
         let model = model(n, &edges, case % 2 == 0);
-        for (limit, local, root) in [0, 1, 2, 3, 7, usize::MAX]
+        for (limit, local, root, prefix) in [0, 1, 2, 3, 7, usize::MAX]
             .into_iter()
             .flat_map(|limit| [false, true].map(|local| (limit, local)))
             .flat_map(|(limit, local)| [false, true].map(|root| (limit, local, root)))
+            .flat_map(|(limit, local, root)| {
+                [false, true].map(|prefix| (limit, local, root, prefix))
+            })
         {
-            let r = binary_graph::solve_with_options(
+            let r = binary_graph::solve_with_prefix(
                 &model,
                 512 * 1024 * 1024,
                 Instant::now() + Duration::from_secs(1),
                 limit,
                 local,
                 root,
+                prefix,
             )
             .unwrap();
             if let Some(local) = &r.stats.local {
