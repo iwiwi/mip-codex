@@ -132,11 +132,14 @@ pub struct Result {
     pub lp_flips: Option<usize>,
     pub lp_refactors: Option<usize>,
     pub status: String,
+    #[serde(serialize_with = "crate::model::serialize_optional_solution_number")]
     pub objective: Option<f64>,
+    #[serde(serialize_with = "crate::model::serialize_optional_solution_number")]
     pub dual_bound: Option<f64>,
     pub gap: Option<f64>,
     pub nodes: usize,
     pub seconds: f64,
+    #[serde(serialize_with = "crate::model::serialize_solution_values")]
     pub values: Option<std::collections::BTreeMap<String, f64>>,
 }
 #[derive(Clone)]

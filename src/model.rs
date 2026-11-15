@@ -53,8 +53,9 @@ pub(crate) fn scalar_error(value: f64, enclosure: Option<[f64; 2]>) -> f64 {
         (value - l).abs().max((u - value).abs())
     })
 }
+// solution_number prints every integral f64 as that exact integer.
 pub(crate) fn point_error(value: f64) -> f64 {
-    if value.fract() == 0. && value.abs() <= (1u64 << 53) as f64 {
+    if value.fract() == 0. {
         0.
     } else {
         (value.next_up() - value)
@@ -93,6 +94,97 @@ impl Row {
         }
         error
     }
+}
+/// Preserve integral binary values exactly when JSON's shortest decimal would change them.
+pub(crate) fn solution_number(value: f64) -> Option<serde_json::Number> {
+    if !value.is_finite() {
+        return None;
+    }
+    if value.abs() < (1u64 << 53) as f64 {
+        return serde_json::Number::from_f64(value);
+    }
+    let bits = value.to_bits();
+    let exponent = ((bits >> 52) & 2047) as usize - 1075;
+    let mantissa = (bits & ((1u64 << 52) - 1)) | (1u64 << 52);
+    let mut integer = num_bigint::BigInt::from(mantissa) << exponent;
+    if bits >> 63 != 0 {
+        integer = -integer;
+    }
+    integer.to_string().parse().ok()
+}
+pub(crate) fn serialize_solution_values<S: serde::Serializer>(
+    values: &Option<std::collections::BTreeMap<String, f64>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    use serde::ser::{Error, SerializeMap};
+    let Some(values) = values else {
+        return serializer.serialize_none();
+    };
+    let mut map = serializer.serialize_map(Some(values.len()))?;
+    for (name, &value) in values {
+        let number =
+            solution_number(value).ok_or_else(|| S::Error::custom("nonfinite solution number"))?;
+        map.serialize_entry(name, &number)?;
+    }
+    map.end()
+}
+pub(crate) fn serialize_optional_solution_number<S: serde::Serializer>(
+    value: &Option<f64>,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    use serde::ser::Error;
+    match value {
+        None => serializer.serialize_none(),
+        Some(value) => solution_number(*value)
+            .ok_or_else(|| S::Error::custom("nonfinite solution number"))?
+            .serialize(serializer),
+    }
+}
+// Compare differences, rather than rounding bound +/- tolerance at a large magnitude.
+fn difference_lower(a: f64, b: f64) -> f64 {
+    if b == 0. {
+        return a;
+    }
+    if a == b {
+        return 0.;
+    }
+    if a == 0. {
+        return -b;
+    }
+    crate::exact::two_sum(a, -b).map_or_else(
+        || (a - b).next_down(),
+        |(v, e)| if e < 0. { v.next_down() } else { v },
+    )
+}
+fn in_domain([lo, hi]: [f64; 2], lower: Option<f64>, upper: Option<f64>, tolerance: f64) -> bool {
+    lower.is_none_or(|b| difference_lower(lo, b) >= -tolerance)
+        && upper.is_none_or(|b| difference_lower(b, hi) >= -tolerance)
+}
+fn definitely_outside(
+    [lo, hi]: [f64; 2],
+    lower: Option<f64>,
+    upper: Option<f64>,
+    tolerance: f64,
+) -> bool {
+    lower.is_some_and(|b| -difference_lower(b, hi) < -tolerance)
+        || upper.is_some_and(|b| -difference_lower(lo, b) < -tolerance)
+}
+fn serialized_in_domain(
+    value: f64,
+    lower: Option<f64>,
+    upper: Option<f64>,
+    tolerance: f64,
+) -> bool {
+    use std::cmp::Ordering::*;
+    let Some(number) = solution_number(value) else {
+        return false;
+    };
+    let token = number.to_string();
+    lower.is_none_or(|b| {
+        crate::mps::compare_float_sum_token(&token, &[b, -tolerance]).is_some_and(|c| c != Less)
+    }) && upper.is_none_or(|b| {
+        crate::mps::compare_float_sum_token(&token, &[b, tolerance]).is_some_and(|c| c != Greater)
+    })
 }
 impl Model {
     pub(crate) fn needs_original_feasibility_check(&self) -> bool {
@@ -137,10 +229,6 @@ impl Model {
         if x.len() != self.variables.len() || x.iter().any(|v| !v.is_finite()) {
             return Err("invalid solution dimension or nonfinite value".into());
         }
-        let bounds = |value: f64, lower: Option<f64>, upper: Option<f64>| {
-            lower.is_none_or(|b| value >= b - tolerance)
-                && upper.is_none_or(|b| value <= b + tolerance)
-        };
         for (v, &value) in self.variables.iter().zip(x) {
             let (lower, upper) = if self.original_decimal {
                 let lower = match v.lower {
@@ -163,9 +251,19 @@ impl Model {
             } else {
                 (v.lower, v.upper)
             };
-            if !bounds(value, lower, upper)
-                || (integer && v.integer && (value - value.round()).abs() > tolerance)
-            {
+            if integer && v.integer && (value - value.round()).abs() > tolerance {
+                return Err(format!("variable {} violates integrality", v.name));
+            }
+            let quick = if self.original_decimal && value.fract() != 0. {
+                [value.next_down(), value.next_up()]
+            } else {
+                [value, value]
+            };
+            let feasible = in_domain(quick, lower, upper, tolerance)
+                || (self.original_decimal
+                    && !definitely_outside(quick, lower, upper, tolerance)
+                    && serialized_in_domain(value, lower, upper, tolerance));
+            if !feasible {
                 return Err(format!("variable {} violates domain", v.name));
             }
         }
@@ -176,12 +274,42 @@ impl Model {
                 0.
             };
             let terms = || row.coefficients.iter().map(|&(j, a)| (a, x[j]));
+            let lower = if self.original_decimal {
+                match row.lower {
+                    Some(_) => Some(
+                        row.lower_enclosure.ok_or_else(|| {
+                            format!("row {} lower precision unavailable", row.name)
+                        })?[1],
+                    ),
+                    None => None,
+                }
+            } else {
+                row.lower
+            };
+            let upper = if self.original_decimal {
+                match row.upper {
+                    Some(_) => Some(
+                        row.upper_enclosure.ok_or_else(|| {
+                            format!("row {} upper precision unavailable", row.name)
+                        })?[0],
+                    ),
+                    None => None,
+                }
+            } else {
+                row.upper
+            };
             let feasible = |[lo, hi]: [f64; 2]| {
-                row.lower.is_none_or(|l| {
-                    lo - error >= row.lower_enclosure.map_or(l, |b| b[1]) - tolerance
-                }) && row.upper.is_none_or(|u| {
-                    hi + error <= row.upper_enclosure.map_or(u, |b| b[0]) + tolerance
-                })
+                let lo = if error == 0. {
+                    lo
+                } else {
+                    (lo - error).next_down()
+                };
+                let hi = if error == 0. {
+                    hi
+                } else {
+                    (hi + error).next_up()
+                };
+                in_domain([lo, hi], lower, upper, tolerance)
             };
             if !crate::exact::fast_dot_bounds(terms()).is_some_and(feasible)
                 && !crate::exact::dot_bounds(terms()).is_some_and(feasible)

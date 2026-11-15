@@ -360,3 +360,6 @@ source d9e9c41で18開発問4設定 (113501/113503、8×5秒+10×2秒、1thread/
 既定8e95f9e fresh8×5秒 (114252、CPU0) は主解と下界改善を再現。4ソルバー参照はnative103709の同条件測定を明示再利用する。Rust7主解は元MPSへ監査。30n下界51.7547はGLPK110に劣る。Rustの主解はまだ無い。binkar6794.86はHiGHS6751.21/SCIP6749.29に劣り、GLPK6846.46を上回る。比較全値はartifacts/strong-objective-four-solver-comparison.json。全体優位は未達成。
 
 11:43 UTCの全件native baselineは99/720完了、旧primary最適41/error8、生存確認。稼働snapshot/CPU8..15は変更していない。
+
+
+2026-11-15 保存精度プロトコル更新: GLPKの15桁raw解を採用せず直接API sidecarを採用し、全比較ソルバーの2^53以上の整数は全桁JSON整数で保存する。旧baseline-v1は保存精度の理由でsupersededとして保持し、最終比較には新規baseline-v2を用いる。詳細はdocs/SERIALIZATION_PLAN.md。資源条件とライブラリ版は同一。

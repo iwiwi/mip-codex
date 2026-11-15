@@ -23,7 +23,7 @@ static void observe(glp_tree *tree,void *unused) {
     int best=glp_ios_best_node(tree);
     if(best) {double b=glp_ios_node_bound(tree,best);if(isfinite(b)&&fabs(b)<DBL_MAX){last_bound=b;last_bound_time=now;}}
 }
-static void number(FILE *f,double x) {if(isfinite(x))fprintf(f,"%.17g",x);else fputs("null",f);}
+static void number(FILE *f,double x) {if(!isfinite(x))fputs("null",f);else if(fabs(x)>=9007199254740992.0)fprintf(f,"%.0f",x);else fprintf(f,"%.17g",x);}
 int main(int argc,char **argv) {
     if(argc!=5) {fprintf(stderr,"usage: glpk-benchmark INPUT SECONDS OUTPUTDIR MEMORY_MIB\n");return 2;}
     double seconds=strtod(argv[2],NULL);
@@ -55,6 +55,14 @@ int main(int argc,char **argv) {
         if(status==GLP_OPT||status==GLP_FEAS)primal=glp_get_obj_val(p);
         if(status==GLP_OPT)last_bound=primal;
         snprintf(path,sizeof(path),"%s/solution.raw",argv[3]);glp_write_sol(p,path);
+    }
+    if(status==GLP_OPT||status==GLP_FEAS) {
+        snprintf(path,sizeof(path),"%s/values-api.tsv",argv[3]);FILE *values=fopen(path,"w");if(!values)return 5;
+        int mip=glp_get_num_int(p)>0;
+        for(int j=1;j<=glp_get_num_cols(p);++j) {
+            fprintf(values,"%d ",j);number(values,mip?glp_mip_col_val(p,j):glp_get_col_prim(p,j));fputc('\n',values);
+        }
+        fclose(values);
     }
     snprintf(path,sizeof(path),"%s/native.json",argv[3]);FILE *f=fopen(path,"w");if(!f)return 5;
     const char *s=status==GLP_OPT?"optimal":status==GLP_FEAS?"feasible_limit":status==GLP_NOFEAS?"infeasible":status==GLP_UNBND?"unbounded":"unknown";

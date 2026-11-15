@@ -108,23 +108,43 @@ fn decimal_parts(token: &str) -> Option<(BigInt, i32)> {
 }
 /// Compare the original decimal with the exact IEEE binary rational.
 fn exact_float_token(token: &str, value: f64) -> bool {
-    if exact_integer(token).is_some() {
-        return true;
+    compare_float_token(token, value) == Some(std::cmp::Ordering::Equal)
+}
+pub(crate) fn compare_float_token(token: &str, value: f64) -> Option<std::cmp::Ordering> {
+    if !value.is_finite() {
+        return None;
     }
-    let Some((mut decimal, exponent)) = decimal_parts(token) else {
-        return false;
-    };
-    let bits = value.to_bits();
-    let biased = ((bits >> 52) & 2047) as i32;
-    let mantissa = (bits & ((1u64 << 52) - 1)) | if biased == 0 { 0 } else { 1u64 << 52 };
-    let binary_exponent = if biased == 0 {
-        -1074
-    } else {
-        biased - 1023 - 52
-    };
-    let mut binary = BigInt::from(mantissa);
-    if bits >> 63 != 0 {
-        binary = -binary;
+    if let Some(integer) = exact_integer(token) {
+        return (integer as f64).partial_cmp(&value);
+    }
+    compare_float_sum_token(token, &[value])
+}
+/// Compare a decimal with an exact sum of finite binary constants, without rounding it first.
+pub(crate) fn compare_float_sum_token(token: &str, values: &[f64]) -> Option<std::cmp::Ordering> {
+    let (mut decimal, exponent) = decimal_parts(token)?;
+    let mut binary_exponent = 0;
+    let mut first = true;
+    for &value in values {
+        let (_, mantissa, e) = crate::exact::parts(value)?;
+        if mantissa != 0 {
+            if first || e < binary_exponent {
+                binary_exponent = e;
+            }
+            first = false;
+        }
+    }
+    let mut binary = BigInt::from(0);
+    for &value in values {
+        let (negative, mantissa, e) = crate::exact::parts(value)?;
+        if mantissa == 0 {
+            continue;
+        }
+        let term = BigInt::from(mantissa) << (e - binary_exponent) as usize;
+        if negative {
+            binary -= term;
+        } else {
+            binary += term;
+        }
     }
     if exponent >= 0 {
         decimal *= BigInt::from(10u8).pow(exponent as u32);
@@ -136,7 +156,7 @@ fn exact_float_token(token: &str, value: f64) -> bool {
     } else {
         decimal <<= (-binary_exponent) as usize;
     }
-    decimal == binary
+    Some(decimal.cmp(&binary))
 }
 fn decimal_sum_metadata<'a>(
     entries: impl Iterator<Item = (f64, Option<&'a str>)>,
