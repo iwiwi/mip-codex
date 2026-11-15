@@ -17,6 +17,7 @@ pub struct Limits {
     pub dense_bytes: usize,
     pub engine: Engine,
     pub warm_start: bool,
+    pub fixed_columns: bool,
     pub propagation: bool,
     pub primal_repair: bool,
     pub lp_diving: bool,
@@ -43,6 +44,7 @@ impl Default for Limits {
             dense_bytes: 256 * 1024 * 1024,
             engine: Engine::Revised,
             warm_start: true,
+            fixed_columns: false,
             propagation: false,
             primal_repair: true,
             lp_diving: true,
@@ -117,6 +119,8 @@ pub struct Result {
     pub propagation_budget_hits: usize,
     pub fixed_leaves: usize,
     pub lp_solves: usize,
+    pub fixed_columns_enabled: bool,
+    pub root_fixed_columns: usize,
     pub lp_scaled_columns: Option<usize>,
     pub lp_scaled_rows: Option<usize>,
     pub lp_warm_start: bool,
@@ -166,6 +170,33 @@ enum Relaxation {
     Infeasible,
     ResourceLimit,
 }
+/// Only constants proved by the original box; child fixings keep their LP columns for warm compatibility.
+fn root_fixed_value(v: &crate::model::Variable, original_decimal: bool) -> Option<f64> {
+    let (lower, upper) = (v.lower?, v.upper?);
+    if !lower.is_finite() || !upper.is_finite() {
+        return None;
+    }
+    let (l, u) = if v.integer {
+        (lower.ceil(), upper.floor())
+    } else {
+        (lower, upper)
+    };
+    if l != u {
+        return None;
+    }
+    if original_decimal {
+        let (lo, up) = (v.lower_enclosure?, v.upper_enclosure?);
+        let (l0, l1, u0, u1) = if v.integer {
+            (lo[0].ceil(), lo[1].ceil(), up[0].floor(), up[1].floor())
+        } else {
+            (lo[0], lo[1], up[0], up[1])
+        };
+        if l0 != l || l1 != l || u0 != u || u1 != u {
+            return None;
+        }
+    }
+    Some(l)
+}
 fn checked_difference(a: f64, b: f64) -> f64 {
     crate::exact::dot_error([(a, 1.), (-b, 1.)].into_iter())
         .filter(|&(_, e)| e <= 1e-9)
@@ -209,7 +240,7 @@ fn shifted_bound(
     .filter(|&(_, error)| error <= 1e-9)
     .map_or(f64::NAN, |(value, _)| value)
 }
-fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
+fn standard_dense(model: &Model, node: &Node, limit: usize, fixed_columns: bool) -> Relaxation {
     let mut shift = vec![];
     let mut terms = vec![];
     let mut c = vec![];
@@ -219,6 +250,14 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
         let up = node.upper[j];
         if lo.zip(up).is_some_and(|(l, u)| l > u) {
             return Relaxation::Infeasible;
+        }
+        if fixed_columns && let Some(value) = root_fixed_value(v, model.original_decimal) {
+            if lo.is_some_and(|l| value < l) || up.is_some_and(|u| value > u) {
+                return Relaxation::Infeasible;
+            }
+            shift.push(value);
+            terms.push(vec![]);
+            continue;
         }
         if let Some(l) = lo {
             shift.push(l);
@@ -245,7 +284,8 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
             .lower
             .iter()
             .zip(&node.upper)
-            .filter(|(l, u)| l.is_some() && u.is_some())
+            .enumerate()
+            .filter(|(j, (l, u))| !terms[*j].is_empty() && l.is_some() && u.is_some())
             .count();
     let cols = c.len();
     // Dense input and both current/rebuilt tableaux are estimated before allocation.
@@ -285,7 +325,9 @@ fn standard_dense(model: &Model, node: &Node, limit: usize) -> Relaxation {
         }
     }
     for j in 0..model.variables.len() {
-        if let (Some(l), Some(u)) = (node.lower[j], node.upper[j]) {
+        if let (Some(l), Some(u)) = (node.lower[j], node.upper[j])
+            && !terms[j].is_empty()
+        {
             let mut r = vec![0.0; cols];
             r[terms[j][0].0] = 1.0;
             a.push(r);
@@ -308,7 +350,13 @@ fn split_range(row: &crate::model::Row) -> bool {
         l < u && (!width.is_finite() || u - width != l || l + width != u)
     })
 }
-fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -> Relaxation {
+fn standard_sparse(
+    model: &Model,
+    node: &Node,
+    limit: usize,
+    track_rows: bool,
+    fixed_columns: bool,
+) -> Relaxation {
     let mut shift = Vec::new();
     let mut terms = Vec::new();
     let mut costs = Vec::new();
@@ -319,6 +367,14 @@ fn standard_sparse(model: &Model, node: &Node, limit: usize, track_rows: bool) -
         let up = node.upper[j];
         if lo.zip(up).is_some_and(|(l, u)| l > u) {
             return Relaxation::Infeasible;
+        }
+        if fixed_columns && let Some(value) = root_fixed_value(v, model.original_decimal) {
+            if lo.is_some_and(|l| value < l) || up.is_some_and(|u| value > u) {
+                return Relaxation::Infeasible;
+            }
+            shift.push(value);
+            terms.push(vec![]);
+            continue;
         }
         if let Some(l) = lo {
             shift.push(l);
@@ -503,7 +559,13 @@ fn dive(
             } else {
                 child.upper[j] = Some(child.upper[j].map_or(floor, |u| u.min(floor)));
             }
-            let q = match standard_sparse(model, &child, limits.dense_bytes, false) {
+            let q = match standard_sparse(
+                model,
+                &child,
+                limits.dense_bytes,
+                false,
+                limits.fixed_columns,
+            ) {
                 Relaxation::Ready(q) => q,
                 Relaxation::Infeasible => {
                     stats.infeasible += 1;
@@ -604,7 +666,9 @@ fn prepare_cuts(
         if Instant::now() >= cut_deadline {
             break;
         }
-        let Relaxation::Ready(q) = standard_sparse(&work, root, limits.dense_bytes, false) else {
+        let Relaxation::Ready(q) =
+            standard_sparse(&work, root, limits.dense_bytes, false, limits.fixed_columns)
+        else {
             break;
         };
         let answer = revised::minimize_warm(
@@ -662,6 +726,19 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
 }
 fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result {
     let start = Instant::now();
+    let requested_fixed_columns = limits.fixed_columns;
+    let root_fixed_columns = if requested_fixed_columns {
+        model
+            .variables
+            .iter()
+            .filter(|v| root_fixed_value(v, model.original_decimal).is_some())
+            .count()
+    } else {
+        0
+    };
+    let mut effective_limits = limits.clone();
+    effective_limits.fixed_columns = root_fixed_columns != 0;
+    let limits = &effective_limits;
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
     let sign = if model.maximize { -1.0 } else { 1.0 };
     let mut lower: Vec<_> = model.variables.iter().map(|v| v.lower).collect();
@@ -811,12 +888,15 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             }
         }
         let relaxation = match limits.engine {
-            Engine::Dense => standard_dense(lp_model, &node, limits.dense_bytes),
+            Engine::Dense => {
+                standard_dense(lp_model, &node, limits.dense_bytes, limits.fixed_columns)
+            }
             Engine::Revised => standard_sparse(
                 lp_model,
                 &node,
                 limits.dense_bytes,
                 objective_certifier.is_some() || check_original_infeasibility,
+                limits.fixed_columns,
             ),
         };
         let p = match relaxation {
@@ -1104,9 +1184,13 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                                     fixed.upper[j] = Some(value);
                                 }
                             }
-                            if let Relaxation::Ready(q) =
-                                standard_sparse(lp_model, &fixed, limits.dense_bytes, false)
-                            {
+                            if let Relaxation::Ready(q) = standard_sparse(
+                                lp_model,
+                                &fixed,
+                                limits.dense_bytes,
+                                false,
+                                limits.fixed_columns,
+                            ) {
                                 let answer = revised::minimize_warm(
                                     q.sparse.as_ref().unwrap(),
                                     limits.pivots.min(256),
@@ -1554,6 +1638,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         propagation_budget_hits: propagation_stats.budget_hits,
         fixed_leaves,
         lp_solves,
+        fixed_columns_enabled: requested_fixed_columns,
+        root_fixed_columns,
         lp_scaled_columns: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.scaled_columns),
         lp_scaled_rows: matches!(limits.engine, Engine::Revised).then_some(lp_stats.scaled_rows),
@@ -1655,7 +1741,13 @@ fn strong_branch(
                 child.upper[j] =
                     Some(child.upper[j].map_or(point[j].floor(), |b| b.min(point[j].floor())));
             }
-            let relaxation = standard_sparse(model, &child, limits.dense_bytes, false);
+            let relaxation = standard_sparse(
+                model,
+                &child,
+                limits.dense_bytes,
+                false,
+                limits.fixed_columns,
+            );
             let q = match relaxation {
                 Relaxation::Ready(q) => q,
                 Relaxation::Infeasible => {

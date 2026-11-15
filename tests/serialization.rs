@@ -5,6 +5,7 @@ use mip_codex::{
 fn limits(engine: Engine) -> Limits {
     Limits {
         engine,
+        fixed_columns: true,
         objective_rounding: false,
         cover_cuts: false,
         rounding_cuts: false,
