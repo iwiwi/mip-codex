@@ -248,10 +248,18 @@ mod enclosure_tests {
 
 enum Accumulated {
     Point(f64),
+    Pair(f64, f64),
     Wide(Sum),
+}
+fn two_sum(a: f64, b: f64) -> Option<(f64, f64)> {
+    let value = a + b;
+    let z = value - a;
+    let error = (a - (value - z)) + (b - z);
+    (value.is_finite() && error.is_finite()).then_some((value, error))
 }
 fn accumulated(terms: impl Iterator<Item = (f64, f64)>) -> Option<Accumulated> {
     let mut point = 0.;
+    let mut tail = 0.;
     let mut wide: Option<Sum> = None;
     for (a, b) in terms {
         if a == 0. || b == 0. {
@@ -274,26 +282,40 @@ fn accumulated(terms: impl Iterator<Item = (f64, f64)>) -> Option<Accumulated> {
                     && b.abs() <= (1u64 << 52) as f64
                     && p.abs() <= (1u64 << 52) as f64));
         if exact_product {
-            let next = point + p;
-            let z = next - point;
-            let residue = (point - (next - z)) + (p - z);
-            if next.is_finite() && residue == 0. {
-                point = next;
-                continue;
+            if let Some((next, residue)) = two_sum(point, p) {
+                if let Some((low, discarded)) = two_sum(tail, residue) {
+                    if discarded == 0. {
+                        if let Some((hi, lo)) = two_sum(next, low) {
+                            point = hi;
+                            tail = lo;
+                            continue;
+                        }
+                    }
+                }
             }
         }
-        // TwoSumで無損失と証明できたprefixだけpointに保持し、以後は元の積を累算する。
+        // The pair stores an exact real sum, never an approximate compensation.
         let mut sum = Sum::default();
         sum.product(point, 1.)?;
+        sum.product(tail, 1.)?;
         sum.product(a, b)?;
         wide = Some(sum);
     }
-    Some(wide.map_or(Accumulated::Point(point), Accumulated::Wide))
+    Some(wide.map_or_else(
+        || {
+            if tail == 0. {
+                Accumulated::Point(point)
+            } else {
+                Accumulated::Pair(point, tail)
+            }
+        },
+        Accumulated::Wide,
+    ))
 }
 /// 各積も丸めずに累算し、最後の一度だけ最近接へ丸める。
 pub(crate) fn dot(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> {
     match accumulated(terms)? {
-        Accumulated::Point(v) => Some(v),
+        Accumulated::Point(v) | Accumulated::Pair(v, _) => Some(v),
         Accumulated::Wide(s) => s.rounded(),
     }
 }
@@ -301,6 +323,11 @@ pub(crate) fn dot(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> {
 pub(crate) fn dot_bounds(terms: impl Iterator<Item = (f64, f64)>) -> Option<[f64; 2]> {
     let mut sum = match accumulated(terms)? {
         Accumulated::Point(v) => return Some([v, v]),
+        Accumulated::Pair(v, e) => {
+            let lo = if e < 0. { v.next_down() } else { v };
+            let hi = if e > 0. { v.next_up() } else { v };
+            return (lo.is_finite() && hi.is_finite()).then_some([lo, hi]);
+        }
         Accumulated::Wide(s) => s,
     };
     let value = sum.rounded()?;
@@ -325,6 +352,7 @@ pub(crate) fn dot_lower(terms: impl Iterator<Item = (f64, f64)>) -> Option<f64> 
 pub(crate) fn dot_error(terms: impl Iterator<Item = (f64, f64)>) -> Option<(f64, f64)> {
     let mut sum = match accumulated(terms)? {
         Accumulated::Point(v) => return Some((v, 0.)),
+        Accumulated::Pair(v, e) => return Some((v, e.abs().next_up())),
         Accumulated::Wide(s) => s,
     };
     let value = sum.rounded()?;
@@ -399,5 +427,38 @@ mod value_tests {
             }
         }
         assert!(fast > 200, "{fast}");
+    }
+}
+
+#[cfg(test)]
+mod pair_tests {
+    use super::*;
+    #[test]
+    fn a_pair_preserves_a_halfway_bit_and_can_collapse_after_cancellation() {
+        let terms = [(1e16, 1.), (1., 1.)];
+        assert!(matches!(
+            accumulated(terms.into_iter()),
+            Some(Accumulated::Pair(_, _))
+        ));
+        assert_eq!(dot(terms.into_iter()), Some(1e16));
+        assert_eq!(dot_bounds(terms.into_iter()), Some([1e16, 1e16 + 2.]));
+        assert_eq!(
+            dot([(1e16, 1.), (1., 1.), (1., 1.)].into_iter()),
+            Some(1e16 + 2.)
+        );
+        assert!(matches!(
+            accumulated([(1e16, 1.), (1., 1.), (-1e16, 1.)].into_iter()),
+            Some(Accumulated::Point(1.))
+        ));
+    }
+    #[test]
+    fn a_third_separated_component_falls_back_without_losing_either_tail() {
+        let prefix = [(1e300, 1.), (1., 1.), (1e-300, 1.)];
+        assert!(matches!(
+            accumulated(prefix.into_iter()),
+            Some(Accumulated::Wide(_))
+        ));
+        let terms = prefix.into_iter().chain([(-1e300, 1.), (-1., 1.)]);
+        assert_eq!(dot(terms), Some(1e-300));
     }
 }
