@@ -23,6 +23,8 @@ pub struct Cut {
 pub struct Stats {
     pub rounding_calls: usize,
     pub rounding: usize,
+    pub rounding_projected: usize,
+    pub rounding_work: usize,
     pub calls: usize,
     pub eligible: usize,
     pub candidates: usize,
@@ -432,8 +434,7 @@ fn rounding_row(model: &Model, source: &Row, upper: bool, d: i64) -> Option<Row>
         return None;
     }
     let sign = if upper { 1i128 } else { -1 };
-    let bound = integer(if upper { source.upper? } else { source.lower? })? * sign;
-    let rhs = bound.div_euclid(d as i128);
+    let mut bound = integer(if upper { source.upper? } else { source.lower? })? * sign;
     let mut coefficients = Vec::new();
     let mut previous = None;
     for &(j, a) in &source.coefficients {
@@ -446,14 +447,23 @@ fn rounding_row(model: &Model, source: &Row, upper: bool, d: i64) -> Option<Row>
             continue;
         }
         let v = model.variables.get(j)?;
-        if !v.integer || finite(v.lower_enclosure)?[0] < 0. {
-            return None;
+        if !(v.integer && finite(v.lower_enclosure).is_some_and(|b| b[0] >= 0.)) {
+            let (interval, b) = column_bounds(model, j, a as f64)?;
+            if interval[0] != interval[1] {
+                return None;
+            }
+            bound = bound.checked_sub(a.checked_mul(integer(b)?)?)?;
+            continue;
         }
         let c = a.div_euclid(d as i128);
         if c != 0 {
             coefficients.push((j, c as f64));
         }
     }
+    if bound.abs() > (1i128 << 52) {
+        return None;
+    }
+    let rhs = bound.div_euclid(d as i128);
     Some(Row {
         name: String::new(),
         exact_integral: true,
@@ -505,10 +515,19 @@ impl Pool {
             return cuts;
         }
         for (i, source) in model.rows.iter().enumerate() {
-            if cuts.len() >= limit || Instant::now() >= deadline || self.stats.work >= 2_000_000 {
+            if cuts.len() >= limit
+                || Instant::now() >= deadline
+                || self.stats.rounding_work >= 500_000
+            {
                 break;
             }
             if !source.exact_integral || source.coefficients.len() > 16384 {
+                continue;
+            }
+            if ![true, false]
+                .into_iter()
+                .any(|side| rounding_row(model, source, side, 2).is_some())
+            {
                 continue;
             }
             let mut divisors = vec![2i64, 3, 4, 5, 10];
@@ -529,14 +548,20 @@ impl Pool {
                 divisors.push(gcd);
             }
             for side in [true, false] {
+                if rounding_row(model, source, side, 2).is_none() {
+                    continue;
+                }
                 for &d in &divisors {
                     if cuts.len() >= limit
                         || Instant::now() >= deadline
-                        || self.stats.work >= 2_000_000
+                        || self.stats.rounding_work >= 500_000
                     {
                         break;
                     }
-                    self.stats.work = self.stats.work.saturating_add(source.coefficients.len());
+                    self.stats.rounding_work = self
+                        .stats
+                        .rounding_work
+                        .saturating_add(source.coefficients.len());
                     let Some(mut row) = rounding_row(model, source, side, d) else {
                         continue;
                     };
@@ -571,6 +596,14 @@ impl Pool {
                     if self.seen.insert(key) {
                         self.stats.added += 1;
                         self.stats.rounding += 1;
+                        if source.coefficients.iter().any(|&(j, a)| {
+                            a != 0.
+                                && !(model.variables[j].integer
+                                    && finite(model.variables[j].lower_enclosure)
+                                        .is_some_and(|b| b[0] >= 0.))
+                        }) {
+                            self.stats.rounding_projected += 1;
+                        }
                         cuts.push(cut);
                     }
                 }

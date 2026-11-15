@@ -113,9 +113,14 @@ def validate_cut_proofs(model_path,result):
                 for name,a in source['coefficients'].items():
                     if not a:continue
                     var=variables[name]
-                    if a.denominator!=1 or not var['integer'] or var['lower'] is None or var['lower']<0:
-                        raise AssertionError('rounding requires nonnegative integer columns and coefficients')
-                    c=(sign*a)//divisor
+                    if a.denominator!=1:raise AssertionError('rounding requires integer source coefficients')
+                    a*=sign
+                    if not (var['integer'] and var['lower'] is not None and var['lower']>=0):
+                        projected_bound=var['lower'] if a>0 else var['upper']
+                        if projected_bound is None:raise AssertionError('rounding projection requires a finite bound')
+                        oriented_rhs-=a*projected_bound
+                        continue
+                    c=a//divisor
                     if c:coeff.append([indices[name],Fraction(c)])
                 coeff.sort(key=lambda p:p[0]);row=cut['row']
                 actual=[[j,Fraction(a)] for j,a in row['coefficients']]

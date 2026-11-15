@@ -136,3 +136,78 @@ fn all_small_nonnegative_integer_points_preserved_by_random_rows() {
         "insufficient independently checked cuts: {count}"
     );
 }
+#[test]
+fn continuous_terms_project_from_the_correct_original_endpoint() {
+    for (a, rhs, lo, up, z) in [(1, 4, 1, 2, 1.), (-1, 2, 0, 1, 1.)] {
+        let mut m = model(&[2, 2, a], rhs, "L");
+        m.variables[2].integer = false;
+        m.variables[2].lower = Some(lo as f64);
+        m.variables[2].upper = Some(up as f64);
+        m.variables[2].lower_enclosure = Some([lo as f64; 2]);
+        m.variables[2].upper_enclosure = Some([up as f64; 2]);
+        let cuts = separate(&m, &[0.75, 0.75, z]);
+        let c = cuts.iter().find(|c| c.proof.divisor == Some(2)).unwrap();
+        assert_eq!(c.row.coefficients, vec![(0, 1.), (1, 1.)]);
+        assert_eq!(c.row.upper, Some(1.));
+        assert!(verify(&m, c));
+        let mut unknown = m.clone();
+        if a > 0 {
+            unknown.variables[2].lower_enclosure = None;
+        } else {
+            unknown.variables[2].upper_enclosure = None;
+        }
+        assert!(!verify(&unknown, c));
+    }
+}
+#[test]
+fn projected_random_rows_preserve_every_integer_point_with_a_continuous_box() {
+    let mut seed = 337u64;
+    let mut next = || {
+        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        seed
+    };
+    let mut count = 0;
+    for _ in 0..250 {
+        let a: Vec<i64> = (0..5).map(|_| (next() % 19) as i64 - 9).collect();
+        let rhs = (next() % 41) as i64 - 20;
+        let side = if next() % 2 == 0 { "L" } else { "G" };
+        let mut m = model(&a, rhs, side);
+        m.variables[4].integer = false;
+        m.variables[4].lower = Some(-2.);
+        m.variables[4].upper = Some(3.);
+        m.variables[4].lower_enclosure = Some([-2., -2.]);
+        m.variables[4].upper_enclosure = Some([3., 3.]);
+        let x: Vec<f64> = (0..5).map(|_| (next() % 301) as f64 / 100.).collect();
+        let cuts = separate(&m, &x);
+        count += cuts.len();
+        for cut in cuts {
+            assert!(verify(&m, &cut));
+            for code in 0..256 {
+                let mut n = code;
+                let point: Vec<i64> = (0..4)
+                    .map(|_| {
+                        let z = n % 4;
+                        n /= 4;
+                        z
+                    })
+                    .collect();
+                let binary: i64 = a[..4].iter().zip(&point).map(|(a, x)| a * x).sum();
+                let feasible = if side == "L" {
+                    binary + (a[4] * (-2)).min(a[4] * 3) <= rhs
+                } else {
+                    binary + (a[4] * (-2)).max(a[4] * 3) >= rhs
+                };
+                if feasible {
+                    let activity: i64 = cut
+                        .row
+                        .coefficients
+                        .iter()
+                        .map(|&(j, c)| c as i64 * point[j])
+                        .sum();
+                    assert!(activity <= cut.row.upper.unwrap() as i64);
+                }
+            }
+        }
+    }
+    assert!(count > 20, "insufficient projected cuts: {count}");
+}

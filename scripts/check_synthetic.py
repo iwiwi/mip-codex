@@ -22,6 +22,7 @@ larger = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'larger'
 binary = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'binary'
 mixed_cuts = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'mixed_cuts'
 rounding = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'rounding'
+projected_rounding = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'projected_rounding'
 outdir = root/os.environ.get('MIP_SYNTHETIC_DIR','artifacts/synthetic')
 outdir.mkdir(exist_ok=True)
 for case in range(count):
@@ -29,6 +30,10 @@ for case in range(count):
     m=rng.randint(5,12) if binary or rounding else rng.randint(8,16) if larger else rng.randint(0,7)
     integer=[binary or rounding or case%3==0 or (case%3==1 and rng.random()<0.5) for _ in range(n)]
     bounds=[(0,1) if binary else (0,3) if rounding else (rng.randint(-3,0),rng.randint(1,4)) for _ in range(n)]
+    if projected_rounding:
+        n=rng.randint(5,9);m=rng.randint(5,12)
+        integer=[j<n-2 for j in range(n)]
+        bounds=[(0,3) if flag else (-2,3) if j==n-2 else (-1,2) for j,flag in enumerate(integer)]
     if mixed_cuts:
         n=rng.randint(5,9);m=rng.randint(5,12)
         integer=[j<n-2 for j in range(n)]
@@ -37,7 +42,7 @@ for case in range(count):
     offset=rng.randint(-4,4)
     maximize=rng.choice([False,True])
     rows=[([rng.randint(-4,4) for _ in range(n)],rng.randint(-10,10),rng.choice(['L','G','E'])) for _ in range(m)]
-    if larger or binary or rounding:
+    if larger or binary or rounding or projected_rounding:
         planted=[rng.randint(lo,up) for lo,up in bounds]
         rows=[(a,sum(v*x for v,x in zip(a,planted))+rng.randint(0,5)*(1 if kind=='L' else -1 if kind=='G' else 0),kind) for a,_,kind in rows]
     if mixed_cuts:
@@ -64,6 +69,8 @@ for case in range(count):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'case.mps';path.write_text(text)
             result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10'],timeout=15))
+            if 'MIP_ROUNDING_CUTS' in os.environ:
+                assert result.get('rounding_cuts_enabled') == (os.environ['MIP_ROUNDING_CUTS'] == '1'), 'unexpected rounding mode'
             if 'MIP_LP_DIVING' in os.environ:
                 assert result.get('lp_diving') == (os.environ['MIP_LP_DIVING'] == '1'), 'unexpected diving mode'
             cut_check=validate_cut_proofs(path,result)
