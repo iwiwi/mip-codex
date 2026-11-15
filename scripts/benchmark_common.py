@@ -92,3 +92,27 @@ def cgroup_stats(config, job):
     path=root/'cpu.stat'
     if path.exists():result['cpu.stat']={k:int(v) for k,v in (line.split() for line in path.read_text().splitlines())}
     return result
+
+
+def solver_source_fingerprint(root):
+    root=Path(root)
+    files=[root/'Cargo.toml',root/'Cargo.lock',root/'build.rs',*root.glob('src/**/*.rs')]
+    value=0xcbf29ce484222325
+    for path in sorted(files,key=lambda p:p.relative_to(root).as_posix()):
+        for byte in path.relative_to(root).as_posix().encode()+b'\0'+path.read_bytes()+b'\0':
+            value=((value^byte)*0x100000001b3)&((1<<64)-1)
+    return f'{value:016x}'
+
+
+def require_solver_origin(root, binary):
+    """共有targetに別worktreeの実行ファイルが残った場合、測定前に拒否する。"""
+    import subprocess
+    info = json.loads(subprocess.check_output([str(binary), 'build-info'], text=True, timeout=15))
+    for field in ('source_directory','library_source_directory'):
+        if Path(info[field]).resolve() != Path(root).resolve():
+            raise RuntimeError('solver '+field+' was built in '+str(info[field])+'; rebuild in '+str(root)+' with an isolated target directory')
+    expected=solver_source_fingerprint(root)
+    for field in ('source_fingerprint','library_source_fingerprint'):
+        if info.get(field)!=expected:
+            raise RuntimeError('solver source fingerprint does not match '+field+'; rebuild before measuring')
+    return info

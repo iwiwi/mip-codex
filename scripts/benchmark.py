@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import sys
 import time
-from benchmark_common import cgroup_stats, atomic_json, memory_events, process, same_process, sha256, utc
+from benchmark_common import cgroup_stats, atomic_json, memory_events, process, same_process, sha256, utc, require_solver_origin
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -33,10 +33,11 @@ def create(args):
     solvers = args.solvers.split(',')
     if len(set(solvers)) != len(solvers) or any(s not in ('rust', 'rust-dense', 'rust-revised', 'highs', 'scip', 'glpk') for s in solvers):
         raise ValueError('invalid solvers')
-    source_paths = ['src', 'scripts', 'tools', 'third_party', 'Cargo.toml', 'Cargo.lock']
+    source_paths = ['src', 'scripts', 'tools', 'third_party', 'Cargo.toml', 'Cargo.lock', 'build.rs']
     dirty = bool(subprocess.check_output(['git', 'status', '--porcelain', '--', *source_paths], cwd=REPO))
     if dirty and not args.allow_dirty:
         raise ValueError('commit source changes before creating an evaluation snapshot')
+    solver_build_info=require_solver_origin(REPO,REPO/'target/release/mip-codex')
     manifest_path = Path(args.manifest).resolve()
     manifest = json.loads(manifest_path.read_text())
     records = manifest['instances']
@@ -63,7 +64,7 @@ def create(args):
         target = snapshot/'src'/path.name
         target.parent.mkdir(exist_ok=True)
         shutil.copy2(path, target)
-    for path in ('Cargo.toml', 'Cargo.lock'):
+    for path in ('Cargo.toml', 'Cargo.lock', 'build.rs'):
         shutil.copy2(REPO/path, snapshot/path)
     shutil.copytree(REPO/'tools/glpk-benchmark', snapshot/'tools/glpk-benchmark')
     shutil.copytree(REPO/'third_party/miplib-checker', snapshot/'third_party/miplib-checker', ignore=shutil.ignore_patterns('bin', 'obj', 'obj-absolute'))
@@ -83,7 +84,7 @@ def create(args):
     jobs = [dict(id=f'{i:03d}-{solver}', instance_index=i, solver=solver, cpu=cores[i % len(cores)])
             for i in range(len(instances)) for solver in solvers]
     config = dict(id=destination.name, created_utc=utc(), git_sha=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
-                  source_dirty=dirty, python=python, repository=str(REPO), uid=os.getuid(), gid=os.getgid(),
+                  source_dirty=dirty, solver_build_info=solver_build_info, python=python, repository=str(REPO), uid=os.getuid(), gid=os.getgid(),
                   seconds=args.seconds, memory_bytes=16*1024**3, cores=cores, threads=1,
                   read_write_grace_seconds=60, validation_seconds=600,
                   manifest_sha256=sha256(manifest_path), instances=instances, jobs=jobs,

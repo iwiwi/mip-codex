@@ -11,10 +11,14 @@ import subprocess
 import sys
 import tempfile
 import highspy
-from validate_solution import validate
+from validate_solution import validate, absolute_checker
+from benchmark_common import require_solver_origin
 from verify_cover_cuts import validate_cut_proofs
 
 root = Path(__file__).resolve().parents[1]
+if not absolute_checker().is_file():
+    raise SystemExit('required absolute rational checker unavailable: '+str(absolute_checker()))
+solver_build_info=require_solver_origin(root,root/'target/release/mip-codex')
 rng = random.Random(20261115)
 count = int(sys.argv[1]) if len(sys.argv)>1 else 500
 failed = 0
@@ -25,6 +29,7 @@ rounding = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'rounding'
 projected_rounding = os.environ.get('MIP_SYNTHETIC_PROFILE') == 'projected_rounding'
 outdir = root/os.environ.get('MIP_SYNTHETIC_DIR','artifacts/synthetic')
 outdir.mkdir(exist_ok=True)
+(outdir/'solver-build-info.json').write_text(json.dumps(dict(build_info=solver_build_info,binary_sha256=hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest()))+'\n')
 for case in range(count):
     n=rng.randint(5,10) if binary or rounding else rng.randint(8,12) if larger else rng.randint(1,5)
     m=rng.randint(5,12) if binary or rounding else rng.randint(8,16) if larger else rng.randint(0,7)
