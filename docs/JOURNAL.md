@@ -281,3 +281,7 @@
 根限定source8395126の18問対照 (110437/110438) は全36run時間制限、18主解全同等、30n下界だけ2.0297169811→51。1000小/1000二値/200中規模全失敗0、Rust133件/Python目的6+cover7成功。全240構造証明とmarkshare60秒比較は実行中。既定化はこれらの完了/監査後。native baseline 11:04 UTCで90/720完了、旧primary最適37、error8、coordinator生存。新GMP再監査も別ディレクトリで開始した。
 
 根限定のmarkshare60秒対照110527はoff31.210640秒/on30.417432秒、両方optimal約1、両方1,486,619主ノード/1,494,216LPで同一探索。時間差を速度改善とは主張しない。2解と両構造証明はGMP絶対/公式/Fraction全有効。18問の28解と134cut、36目的証明も全有効。baseline再監査は保存73解中72有効/1無効/未検証0、唯一無効は既知のcbs-cta GLPK。新errorはchromaticindex512-7 GLPKの外部watchdog3660秒、途中ログを保持する。
+
+全240入力の新base/増分付き目的構造証明は失敗0で完了。大規模square41/47等はFraction再読込が長かったが全合格。途中でsolve既定だけを変更したa0c6ea4のreleaseへ更新したため、構造証明の実装一致hashと前後binary hashをobjective-domain-proof-implementation.jsonへ保存した。性能比較の途中にはbinaryを変更していない。新既定の133回帰も合格。別worktree warm-objective-sourceで次の費用変更warmを試作開始し、release binaryは共有せず、このPRの性能測定に影響させない。
+
+最終既定release a0c6ea4のfresh8問5秒 (111318、CPU0/1thread/16GiB) は8時間制限、Rust7主解全GMP/公式有効、51cutと8構造証明全有効。目的下界51と主解品質を再現。native比較は103709を明示再利用。root-onlyを採用しPRへ進める。

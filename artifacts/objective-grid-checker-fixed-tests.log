@@ -1,0 +1,17 @@
+F....
+======================================================================
+FAIL: test_bad_objective_proof_blocks_a_global_claim_without_cuts_or_point (__main__.ObjectiveGrid.test_bad_objective_proof_blocks_a_global_claim_without_cuts_or_point)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/scripts/test_objective_grid_checker.py", line 43, in test_bad_objective_proof_blocks_a_global_claim_without_cuts_or_point
+    self.assertEqual(summary['status'],'invalid_cut_proof');self.assertIsNone(summary['dual_bound']);self.assertFalse(summary['verified_optimal'])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'infeasible' != 'invalid_cut_proof'
+- infeasible
++ invalid_cut_proof
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.038s
+
+FAILED (failures=1)

@@ -1,0 +1,70 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261115-103709/gmu-35-50.mps.gz/highs/options.txt
+MIP gmu-35-50 has 435 rows; 1919 cols; 8643 nonzeros; 1914 integer variables (1914 binary)
+Coefficient ranges:
+  Matrix  [8e-01, 3e+03]
+  Cost    [3e+03, 2e+05]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 1e+00]
+Presolving model
+435 rows, 1919 cols, 8643 nonzeros 0s
+435 rows, 1027 cols, 8493 nonzeros 0s
+375 rows, 956 cols, 8081 nonzeros 0s
+Presolve reductions: rows 375(-60); columns 956(-963); nonzeros 8081(-562) 
+
+Solving MIP model with:
+   375 rows
+   956 cols (951 binary, 0 integer, 0 implied int., 5 continuous, 0 domain fixed)
+   8081 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            -35119.8608        Large        0      0      0         0     0.1s
+         0       0         0   0.00%   -2608070.315743 -35119.8608     7326.20%        0      0      2       701     0.1s
+ L       0       0         0   0.00%   -2608070.308811 -2601971.3413      0.23%      443     31     46      2362     0.7s
+ L       0       0         0   0.00%   -2608070.308791 -2604420.892       0.14%      446     38     46      3561     1.4s
+
+23.9% inactive integer columns, restarting
+Model after restart has 310 rows, 728 cols (724 bin., 0 int., 0 impl., 4 cont., 0 dom.fix.), and 5771 nonzeros
+
+         0       0         0   0.00%   -2608070.308791 -2604420.892       0.14%       19      0      0      5057     1.4s
+         0       0         0   0.00%   -2608070.308791 -2604420.892       0.14%       19     19      2      5316     1.4s
+ L     102      19        37   0.20%   -2608070.307116 -2605437.3597      0.10%     1108     56   1487     19998     4.4s
+       171      44        60   0.20%   -2608070.305601 -2605437.3597      0.10%     1112     56   2858     34031     5.0s
+
+Solving report
+  Model             gmu-35-50
+  Status            Time limit reached
+  Primal bound      -2605437.3597
+  Dual bound        -2608070.3056
+  Gap               0.101%
+  P-D integral      0.73
+  Solution status   feasible
+                    -2605437.3597 (objective)
+                    7.77156117238e-15 (integrality violation)
+  Timing            5.00
+                    0.39 (Presolve)
+                        MIP    time [calls] = 0.08 [1]
+                        subMIP time [calls] = 0.31 [193]
+                    4.60 (Solve)
+                        MIP    time [calls] = 2.00 [1]
+                        subMIP time [calls] = 2.61 [142]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [193]
+  Max sub-MIP depth 12
+  Nodes             171
+  Repair LPs        0
+  LP iterations     34031
+                    17010 (strong br.)
+                    3757 (separation)
+                    9350 (heuristics)

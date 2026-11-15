@@ -349,6 +349,6 @@ markshare_4_0はRINS off/on双方が目的値約1、主解/下界一致でoptima
 
 source8395126、smoke-20261115-110437/110438。18開発問、8問5秒/10問2秒、1thread/16GiB、CPU0/1。全36run時間制限、全主解同等、30n20b8だけ下界2.0297169811→51。28主解がGMP絶対/公式とも有効、134cutと36目的構造証明がFraction検査成功。60秒markshare (110527、CPU4) はoff31.210640秒/on30.417432秒でoptimal約1、両方1,486,619主ノード/1,494,216LP。同じ探索なので時間差を高速化とは扱わない。全ノード版は別実験で約8%悪化しており根限定だけを採用する。
 
-4ソルバー比較はRustの110437とnativeの103709を対応させる。nativeは同機械/5秒/1thread/16GiBの既測定を明示再利用。全32run時間制限/証明0。Rust7主解全有効。nativeを含む28主解中GMP27有効、既知のHiGHS pk1だけ無効、公式相対検査は28有効。具体値はartifacts/objective-domain-four-solver-comparison.json。例えばmarkshare主解はRust4/HiGHS約5/SCIP約5/GLPK8だが、binkarは6794.86/6751.21/6749.29/6846.46でRustはHiGHS/SCIPに劣る。30nの下界51はGLPK110に劣り、Rust主解はまだ無い。局所改善を全体優位とは扱わない。
+4ソルバー比較はRustの既定版111318 (a0c6ea4) とnativeの103709を対応させる。nativeは同機械/5秒/1thread/16GiBの既測定を明示再利用。全32run時間制限/証明0。Rust7主解全有効。nativeを含む28主解中GMP27有効、既知のHiGHS pk1だけ無効、公式相対検査は28有効。具体値はartifacts/objective-domain-four-solver-comparison.json。例えばmarkshare主解はRust4/HiGHS約5/SCIP約5/GLPK8だが、binkarは6794.86/6751.21/6749.29/6846.46でRustはHiGHS/SCIPに劣る。30nの下界51はGLPK110に劣り、Rust主解はまだ無い。局所改善を全体優位とは扱わない。
 
 11:04 UTCの全件native baselineは90/720完了、旧primary最適37、error8。新GMP再監査は保存73解中72有効、cbs-cta GLPKの1解だけ無効、未検証0。新errorはchromaticindex512-7 GLPKのwatchdog3660秒。固定snapshotの結果/ログは変更しない。
