@@ -1,0 +1,2990 @@
+[
+  {
+    "source": "artifacts/graph-cover-pairs/before/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "9bc195abbe5942f7519954f39dda5c1656e9fcb0bc723755eeb284ef3d954d19",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-pairs/before/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 167,
+        "root_upper": 31,
+        "upper": 24,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-pairs/before/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "181341cfc90c9e6e46fa122f9771eba9d40d23a60c70ca707b3b4b4d03803fe8",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -191.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -191.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-191",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "3/1562500",
+        "absolute_error": "0",
+        "recomputed_exact": "-191",
+        "reported_token": "-191.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-pairs/before/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 191,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-pairs/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "a5beae3ddee2e52978eb696faa404fd52d004b32eb0d70888f283f1f9e5ab3cc",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-pairs/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 160,
+        "root_upper": 31,
+        "upper": 24,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-pairs/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "8ce90aea0ffed317c7a72a85d6dca7193a3e1d2528e8983b2168ecb3b91fb4ae",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-pairs/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-long-pairs/before/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "2f2fd37bc390b962f90f31e26a441c4c163202a2999bf351eb3a669aee924f7b",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-long-pairs/before/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-long-pairs/before/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "105ca08f23b14453a59381ddd525283437ce5a5c432ac0b7ce36e7fd33d655aa",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -191.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -191.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-191",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "3/1562500",
+        "absolute_error": "0",
+        "recomputed_exact": "-191",
+        "reported_token": "-191.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-long-pairs/before/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 191,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-long-pairs/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "0f45b24e19e9b371f821c0cf881db6a8132cc108bbee45b4541291a6df0eb93b",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-long-pairs/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-long-pairs/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "48dff015455413d51c6cc3a7e6021279e76bffc9d275e465759f91ef056c7c5b",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -195.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -195.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-195",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "49/25000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-195",
+        "reported_token": "-195.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-long-pairs/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 195,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-repeat/1/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "8caca417cb138b67b6ee0af913bd7a2f79a5c80332fd345807c90e690319e155",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-repeat/1/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-repeat/0/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "2bc406c55720fb20f31a58456d6508477699f59753676c362252161b03d60d31",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-repeat/0/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-repeat/2/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "5bc96a111dd4eb2454493d705b10dad3a3faac37f68e28affe4fdc92a80cee26",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-repeat/2/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-adaptive-heuristic/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "b6309a9225b00e52eb2e3bc40a9c29cba4811e628f36439de7f981ab78ed629c",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-adaptive-heuristic/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 31,
+        "upper": 31,
+        "best": 16,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-adaptive-heuristic/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "feddc0f40a609c3e8da7ff5a84a2cdf225567424f4fc7de450426678d9cd65e9",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -191.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -191.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-191",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "3/1562500",
+        "absolute_error": "0",
+        "recomputed_exact": "-191",
+        "reported_token": "-191.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-adaptive-heuristic/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 191,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-success-heuristic/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "fa07d87a08816b6eb751cc5c3afe0b46ebf1ed21c7d2ed2c442e346aa4422cb2",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-success-heuristic/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 31,
+        "upper": 31,
+        "best": 16,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-success-heuristic/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "e3db003fb363e30c0966ae92ba9d697ec7ab86af3938cdcba3a68fde3641564f",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -197.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -197.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-197",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "99/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-197",
+        "reported_token": "-197.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-success-heuristic/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 197,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-effort-heuristic/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "190b2485b193f71599d064b47a9131e9287f35bb3e633bab5c2f6b419f1e7e88",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-effort-heuristic/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 31,
+        "upper": 31,
+        "best": 16,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-effort-heuristic/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "01c63786e178ab9317752875c56aaf90810e07b83b241aa8f3e3589ea34b1b05",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -197.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -197.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-197",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "99/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-197",
+        "reported_token": "-197.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-effort-heuristic/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 197,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final15-pairs/before/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "56ade925048917223f6ed534fe5598787bfc9efbf043d633d4130f125cb28ea6",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final15-pairs/before/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 166,
+        "root_upper": 31,
+        "upper": 24,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final15-pairs/before/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "2657a1828239d67c6eae1ca43a9d24461807db389662762f2c5d17c9f343bd36",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -191.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -191.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-191",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "3/1562500",
+        "absolute_error": "0",
+        "recomputed_exact": "-191",
+        "reported_token": "-191.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final15-pairs/before/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 191,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final15-pairs/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "b163f28db61a785cec7c8c10ae13356041efed7370a70f1f8c06fbb01f045f93",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final15-pairs/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 160,
+        "root_upper": 31,
+        "upper": 24,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final15-pairs/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "beea3ef5a3f8576cf40ce5a344693fd425755ce8b5f1e4725265158051f90500",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final15-pairs/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final60-pairs/before/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "3ceadc213b6e8128a82c35cd4e397c81aa3942dd2b9f62b7a5c8342c164a2888",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final60-pairs/before/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final60-pairs/before/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "a5e14ea565462d922230414abec8dbb24042113b1732853f72f1a76371901baf",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -191.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -191.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-191",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "3/1562500",
+        "absolute_error": "0",
+        "recomputed_exact": "-191",
+        "reported_token": "-191.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final60-pairs/before/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 191,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final60-pairs/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "3d0a637487e86ae6c03c97e0c1eaf0de1d8f7bd76f081ee1157a8b8d09966c6e",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final60-pairs/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final60-pairs/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "3d6c31f5d348268e4cb4e594a18bb5c37070ab7bc8a78eb1da9ce6b38fa519c7",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -197.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -197.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-197",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "99/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-197",
+        "reported_token": "-197.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final60-pairs/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 197,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-proof-repeat/1/before/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "51a76bf43811b70d8360f660173232d6a0b08133d78aa44b31ab721717b06a8d",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-proof-repeat/1/before/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-proof-repeat/1/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "897e0a26c8db345dc0ada91ed385454680677ae85fd5405df73f2284589a8538",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-proof-repeat/1/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-proof-repeat/0/before/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "d791748918a88efa09cf099a155ac5427052735d2d13291970518e209d0e22b8",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-proof-repeat/0/before/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-proof-repeat/0/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "332ec7f197c850b87aca29a0521a4682dc7102af6e3725ceb6004134ba9ed655",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-proof-repeat/0/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-proof-repeat/2/before/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "b7c225e7f86bda025c98de6647ad36b80d18fd8af750d66aad6184725f1bde13",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-proof-repeat/2/before/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-proof-repeat/2/after/sorrell3/result.json",
+    "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869",
+    "solution_sha256": "936fe7bb5101b4961e16b77b0965dc893b6a9a69a1b28d0e0b0c1fe173cffd2a",
+    "split": "development",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -16.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -16.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-16",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "17/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-16",
+        "reported_token": "-16.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sorrell3.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-proof-repeat/2/after/sorrell3/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 1024,
+        "conflict_edges": 169162,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 357,
+        "root_upper": 31,
+        "upper": 16,
+        "best": 16,
+        "final_bound_source": "internal completed branches and remaining-prefix coloring; not independently replayed",
+        "independent_optimality": false
+      },
+      "input_sha256": "e9a501f223cb00d892f7919054cc4c9671dc816ac8be48908cd7f396e9576869"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final-repeat15/1/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "d37a172d6452f35f2fe65a82eef87acab3bd9e2a914cc587d5cb2ff8c83e086c",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final-repeat15/1/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final-repeat15/0/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "7c8459d3929e2ebbc686bb5f047af98f3a3955b1f58c309d340d014f3cedc1eb",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final-repeat15/0/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final-repeat15/2/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "5a872af2ef0bc914745d0812577a2e020658bc285f5ec47822d41bfa84ac1b78",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -193.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -193.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-193",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "97/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-193",
+        "reported_token": "-193.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final-repeat15/2/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 193,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final-repeat60/1/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "779aa575ab19ce35fbf2efc5e49e01fe0e256cdfd0ae9755601d8013149ebc74",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -197.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -197.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-197",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "99/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-197",
+        "reported_token": "-197.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final-repeat60/1/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 197,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  },
+  {
+    "source": "artifacts/graph-cover-final-repeat60/0/after/sorrell7/result.json",
+    "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45",
+    "solution_sha256": "c490a1caa7d131c5b075b6a855033385a474b9c0b6bb55152c036bdfa52bc497",
+    "split": "exploration_outside_benchmark_v2",
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": -197.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": -197.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "-197",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "99/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "-197",
+        "reported_token": "-197.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/exploratory/sorrell7.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/graph-cover-custom-audit/graph-cover-final-repeat60/0/after/sorrell7/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    },
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "05d2dd88b8348914d4a64e193719a94f2f7d7faef7f0df8ae3bb05502723a390",
+      "binary_graph": {
+        "valid": true,
+        "checker_sha256": "9477d278ffcbb5bdfd2f13c4c3744f55be71bcdff7410cb6cc382837d2a1a271",
+        "vertices": 2048,
+        "conflict_edges": 39424,
+        "root_coloring_valid": true,
+        "remaining_coloring_valid": true,
+        "completed_root_branches": 0,
+        "root_upper": 379,
+        "upper": 379,
+        "best": 197,
+        "final_bound_source": "root coloring/trivial cardinality",
+        "independent_optimality": false
+      },
+      "input_sha256": "11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45"
+    }
+  }
+]
