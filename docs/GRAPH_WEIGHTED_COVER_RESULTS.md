@@ -32,3 +32,5 @@ sorrell3は同じ6042153節点で最適宣言。同CPU7の3組比較で元18.457
 独立再検査は保存64点すべてGMP/公式で有効、74記録/134切断が有効。うち38記録はgraph認識/彩色/残存上界の独立メタデータ検査も有効。反復を独立問題とは数えず、探索木の全再生をしたとも主張しない。原データgraph-cover-evaluation。全240問Rust snapshotはcreate-only、source fd6bfe6a、receipt experiments/graph-cover-snapshot-20261115.json。
 
 次は重なりを許す分数クリーク被覆による上界を検討する。比較用LPの診断で小さい値が得られたが、そのnativeの重み/解はRust最適化へ渡さず、独自Rustで候補を生成し、整数被覆の証明として独立検証できる形を調べる。
+
+公開最良値は2026-11-15に[MIPLIB sorrell7公式ページ](https://miplib.zib.de/instance_details_sorrell7.html)で再確認（-198、open）。今回の-197は既存結果を超える記録として扱わない。
