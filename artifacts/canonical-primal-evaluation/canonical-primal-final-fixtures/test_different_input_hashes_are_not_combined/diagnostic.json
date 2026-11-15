@@ -1,0 +1,50 @@
+{
+  "updated_utc": "2026-11-15T19:20:37Z",
+  "status": "diagnostic_not_a_dual_certificate",
+  "absolute_tolerance": "1/1000000",
+  "input_groups": 2,
+  "bound_comparisons": 2,
+  "findings": [],
+  "reference_points": [
+    {
+      "name": "toy.mps",
+      "input_sha256": "20aa2a571fb06e661bd5e7b7362909ede62a415ca41d423fda15638edfcc8622",
+      "maximize": false,
+      "point_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_different_input_hashes_are_not_combined/one/cases/0/result.json",
+      "point_solver": "fixture-0",
+      "objective_used": "10",
+      "objective_exact": "10",
+      "objective_source": "GMP original-model objective of serialized point",
+      "reported_objective_token": "10"
+    },
+    {
+      "name": "toy.mps",
+      "input_sha256": "bb97631f9e3c447f87f8f5e7181d007e1c84d6a03c90b248426b637c42bcafe8",
+      "maximize": false,
+      "point_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_different_input_hashes_are_not_combined/two/cases/0/result.json",
+      "point_solver": "fixture-0",
+      "objective_used": "2",
+      "objective_exact": "2",
+      "objective_source": "GMP original-model objective of serialized point",
+      "reported_objective_token": "2"
+    }
+  ],
+  "warnings": [],
+  "sources": [
+    {
+      "run": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_different_input_hashes_are_not_combined/one",
+      "results_sha256": "63b6de63bb3583669502a0ca5a066735e907aca39249e8d4d6375a06364f12b6",
+      "results_bytes": 363,
+      "terminated_by_newline": true,
+      "config_sha256": "78dbfd68b71829925429dfee27c18914b93c4b79205aa6ececc0d1449b95f295"
+    },
+    {
+      "run": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_different_input_hashes_are_not_combined/two",
+      "results_sha256": "b094ab79d2a2b9c3c7faeef553c9e6d128940f81ae2351eb8ea76a97088ceef4",
+      "results_bytes": 361,
+      "terminated_by_newline": true,
+      "config_sha256": "10dd20ce1f8d19703e222b798c5c1aa71e8d3b34b72a0078c94949f3c0bdadd5"
+    }
+  ],
+  "limitation": "Points passed absolute-tolerance checks, not necessarily zero-tolerance feasibility. Findings require review and can reflect allowed point tolerances or numerical reporting; absence of findings does not certify bounds or replay optimality proofs."
+}

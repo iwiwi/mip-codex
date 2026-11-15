@@ -1,0 +1,34 @@
+{
+  "updated_utc": "2026-11-15T19:18:33Z",
+  "status": "diagnostic_not_a_dual_certificate",
+  "absolute_tolerance": "1/1000000",
+  "input_groups": 1,
+  "bound_comparisons": 1,
+  "findings": [
+    {
+      "type": "reported_dual_exceeds_verified_point",
+      "name": "toy.mps",
+      "input_sha256": "20aa2a571fb06e661bd5e7b7362909ede62a415ca41d423fda15638edfcc8622",
+      "maximize": false,
+      "bound_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-fixtures/test_original_objective_is_used_instead_of_rounded_report/run/cases/0/result.json",
+      "bound_solver": "fixture-0",
+      "reported_dual": "1152921504606846977",
+      "point_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-fixtures/test_original_objective_is_used_instead_of_rounded_report/run/cases/0/result.json",
+      "point_solver": "fixture-0",
+      "point_objective_exact": "1152921504606846976",
+      "point_objective_source": "GMP original-model objective of serialized point",
+      "absolute_excess": "1"
+    }
+  ],
+  "warnings": [],
+  "sources": [
+    {
+      "run": "/home/ubuntu/mip-codex/artifacts/canonical-primal-fixtures/test_original_objective_is_used_instead_of_rounded_report/run",
+      "results_sha256": "4cadab3993be3c8b6a655b83a77bf50c77801db80dcd6b9c7133fcd74dc43804",
+      "results_bytes": 415,
+      "terminated_by_newline": true,
+      "config_sha256": "611461799488aee2c9908f4bbbc4dd975502fd4d61a9cf4e40d8f37844cefa3b"
+    }
+  ],
+  "limitation": "Points passed absolute-tolerance checks, not necessarily zero-tolerance feasibility. Findings require review and can reflect allowed point tolerances or numerical reporting; absence of findings does not certify bounds or replay optimality proofs."
+}

@@ -418,3 +418,7 @@ be70fe46で既にpoint_error=0と確認したshiftだけ、dxを掛けるゼロ�
 ## 2026-11-15 19:07 UTC: 基底に属する双対乗数キャッシュ
 
 31ef9ff5で同じB^-T c_Bを不変Arcへ保存し、入力bit一致時に再利用。ピボット/再分解で破棄し、親子間で不変共有。入力iterator比較でヒット時Vec確保も省いた。同じCPU7/1thread/16GiBの3回中央値gen-ip002 2.98799→2.94067秒（1.58%）、Mark100000節点2.44036→2.39382秒（1.91%）。cache統計と時間以外の全返却情報が一致。gen numerical_errorも維持。164Rust/2700合成/300根LP/32数値回帰、固定18問主解/下界/status一致、正式38点GMP絶対/公式検査成功。初期試作38点とコンパイル失敗も保持。native v2は39/720完了・strict optimal18・error1で不変のまま継続。次はRHS依存しない価格計算・warm構造や前後退処理を更にprofileし、広い開発問題で検証する。
+
+## 2026-11-15 19:22 UTC: 目的値の相対判定を明示し厳密再計算値で照合
+
+大きな係数の3binary例で報告目的値とGMP厳密再計算値が1違うことを確認。最初は絶対検査の問題を疑ったが、既存方針は制約/境界/整数性が絶対1e-6、目的が相対1e-8で、文書とGMP実装どおりだった。主解全1・最適性の誤りではないため評価基準は変えず、objective_evaluationへ基準と絶対誤差を明示し、primal_bound_exact/診断reference_pointsへGMPの厳密値を保存する。16集計/2GMP/8preflight/32数値回帰成功。native v2の15入力/39boundで要確認0。snapshot不変、再最適化不要。詳細OBJECTIVE_REPORTING.md。次は広いMILP/LP性能と数値失敗の改善を継続する。

@@ -62,22 +62,42 @@ def collect(runs):
             parsed = json.loads(result_bytes, parse_float=Decimal)
             valid = (summary.get('strict_validation', {}).get('valid') is True
                      and summary.get('primal_bound') is not None)
+            primal = None
+            objective_source = None
+            if valid:
+                exact = summary['strict_validation'].get('exact', {}).get('objective')
+                if exact is not None:
+                    primal = Fraction(exact)
+                    objective_source = 'GMP original-model objective of serialized point'
+                else:
+                    primal = number(parsed.get('objective'))
+                    objective_source = 'reported objective; exact diagnostic unavailable'
+                    warnings.append(dict(run=str(run), job=summary['job_id'],
+                                         error='exact_objective_unavailable_using_reported_value'))
             group['records'].append(dict(source=str(result.resolve()),
                                          solver=summary['solver'],
                                          status=summary.get('solver_status'),
-                                         primal=number(parsed.get('objective')) if valid else None,
+                                         primal=primal, objective_source=objective_source,
+                                         reported_objective_token=str(parsed.get('objective')),
+                                         objective_is_exact=(objective_source == 'GMP original-model objective of serialized point'),
                                          dual=number(summary.get('dual_bound'))))
     return groups, sources, warnings
 
 
 def diagnose(groups, tolerance):
-    findings, comparisons = [], 0
+    findings, comparisons, references = [], 0, []
     for (name, input_sha), group in groups.items():
         sign = -1 if group['maximize'] else 1
         valid = [r for r in group['records'] if r['primal'] is not None]
         if not valid:
             continue
         best = min(valid, key=lambda r: sign*r['primal'])
+        references.append(dict(name=name, input_sha256=input_sha, maximize=group['maximize'],
+                               point_source=best['source'], point_solver=best['solver'],
+                               objective_used=str(best['primal']),
+                               objective_exact=str(best['primal']) if best['objective_is_exact'] else None,
+                               objective_source=best['objective_source'],
+                               reported_objective_token=best['reported_objective_token']))
         for record in group['records']:
             if record['dual'] is not None:
                 comparisons += 1
@@ -91,13 +111,15 @@ def diagnose(groups, tolerance):
                                          reported_dual=str(record['dual']),
                                          point_source=best['source'],
                                          point_solver=best['solver'],
-                                         verified_reported_objective=str(best['primal']),
+                                         point_objective_used=str(best['primal']),
+                                         point_objective_exact=str(best['primal']) if best['objective_is_exact'] else None,
+                                         point_objective_source=best['objective_source'],
                                          absolute_excess=str(excess)))
             if str(record['status']).lower() == 'infeasible':
                 findings.append(dict(type='infeasibility_claim_with_tolerance_checked_point',
                                      name=name, input_sha256=input_sha,
                                      claim_source=record['source'], point_source=best['source']))
-    return findings, comparisons
+    return findings, comparisons, references
 
 
 def main():
@@ -109,13 +131,13 @@ def main():
         parser.error('duplicate run directories')
     tolerance = Fraction(1, 1000000)
     groups, sources, warnings = collect(args.runs)
-    findings, comparisons = diagnose(groups, tolerance)
+    findings, comparisons, references = diagnose(groups, tolerance)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     atomic_json(args.output, dict(updated_utc=utc(),
                                  status='diagnostic_not_a_dual_certificate',
                                  absolute_tolerance=str(tolerance),
                                  input_groups=len(groups), bound_comparisons=comparisons,
-                                 findings=findings, warnings=warnings, sources=sources,
+                                 findings=findings, reference_points=references, warnings=warnings, sources=sources,
                                  limitation='Points passed absolute-tolerance checks, not necessarily zero-tolerance feasibility. Findings require review and can reflect allowed point tolerances or numerical reporting; absence of findings does not certify bounds or replay optimality proofs.'))
     print(json.dumps(dict(groups=len(groups), comparisons=comparisons,
                           findings=len(findings), warnings=len(warnings))))

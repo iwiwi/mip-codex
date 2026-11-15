@@ -1,0 +1,38 @@
+{
+  "updated_utc": "2026-11-15T19:20:37Z",
+  "status": "diagnostic_not_a_dual_certificate",
+  "absolute_tolerance": "1/1000000",
+  "input_groups": 1,
+  "bound_comparisons": 1,
+  "findings": [],
+  "reference_points": [
+    {
+      "name": "toy.mps",
+      "input_sha256": "20aa2a571fb06e661bd5e7b7362909ede62a415ca41d423fda15638edfcc8622",
+      "maximize": false,
+      "point_source": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_partial_append_is_preserved_as_a_warning/run/cases/0/result.json",
+      "point_solver": "fixture-0",
+      "objective_used": "2",
+      "objective_exact": "2",
+      "objective_source": "GMP original-model objective of serialized point",
+      "reported_objective_token": "2"
+    }
+  ],
+  "warnings": [
+    {
+      "run": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_partial_append_is_preserved_as_a_warning/run",
+      "line": 2,
+      "error": "incomplete_or_invalid_json_record"
+    }
+  ],
+  "sources": [
+    {
+      "run": "/home/ubuntu/mip-codex/artifacts/canonical-primal-final-fixtures/test_partial_append_is_preserved_as_a_warning/run",
+      "results_sha256": "c2adc0caf451fb04d5fa037163696d5bae557e235a60649fd169c45df1bb75cc",
+      "results_bytes": 366,
+      "terminated_by_newline": false,
+      "config_sha256": "239afe758b98d543999b29b180790f33ffc1567f4527d3b1c6d9e2215edac1a9"
+    }
+  ],
+  "limitation": "Points passed absolute-tolerance checks, not necessarily zero-tolerance feasibility. Findings require review and can reflect allowed point tolerances or numerical reporting; absence of findings does not certify bounds or replay optimality proofs."
+}

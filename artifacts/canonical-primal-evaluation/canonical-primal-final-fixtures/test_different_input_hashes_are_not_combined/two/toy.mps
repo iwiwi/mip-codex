@@ -1,0 +1,12 @@
+NAME two
+OBJSENSE
+ MIN
+ROWS
+ N obj
+COLUMNS
+ x obj 1
+RHS
+BOUNDS
+ LO b x 0
+ UP b x 1e40
+ENDATA
