@@ -63,7 +63,15 @@ def verify(model_path,result,exact):
  best=stats['best'];upper=stats['upper'];complete=stats['complete']
  assert type(best)is int and type(upper)is int and 0<=best<=upper<=root_upper and type(complete)is bool
  remaining=stats.get('remaining_upper',root_upper)
+ completed=stats.get('root_branches_completed',0)
+ assert type(completed)is int and 0<=completed<=n
  assert type(remaining)is int and 0<=remaining<=root_upper
+ if colors:
+  rank={j:k for k,j in enumerate(stats['order'])}
+  root_order=sorted(range(n),key=lambda j:(colors[j],rank[j]))
+  prefix=root_order[:n-completed]
+  assert remaining>=max((colors[j]for j in prefix),default=0)
+ else:assert completed==0 and remaining==n
  assert upper==(best if complete else max(best,remaining))
  point=result['values'];chosen=[j for j,name in enumerate(names)if Fraction(point[name])==1]
  assert set(point)==set(names)and len(chosen)==best and all(Fraction(v)in [0,1]for v in point.values())
@@ -73,7 +81,7 @@ def verify(model_path,result,exact):
  assert result['lp_solves']==0
  exact_bound=offset+coeff[0]*upper;reported=Fraction(result['dual_bound'])
  assert reported>=exact_bound if maximize else reported<=exact_bound
- return dict(valid=True,checker_sha256=sha256(Path(__file__)),vertices=n,conflict_edges=len(edges),root_coloring_valid=True,
+ return dict(valid=True,checker_sha256=sha256(Path(__file__)),vertices=n,conflict_edges=len(edges),root_coloring_valid=True,remaining_coloring_valid=True,completed_root_branches=completed,
              root_upper=root_upper,upper=upper,best=best,
              final_bound_source='root coloring/trivial cardinality'if upper==root_upper else'internal completed branches and remaining-prefix coloring; not independently replayed',
              independent_optimality=best==root_upper)
