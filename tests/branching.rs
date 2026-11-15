@@ -71,6 +71,7 @@ fn all_rules_orders_and_objective_senses_preserve_optimum() {
                 let r = solve(
                     &m,
                     &Limits {
+                        cover_cuts: false,
                         branching,
                         child_order,
                         primal_repair: false,

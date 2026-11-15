@@ -77,6 +77,7 @@ fn all_search_orders_match_binary_enumeration() {
             let result = solve(
                 &model,
                 &Limits {
+                    cover_cuts: false,
                     search: strategy,
                     primal_repair: false,
                     primal_probe: false,
@@ -135,6 +136,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
         let result = solve(
             &model,
             &Limits {
+                cover_cuts: false,
                 search: strategy,
                 nodes: 130,
                 primal_repair: false,

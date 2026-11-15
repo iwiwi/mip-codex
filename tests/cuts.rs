@@ -137,6 +137,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
     use mip_codex::solve::{Limits, solve};
     let model = read("2", "3");
     let limits = Limits {
+        cover_cuts: false,
         nodes: 1,
         primal_repair: false,
         lp_diving: false,

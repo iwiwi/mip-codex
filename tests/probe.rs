@@ -13,6 +13,7 @@ fn verified_candidate_does_not_replace_open_node_bound() {
         let result = solve(
             &model,
             &Limits {
+                cover_cuts: false,
                 nodes: 1,
                 primal_probe: true,
                 primal_repair: false,
@@ -40,6 +41,7 @@ fn local_proof_is_not_promoted_to_global_infeasibility() {
     let result = solve(
         &model,
         &Limits {
+            cover_cuts: false,
             nodes: 1,
             primal_probe: true,
             primal_repair: false,
@@ -57,6 +59,7 @@ fn zero_deadline_does_not_start_a_probe() {
     let result = solve(
         &model,
         &Limits {
+            cover_cuts: false,
             seconds: 0.,
             primal_probe: true,
             ..Limits::default()
