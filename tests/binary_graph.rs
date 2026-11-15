@@ -149,3 +149,27 @@ fn recognition_rejects_constraints_and_objectives_outside_the_exact_class() {
         .is_none()
     );
 }
+
+#[test]
+fn negative_lower_rows_have_the_same_conflict_meaning() {
+    let mut m = model(4, &[(0, 1), (1, 2), (2, 3)], false);
+    for row in &mut m.rows {
+        for (_, a) in &mut row.coefficients {
+            *a = -*a;
+        }
+        row.lower = row.upper.map(|v| -v);
+        row.lower_enclosure = row.upper_enclosure.map(|[l, u]| [-u, -l]);
+        row.upper = None;
+        row.upper_enclosure = None;
+    }
+    let r = solve(
+        &m,
+        &Limits {
+            binary_graph: true,
+            ..Limits::default()
+        },
+    );
+    assert_eq!(r.lp_engine, "BinaryGraph");
+    assert_eq!(r.status, "optimal");
+    assert_eq!(r.objective, Some(1.));
+}

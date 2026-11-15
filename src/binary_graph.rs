@@ -45,11 +45,33 @@ fn endpoint(
         .then_some(b[usize::from(upper)])
 }
 fn row_vertices(model: &Model, row: &crate::model::Row) -> Option<Vec<usize>> {
-    if row.lower.is_some() && endpoint(model, row.lower, row.lower_enclosure, true)? > 0. {
-        return None;
-    }
     if row.upper.is_none() && row.lower.is_none() {
         return Some(vec![]);
+    }
+    let sign = if row.coefficients.iter().any(|p| p.1 < 0.)
+        && row.coefficients.iter().all(|p| p.1 <= 0.)
+    {
+        -1.
+    } else {
+        1.
+    };
+    let (lower, upper, lower_enclosure, upper_enclosure) = if sign < 0. {
+        (
+            row.upper.map(|v| -v),
+            row.lower.map(|v| -v),
+            row.upper_enclosure.map(|[l, u]| [-u, -l]),
+            row.lower_enclosure.map(|[l, u]| [-u, -l]),
+        )
+    } else {
+        (
+            row.lower,
+            row.upper,
+            row.lower_enclosure,
+            row.upper_enclosure,
+        )
+    };
+    if lower.is_some() && endpoint(model, lower, lower_enclosure, true)? > 0. {
+        return None;
     }
     if model.original_decimal && !row.exact_coefficients {
         return None;
@@ -58,6 +80,7 @@ fn row_vertices(model: &Model, row: &crate::model::Row) -> Option<Vec<usize>> {
     let mut smallest = [f64::INFINITY; 2];
     let mut largest = 0f64;
     for (k, &(j, a)) in row.coefficients.iter().enumerate() {
+        let a = sign * a;
         if j >= model.variables.len()
             || !a.is_finite()
             || a < 0.
@@ -88,11 +111,11 @@ fn row_vertices(model: &Model, row: &crate::model::Row) -> Option<Vec<usize>> {
             smallest[1] = a
         }
     }
-    if row.upper.is_none() {
+    if upper.is_none() {
         return Some(vec![]);
     }
-    let lo = endpoint(model, row.upper, row.upper_enclosure, false)?;
-    let hi = endpoint(model, row.upper, row.upper_enclosure, true)?;
+    let lo = endpoint(model, upper, upper_enclosure, false)?;
+    let hi = endpoint(model, upper, upper_enclosure, true)?;
     if lo < largest {
         return None;
     }

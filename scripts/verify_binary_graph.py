@@ -35,8 +35,11 @@ def verify(model_path,result,exact):
  for row in rows:
   lower=row['lower'];upper=row['upper']
   if lower is None and upper is None:continue
-  assert lower is None or lower<=0
   entries=[(index[name],a)for name,a in row['coefficients'].items()if a]
+  if entries and all(a<0 for _,a in entries):
+   lower,upper=(-upper if upper is not None else None),(-lower if lower is not None else None)
+   entries=[(j,-a)for j,a in entries]
+  assert lower is None or lower<=0
   assert all(a>0 and a.denominator==1 and a<=2**52 for _,a in entries)
   if upper is None:continue
   weights=sorted(a for _,a in entries)

@@ -9,3 +9,5 @@
 参考（数学的原理・実装上の論点のみ、コード移植なし）: Patrick Prosser, Exact Algorithms for Maximum Clique: A Computational Study, Algorithms 2012, doi:10.3390/a5040545, https://www.mdpi.com/1999-4893/5/4/545 。彩色とbitsetを用いる原理は自作Rustへ独立に実装する。新たな最適化ライブラリは使わない。
 
 まず全列挙のランダム小グラフ、拒否すべきMPS構造、制限時の上下界を検査する。その後MIP_BINARY_GRAPH=1（既定無効）で開発問題とnativeを比較する。LP前の箱主解と従来LPはmainの状態を維持する。
+
+初回sorrell3は全行が負係数の下側制約（-x-y>=-1）で初版の認識外だった。各行の符号を一様反転できる場合も検査する。初回のLP fallback記録を残し、認識後の測定と混ぜない。
