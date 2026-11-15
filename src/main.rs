@@ -51,6 +51,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PRIMAL_PROBE must be 0 or 1".into()),
             };
         }
+        if let Ok(cuts) = std::env::var("MIP_ROUNDING_CUTS") {
+            limits.rounding_cuts = match cuts.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_ROUNDING_CUTS must be 0 or 1".into()),
+            };
+        }
         if let Ok(cuts) = std::env::var("MIP_COVER_CUTS") {
             limits.cover_cuts = match cuts.as_str() {
                 "0" => false,
