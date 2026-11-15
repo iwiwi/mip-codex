@@ -55,6 +55,11 @@ for case in range(count):
                 assert result.get('lp_diving') == (os.environ['MIP_LP_DIVING'] == '1'), 'unexpected diving mode'
             cut_check=validate_cut_proofs(path,result)
             assert cut_check['valid'] is True, cut_check
+            if cut_check['checked'] and not (outdir/'cover-example.mps').exists():
+                (outdir/'cover-example.mps').write_text(text)
+                (outdir/'cover-example.solution.json').write_text(json.dumps(result,indent=2)+'\n')
+                (outdir/'cover-example.validation.json').write_text(json.dumps(cut_check,indent=2)+'\n')
+
             if 'MIP_COVER_CUTS' in os.environ:
                 assert result.get('cover_cuts_enabled') == (os.environ['MIP_COVER_CUTS']=='1'), 'unexpected cover mode'
             if 'MIP_PRIMAL_PROBE' in os.environ:
@@ -95,7 +100,7 @@ for case in range(count):
                         feasible.append(offset+sum(v*t for v,t in zip(cost,x)))
                 if not feasible: assert result['status']=='infeasible'
                 else: assert abs((max(feasible) if maximize else min(feasible))-result['objective'])<1e-6
-            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],cut_count=len(result.get('cut_proofs',[])),cut_rounds=result.get('cut_rounds'),cut_lp_solves=result.get('cut_lp_solves'),cut_verified=cut_check['valid'],search=result.get('search_strategy'),best_pops=result.get('search_best_pops'),max_open=result.get('max_open_nodes'),lp_solves=result.get('lp_solves'),branching=result.get('branching'),child_order=result.get('child_order'),pseudocost_selections=result.get('pseudocost_selections'),scaled_columns=result.get('lp_scaled_columns'),scaled_rows=result.get('lp_scaled_rows'),primal_repair=result.get('primal_repair'),lp_diving=result.get('lp_diving'),primal_probe=result.get('primal_probe'),probe=result.get('probe'),diving=result.get('diving'),repair_improvements=result.get('repair_improvements'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
+            print(json.dumps(dict(case=case,status='pass',solver_status=result['status'],nodes=result['nodes'],seconds=result.get('seconds'),cut_count=len(result.get('cut_proofs',[])),cut_rounds=result.get('cut_rounds'),cut_lp_solves=result.get('cut_lp_solves'),cut_verified=cut_check['valid'],search=result.get('search_strategy'),best_pops=result.get('search_best_pops'),max_open=result.get('max_open_nodes'),lp_solves=result.get('lp_solves'),branching=result.get('branching'),child_order=result.get('child_order'),pseudocost_selections=result.get('pseudocost_selections'),scaled_columns=result.get('lp_scaled_columns'),scaled_rows=result.get('lp_scaled_rows'),primal_repair=result.get('primal_repair'),lp_diving=result.get('lp_diving'),primal_probe=result.get('primal_probe'),probe=result.get('probe'),diving=result.get('diving'),repair_improvements=result.get('repair_improvements'),propagation=result.get('propagation'),propagation_pruned=result.get('propagation_pruned'),exhaustive=exhaustive,warm_successes=result.get('lp_warm_successes'),warm_fallbacks=result.get('lp_warm_fallbacks'),dual_pivots=result.get('lp_dual_pivots'),sha256=hashlib.sha256(text.encode()).hexdigest())),flush=True)
     except Exception as error:
         failed+=1
         (outdir/f'failure-{case}.mps').write_text(text)

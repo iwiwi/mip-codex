@@ -179,3 +179,50 @@ fn ranged_lower_side_cuts_keep_the_maximization_offset() {
     assert!(result.cut_proofs.len() >= 2);
     assert!(result.cut_proofs.iter().all(|cut| verify(&model, cut)));
 }
+#[test]
+fn duplicate_terms_are_summed_before_rounding_in_rows_and_objective() {
+    use mip_codex::solve::{Limits, solve};
+    for order in [
+        [0, 1, 2],
+        [0, 2, 1],
+        [1, 0, 2],
+        [1, 2, 0],
+        [2, 0, 1],
+        [2, 1, 0],
+    ] {
+        for objective in [false, true] {
+            let values = if objective {
+                [-10000000000000000i64, -1, 10000000000000000]
+            } else {
+                [10000000000000000i64, 1, -10000000000000000]
+            };
+            let mut text = String::from("NAME duplicates\nROWS\n N obj\n L r\nCOLUMNS\n");
+            if !objective {
+                text += " x obj -1\n";
+            }
+            for k in order {
+                text += &format!(" x {} {}\n", if objective { "obj" } else { "r" }, values[k]);
+            }
+            text += "RHS\n rhs r 1\nBOUNDS\n UP b x 2\nENDATA\n";
+            let model = mps::parse(std::io::Cursor::new(text)).unwrap();
+            let result = solve(&model, &Limits::default());
+            assert_eq!(result.status, "optimal");
+            assert_eq!(result.objective, Some(if objective { -2. } else { -1. }));
+        }
+    }
+}
+#[test]
+fn decimal_duplicate_cancellation_is_not_a_spurious_unbounded_objective() {
+    use mip_codex::solve::{Limits, solve};
+    let model = mps::parse(std::io::Cursor::new(
+        "NAME decimal\nROWS\n N c\nCOLUMNS\n x c -0.1\n x c -0.2\n x c 0.3\nENDATA\n",
+    ))
+    .unwrap();
+    let result = solve(&model, &Limits::default());
+    assert_eq!(model.variables[0].objective, 0.);
+    assert_eq!(result.status, "optimal");
+    assert_eq!(result.objective, Some(0.));
+    let model=mps::parse(std::io::Cursor::new("NAME decimal\nROWS\n N c\n L r\nCOLUMNS\n x c -1.000000000000000000001 r 1.000000000000000000001\n x c 1 r -1\nRHS\n rhs r 1\nENDATA\n")).unwrap();
+    assert_eq!(model.variables[0].objective, -1e-21);
+    assert_eq!(model.rows[0].coefficients, vec![(0, 1e-21)]);
+}

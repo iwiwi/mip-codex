@@ -3,6 +3,7 @@
 //! Unsupported extensions and multiple vectors are errors rather than silent model changes.
 use crate::model::{Model, Row, Variable};
 use flate2::read::GzDecoder;
+use num_bigint::BigInt;
 use std::{
     collections::HashMap,
     fs::File,
@@ -73,6 +74,68 @@ fn exact_integer(token: &str) -> Option<i64> {
     }
     Some(if negative { -value } else { value })
 }
+// 重複項だけは元の十進値を合計する。通常の単独項で多倍長演算は行わない。
+fn decimal_parts(token: &str) -> Option<(BigInt, i32)> {
+    let (negative, token) = if let Some(s) = token.strip_prefix('-') {
+        (true, s)
+    } else {
+        (false, token.strip_prefix('+').unwrap_or(token))
+    };
+    let split = token.find(['e', 'E', 'd', 'D']);
+    let mantissa = split.map_or(token, |i| &token[..i]);
+    let digits: String = mantissa.chars().filter(|c| *c != '.').collect();
+    if digits.bytes().all(|b| b == b'0') {
+        return Some((BigInt::from(0), 0));
+    }
+    if digits.len() > 10000 {
+        return None;
+    }
+    let exponent = if let Some(i) = split {
+        token[i + 1..].parse::<i32>().ok()?
+    } else {
+        0
+    };
+    let fractional = mantissa.find('.').map_or(0, |i| mantissa.len() - i - 1);
+    let exponent = exponent.checked_sub(i32::try_from(fractional).ok()?)?;
+    if !(-10000..=10000).contains(&exponent) {
+        return None;
+    }
+    let mut value = BigInt::parse_bytes(digits.as_bytes(), 10)?;
+    if negative {
+        value = -value;
+    }
+    Some((value, exponent))
+}
+fn decimal_sum<'a>(entries: impl Iterator<Item = (f64, Option<&'a str>)>) -> Result<f64, String> {
+    let mut parts = Vec::new();
+    for (value, token) in entries {
+        let pair = if let Some(token) = token {
+            decimal_parts(token).ok_or("unsupported duplicate decimal size/exponent")?
+        } else {
+            (BigInt::from(value as i64), 0)
+        };
+        parts.push(pair);
+    }
+    let exponent = parts
+        .iter()
+        .map(|p| p.1)
+        .min()
+        .ok_or("empty coefficient sum")?;
+    let mut sum = BigInt::from(0);
+    for (value, e) in parts {
+        sum += value * BigInt::from(10u8).pow((e - exponent) as u32);
+    }
+    let value: f64 = format!("{sum}e{exponent}")
+        .parse()
+        .map_err(|_| "coefficient conversion failed")?;
+    if !value.is_finite() {
+        return Err("coefficient overflow".into());
+    }
+    if value == 0. && sum != BigInt::from(0) {
+        return Err("coefficient underflow".into());
+    }
+    Ok(value)
+}
 pub fn read(path: impl AsRef<Path>) -> Result<Model, String> {
     let path = path.as_ref();
     let file = File::open(path).map_err(|e| e.to_string())?;
@@ -97,6 +160,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
     let mut ranges = HashMap::new();
     let mut explicit_bound = vec![];
     let mut raw_rows: Vec<Row> = vec![];
+    let mut raw_lexical: Vec<Vec<Option<String>>> = vec![];
     let mut section = String::new();
     let mut objective_name: Option<String> = None;
     let mut integer = false;
@@ -163,6 +227,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 }
                 kinds.push(t[0].to_string());
                 rhs.push(0.0);
+                raw_lexical.push(Vec::new());
                 raw_rows.push(Row {
                     exact_integral: true,
                     name: t[1].into(),
@@ -206,8 +271,13 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                         .get(pair[0])
                         .ok_or_else(|| fail(format!("unknown row {}", pair[0])))?;
                     let value = number(pair[1]).map_err(&fail)?;
-                    raw_rows[i].exact_integral &=
-                        exact_integer(pair[1]).is_some_and(|n| n as f64 == value);
+                    let exact = exact_integer(pair[1]).is_some_and(|n| n as f64 == value);
+                    raw_rows[i].exact_integral &= exact;
+                    raw_lexical[i].push(if exact {
+                        None
+                    } else {
+                        Some(pair[1].to_string())
+                    });
                     raw_rows[i].coefficients.push((j, value));
                 }
             }
@@ -319,16 +389,33 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             v.upper = Some(1.0);
         }
     }
-    for (i, mut row) in raw_rows.into_iter().enumerate() {
-        row.coefficients.sort_unstable_by_key(|p| p.0);
+    for (i, (mut row, lexical)) in raw_rows.into_iter().zip(raw_lexical).enumerate() {
+        let mut entries: Vec<_> = row
+            .coefficients
+            .into_iter()
+            .zip(lexical)
+            .map(|((j, a), s)| (j, a, s))
+            .collect();
+        entries.sort_unstable_by_key(|p| p.0);
         let mut merged: Vec<(usize, f64)> = Vec::new();
-        for (j, a) in row.coefficients {
-            if let Some(last) = merged.last_mut().filter(|p| p.0 == j) {
-                last.1 += a;
-                row.exact_integral &= last.1.abs() <= (1u64 << 52) as f64 && last.1.fract() == 0.;
-            } else {
-                merged.push((j, a));
+        let mut first = 0;
+        while first < entries.len() {
+            let j = entries[first].0;
+            let mut end = first + 1;
+            while end < entries.len() && entries[end].0 == j {
+                end += 1;
             }
+            let value = if end == first + 1 {
+                entries[first].1
+            } else if entries[first..end].iter().all(|p| p.2.is_none()) {
+                crate::exact::sum(entries[first..end].iter().map(|p| p.1))
+                    .ok_or("coefficient overflow")?
+            } else {
+                decimal_sum(entries[first..end].iter().map(|p| (p.1, p.2.as_deref())))?
+            };
+            row.exact_integral &= value.abs() <= (1u64 << 52) as f64 && value.fract() == 0.;
+            merged.push((j, value));
+            first = end;
         }
         if merged.iter().any(|p| !p.1.is_finite()) {
             return Err("coefficient overflow".into());

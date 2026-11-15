@@ -70,6 +70,70 @@ impl Sum {
         self.positive.iter().rev().cmp(self.negative.iter().rev())
     }
 }
+// 最後の一度だけ最近接・偶数丸め。中間のoverflowや相殺で項を失わない。
+impl Sum {
+    fn rounded(&self) -> Option<f64> {
+        let (large, small, negative) = match self.sign() {
+            Ordering::Equal => return Some(0.),
+            Ordering::Greater => (&self.positive, &self.negative, false),
+            Ordering::Less => (&self.negative, &self.positive, true),
+        };
+        let mut magnitude = [0u64; WORDS];
+        let mut borrow = false;
+        for i in 0..WORDS {
+            let (a, b) = large[i].overflowing_sub(small[i]);
+            let (a, c) = a.overflowing_sub(u64::from(borrow));
+            magnitude[i] = a;
+            borrow = b || c;
+        }
+        if borrow {
+            return None;
+        }
+        let last = magnitude.iter().rposition(|&w| w != 0)?;
+        let mut top = last * 64 + 63 - magnitude[last].leading_zeros() as usize;
+        let normal = top >= 1126; // -1022 + 2148
+        let shift = if normal { top - 52 } else { 1074 }; // 最小subnormalの単位
+        let bit = |i: usize| {
+            magnitude
+                .get(i / 64)
+                .is_some_and(|w| (w >> (i % 64)) & 1 != 0)
+        };
+        let mut mantissa = 0u64;
+        for k in 0..53 {
+            if bit(shift + k) {
+                mantissa |= 1u64 << k;
+            }
+        }
+        let guard = shift - 1;
+        let sticky = magnitude[..guard / 64].iter().any(|&w| w != 0)
+            || magnitude[guard / 64] & ((1u64 << (guard % 64)) - 1) != 0;
+        if bit(guard) && (sticky || mantissa & 1 != 0) {
+            mantissa += 1;
+        }
+        let sign = u64::from(negative) << 63;
+        if !normal {
+            return Some(f64::from_bits(sign | mantissa));
+        }
+        if mantissa == 1u64 << 53 {
+            mantissa >>= 1;
+            top += 1;
+        }
+        let exponent = top as i32 - 2148 + 1023;
+        if exponent >= 2047 {
+            return None;
+        }
+        Some(f64::from_bits(
+            sign | ((exponent as u64) << 52) | (mantissa - (1u64 << 52)),
+        ))
+    }
+}
+pub(crate) fn sum(terms: impl Iterator<Item = f64>) -> Option<f64> {
+    let mut total = Sum::default();
+    for x in terms {
+        total.product(x, 1.)?;
+    }
+    total.rounded()
+}
 pub(crate) fn dot_sign(terms: impl Iterator<Item = (f64, f64)>) -> Option<Ordering> {
     let mut sum = Sum::default();
     for (a, b) in terms {
@@ -101,6 +165,23 @@ mod tests {
     fn nonfinite_values_are_not_certified() {
         assert_eq!(dot_sign([(f64::INFINITY, 0.)].into_iter()), None);
         assert_eq!(dot_sign([(f64::NAN, 1.)].into_iter()), None);
+    }
+    #[test]
+    fn correctly_rounded_sums_match_python_fraction() {
+        #[derive(serde::Deserialize)]
+        struct Case {
+            terms: Vec<u64>,
+            expected: Option<u64>,
+        }
+        let cases: Vec<Case> =
+            serde_json::from_str(include_str!("../tests/fixtures/exact-sum.json")).unwrap();
+        for (i, case) in cases.into_iter().enumerate() {
+            assert_eq!(
+                sum(case.terms.into_iter().map(f64::from_bits)).map(f64::to_bits),
+                case.expected,
+                "case{i}"
+            );
+        }
     }
     #[test]
     fn arbitrary_exponents_match_independent_python_fraction_fixtures() {
