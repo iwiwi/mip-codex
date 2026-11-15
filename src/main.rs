@@ -22,6 +22,18 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(value) = std::env::var("MIP_GRAPH_LOCAL_SECONDS") {
+            limits.graph_local_seconds = value.parse::<f64>().map_err(|e| e.to_string())?;
+            if !limits.graph_local_seconds.is_finite() || limits.graph_local_seconds <= 0. {
+                return Err("MIP_GRAPH_LOCAL_SECONDS must be positive and finite".into());
+            }
+        }
+        if let Ok(value) = std::env::var("MIP_GRAPH_LOCAL_PASSES") {
+            limits.graph_local_passes = value.parse::<usize>().map_err(|e| e.to_string())?;
+            if limits.graph_local_passes == 0 {
+                return Err("MIP_GRAPH_LOCAL_PASSES must be positive".into());
+            }
+        }
         if let Ok(value) = std::env::var("MIP_GRAPH_ROOT_COLORING") {
             limits.graph_root_coloring = match value.as_str() {
                 "0" => false,

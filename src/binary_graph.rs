@@ -349,6 +349,27 @@ pub fn solve_with_options(
     local: bool,
     stronger_root: bool,
 ) -> Option<Answer> {
+    solve_with_effort(
+        model,
+        memory,
+        deadline,
+        limit,
+        local,
+        stronger_root,
+        0.25,
+        8,
+    )
+}
+pub fn solve_with_effort(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    local_seconds: f64,
+    local_passes: usize,
+) -> Option<Answer> {
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -421,10 +442,10 @@ pub fn solve_with_options(
         && Instant::now() < deadline
     {
         let allocation =
-            (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(0.25);
+            (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(local_seconds);
         let local_deadline =
             deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
-        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline);
+        let (seed, stats) = improve_seed(&graph, &search.best, local_deadline, local_passes);
         search.best = seed;
         search.stats.local = Some(stats);
     }
@@ -466,6 +487,8 @@ pub struct LocalStats {
     pub initial: usize,
     pub best: usize,
     pub iterations: usize,
+    pub iteration_limit: usize,
+    pub budget_seconds: f64,
     pub pair_swaps: usize,
     pub neutral_swaps: usize,
     pub perturbations: usize,
@@ -554,10 +577,17 @@ impl LocalState {
             })
     }
 }
-fn improve_seed(graph: &Graph, initial: &[usize], deadline: Instant) -> (Vec<usize>, LocalStats) {
+fn improve_seed(
+    graph: &Graph,
+    initial: &[usize],
+    deadline: Instant,
+    passes: usize,
+) -> (Vec<usize>, LocalStats) {
     let started = Instant::now();
     let mut stats = LocalStats {
         initial: initial.len(),
+        iteration_limit: graph.n.saturating_mul(passes).min(500000),
+        budget_seconds: deadline.saturating_duration_since(started).as_secs_f64(),
         best: initial.len(),
         ..LocalStats::default()
     };
@@ -572,7 +602,7 @@ fn improve_seed(graph: &Graph, initial: &[usize], deadline: Instant) -> (Vec<usi
     let mut tabu = vec![0usize; graph.n];
     let mut rng = 0x9e3779b97f4a7c15u64;
     let mut stale = 0;
-    for iteration in 0..graph.n.saturating_mul(8).min(50000) {
+    for iteration in 0..stats.iteration_limit {
         if Instant::now() >= deadline {
             break;
         }
@@ -694,6 +724,7 @@ mod local_tests {
             &graph,
             &[0],
             Instant::now() + std::time::Duration::from_secs(1),
+            8,
         );
         assert_eq!(best, vec![1, 2]);
         assert!(stats.pair_swaps > 0);
@@ -702,6 +733,7 @@ mod local_tests {
             &graph,
             &[0, 1],
             Instant::now() + std::time::Duration::from_secs(1),
+            8,
         );
         assert!(best.is_empty());
         assert_eq!(stats.validation_failures, 1);
