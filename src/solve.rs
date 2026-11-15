@@ -114,6 +114,8 @@ pub struct Result {
     pub lp_warm_successes: Option<usize>,
     pub lp_warm_fallbacks: Option<usize>,
     pub lp_warm_rejections: Option<usize>,
+    pub lp_warm_cost_attempts: Option<usize>,
+    pub lp_warm_cost_successes: Option<usize>,
     pub lp_dual_pivots: Option<usize>,
     pub lp_dual_flips: Option<usize>,
     pub lp_pivots: Option<usize>,
@@ -1379,6 +1381,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             .then_some(lp_stats.warm_fallbacks),
         lp_warm_rejections: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.warm_rejections),
+        lp_warm_cost_attempts: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.warm_cost_attempts),
+        lp_warm_cost_successes: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.warm_cost_successes),
         lp_dual_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.dual_pivots),
         lp_dual_flips: matches!(limits.engine, Engine::Revised).then_some(lp_stats.dual_flips),
         lp_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.pivots),
@@ -1557,6 +1563,8 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         warm_successes: result.lp_warm_successes.unwrap_or(0),
         warm_fallbacks: result.lp_warm_fallbacks.unwrap_or(0),
         warm_rejections: result.lp_warm_rejections.unwrap_or(0),
+        warm_cost_attempts: result.lp_warm_cost_attempts.unwrap_or(0),
+        warm_cost_successes: result.lp_warm_cost_successes.unwrap_or(0),
         dual_pivots: result.lp_dual_pivots.unwrap_or(0),
         dual_flips: result.lp_dual_flips.unwrap_or(0),
         scaled_columns: result.lp_scaled_columns.unwrap_or(0),
