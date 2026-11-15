@@ -10,4 +10,4 @@
 
 この後で、低信頼度候補だけを予算内strong branchingで初期化し、計算済子LPのcacheを再利用する。best-bound/hybrid探索はfrontierメモリと親由来の弱いboundの扱いを先に設計する。問題名・既知値・holdout結果による調整は禁止。
 
-先にgmu-35-50/35-40の根LP numerical_errorを診断する。全方式共通の失敗であり、HiGHS根LPはoptimal。初期残差、LU/eta、最小比率検定、phase-I certificateを分けて記録し、許容誤差を緩めて成功扱いにしない。
+gmu-35-50/35-40の根LP numerical_errorは比率検定の単位誤りと微小pivotを修正して通過した (docs/NUMERICAL_STABILITY.md)。次は列スケーリング/非有界rayを検証し、一般的な主解のLP潜りとstrong branchingへ進む。許容誤差を緩めて成功扱いにしない。

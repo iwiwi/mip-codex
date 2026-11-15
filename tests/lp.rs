@@ -57,3 +57,15 @@ fn limit() {
         Outcome::IterationLimit
     );
 }
+
+#[test]
+fn tiny_cost_with_large_width_is_not_ignored() {
+    match minimize(&[vec![1.]], &[1e12], &[-1e-12], 1000).unwrap() {
+        Outcome::Optimal { objective, .. } => assert!((objective + 1.).abs() < 1e-10),
+        other => panic!("{other:?}"),
+    }
+    assert!(matches!(
+        minimize(&[], &[], &[-1e-18], 1000).unwrap(),
+        Outcome::Unbounded
+    ));
+}

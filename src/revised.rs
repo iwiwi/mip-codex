@@ -183,8 +183,8 @@ impl Simplex {
             })
             .collect();
         let matrix = SparseColMat::try_new_from_triplets(self.rhs.len(), self.rhs.len(), &triplets)
-            .map_err(|_| Outcome::NumericalError)?;
-        let lu = matrix.sp_lu().map_err(|_| Outcome::NumericalError)?;
+            .map_err(|_| numerical())?;
+        let lu = matrix.sp_lu().map_err(|_| numerical())?;
         self.factor = Basis {
             factor: Arc::new(Factor::Sparse(lu)),
             updates: vec![],
@@ -210,7 +210,7 @@ impl Simplex {
             self.x[j] = x[i];
         }
         if self.x.iter().any(|v| !v.is_finite()) {
-            return Err(Outcome::NumericalError);
+            return Err(numerical());
         }
         Ok(())
     }
@@ -218,34 +218,44 @@ impl Simplex {
         self.factor
             .backward(&self.basis.iter().map(|&j| c[j]).collect::<Vec<_>>())
     }
+    fn reduced_with_tolerance(&self, c: &[f64], y: &[f64], j: usize) -> (f64, f64) {
+        let mut dot = 0.0;
+        let mut scale = c[j].abs();
+        for &(i, a) in &self.columns[j] {
+            let product = a * y[i];
+            dot += product;
+            scale += product.abs();
+        }
+        (c[j] - dot, 1e-12 * scale)
+    }
     fn reduced(&self, c: &[f64], y: &[f64], j: usize) -> f64 {
-        c[j] - self.columns[j].iter().map(|&(i, a)| a * y[i]).sum::<f64>()
+        self.reduced_with_tolerance(c, y, j).0
     }
     /// Validate primal and bounded-variable dual residuals independently of pricing.
     fn certificate(&self, c: &[f64]) -> Result<(f64, f64), Outcome> {
         let mut residual = self.rhs.clone();
         for j in 0..self.columns.len() {
             if !self.x[j].is_finite() || self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             for &(i, a) in &self.columns[j] {
                 residual[i] -= a * self.x[j];
             }
         }
         if residual.iter().any(|r| !r.is_finite() || r.abs() > 1e-6) {
-            return Err(Outcome::NumericalError);
+            return Err(numerical());
         }
         let y = self.multipliers(c);
         let mut dual: f64 = y.iter().zip(&self.rhs).map(|(y, b)| y * b).sum();
         for j in 0..self.columns.len() {
             let r = self.reduced(c, &y, j);
             if !r.is_finite() {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             if self.upper[j].is_finite() {
                 dual += r.min(0.0) * self.upper[j];
             } else if r < -1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
         }
         let primal: f64 = c.iter().zip(&self.x).map(|(c, x)| c * x).sum();
@@ -253,7 +263,7 @@ impl Simplex {
             || !dual.is_finite()
             || (primal - dual).abs() > 1e-6 * (1.0 + primal.abs())
         {
-            return Err(Outcome::NumericalError);
+            return Err(numerical());
         }
         Ok((primal, dual.min(primal)))
     }
@@ -298,7 +308,7 @@ impl Simplex {
             }
             let y = self.multipliers(c);
             if y.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let mut reduced = vec![0.0; c.len()];
             for j in 0..c.len() {
@@ -308,7 +318,7 @@ impl Simplex {
                 let r = self.reduced(c, &y, j);
                 let q = if self.at_upper[j] { -r } else { r };
                 if !r.is_finite() || q < -1e-8 {
-                    return Err(Outcome::NumericalError);
+                    return Err(numerical());
                 }
                 reduced[j] = r;
             }
@@ -352,7 +362,7 @@ impl Simplex {
             unit[r] = 1.0;
             let w = self.factor.backward(&unit);
             if w.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let mut candidates = Vec::new();
             for j in 0..c.len() {
@@ -365,7 +375,7 @@ impl Simplex {
                 if denom > PIVOT {
                     let beta = (reduced[j] * direction).max(0.0) / denom;
                     if !beta.is_finite() {
-                        return Err(Outcome::NumericalError);
+                        return Err(numerical());
                     }
                     candidates.push((beta, j, direction, denom));
                 }
@@ -388,7 +398,7 @@ impl Simplex {
                 return Err(if self.impossible_row(&w) {
                     Outcome::Infeasible
                 } else {
-                    Outcome::NumericalError
+                    numerical()
                 });
             };
             if !flips.is_empty() {
@@ -417,11 +427,11 @@ impl Simplex {
             let denom = -t * d[r] * direction;
             let remaining = t * (target - self.x[leaving]);
             if !denom.is_finite() || denom <= PIVOT || remaining < -1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let theta = remaining.max(0.0) / denom;
             if !theta.is_finite() || theta > self.upper[j] + 1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             for (i, &k) in self.basis.iter().enumerate() {
                 self.x[k] -= d[i] * direction * theta;
@@ -442,7 +452,7 @@ impl Simplex {
                 degenerate = 0;
             }
             if self.stats.dual_pivots > 64.max(4 * self.rhs.len()) || degenerate > 500 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             if self.factor.updates.len() >= 50 {
                 self.refactor()?;
@@ -450,6 +460,16 @@ impl Simplex {
         }
     }
     fn run(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        let minimum_cost = c
+            .iter()
+            .map(|v| v.abs())
+            .filter(|v| *v > 0.)
+            .fold(f64::INFINITY, f64::min);
+        let noise_floor = if minimum_cost.is_finite() {
+            1e-10 * minimum_cost
+        } else {
+            0.
+        };
         let mut degenerate = 0usize;
         let mut verified = false;
         'iterations: loop {
@@ -461,17 +481,18 @@ impl Simplex {
             }
             let y = self.multipliers(c);
             if y.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let mut entering = None;
-            let mut most_negative = -1e-9;
+            let mut most_negative = 0.0;
             for j in 0..c.len() {
                 if self.basic[j] || self.upper[j] == 0.0 {
                     continue;
                 }
                 let direction = if self.at_upper[j] { -1.0 } else { 1.0 };
-                let reduced = direction * self.reduced(c, &y, j);
-                if reduced < most_negative {
+                let (raw, tolerance) = self.reduced_with_tolerance(c, &y, j);
+                let reduced = direction * raw;
+                if reduced < -tolerance.max(noise_floor) && reduced < most_negative {
                     most_negative = reduced;
                     entering = Some((j, direction));
                     if degenerate > 25 {
@@ -495,35 +516,25 @@ impl Simplex {
             }
             let d = self.factor.forward(&column);
             if d.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
-            let mut theta = self.upper[j];
-            let mut leaving = None;
-            for (i, &k) in self.basis.iter().enumerate() {
-                let a = d[i] * direction;
-                let ratio = if a > PIVOT {
-                    self.x[k] / a
-                } else if a < -PIVOT {
-                    (self.upper[k] - self.x[k]) / (-a)
-                } else {
-                    continue;
-                };
-                if ratio < -FEAS {
+            let (theta, leaving) = match primal_ratio(
+                &self.basis,
+                &self.x,
+                &self.upper,
+                &d,
+                direction,
+                self.upper[j],
+            ) {
+                Ok(step) => step,
+                Err(()) => {
                     if self.factor.updates.is_empty() {
-                        return Err(Outcome::NumericalError);
+                        return Err(numerical());
                     }
                     self.refactor()?;
                     continue 'iterations;
                 }
-                let ratio = ratio.max(0.0);
-                if ratio < theta - 1e-12
-                    || ((ratio - theta).abs() <= 1e-12
-                        && leaving.is_none_or(|r| self.basis[i] < self.basis[r]))
-                {
-                    theta = ratio;
-                    leaving = Some(i);
-                }
-            }
+            };
             if !theta.is_finite() {
                 // Re-factor before certifying an unbounded ray.
                 if !self.factor.updates.is_empty() {
@@ -538,16 +549,19 @@ impl Simplex {
                 let mut activity = vec![0.0; self.rhs.len()];
                 for k in 0..c.len() {
                     if ray[k] < -1e-8 || (self.upper[k].is_finite() && ray[k].abs() > 1e-8) {
-                        return Err(Outcome::NumericalError);
+                        return Err(numerical());
                     }
                     for &(i, a) in &self.columns[k] {
                         activity[i] += a * ray[k];
                     }
                 }
-                if activity.iter().any(|v| v.abs() > 1e-7)
-                    || c.iter().zip(ray).map(|(c, r)| c * r).sum::<f64>() >= -1e-9
+                let slope: f64 = c.iter().zip(&ray).map(|(c, r)| c * r).sum();
+                let slope_scale: f64 = c.iter().zip(&ray).map(|(c, r)| (c * r).abs()).sum();
+                if activity.iter().any(|v| !v.is_finite() || v.abs() > 1e-7)
+                    || !slope.is_finite()
+                    || slope >= -1e-12 * slope_scale
                 {
-                    return Err(Outcome::NumericalError);
+                    return Err(numerical());
                 }
                 return Err(Outcome::Unbounded);
             }
@@ -603,7 +617,7 @@ pub fn minimize_warm(
 ) -> Answer {
     if !valid(p) {
         return Answer {
-            outcome: Outcome::NumericalError,
+            outcome: numerical(),
             dual: None,
             stats: Stats::default(),
             warm: None,
@@ -719,7 +733,7 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
             .iter()
             .any(|col| col.iter().any(|&(i, a)| i >= m || !a.is_finite()))
     {
-        return error(Outcome::NumericalError);
+        return error(numerical());
     }
     let mut s = Simplex {
         columns: Arc::new(p.columns.clone()),
@@ -792,7 +806,7 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
                 return Err(if dual > 1e-8 {
                     Outcome::Infeasible
                 } else {
-                    Outcome::NumericalError
+                    numerical()
                 });
             }
             for &j in &s.artificial {
@@ -862,5 +876,102 @@ mod tests {
                 assert!((basis.backward(&v)[i] - backward[i]).abs() < 1e-10);
             }
         }
+    }
+}
+
+/// Harrisの二段階比率検定。許容誤差内の候補から大きいpivotを選ぶ。
+fn primal_ratio(
+    basis: &[usize],
+    x: &[f64],
+    upper: &[f64],
+    d: &[f64],
+    direction: f64,
+    width: f64,
+) -> Result<(f64, Option<usize>), ()> {
+    let mut relaxed = width;
+    for (i, &k) in basis.iter().enumerate() {
+        let a = d[i] * direction;
+        let available = if a > PIVOT {
+            x[k]
+        } else if a < -PIVOT {
+            upper[k] - x[k]
+        } else {
+            continue;
+        };
+        if available < -FEAS {
+            return Err(());
+        }
+        relaxed = relaxed.min((available.max(0.) + FEAS) / a.abs());
+    }
+    let mut theta = width;
+    let mut leaving = None;
+    let mut largest = 0.;
+    for (i, &k) in basis.iter().enumerate() {
+        let a = d[i] * direction;
+        let available = if a > PIVOT {
+            x[k]
+        } else if a < -PIVOT {
+            upper[k] - x[k]
+        } else {
+            continue;
+        };
+        let ratio = available.max(0.) / a.abs();
+        if ratio <= relaxed
+            && (a.abs() > largest || (a.abs() == largest && leaving.is_none_or(|r| k < basis[r])))
+        {
+            theta = ratio;
+            largest = a.abs();
+            leaving = Some(i);
+        }
+    }
+    Ok((theta, leaving))
+}
+
+#[track_caller]
+fn numerical() -> Outcome {
+    if std::env::var_os("MIP_LP_TRACE").is_some() {
+        eprintln!("LP numerical failure at {}", std::panic::Location::caller());
+    }
+    Outcome::NumericalError
+}
+
+#[cfg(test)]
+mod ratio_regressions {
+    use super::*;
+    #[test]
+    fn tiny_bound_roundoff_is_not_amplified_by_small_pivot() {
+        let step = primal_ratio(&[0], &[-1.1e-13], &[1.], &[4.15e-6], 1., f64::INFINITY);
+        assert_eq!(step, Ok((0., Some(0))));
+        assert!(primal_ratio(&[0], &[-1e-5], &[1.], &[4.15e-6], 1., f64::INFINITY).is_err());
+    }
+    #[test]
+    fn near_tie_chooses_stable_pivot_and_preserves_tolerance() {
+        let x = [1e-8, 1. + 1e-10];
+        let d = [1e-8, 1.];
+        let (theta, row) =
+            primal_ratio(&[0, 1], &x, &[f64::INFINITY; 2], &d, 1., f64::INFINITY).unwrap();
+        assert_eq!(row, Some(1));
+        assert_eq!(theta, x[1]);
+        for i in 0..2 {
+            assert!(x[i] - theta * d[i] >= -FEAS);
+        }
+    }
+    #[test]
+    fn entering_width_and_upper_bound_are_respected() {
+        assert_eq!(
+            primal_ratio(&[0], &[2.], &[10.], &[1.], 1., 1.),
+            Ok((1., None))
+        );
+        assert_eq!(
+            primal_ratio(&[0], &[2.], &[3.], &[-2.], 1., 10.),
+            Ok((0.5, Some(0)))
+        );
+    }
+    #[test]
+    fn stable_pivot_ties_use_basic_variable_order() {
+        assert_eq!(
+            primal_ratio(&[1, 0], &[1., 1.], &[2., 2.], &[1., 1.], 1., 10.),
+            Ok((1., Some(1)))
+        );
     }
 }

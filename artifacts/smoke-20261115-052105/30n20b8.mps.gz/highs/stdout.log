@@ -1,0 +1,43 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261115-052105/30n20b8.mps.gz/highs/options.txt
+MIP 30n20b8 has 576 rows; 18380 cols; 109706 nonzeros; 18380 integer variables (11036 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+02]
+  Cost    [5e+01, 1e+02]
+  Bound   [1e+00, 2e+02]
+  RHS     [1e+00, 1e+00]
+Presolving model
+576 rows, 18380 cols, 109706 nonzeros 0s
+491 rows, 8033 cols, 53143 nonzeros 0s
+491 rows, 6223 cols, 47708 nonzeros 1s
+491 rows, 4947 cols, 43823 nonzeros 3s
+Time limit reached in probing: consider not using probing by setting option presolve_rule_off to 2^15 = 32768
+Presolve reductions: rows 488(-88); columns 4752(-13628); nonzeros 42993(-66713) 
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -inf            inf                  inf        0      0      0         0     5.1s
+
+Solving report
+  Model             30n20b8
+  Status            Time limit reached
+  Primal bound      inf
+  Dual bound        -inf
+  Gap               inf
+  P-D integral      5.14
+  Solution status   -
+  Timing            5.14
+                    5.14 (Presolve)
+                    0.00 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     0

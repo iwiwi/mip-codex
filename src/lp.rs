@@ -48,7 +48,7 @@ impl Tableau {
             }
         }
     }
-    fn run(&mut self, allowed: usize) -> Result<(), Outcome> {
+    fn run(&mut self, allowed: usize, pricing_eps: f64) -> Result<(), Outcome> {
         loop {
             if self
                 .deadline
@@ -57,33 +57,45 @@ impl Tableau {
                 return Err(Outcome::TimeLimit);
             }
             if self.a.iter().flatten().any(|x| !x.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let m = self.basis.len();
             // Bland entering rule and basis-index ratio ties avoid exact cycling.
-            let Some(j) = (0..allowed).find(|&j| self.a[m][j] < -EPS) else {
+            let Some(j) = (0..allowed).find(|&j| self.a[m][j] < -pricing_eps) else {
                 return Ok(());
             };
             if self.iterations >= self.limit {
                 return Err(Outcome::IterationLimit);
             }
-            let mut row = None;
-            let mut ratio = f64::INFINITY;
+            let mut relaxed = f64::INFINITY;
             for i in 0..m {
                 if self.a[i][j] > EPS {
-                    let q = self.a[i][self.n] / self.a[i][j];
-                    if q < ratio - EPS
-                        || ((q - ratio).abs() <= EPS
-                            && row.is_none_or(|r| self.basis[i] < self.basis[r]))
+                    if self.a[i][self.n] < -1e-8 {
+                        return Err(numerical());
+                    }
+                    relaxed = relaxed.min((self.a[i][self.n].max(0.) + 1e-8) / self.a[i][j]);
+                }
+            }
+            let mut row = None;
+            let mut largest = 0.;
+            for i in 0..m {
+                let pivot = self.a[i][j];
+                if pivot > EPS {
+                    let ratio = self.a[i][self.n].max(0.) / pivot;
+                    if ratio <= relaxed
+                        && (pivot > largest
+                            || (pivot == largest
+                                && row.is_none_or(|r| self.basis[i] < self.basis[r])))
                     {
                         row = Some(i);
-                        ratio = q;
+                        largest = pivot;
                     }
                 }
             }
             let Some(r) = row else {
                 return Err(Outcome::Unbounded);
             };
+            self.a[r][self.n] = self.a[r][self.n].max(0.);
             self.pivot(r, j);
         }
     }
@@ -117,29 +129,36 @@ pub fn minimize_until(
         limit,
         deadline,
     };
+    let row_scales: Vec<_> = a
+        .iter()
+        .map(|r| {
+            let scale = r.iter().map(|v| v.abs()).fold(0., f64::max);
+            if scale > 0. { scale } else { 1. }
+        })
+        .collect();
     for i in 0..m {
         let sign = if b[i] < 0.0 { -1.0 } else { 1.0 };
         for j in 0..n {
-            t.a[i][j] = sign * a[i][j];
+            t.a[i][j] = sign * (a[i][j] / row_scales[i]);
         }
         t.a[i][n + i] = sign;
         t.a[i][n + m + i] = 1.0;
-        t.a[i][total] = sign * b[i];
+        t.a[i][total] = sign * (b[i] / row_scales[i]);
         t.basis.push(n + m + i);
     }
     let mut phase1 = vec![0.0; total];
     phase1[n + m..].fill(1.0);
     t.objective(&phase1);
-    if let Err(status) = t.run(total) {
+    if let Err(status) = t.run(total, EPS) {
         return Ok(match status {
-            Outcome::Unbounded => Outcome::NumericalError,
+            Outcome::Unbounded => numerical(),
             x => x,
         });
     }
     if t.a[m][total] < -EPS {
         // Farkas multipliers from the slack reduced costs. Reject unstable
         // infeasibility claims rather than pruning on a tableau value alone.
-        let lambda: Vec<_> = (0..m).map(|i| -t.a[m][n + i]).collect();
+        let lambda: Vec<_> = (0..m).map(|i| -t.a[m][n + i] / row_scales[i]).collect();
         let certified = lambda.iter().all(|&v| v <= 1e-8)
             && (0..n).all(|j| {
                 let value: f64 = (0..m).map(|i| lambda[i] * a[i][j]).sum();
@@ -150,7 +169,7 @@ pub fn minimize_until(
         return Ok(if certified {
             Outcome::Infeasible
         } else {
-            Outcome::NumericalError
+            numerical()
         });
     }
     // Remove artificial basic variables; an all-zero row is redundant.
@@ -158,7 +177,7 @@ pub fn minimize_until(
     while i < t.basis.len() {
         if t.basis[i] >= n + m {
             if t.a[i][total].abs() > EPS {
-                return Ok(Outcome::NumericalError);
+                return Ok(numerical());
             }
             if let Some(j) = (0..n + m).find(|&j| t.a[i][j].abs() > EPS && !t.basis.contains(&j)) {
                 t.pivot(i, j);
@@ -170,8 +189,23 @@ pub fn minimize_until(
         }
         i += 1;
     }
-    t.objective(c);
-    if let Err(status) = t.run(n + m) {
+    let objective_scale = c.iter().map(|v| v.abs()).fold(0.0, f64::max);
+    let objective_scale = if objective_scale > 0. {
+        objective_scale
+    } else {
+        1.
+    };
+    let normalized: Vec<_> = c.iter().map(|v| v / objective_scale).collect();
+    if c.iter().zip(&normalized).any(|(a, b)| *a != 0. && *b == 0.) {
+        return Ok(numerical());
+    }
+    t.objective(&normalized);
+    let minimum_cost = normalized
+        .iter()
+        .map(|v| v.abs())
+        .filter(|v| *v > 0.)
+        .fold(1.0, f64::min);
+    if let Err(status) = t.run(n + m, EPS * minimum_cost) {
         return Ok(status);
     }
     let mut x = vec![0.0; n];
@@ -187,11 +221,13 @@ pub fn minimize_until(
             value > rhs + 1e-7 * (1.0 + rhs.abs())
         })
     {
-        return Ok(Outcome::NumericalError);
+        return Ok(numerical());
     }
     let objective: f64 = c.iter().zip(&x).map(|(v, x)| v * x).sum();
     let row = t.basis.len();
-    let lambda: Vec<_> = (0..m).map(|i| -t.a[row][n + i]).collect();
+    let lambda: Vec<_> = (0..m)
+        .map(|i| -t.a[row][n + i] * objective_scale / row_scales[i])
+        .collect();
     let dual: f64 = lambda.iter().zip(b).map(|(v, b)| v * b).sum();
     let dual_ok = lambda.iter().all(|&v| v <= 1e-8)
         && (0..n).all(|j| {
@@ -204,7 +240,18 @@ pub fn minimize_until(
         || !dual_ok
         || (objective - dual).abs() > 1e-7 * (1.0 + objective.abs())
     {
-        return Ok(Outcome::NumericalError);
+        return Ok(numerical());
     }
     Ok(Outcome::Optimal { objective, x })
+}
+
+#[track_caller]
+fn numerical() -> Outcome {
+    if std::env::var_os("MIP_LP_TRACE").is_some() {
+        eprintln!(
+            "Dense LP numerical failure at {}",
+            std::panic::Location::caller()
+        );
+    }
+    Outcome::NumericalError
 }

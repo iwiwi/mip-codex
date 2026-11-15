@@ -159,3 +159,34 @@ fn duplicate_sparse_entries_are_summed() {
     };
     obj(&p, -2.0);
 }
+
+#[test]
+fn tiny_cost_does_not_hide_unbounded_direction() {
+    for cost in [1e-12, 1e-18] {
+        // x=z is an unbounded improving direction; unrelated y has unit cost.
+        let p = Problem {
+            columns: vec![vec![(0, 1.)], vec![(0, -1.)], vec![]],
+            rhs: vec![0.],
+            costs: vec![-cost, 0., 1.],
+            upper: vec![f64::INFINITY, f64::INFINITY, 1.],
+            equality: vec![true],
+            slack_upper: vec![f64::INFINITY],
+        };
+        assert!(matches!(
+            minimize(&p, 10000, None).outcome,
+            Outcome::Unbounded
+        ));
+    }
+}
+#[test]
+fn small_cost_and_large_finite_width_preserve_objective() {
+    let p = Problem {
+        columns: vec![vec![], vec![]],
+        rhs: vec![],
+        costs: vec![-1e-12, 1.],
+        upper: vec![1e12, 1.],
+        equality: vec![],
+        slack_upper: vec![],
+    };
+    obj(&p, -1.);
+}

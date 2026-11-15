@@ -100,3 +100,26 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
     assert_eq!(prop.dual_bound, cold.dual_bound);
     assert!(prop.lp_solves < cold.lp_solves);
 }
+
+#[test]
+fn dense_reference_handles_row_and_objective_scales() {
+    for (fixture, expected, scale) in [
+        ("scaled-lp-0.mps", 2.6200000000000005e-9f64, 1e-10f64),
+        ("scaled-lp-8.mps", -5643204709.798559, 1e8),
+    ] {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures")
+            .join(fixture);
+        let model = mps::read(path).unwrap();
+        let result = solve(
+            &model,
+            &Limits {
+                engine: mip_codex::solve::Engine::Dense,
+                primal_repair: false,
+                ..Limits::default()
+            },
+        );
+        assert_eq!(result.status, "optimal", "{fixture}: {result:?}");
+        assert!((result.objective.unwrap() - expected).abs() <= 1e-7 * expected.abs().max(scale));
+    }
+}
