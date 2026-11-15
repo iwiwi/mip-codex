@@ -317,7 +317,7 @@ impl Simplex {
             for (i, &j) in self.basis.iter().enumerate() {
                 let violation = (-self.x[j]).max(self.x[j] - self.upper[j]);
                 if violation > FEAS
-                    && (if degenerate > 25 {
+                    && (if degenerate > 0 {
                         row.is_none_or(|r| j < self.basis[r])
                     } else {
                         violation > largest
@@ -374,17 +374,17 @@ impl Simplex {
             let mut remaining = t * (target - self.x[leaving]);
             let mut flips = Vec::new();
             let mut enter = None;
-            for (_, j, direction, denom) in candidates {
+            for (beta, j, direction, denom) in candidates {
                 let coverage = denom * self.upper[j];
                 if self.upper[j].is_finite() && coverage < remaining {
                     remaining -= coverage;
                     flips.push((j, direction));
                 } else {
-                    enter = Some((j, direction));
+                    enter = Some((j, direction, beta));
                     break;
                 }
             }
-            let Some((j, direction)) = enter else {
+            let Some((j, direction, beta)) = enter else {
                 return Err(if self.impossible_row(&w) {
                     Outcome::Infeasible
                 } else {
@@ -435,12 +435,13 @@ impl Simplex {
             self.factor.update(r, &d);
             self.stats.pivots += 1;
             self.stats.dual_pivots += 1;
-            if theta < 1e-10 {
+            // dual退化は主変数の移動量ではなく双対ステップで判断する。
+            if beta < 1e-10 {
                 degenerate += 1;
             } else {
                 degenerate = 0;
             }
-            if degenerate > 500 {
+            if self.stats.dual_pivots > 64.max(4 * self.rhs.len()) || degenerate > 500 {
                 return Err(Outcome::NumericalError);
             }
             if self.factor.updates.len() >= 50 {
