@@ -183,8 +183,8 @@ impl Simplex {
             })
             .collect();
         let matrix = SparseColMat::try_new_from_triplets(self.rhs.len(), self.rhs.len(), &triplets)
-            .map_err(|_| Outcome::NumericalError)?;
-        let lu = matrix.sp_lu().map_err(|_| Outcome::NumericalError)?;
+            .map_err(|_| numerical())?;
+        let lu = matrix.sp_lu().map_err(|_| numerical())?;
         self.factor = Basis {
             factor: Arc::new(Factor::Sparse(lu)),
             updates: vec![],
@@ -210,7 +210,7 @@ impl Simplex {
             self.x[j] = x[i];
         }
         if self.x.iter().any(|v| !v.is_finite()) {
-            return Err(Outcome::NumericalError);
+            return Err(numerical());
         }
         Ok(())
     }
@@ -226,26 +226,26 @@ impl Simplex {
         let mut residual = self.rhs.clone();
         for j in 0..self.columns.len() {
             if !self.x[j].is_finite() || self.x[j] < -1e-7 || self.x[j] > self.upper[j] + 1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             for &(i, a) in &self.columns[j] {
                 residual[i] -= a * self.x[j];
             }
         }
         if residual.iter().any(|r| !r.is_finite() || r.abs() > 1e-6) {
-            return Err(Outcome::NumericalError);
+            return Err(numerical());
         }
         let y = self.multipliers(c);
         let mut dual: f64 = y.iter().zip(&self.rhs).map(|(y, b)| y * b).sum();
         for j in 0..self.columns.len() {
             let r = self.reduced(c, &y, j);
             if !r.is_finite() {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             if self.upper[j].is_finite() {
                 dual += r.min(0.0) * self.upper[j];
             } else if r < -1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
         }
         let primal: f64 = c.iter().zip(&self.x).map(|(c, x)| c * x).sum();
@@ -253,7 +253,7 @@ impl Simplex {
             || !dual.is_finite()
             || (primal - dual).abs() > 1e-6 * (1.0 + primal.abs())
         {
-            return Err(Outcome::NumericalError);
+            return Err(numerical());
         }
         Ok((primal, dual.min(primal)))
     }
@@ -298,7 +298,7 @@ impl Simplex {
             }
             let y = self.multipliers(c);
             if y.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let mut reduced = vec![0.0; c.len()];
             for j in 0..c.len() {
@@ -308,7 +308,7 @@ impl Simplex {
                 let r = self.reduced(c, &y, j);
                 let q = if self.at_upper[j] { -r } else { r };
                 if !r.is_finite() || q < -1e-8 {
-                    return Err(Outcome::NumericalError);
+                    return Err(numerical());
                 }
                 reduced[j] = r;
             }
@@ -352,7 +352,7 @@ impl Simplex {
             unit[r] = 1.0;
             let w = self.factor.backward(&unit);
             if w.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let mut candidates = Vec::new();
             for j in 0..c.len() {
@@ -365,7 +365,7 @@ impl Simplex {
                 if denom > PIVOT {
                     let beta = (reduced[j] * direction).max(0.0) / denom;
                     if !beta.is_finite() {
-                        return Err(Outcome::NumericalError);
+                        return Err(numerical());
                     }
                     candidates.push((beta, j, direction, denom));
                 }
@@ -388,7 +388,7 @@ impl Simplex {
                 return Err(if self.impossible_row(&w) {
                     Outcome::Infeasible
                 } else {
-                    Outcome::NumericalError
+                    numerical()
                 });
             };
             if !flips.is_empty() {
@@ -417,11 +417,11 @@ impl Simplex {
             let denom = -t * d[r] * direction;
             let remaining = t * (target - self.x[leaving]);
             if !denom.is_finite() || denom <= PIVOT || remaining < -1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let theta = remaining.max(0.0) / denom;
             if !theta.is_finite() || theta > self.upper[j] + 1e-7 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             for (i, &k) in self.basis.iter().enumerate() {
                 self.x[k] -= d[i] * direction * theta;
@@ -442,7 +442,7 @@ impl Simplex {
                 degenerate = 0;
             }
             if self.stats.dual_pivots > 64.max(4 * self.rhs.len()) || degenerate > 500 {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             if self.factor.updates.len() >= 50 {
                 self.refactor()?;
@@ -461,7 +461,7 @@ impl Simplex {
             }
             let y = self.multipliers(c);
             if y.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let mut entering = None;
             let mut most_negative = -1e-9;
@@ -495,7 +495,7 @@ impl Simplex {
             }
             let d = self.factor.forward(&column);
             if d.iter().any(|v| !v.is_finite()) {
-                return Err(Outcome::NumericalError);
+                return Err(numerical());
             }
             let mut theta = self.upper[j];
             let mut leaving = None;
@@ -510,7 +510,13 @@ impl Simplex {
                 };
                 if ratio < -FEAS {
                     if self.factor.updates.is_empty() {
-                        return Err(Outcome::NumericalError);
+                        if std::env::var_os("MIP_LP_TRACE").is_some() {
+                            eprintln!(
+                                "negative ratio: row={i} basic={k} value={} upper={} direction={a} ratio={ratio}",
+                                self.x[k], self.upper[k]
+                            );
+                        }
+                        return Err(numerical());
                     }
                     self.refactor()?;
                     continue 'iterations;
@@ -538,7 +544,7 @@ impl Simplex {
                 let mut activity = vec![0.0; self.rhs.len()];
                 for k in 0..c.len() {
                     if ray[k] < -1e-8 || (self.upper[k].is_finite() && ray[k].abs() > 1e-8) {
-                        return Err(Outcome::NumericalError);
+                        return Err(numerical());
                     }
                     for &(i, a) in &self.columns[k] {
                         activity[i] += a * ray[k];
@@ -547,7 +553,7 @@ impl Simplex {
                 if activity.iter().any(|v| v.abs() > 1e-7)
                     || c.iter().zip(ray).map(|(c, r)| c * r).sum::<f64>() >= -1e-9
                 {
-                    return Err(Outcome::NumericalError);
+                    return Err(numerical());
                 }
                 return Err(Outcome::Unbounded);
             }
@@ -603,7 +609,7 @@ pub fn minimize_warm(
 ) -> Answer {
     if !valid(p) {
         return Answer {
-            outcome: Outcome::NumericalError,
+            outcome: numerical(),
             dual: None,
             stats: Stats::default(),
             warm: None,
@@ -719,7 +725,7 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
             .iter()
             .any(|col| col.iter().any(|&(i, a)| i >= m || !a.is_finite()))
     {
-        return error(Outcome::NumericalError);
+        return error(numerical());
     }
     let mut s = Simplex {
         columns: Arc::new(p.columns.clone()),
@@ -792,7 +798,7 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
                 return Err(if dual > 1e-8 {
                     Outcome::Infeasible
                 } else {
-                    Outcome::NumericalError
+                    numerical()
                 });
             }
             for &j in &s.artificial {
@@ -863,4 +869,12 @@ mod tests {
             }
         }
     }
+}
+
+#[track_caller]
+fn numerical() -> Outcome {
+    if std::env::var_os("MIP_LP_TRACE").is_some() {
+        eprintln!("LP numerical failure at {}", std::panic::Location::caller());
+    }
+    Outcome::NumericalError
 }
