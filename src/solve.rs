@@ -1,5 +1,5 @@
 //! Initial depth-first branch-and-bound over the Rust LP reference engine.
-use crate::{lp, model::Model, propagate, revised};
+use crate::{heuristic, lp, model::Model, propagate, revised};
 use serde::Serialize;
 use std::{sync::Arc, time::Instant};
 #[derive(Clone, Copy, Debug)]
@@ -17,6 +17,7 @@ pub struct Limits {
     pub engine: Engine,
     pub warm_start: bool,
     pub propagation: bool,
+    pub primal_repair: bool,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -28,11 +29,18 @@ impl Default for Limits {
             engine: Engine::Revised,
             warm_start: true,
             propagation: false,
+            primal_repair: false,
         }
     }
 }
 #[derive(Serialize, Debug)]
 pub struct Result {
+    pub primal_repair: bool,
+    pub repair_calls: usize,
+    pub repair_candidates: usize,
+    pub repair_improvements: usize,
+    pub repair_moves: usize,
+    pub repair_work: usize,
     pub lp_engine: String,
     pub propagation: bool,
     pub propagation_calls: usize,
@@ -278,6 +286,8 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         .propagation
         .then(|| propagate::Propagator::new(model));
     let mut lp_stats = revised::Stats::default();
+    let mut repair = limits.primal_repair.then(|| heuristic::Repair::new(model));
+    let mut repair_improvements = 0;
     let mut incumbent = f64::INFINITY;
     let mut best = None;
     let mut status = "optimal".to_string();
@@ -416,6 +426,38 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     .map(|(j, _)| (j, (original[j] - original[j].round()).abs()))
                     .filter(|(_, f)| *f > 1e-7)
                     .max_by(|a, b| a.1.total_cmp(&b.1));
+                if branch.is_some() && (nodes == 1 || nodes % 256 == 0) {
+                    if let Some(h) = &mut repair {
+                        let allocation = if nodes == 1 { 0.05 } else { 0.001 };
+                        let repair_deadline = deadline
+                            .min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
+                        let budget = model
+                            .rows
+                            .iter()
+                            .map(|r| r.coefficients.len() + 1)
+                            .sum::<usize>()
+                            .saturating_mul(256)
+                            .clamp(4096, 2_000_000);
+                        if let Some(x) = h.search(
+                            &original,
+                            &node.lower,
+                            &node.upper,
+                            repair_deadline,
+                            budget,
+                            nodes as u64,
+                        ) {
+                            let value = sign * model.objective(&x);
+                            if value.is_finite() && value < incumbent {
+                                repair_improvements += 1;
+                                incumbent = value;
+                                best = Some(x);
+                            }
+                        }
+                    }
+                    if node.bound >= incumbent {
+                        continue;
+                    }
+                }
                 if let Some((j, _)) = branch {
                     let mut up = node.clone();
                     up.changed = Some(j);
@@ -483,7 +525,14 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
         status = "numerical_error".into();
     }
     let propagation_stats = propagator.map_or_else(propagate::Stats::default, |p| p.stats);
+    let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
+        primal_repair: limits.primal_repair,
+        repair_calls: repair_stats.calls,
+        repair_candidates: repair_stats.candidates,
+        repair_improvements,
+        repair_moves: repair_stats.moves,
+        repair_work: repair_stats.work,
         propagation: limits.propagation,
         propagation_calls: propagation_stats.calls,
         propagation_rows: propagation_stats.rows,
