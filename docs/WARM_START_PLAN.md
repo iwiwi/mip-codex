@@ -10,6 +10,6 @@ bound-flipping ratio testの候補導出を検証する。違反基底行rに対
 
 dual feasibilityや数値残差が不安定なら、残り時間内でcold二段階法へ戻す。候補なしを無条件にinfeasibleと扱わず、元行列と全変数境界に対するFarkas/区間証明を数値検査する。証明できなければcoldへ戻し、誤枝刈りを採用しない。
 
-warm/coldを同じcanonical列構成で切替可能にし、26基本テスト、全列挙/HiGHS小問題1000問、合成根LP200問、開発MIPLIB根LP6問を検証。境界変更の連鎖と兄弟復帰、冗長行、固定変数、無料変数の変換変更、時間切れ、悪条件行列を追加検証する。warm成功/dual pivot/flip/cold fallbackを数え、5秒の既存開発セットで同条件比較して採否を決める。全240問baselineの検証群を改善判断には使わない。
+warm/coldを同じcanonical列構成で切替可能にし、26基本テスト、全列挙/HiGHS小問題1000問、合成根LP200問、開発MIPLIB根LP6問を検証。境界変更の連鎖と兄弟復帰、冗長行、固定変数、自由変数の変換変更、時間切れ、悪条件行列を追加検証する。warm成功/dual pivot/flip/cold fallbackを数え、5秒の既存開発セットで同条件比較して採否を決める。全240問baselineの検証群を改善判断には使わない。
 
 開発の重いコマンドは`taskset -c 32-63`、短期benchmarkはCPU0。稼働baselineのCPU8..15・snapshot・共有.venv/システムsolverライブラリに触れない。
