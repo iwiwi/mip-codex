@@ -33,6 +33,8 @@ pub struct Stats {
     pub dual_flips: usize,
     pub scaled_columns: usize,
     pub scaled_rows: usize,
+    pub multiplier_cache_hits: usize,
+    pub multiplier_cache_misses: usize,
 }
 #[derive(Debug)]
 pub struct Answer {
@@ -54,12 +56,38 @@ enum Factor {
     Diagonal(Vec<f64>),
     Sparse(Lu<usize, f64>),
 }
+#[derive(Debug)]
+struct MultiplierCache {
+    input: Vec<f64>,
+    values: Vec<f64>,
+}
 #[derive(Clone, Debug)]
 struct Basis {
     factor: Arc<Factor>,
     updates: Vec<Arc<Eta>>,
+    multiplier_cache: Option<Arc<MultiplierCache>>,
 }
 impl Basis {
+    // The basis owns the cache; every update/refactor invalidates it, and siblings
+    // share only immutable snapshots. RHS and variable bounds do not enter B^-T c_B.
+    fn multipliers(&mut self, input: Vec<f64>) -> (Arc<MultiplierCache>, bool) {
+        if let Some(cache) = &self.multiplier_cache {
+            if cache.input.len() == input.len()
+                && cache
+                    .input
+                    .iter()
+                    .zip(&input)
+                    .all(|(a, b)| a.to_bits() == b.to_bits())
+            {
+                return (cache.clone(), true);
+            }
+        }
+        let values = self.backward(&input);
+        let cache = Arc::new(MultiplierCache { input, values });
+        self.multiplier_cache = Some(cache.clone());
+        (cache, false)
+    }
+
     fn forward(&self, v: &[f64]) -> Vec<f64> {
         let mut x = match self.factor.as_ref() {
             Factor::Diagonal(d) => v.iter().zip(d).map(|(v, d)| v / d).collect(),
@@ -101,6 +129,7 @@ impl Basis {
         }
     }
     fn update(&mut self, row: usize, d: &[f64]) {
+        self.multiplier_cache = None;
         self.updates.push(Arc::new(Eta {
             row,
             column: d
@@ -196,6 +225,7 @@ impl Simplex {
         self.factor = Basis {
             factor: Arc::new(Factor::Sparse(lu)),
             updates: vec![],
+            multiplier_cache: None,
         };
         self.stats.refactors += 1;
         self.recompute()
@@ -222,9 +252,12 @@ impl Simplex {
         }
         Ok(())
     }
-    fn multipliers(&self, c: &[f64]) -> Vec<f64> {
-        self.factor
-            .backward(&self.basis.iter().map(|&j| c[j]).collect::<Vec<_>>())
+    fn multipliers(&mut self, c: &[f64]) -> Arc<MultiplierCache> {
+        let input = self.basis.iter().map(|&j| c[j]).collect();
+        let (cache, hit) = self.factor.multipliers(input);
+        self.stats.multiplier_cache_hits += usize::from(hit);
+        self.stats.multiplier_cache_misses += usize::from(!hit);
+        cache
     }
     fn reduced_with_tolerance(&self, c: &[f64], y: &[f64], j: usize) -> (f64, f64) {
         let mut dot = 0.0;
@@ -253,7 +286,8 @@ impl Simplex {
         if residual.iter().any(|r| !r.is_finite() || r.abs() > 1e-6) {
             return Err(numerical());
         }
-        let y = self.multipliers(c);
+        let pricing = self.multipliers(c);
+        let y = &pricing.values;
         let mut dual_terms: Vec<_> = y.iter().zip(&self.rhs).map(|(&y, &b)| (y, b)).collect();
         for j in 0..self.columns.len() {
             let r = self.reduced(c, &y, j);
@@ -275,7 +309,7 @@ impl Simplex {
         {
             return Err(numerical());
         }
-        self.witness = Some(y);
+        self.witness = Some(y.clone());
         Ok((primal, dual.min(primal)))
     }
     /// 任意の行乗数と全box境界で矛盾を確認する。確証が弱ければcoldへ戻す。
@@ -317,7 +351,8 @@ impl Simplex {
             if self.stats.pivots + self.stats.flips >= self.limit {
                 return Err(Outcome::IterationLimit);
             }
-            let y = self.multipliers(c);
+            let pricing = self.multipliers(c);
+            let y = &pricing.values;
             if y.iter().any(|v| !v.is_finite()) {
                 return Err(numerical());
             }
@@ -491,7 +526,8 @@ impl Simplex {
             if self.stats.pivots + self.stats.flips >= self.limit {
                 return Err(Outcome::IterationLimit);
             }
-            let y = self.multipliers(c);
+            let pricing = self.multipliers(c);
+            let y = &pricing.values;
             if y.iter().any(|v| !v.is_finite()) {
                 return Err(numerical());
             }
@@ -750,6 +786,8 @@ impl Stats {
         self.dual_flips += other.dual_flips;
         self.scaled_columns += other.scaled_columns;
         self.scaled_rows += other.scaled_rows;
+        self.multiplier_cache_hits += other.multiplier_cache_hits;
+        self.multiplier_cache_misses += other.multiplier_cache_misses;
     }
 }
 fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> Answer {
@@ -766,6 +804,7 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
         factor: Basis {
             factor: Arc::new(Factor::Diagonal(vec![])),
             updates: vec![],
+            multiplier_cache: None,
         },
         stats: Stats::default(),
         limit,
@@ -817,6 +856,7 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
         s.x[j] = residual.abs();
     }
     s.factor.factor = Arc::new(Factor::Diagonal(diagonal));
+    s.factor.multiplier_cache = None;
     let outcome = (|| {
         if !s.artificial.is_empty() {
             let mut c = vec![0.0; s.columns.len()];
@@ -870,10 +910,44 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
 mod tests {
     use super::*;
     #[test]
+    fn cached_multipliers_preserve_bits_cost_keys_updates_and_siblings() {
+        let mut parent = Basis {
+            factor: Arc::new(Factor::Diagonal(vec![2., 3.])),
+            updates: vec![],
+            multiplier_cache: None,
+        };
+        let input = vec![2., 6.];
+        let (first, hit) = parent.multipliers(input.clone());
+        assert!(!hit);
+        assert_eq!(first.values, parent.backward(&input));
+        let (same, hit) = parent.multipliers(input.clone());
+        assert!(hit);
+        assert!(Arc::ptr_eq(&first, &same));
+        let mut child = parent.clone();
+        child.update(0, &[1., 1.]);
+        let (changed, hit) = child.multipliers(input.clone());
+        assert!(!hit);
+        assert_eq!(changed.values, child.backward(&input));
+        assert!(!Arc::ptr_eq(&first, &changed));
+        let (unchanged, hit) = parent.multipliers(input);
+        assert!(hit);
+        assert!(Arc::ptr_eq(&first, &unchanged));
+        let (_, hit) = parent.multipliers(vec![4., 6.]);
+        assert!(!hit);
+        let (minus, hit) = parent.multipliers(vec![-0., 0.]);
+        assert!(!hit);
+        let (plus, hit) = parent.multipliers(vec![0., 0.]);
+        assert!(!hit);
+        assert!(!Arc::ptr_eq(&minus, &plus));
+        assert_eq!(minus.values[0].to_bits(), (-0f64).to_bits());
+        assert_eq!(plus.values[0].to_bits(), 0f64.to_bits());
+    }
+    #[test]
     fn eta_forward_and_transpose_agree_with_fresh_lu() {
         let mut basis = Basis {
             factor: Arc::new(Factor::Diagonal(vec![1.; 3])),
             updates: vec![],
+            multiplier_cache: None,
         };
         let cols = [vec![2., 3., 1.], vec![1., 5., 2.], vec![3., 2., 4.]];
         for (j, col) in cols.iter().enumerate() {
