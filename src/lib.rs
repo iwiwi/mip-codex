@@ -17,3 +17,4 @@ pub(crate) mod exact;
 pub mod search;
 
 pub mod cuts;
+pub mod rins;

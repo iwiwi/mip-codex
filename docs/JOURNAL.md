@@ -229,3 +229,8 @@
 
 - 最終新規4solver比較091021/091022は全44run時間制限/証明0。39返却解GMP絶対38合格/既知HiGHS pk1不正1/未検証0、公式39合格。Rust10解は双方全合格、全51cutも元MPS Fraction有効。全値はBENCHMARKとstrong-default-summary.json。誤った監査run名091019を指定した最初の起動失敗ログも保存し、実在091021/091022で再監査した。
 - 隔離二値1000問はoff nodes3676/LP5424/.211177373秒、on nodes3418/LP7970/.264023416秒 (局所LP2804)、全参照/全列挙/原MPS検査成功。速度は悪化。主解取得範囲と3改善/2悪化の判断でPR17の既定化を採用予定。次はRINS近傍または選択した子LPのwarm基底だけの再利用を検討する。全240最終Rust評価・全体優位は未達成。
+
+## 2026-11-15: RINS型主解近傍の試作
+- PR17を613ec6aへmerge。rins-neighborhood branch。現在のincumbentと根LPの値が1e-6以内で一致する整数変数を固定し、元incumbentをseedとして自作B&Bで近傍だけ解く。少なくとも新規2変数・可変整数の10%以上が一致する場合に限定。根一回、全体5%最大.25秒、1024局所node/各LP4096pivot。元のrepair/diving/probeの後、strong branchingの前。局所repair/diving/probe/strong/cut/伝播/RINSを全部無効にして再帰一段だけにする。nearest/DFS/pseudocostで探索し、主探索の順序は不変。
+- 原理の参考: Danna/Rothberg/Le Pape (2005), DOI10.1007/s10107-004-0518-7、およびIBM公式RINS説明 (https://www.ibm.com/docs/en/icos/22.1.2?topic=heuristics-relaxation-induced-neighborhood-search-rins-heuristic)。コード移植や最適化委譲は行わない。近傍モデルの変更は整数境界固定だけ、原Modelは保持する。seedと返却点は元モデルの1e-7/外向き区間検査を通す。局所下界/最適・実行不能宣言は無視し、本体へ主解候補だけ返す。局所LP統計は総数へ加算、局所nodeはrins欄に分離。
+- MIP_RINS=0/1、既定無効。共通solveをprivate solve_seededへ分け、通常solveはseedなしのまま。既存probeのLP統計加算も共通関数に整理。117 Rust回帰が成功。近傍がseedを含むこと/元モデル不変、無効seed/不足一致の棄却、局所optimalでも本体node_limitと下界不変、seedは予算0でもglobal proofにならないことを追加。synthetic/18問性能比較はこれから。
