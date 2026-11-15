@@ -1,0 +1,49 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 2600 variables (100 bin, 0 int, 2500 cont) and 225 constraints
+feasible solution found by trivial heuristic after 0.0 seconds, objective value 0.000000e+00
+presolving:
+   (0.0s) probing cycle finished: starting next cycle
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present (symcode time: 0.00)
+presolving (1 rounds: 1 fast, 1 medium, 1 exhaustive):
+ 0 deleted vars, 0 deleted constraints, 0 added constraints, 0 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 2500 implications, 0 cliques, 0 implied integral variables (0 bin, 0 int, 0 cont)
+presolved problem has 2600 variables (100 bin, 0 int, 2500 cont) and 225 constraints
+    225 constraints of type <linear>
+Presolving Time: 0.01
+transformed 1/1 original solutions to the transformed problem space
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  0.0s|     1 |     0 |   574 |     - |    18M |   0 |2600 | 225 | 225 |   0 |  0 |   0 |   0 |-1.664659e+04 | 0.000000e+00 |    Inf | unknown
+r 0.0s|     1 |     0 |   574 |     - |shifting|   0 |2600 | 225 | 225 |   0 |  0 |   0 |   0 |-1.664659e+04 |-1.035095e+04 |  60.82%| unknown
+  0.1s|     1 |     0 |   958 |     - |    21M |   0 |2600 | 225 | 314 |  89 |  1 |   0 |   0 |-1.633522e+04 |-1.035095e+04 |  57.81%| unknown
+  0.1s|     1 |     0 |  1354 |     - |    23M |   0 |2600 | 225 | 385 | 160 |  2 |   0 |   0 |-1.614112e+04 |-1.035095e+04 |  55.94%| unknown
+  0.2s|     1 |     0 |  2257 |     - |    24M |   0 |2600 | 225 | 467 | 242 |  3 |   0 |   0 |-1.591747e+04 |-1.035095e+04 |  53.78%| unknown
+  0.3s|     1 |     0 |  3829 |     - |    26M |   0 |2600 | 225 | 543 | 318 |  4 |   0 |   0 |-1.574214e+04 |-1.035095e+04 |  52.08%| unknown
+  0.5s|     1 |     0 |  6062 |     - |    28M |   0 |2600 | 225 | 620 | 395 |  5 |   0 |   0 |-1.555273e+04 |-1.035095e+04 |  50.25%| unknown
+  0.6s|     1 |     0 |  7825 |     - |    31M |   0 |2600 | 225 | 690 | 465 |  6 |   0 |   0 |-1.540838e+04 |-1.035095e+04 |  48.86%| unknown
+  0.8s|     1 |     0 | 10670 |     - |    34M |   0 |2600 | 225 | 768 | 543 |  7 |   0 |   0 |-1.528717e+04 |-1.035095e+04 |  47.69%| unknown
+  1.1s|     1 |     0 | 14096 |     - |    37M |   0 |2600 | 225 | 838 | 613 |  8 |   0 |   0 |-1.516814e+04 |-1.035095e+04 |  46.54%| unknown
+  1.4s|     1 |     0 | 16895 |     - |    41M |   0 |2600 | 225 | 903 | 678 |  9 |   0 |   0 |-1.504291e+04 |-1.035095e+04 |  45.33%| unknown
+  1.7s|     1 |     0 | 19628 |     - |    44M |   0 |2600 | 225 | 972 | 747 | 10 |   0 |   0 |-1.495831e+04 |-1.035095e+04 |  44.51%| unknown
+  1.9s|     1 |     0 | 22561 |     - |    48M |   0 |2600 | 225 |1033 | 808 | 11 |   0 |   0 |-1.487032e+04 |-1.035095e+04 |  43.66%| unknown
+  2.0s|     1 |     0 | 22927 |     - |    53M |   0 |2600 | 225 |1100 | 875 | 12 |   0 |   0 |-1.487032e+04 |-1.035095e+04 |  43.66%| unknown
+(node 1) LP solver hit time limit in LP 14 -- using pseudo solution instead
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 2.00
+Solving Nodes      : 1
+Primal Bound       : -1.03509535829882e+04 (2 solutions)
+Dual Bound         : -1.48703213168716e+04
+Gap                : 43.66 %
+wrote parameter settings to file /home/ubuntu/mip-codex/artifacts/smoke-20261115-091022/pg5_34.mps.gz/scip/options.txt

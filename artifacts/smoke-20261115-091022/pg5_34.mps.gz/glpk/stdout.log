@@ -1,0 +1,52 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/pg5_34.mps.gz'...
+Problem: pg5_34
+Objective: obj
+226 rows, 2600 columns, 10300 non-zeros
+100 integer variables, all of which are binary
+8047 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-091022/pg5_34.mps.gz/glpk/model.glp'...
+15854 lines were written
+GLPK Integer Optimizer 5.0
+225 rows, 2600 columns, 7700 non-zeros
+100 integer variables, all of which are binary
+Preprocessing...
+225 rows, 2600 columns, 7700 non-zeros
+100 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.529e+03  ratio =  1.529e+03
+GM: min|aij| =  8.801e-01  max|aij| =  1.136e+00  ratio =  1.291e+00
+EQ: min|aij| =  7.746e-01  max|aij| =  1.000e+00  ratio =  1.291e+00
+2N: min|aij| =  5.561e-01  max|aij| =  1.715e+00  ratio =  3.084e+00
+Constructing initial basis...
+Size of triangular part is 225
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+225 rows, 2600 columns, 7700 non-zeros
+*     0: obj =   0.000000000e+00 inf =   0.000e+00 (2600)
+*  1640: obj =  -1.664658602e+04 inf =   0.000e+00 (0) 1
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+No 0-1 knapsack inequalities detected
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++  1640: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: -13363.6195537
+Pass 1
+Solution found by heuristic: -13965.0365641
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
++ 10874: mip =  -1.396503656e+04 >=  -1.500555018e+04   7.5% (1; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261115-091022/pg5_34.mps.gz/glpk/solution.raw'...
+2834 lines were written
