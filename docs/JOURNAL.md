@@ -469,3 +469,9 @@ source core `3125227a`、既定有効。sorrell7 15秒193/242、60秒197/241、�
 ### 2026-11-15 23:05 UTC 集約切断の採用前監査
 
 最終source core876099b61/FP8262e2efdce05367、create-only全240問snapshotを再帰FP照合済。通常34点GMP/公式有効、46記録222cut独立検査有効。別に数値32fixtureは専用GMP/Fractionで有効。通常経路で追加監査した6数値記録は4reader拒否・2公式checkerのobjective行RHS parser abortで未検証となったため、公式合格と混ぜず失敗試行を保存。製品やchecker許容差は変えない。最終unit183、最終500合成、孤立400根LP、32数値、checker8/preflight8、既定trueのtimtab10秒52566再現。PRへ全原データと全失敗を掲載する。
+
+### 2026-11-15 23:21 UTC 集約行512と開発188問
+
+集約候補128→512でtimtab1の10/60秒下界52566→82576、主解は両方なし。fhnw10/60秒はなし/0不変、残り16固定開発問は主指標不変。183Rust成功。証明はPR58と同一で、試作native LP値を自作Rustで再現後に採用判断。`aggregate-row-diversification`に記録。比較script初回SyntaxErrorの2ログと旧ソースを保存。
+
+凍結PR58で開発188問だけの根10秒/1節点診断を完了。77根点/91time_limit/11resource_limit/9numerical_error、driver/watchdog異常なし。77点は元MPS Fractionの連続LP制約/境界1e-6/目的相対1e-8検査すべて有効。MILP77問を解いたとは数えず、他111未検証と区別する。内部作業領域512MiB→2GiBの11追加診断は10件LP開始/根点なし、1件resource継続。既定メモリ値は変更しない。次は根数値エラー9件の原因と安全な再試行を調べる。holdout52は触れず、native全体は進行中。
