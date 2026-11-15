@@ -82,6 +82,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
         &Limits {
             propagation: false,
             primal_repair: false,
+            lp_diving: false,
             ..Limits::default()
         },
     );
@@ -90,6 +91,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
         &Limits {
             propagation: true,
             primal_repair: false,
+            lp_diving: false,
             ..Limits::default()
         },
     );
@@ -116,6 +118,7 @@ fn dense_reference_handles_row_and_objective_scales() {
             &Limits {
                 engine: mip_codex::solve::Engine::Dense,
                 primal_repair: false,
+                lp_diving: false,
                 ..Limits::default()
             },
         );

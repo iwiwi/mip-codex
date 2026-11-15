@@ -33,7 +33,7 @@ impl Default for Limits {
             warm_start: true,
             propagation: false,
             primal_repair: true,
-            lp_diving: false,
+            lp_diving: true,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
         }
