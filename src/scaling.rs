@@ -14,6 +14,66 @@ fn error() -> Answer {
         witness_point: None,
     }
 }
+fn validation_diagnostic(p: &Problem, answer: &Answer, stage: &str) {
+    let trace = std::env::var_os("MIP_LP_TRACE").is_some();
+    let dump = std::env::var_os("MIP_LP_NUMERICAL_DUMP");
+    if !trace && dump.is_none() {
+        return;
+    }
+    let (kind, x) = match &answer.outcome {
+        Outcome::Optimal { x, .. } => ("optimal", Some(x)),
+        Outcome::Infeasible => ("infeasible", None),
+        Outcome::Unbounded => ("unbounded", None),
+        _ => ("numerical", None),
+    };
+    let mut bad_rows = Vec::new();
+    if let Some(x) = x {
+        let mut residual = p.rhs.clone();
+        let mut rows = vec![Vec::new(); p.rhs.len()];
+        for (j, col) in p.columns.iter().enumerate() {
+            for &(i, a) in col {
+                residual[i] -= a * x[j];
+                rows[i].push((j, a));
+            }
+        }
+        for (i, &v) in residual.iter().enumerate() {
+            if !v.is_finite()
+                || if p.equality[i] {
+                    v.abs() > 1e-6
+                } else {
+                    v < -1e-6 || v > p.slack_upper[i] + 1e-6
+                }
+            {
+                let exact = crate::exact::dot_enclosure(
+                    std::iter::once((p.rhs[i], 1.)).chain(rows[i].iter().map(|&(j, a)| (-a, x[j]))),
+                );
+                bad_rows.push(serde_json::json!({"row":i,"residual":v,"exact_residual":exact}));
+            }
+        }
+    }
+    let event = serde_json::json!({"stage":stage,"outcome":kind,"variables":p.columns.len(),"rows":p.rhs.len(),"point_valid":x.map(|x|point_valid(p,x)),"bad_rows":bad_rows});
+    if trace {
+        eprintln!("LP validation diagnostic {event}");
+    }
+    if let Some(mut path) = dump {
+        static SERIAL: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        path.push(format!(
+            ".{}.{}.json",
+            std::process::id(),
+            SERIAL.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+        ));
+        if let Ok(file) = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(path)
+        {
+            let _ = serde_json::to_writer(
+                file,
+                &serde_json::json!({"event":event,"problem":{"columns":p.columns,"rhs":p.rhs,"costs":p.costs,"upper":p.upper.iter().map(|v|v.is_finite().then_some(*v)).collect::<Vec<_>>(),"equality":p.equality,"slack_upper":p.slack_upper.iter().map(|v|v.is_finite().then_some(*v)).collect::<Vec<_>>()},"point":x,"witness":answer.witness,"dual":answer.dual}),
+            );
+        }
+    }
+}
 pub(crate) fn power(value: f64) -> f64 {
     let bits = value.to_bits();
     let exponent = bits & (0x7ffu64 << 52);
@@ -269,6 +329,9 @@ pub(crate) fn solve(
         return answer;
     };
     let mut answer = revised::raw(&q, limit, deadline, warm, retain);
+    if matches!(answer.outcome, Outcome::NumericalError) {
+        validation_diagnostic(p, &answer, "raw_scaled");
+    }
     answer.stats.scaled_columns += factors.iter().filter(|s| **s != 1.).count();
     answer.stats.scaled_rows += rows.iter().filter(|r| **r != 1.).count();
     if matches!(
@@ -319,6 +382,7 @@ pub(crate) fn solve(
         _ => true,
     };
     if !valid {
+        validation_diagnostic(p, &answer, "scaled_post_validation");
         answer.outcome = Outcome::NumericalError;
         answer.dual = None;
         answer.warm = None;
@@ -326,4 +390,105 @@ pub(crate) fn solve(
         answer.witness_point = None;
     }
     answer
+}
+
+#[cfg(test)]
+mod saved_validation_diagnostic {
+    use super::*;
+    #[test]
+    #[ignore = "saved validation failures via MIP_LP_DUMP_DIR"]
+    fn inspect_saved_finite_box_certificates() {
+        use crate::model::{Model, Row, Variable};
+        for entry in std::fs::read_dir(std::env::var("MIP_LP_DUMP_DIR").unwrap()).unwrap() {
+            let path = entry.unwrap().path();
+            let d: serde_json::Value =
+                serde_json::from_reader(std::fs::File::open(&path).unwrap()).unwrap();
+            let p = &d["problem"];
+            let columns: Vec<Vec<(usize, f64)>> =
+                serde_json::from_value(p["columns"].clone()).unwrap();
+            let rhs: Vec<f64> = serde_json::from_value(p["rhs"].clone()).unwrap();
+            let upper: Vec<Option<f64>> = serde_json::from_value(p["upper"].clone()).unwrap();
+            let slack: Vec<Option<f64>> = serde_json::from_value(p["slack_upper"].clone()).unwrap();
+            let eq: Vec<bool> = serde_json::from_value(p["equality"].clone()).unwrap();
+            let variables = upper
+                .iter()
+                .enumerate()
+                .map(|(j, &u)| Variable {
+                    name: format!("x{j}"),
+                    lower: Some(0.),
+                    upper: u,
+                    integer: false,
+                    objective: 0.,
+                    objective_enclosure: Some([0., 0.]),
+                    lower_enclosure: Some([0., 0.]),
+                    upper_enclosure: u.map(|u| [u, u]),
+                })
+                .collect();
+            let mut rows: Vec<_> = rhs
+                .iter()
+                .enumerate()
+                .map(|(i, &b)| {
+                    let (lower, lower_enclosure) = if eq[i] {
+                        (Some(b), Some([b, b]))
+                    } else if let Some(w) = slack[i] {
+                        let enclosure =
+                            crate::exact::dot_enclosure([(b, 1.), (-w, 1.)].into_iter());
+                        if (b - w).is_finite() {
+                            (Some(b - w), enclosure)
+                        } else {
+                            (None, None)
+                        }
+                    } else {
+                        (None, None)
+                    };
+                    Row {
+                        name: format!("r{i}"),
+                        lower,
+                        upper: Some(b),
+                        lower_enclosure,
+                        upper_enclosure: Some([b, b]),
+                        coefficients: vec![],
+                        exact_coefficients: true,
+                        exact_integral: false,
+                        exact_coefficient_flags: vec![],
+                    }
+                })
+                .collect();
+            for (j, col) in columns.iter().enumerate() {
+                for &(i, a) in col {
+                    rows[i].coefficients.push((j, a));
+                }
+            }
+            let model = Model {
+                name: "saved_standard_lp".into(),
+                maximize: false,
+                offset: 0.,
+                offset_enclosure: Some([0., 0.]),
+                original_decimal: false,
+                variables,
+                rows,
+            };
+            let y: Vec<f64> = serde_json::from_value(d["witness"].clone()).unwrap();
+            let inverse: Vec<_> = y.iter().map(|v| -v).collect();
+            let lower = vec![Some(0.); upper.len()];
+            let a = crate::objective_bound::Certifier::feasibility(&model).unwrap();
+            let b = crate::objective_bound::Certifier::feasibility_with_aggregation(&model, true)
+                .unwrap();
+            if let Some(candidates) = d["rational_candidates"].as_array() {
+                for candidate in candidates {
+                    let weights: Vec<f64> =
+                        serde_json::from_value(candidate["weights"].clone()).unwrap();
+                    let inverse: Vec<_> = weights.iter().map(|v| -v).collect();
+                    println!(
+                        "{}",
+                        serde_json::json!({"file":path.file_name().unwrap().to_string_lossy(),"cap":candidate["cap"],"rational":[b.bound(&lower,&upper,&weights),b.bound(&lower,&upper,&inverse)]})
+                    );
+                }
+            }
+            println!(
+                "{}",
+                serde_json::json!({"file":path.file_name().unwrap().to_string_lossy(),"ordinary":[a.bound(&lower,&upper,&y),a.bound(&lower,&upper,&inverse)],"aggregate":[b.bound(&lower,&upper,&y),b.bound(&lower,&upper,&inverse)]})
+            );
+        }
+    }
 }
