@@ -22,7 +22,7 @@ env=os.environ.copy();env.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MK
 solvers=os.environ.get('MIP_BENCH_SOLVERS','rust,highs,scip,glpk').split(',')
 source_files=sorted([*root.glob('src/*.rs'),*root.glob('scripts/*.py'),root/'Cargo.toml',root/'Cargo.lock'])
 source_hashes={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
-meta=dict(solvers=solvers,source_sha256=source_hashes,binary_sha256=hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest(),seconds=seconds,threads=1,cpu=core,memory_bytes=16*1024**3,git_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),dirty=bool(subprocess.check_output(['git','status','--porcelain'],cwd=root)),names=names)
+meta=dict(solvers=solvers,source_sha256=source_hashes,binary_sha256=hashlib.sha256((root/'target/release/mip-codex').read_bytes()).hexdigest(),seconds=seconds,threads=1,cpu=core,memory_bytes=16*1024**3,git_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),dirty=bool(subprocess.check_output(['git','status','--porcelain','--','src','scripts','Cargo.toml','Cargo.lock'],cwd=root)),names=names)
 (output/'experiment.json').write_text(json.dumps(meta,indent=2)+'\n')
 
 def restrict():

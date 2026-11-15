@@ -20,8 +20,8 @@ impl Default for Limits {
     fn default() -> Self {
         Self {
             seconds: 60.0,
-            nodes: 100_000,
-            pivots: 100_000,
+            nodes: usize::MAX,
+            pivots: usize::MAX,
             dense_bytes: 256 * 1024 * 1024,
             engine: Engine::Revised,
         }
@@ -30,9 +30,9 @@ impl Default for Limits {
 #[derive(Serialize, Debug)]
 pub struct Result {
     pub lp_engine: String,
-    pub lp_pivots: usize,
-    pub lp_flips: usize,
-    pub lp_refactors: usize,
+    pub lp_pivots: Option<usize>,
+    pub lp_flips: Option<usize>,
+    pub lp_refactors: Option<usize>,
     pub status: String,
     pub objective: Option<f64>,
     pub dual_bound: Option<f64>,
@@ -407,9 +407,9 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     }
     Result {
         lp_engine: format!("{:?}", limits.engine),
-        lp_pivots: lp_stats.pivots,
-        lp_flips: lp_stats.flips,
-        lp_refactors: lp_stats.refactors,
+        lp_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.pivots),
+        lp_flips: matches!(limits.engine, Engine::Revised).then_some(lp_stats.flips),
+        lp_refactors: matches!(limits.engine, Engine::Revised).then_some(lp_stats.refactors),
         status,
         objective,
         dual_bound,

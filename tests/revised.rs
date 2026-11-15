@@ -146,3 +146,16 @@ fn sparse_factorization_after_many_updates() {
     assert!(a.stats.pivots >= 50);
     assert!(a.stats.refactors >= 1);
 }
+
+#[test]
+fn duplicate_sparse_entries_are_summed() {
+    let p = Problem {
+        columns: vec![vec![(0, 0.5), (0, 0.5)]],
+        rhs: vec![2.0],
+        costs: vec![-1.0],
+        upper: vec![f64::INFINITY],
+        equality: vec![false],
+        slack_upper: vec![f64::INFINITY],
+    };
+    obj(&p, -2.0);
+}

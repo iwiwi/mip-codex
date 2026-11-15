@@ -244,7 +244,7 @@ impl Simplex {
             verified = false;
             let mut column = vec![0.0; self.rhs.len()];
             for &(i, a) in &self.columns[j] {
-                column[i] = a;
+                column[i] += a;
             }
             let d = self.factor.forward(&column);
             if d.iter().any(|v| !v.is_finite()) {

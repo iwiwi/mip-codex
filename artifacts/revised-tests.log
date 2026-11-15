@@ -1,5 +1,5 @@
    Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.70s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.68s
      Running unittests src/lib.rs (target/debug/build/mip-codex/543b08d65459b292/out/mip_codex-543b08d65459b292)
 
 running 1 test
@@ -22,8 +22,8 @@ test infeasible ... ok
 test limit ... ok
 test malformed ... ok
 test phase_one ... ok
-test redundant ... ok
 test unbounded ... ok
+test redundant ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -32,23 +32,24 @@ test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 4 tests
 test explicit_objective_and_exponents ... ok
 test integer_defaults_and_bounds ... ok
-test ranges_offset_and_duplicates ... ok
 test reject_unsafe_model_changes ... ok
+test ranges_offset_and_duplicates ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
      Running tests/revised.rs (target/debug/build/mip-codex/2cadbcbdb2de17b0/out/revised-2cadbcbdb2de17b0)
 
-running 7 tests
-test infeasible_bounds_and_equations ... ok
+running 8 tests
 test finite_upper_bound_flips ... ok
+test infeasible_bounds_and_equations ... ok
 test unbounded_ray ... ok
+test duplicate_sparse_entries_are_summed ... ok
 test negative_rhs ... ok
 test ranged_slack_starts_at_upper_bound ... ok
 test phase_one_and_fixed_artificial_degeneracy ... ok
 test sparse_factorization_after_many_updates ... ok
 
-test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
      Running tests/solve.rs (target/debug/build/mip-codex/0014a8babc83ecce/out/solve-0014a8babc83ecce)
 
