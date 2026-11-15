@@ -65,7 +65,7 @@ impl Builder<'_> {
         self.groups.push(group);
         Some(id)
     }
-    fn grow(&mut self, mut group: Vec<usize>) {
+    fn grow(&mut self, mut group: Vec<usize>) -> Vec<usize> {
         let mut candidate = vec![u64::MAX; self.graph.words];
         if self.graph.n % 64 != 0 {
             *candidate.last_mut().unwrap() = (1 << (self.graph.n % 64)) - 1;
@@ -80,29 +80,22 @@ impl Builder<'_> {
                 self.partial = true;
                 break;
             }
-            // Inspect a bounded set of high global-degree candidates, ranking
-            // them by their current degree without scanning every vertex.
             let mut v = first(&candidate).unwrap();
             let mut best_degree = 0;
-            let mut inspected = 0;
-            'sample: for (word, &mask) in candidate.iter().enumerate().rev() {
+            for (word, &mask) in candidate.iter().enumerate() {
                 let mut bits = mask;
                 while bits != 0 {
-                    let bit = 63 - bits.leading_zeros() as usize;
-                    bits &= !(1u64 << bit);
+                    let bit = bits.trailing_zeros() as usize;
+                    bits &= bits - 1;
                     let u = word * 64 + bit;
                     let degree = candidate
                         .iter()
                         .zip(&self.conflict[u])
                         .map(|(a, b)| (a & b).count_ones())
                         .sum::<u32>();
-                    if inspected == 0 || degree > best_degree || (degree == best_degree && u < v) {
+                    if degree > best_degree {
                         v = u;
                         best_degree = degree;
-                    }
-                    inspected += 1;
-                    if inspected == 16 {
-                        break 'sample;
                     }
                 }
             }
@@ -111,7 +104,9 @@ impl Builder<'_> {
                 *a &= b;
             }
         }
+        let result = group.clone();
         self.add(group);
+        result
     }
     fn enumerate(&mut self, group: &mut Vec<usize>, mut p: Vec<u64>, mut x: Vec<u64>) {
         self.calls += 1;
@@ -324,11 +319,20 @@ pub(super) fn improve(
             base_count += 1;
         }
     }
-    for v in 0..graph.n {
+    let mut seeded = vec![false; graph.n];
+    let mut rich_coverage = vec![0usize; graph.n];
+    for _ in 0..graph.n {
         if Instant::now() >= construction {
             break;
         }
-        builder.grow(vec![v]);
+        let v = (0..graph.n)
+            .filter(|&v| !seeded[v])
+            .min_by_key(|&v| (rich_coverage[v], v))
+            .unwrap();
+        seeded[v] = true;
+        for u in builder.grow(vec![v]) {
+            rich_coverage[u] += 1;
+        }
     }
     for v in 0..graph.n {
         if Instant::now() >= construction {

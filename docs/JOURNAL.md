@@ -459,3 +459,7 @@ native v2は57/720・strict optimal24・error2。新しい044-glpk/ex10はGLPK�
 source core `3125227a`、既定有効。sorrell7 15秒193/242、60秒197/241、追加15秒1回/60秒2回も再現。主解は直前版と同じで上界を379から強化、公開最良198超え/最適性証明は未達成、Benchmark v2外の探索例。sorrell3の同一CPU3組は6042153節点不変、中央値18.85908→19.37730秒（+2.75%）と悪化。固定18問status/primal/dual不変。181Rust、最終1200CLI/7410破損拒否成功。全240問snapshotはcreate-onlyで再帰FP検証済、receipt `experiments/fractional-cover-snapshot-20261115.json`。native全体は78/720、32独立optimal、5errorで設定を変えず継続。
 
 次の仮説は短時間でも全頂点に届く安価なmaximalクリーク生成。sorrell3の比較専用native被覆LPは別候補20000個で約23.004、Rust候補の偏りが疑われる。native重みは一切使わず、現在版のPR確定後に別branchで先頭bitによるgreedy maximal化等を比較する。詳細はFRACTIONAL_COVER_HYPOTHESIS/RESULTS。保存解の一括独立再検査・原データarchiveを作成中。
+
+### 2026-11-15 22:40 UTC クリーク候補の5案を区切る
+
+`graph-balanced-cliques`で安価な拡張、4*n候補制限、大域高次数、上位16候補の動的次数、低被覆seed優先+全動的次数を試した。sorrell3根上界31→30→26の改善はあるが、15秒終了時16/24は全方式不変。sorrell7も193/242不変。mainへ不採用とし全試行を保存する。各方式1200CLI/7410破損拒否成功。比較専用LPで候補自体の上界31/30.1037を確認し、価格法だけの問題ではないと切り分けた。詳細BALANCED_CLIQUE_RESULTS/HYPOTHESIS。次は一般MILPの集約行からの厳密整数丸め切断等を診断する。原native全体78/720、32独立optimal、5error。
