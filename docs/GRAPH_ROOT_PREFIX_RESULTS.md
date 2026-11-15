@@ -25,3 +25,5 @@ PR38で根の最小色数へ探索順を変更すると、sorrell3の証明時�
 局所探索の単なる時間増加はPR39で不採用とした。sorrell3/7の15/60秒の主解/下界が不変で、sorrell3の証明時間を約2秒消費するだけだった。ソースと失敗を含む全記録は閉じたPR39のgraph-local-effortブランチに保持している。
 
 固定開発18問は、PR38の正式な旧データと同じ各CPU/秒/メモリ条件で新機能を有効にして再実行し、primal/dual/statusが一致した（速度比較には用いない）。新旧保存26点・134cut/36証明記録は独立検査で有効。prefix新旧15/60秒8点、sorrell3の追加反復4点、発見時の根順比較2点、native3点を含め、43保存点のGMP絶対/公式検査がすべて有効。Rustグラフ14点は根構造検査も通過した。
+
+最終既定設定でも1200CLI・7200偽証明拒否・32数値回帰成功。MIP_GRAPH_ROOT_PREFIX=0で無効化できる。採用コア0d322f21、FP57f0bf99c58bd01b、binary SHAa7f7c3a612dfd0d97eca247828fffee63e3e8009c974893dfcf18a6a688261ec。不変snapshotはexperiments/graph-prefix-snapshot-20261115.jsonでcreate-only。全生データと移動SHA台帳はartifacts/graph-prefix-evaluation。全件Rust最終測定は未開始。
