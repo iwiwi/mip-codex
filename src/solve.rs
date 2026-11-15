@@ -408,7 +408,10 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
                     .enumerate()
                     .map(|(j, t)| p.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
                     .collect();
-                if model.check(&original, false, 1e-6).is_err() {
+                if let Err(error) = model.check(&original, false, 1e-6) {
+                    if std::env::var_os("MIP_LP_TRACE").is_some() {
+                        eprintln!("Original LP check failed: {error}");
+                    }
                     stack.push(node);
                     status = "numerical_error".into();
                     break;

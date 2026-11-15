@@ -218,8 +218,18 @@ impl Simplex {
         self.factor
             .backward(&self.basis.iter().map(|&j| c[j]).collect::<Vec<_>>())
     }
+    fn reduced_with_tolerance(&self, c: &[f64], y: &[f64], j: usize) -> (f64, f64) {
+        let mut dot = 0.0;
+        let mut scale = c[j].abs();
+        for &(i, a) in &self.columns[j] {
+            let product = a * y[i];
+            dot += product;
+            scale += product.abs();
+        }
+        (c[j] - dot, 1e-12 * scale)
+    }
     fn reduced(&self, c: &[f64], y: &[f64], j: usize) -> f64 {
-        c[j] - self.columns[j].iter().map(|&(i, a)| a * y[i]).sum::<f64>()
+        self.reduced_with_tolerance(c, y, j).0
     }
     /// Validate primal and bounded-variable dual residuals independently of pricing.
     fn certificate(&self, c: &[f64]) -> Result<(f64, f64), Outcome> {
@@ -450,6 +460,16 @@ impl Simplex {
         }
     }
     fn run(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        let minimum_cost = c
+            .iter()
+            .map(|v| v.abs())
+            .filter(|v| *v > 0.)
+            .fold(f64::INFINITY, f64::min);
+        let noise_floor = if minimum_cost.is_finite() {
+            1e-10 * minimum_cost
+        } else {
+            0.
+        };
         let mut degenerate = 0usize;
         let mut verified = false;
         'iterations: loop {
@@ -464,14 +484,15 @@ impl Simplex {
                 return Err(numerical());
             }
             let mut entering = None;
-            let mut most_negative = -1e-9;
+            let mut most_negative = 0.0;
             for j in 0..c.len() {
                 if self.basic[j] || self.upper[j] == 0.0 {
                     continue;
                 }
                 let direction = if self.at_upper[j] { -1.0 } else { 1.0 };
-                let reduced = direction * self.reduced(c, &y, j);
-                if reduced < most_negative {
+                let (raw, tolerance) = self.reduced_with_tolerance(c, &y, j);
+                let reduced = direction * raw;
+                if reduced < -tolerance.max(noise_floor) && reduced < most_negative {
                     most_negative = reduced;
                     entering = Some((j, direction));
                     if degenerate > 25 {
@@ -497,39 +518,23 @@ impl Simplex {
             if d.iter().any(|v| !v.is_finite()) {
                 return Err(numerical());
             }
-            let mut theta = self.upper[j];
-            let mut leaving = None;
-            for (i, &k) in self.basis.iter().enumerate() {
-                let a = d[i] * direction;
-                let ratio = if a > PIVOT {
-                    self.x[k] / a
-                } else if a < -PIVOT {
-                    (self.upper[k] - self.x[k]) / (-a)
-                } else {
-                    continue;
-                };
-                if ratio < -FEAS {
+            let (theta, leaving) = match primal_ratio(
+                &self.basis,
+                &self.x,
+                &self.upper,
+                &d,
+                direction,
+                self.upper[j],
+            ) {
+                Ok(step) => step,
+                Err(()) => {
                     if self.factor.updates.is_empty() {
-                        if std::env::var_os("MIP_LP_TRACE").is_some() {
-                            eprintln!(
-                                "negative ratio: row={i} basic={k} value={} upper={} direction={a} ratio={ratio}",
-                                self.x[k], self.upper[k]
-                            );
-                        }
                         return Err(numerical());
                     }
                     self.refactor()?;
                     continue 'iterations;
                 }
-                let ratio = ratio.max(0.0);
-                if ratio < theta - 1e-12
-                    || ((ratio - theta).abs() <= 1e-12
-                        && leaving.is_none_or(|r| self.basis[i] < self.basis[r]))
-                {
-                    theta = ratio;
-                    leaving = Some(i);
-                }
-            }
+            };
             if !theta.is_finite() {
                 // Re-factor before certifying an unbounded ray.
                 if !self.factor.updates.is_empty() {
@@ -550,8 +555,11 @@ impl Simplex {
                         activity[i] += a * ray[k];
                     }
                 }
-                if activity.iter().any(|v| v.abs() > 1e-7)
-                    || c.iter().zip(ray).map(|(c, r)| c * r).sum::<f64>() >= -1e-9
+                let slope: f64 = c.iter().zip(&ray).map(|(c, r)| c * r).sum();
+                let slope_scale: f64 = c.iter().zip(&ray).map(|(c, r)| (c * r).abs()).sum();
+                if activity.iter().any(|v| !v.is_finite() || v.abs() > 1e-7)
+                    || !slope.is_finite()
+                    || slope >= -1e-12 * slope_scale
                 {
                     return Err(numerical());
                 }
@@ -871,10 +879,99 @@ mod tests {
     }
 }
 
+/// Harrisの二段階比率検定。許容誤差内の候補から大きいpivotを選ぶ。
+fn primal_ratio(
+    basis: &[usize],
+    x: &[f64],
+    upper: &[f64],
+    d: &[f64],
+    direction: f64,
+    width: f64,
+) -> Result<(f64, Option<usize>), ()> {
+    let mut relaxed = width;
+    for (i, &k) in basis.iter().enumerate() {
+        let a = d[i] * direction;
+        let available = if a > PIVOT {
+            x[k]
+        } else if a < -PIVOT {
+            upper[k] - x[k]
+        } else {
+            continue;
+        };
+        if available < -FEAS {
+            return Err(());
+        }
+        relaxed = relaxed.min((available.max(0.) + FEAS) / a.abs());
+    }
+    let mut theta = width;
+    let mut leaving = None;
+    let mut largest = 0.;
+    for (i, &k) in basis.iter().enumerate() {
+        let a = d[i] * direction;
+        let available = if a > PIVOT {
+            x[k]
+        } else if a < -PIVOT {
+            upper[k] - x[k]
+        } else {
+            continue;
+        };
+        let ratio = available.max(0.) / a.abs();
+        if ratio <= relaxed
+            && (a.abs() > largest || (a.abs() == largest && leaving.is_none_or(|r| k < basis[r])))
+        {
+            theta = ratio;
+            largest = a.abs();
+            leaving = Some(i);
+        }
+    }
+    Ok((theta, leaving))
+}
+
 #[track_caller]
 fn numerical() -> Outcome {
     if std::env::var_os("MIP_LP_TRACE").is_some() {
         eprintln!("LP numerical failure at {}", std::panic::Location::caller());
     }
     Outcome::NumericalError
+}
+
+#[cfg(test)]
+mod ratio_regressions {
+    use super::*;
+    #[test]
+    fn tiny_bound_roundoff_is_not_amplified_by_small_pivot() {
+        let step = primal_ratio(&[0], &[-1.1e-13], &[1.], &[4.15e-6], 1., f64::INFINITY);
+        assert_eq!(step, Ok((0., Some(0))));
+        assert!(primal_ratio(&[0], &[-1e-5], &[1.], &[4.15e-6], 1., f64::INFINITY).is_err());
+    }
+    #[test]
+    fn near_tie_chooses_stable_pivot_and_preserves_tolerance() {
+        let x = [1e-8, 1. + 1e-10];
+        let d = [1e-8, 1.];
+        let (theta, row) =
+            primal_ratio(&[0, 1], &x, &[f64::INFINITY; 2], &d, 1., f64::INFINITY).unwrap();
+        assert_eq!(row, Some(1));
+        assert_eq!(theta, x[1]);
+        for i in 0..2 {
+            assert!(x[i] - theta * d[i] >= -FEAS);
+        }
+    }
+    #[test]
+    fn entering_width_and_upper_bound_are_respected() {
+        assert_eq!(
+            primal_ratio(&[0], &[2.], &[10.], &[1.], 1., 1.),
+            Ok((1., None))
+        );
+        assert_eq!(
+            primal_ratio(&[0], &[2.], &[3.], &[-2.], 1., 10.),
+            Ok((0.5, Some(0)))
+        );
+    }
+    #[test]
+    fn stable_pivot_ties_use_basic_variable_order() {
+        assert_eq!(
+            primal_ratio(&[1, 0], &[1., 1.], &[2., 2.], &[1., 1.], 1., 10.),
+            Ok((1., Some(1)))
+        );
+    }
 }

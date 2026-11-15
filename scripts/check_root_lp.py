@@ -15,6 +15,12 @@ root=Path(__file__).resolve().parents[1]
 rng=random.Random(2026111502)
 count=int(sys.argv[1]) if len(sys.argv)>1 else 100
 failed=0
+profile=os.environ.get('MIP_ROOT_PROFILE','ordinary')
+assert profile in ('ordinary','scaled')
+engines=os.environ.get('MIP_ROOT_ENGINES','dense,revised').split(',')
+assert engines and all(e in ('dense','revised') for e in engines)
+outdir=Path(os.environ.get('MIP_ROOT_DIR',root/'artifacts'))
+outdir.mkdir(parents=True,exist_ok=True)
 with tempfile.TemporaryDirectory() as directory:
     path=Path(directory)/'root.mps'
     for case in range(count):
@@ -32,6 +38,15 @@ with tempfile.TemporaryDirectory() as directory:
             width=rng.randint(0,20) if kind=='L' and rng.random()<0.25 else None
             if width is not None:width=max(width,rhs-activity)
             rows.append((a,rhs,kind,width))
+        cost_scale=1.
+        if profile=='scaled':
+            transformed=[]
+            for a,b,kind,width in rows:
+                scale=rng.choice([1e-3,1e-2,1.,1e2,1e3])
+                transformed.append(([v*scale for v in a],b*scale,kind,None if width is None else width*scale))
+            rows=transformed
+            cost_scale=[1e-10,1.,1e8][case%3]
+            costs=[v*cost_scale for v in costs]
         lines=['NAME root','ROWS',' N obj']+[f' {kind} r{i}' for i,(_,_,kind,_) in enumerate(rows)]+['COLUMNS']
         for j in range(n):
             lines+=[f' x{j} obj {costs[j]}']+[f' x{j} r{i} {a[j]}' for i,(a,_,_,_) in enumerate(rows) if a[j]]
@@ -43,21 +58,24 @@ with tempfile.TemporaryDirectory() as directory:
         lines+=['ENDATA'];text='\n'.join(lines)+'\n';path.write_text(text)
         try:
             h=highspy.Highs();h.setOptionValue('output_flag',False);h.setOptionValue('threads',1);h.readModel(str(path))
-            lp=h.getLp();lp.integrality_=[];h.passModel(lp);h.run()
+            lp=h.getLp();lp.integrality_=[]
+            # 正の目的スケールは最適点を変えない。参照側は単位を戻して小さい係数の無視を防ぐ。
+            lp.col_cost_=[v/cost_scale for v in lp.col_cost_]
+            h.passModel(lp);h.run()
             assert h.getModelStatus()==highspy.HighsModelStatus.kOptimal
-            expected=h.getObjectiveValue()
+            expected=h.getObjectiveValue()*cost_scale
             results={}
-            for engine in ['dense','revised']:
+            for engine in engines:
                 env=os.environ.copy();env['MIP_LP_ENGINE']=engine
                 result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10','1'],env=env,timeout=15))
                 assert result['status'] in ('optimal','node_limit'),result
                 actual=result['dual_bound'];assert actual is not None,result
-                assert abs(actual-expected)<=1e-6*(1+abs(expected)),(expected,result)
+                assert abs(actual-expected)/cost_scale<=1e-6*(1+abs(expected/cost_scale)),(expected,result)
                 results[engine]=dict(bound=actual,seconds=result['seconds'],pivots=result['lp_pivots'],refactors=result['lp_refactors'])
-            print(json.dumps(dict(case=case,status='pass',highs=expected,results=results)),flush=True)
+            print(json.dumps(dict(case=case,status='pass',profile=profile,cost_scale=cost_scale,highs=expected,results=results)),flush=True)
         except Exception as error:
             failed+=1
-            (root/'artifacts'/f'root-failure-{case}.mps').write_text(text)
+            (outdir/f'root-{profile}-failure-{case}.mps').write_text(text)
             print(json.dumps(dict(case=case,status='fail',error=str(error))),flush=True)
 print(json.dumps(dict(cases=count,failures=failed)),flush=True)
 sys.exit(bool(failed))
