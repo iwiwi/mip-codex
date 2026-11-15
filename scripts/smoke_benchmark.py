@@ -103,8 +103,8 @@ with (output/'results.jsonl').open('w') as summary:
                     assert parsed['primal_probe'] == (solver == 'rust-probe')
                     assert parsed['search_strategy'] == 'DepthFirst' and parsed['child_order'] == 'Down'
                 if solver in ('rust-rounding', 'rust-no-rounding'):
-                run_env.update(MIP_ROUNDING_CUTS='1' if solver=='rust-rounding' else '0', MIP_COVER_CUTS='1', MIP_PRIMAL_PROBE='1', MIP_SEARCH='depth', MIP_BRANCHING='pseudocost', MIP_CHILD_ORDER='down', MIP_LP_ENGINE='revised', MIP_LP_WARM_START='1', MIP_PROPAGATION='0', MIP_PRIMAL_REPAIR='1', MIP_LP_DIVING='1')
-            elif solver in queue_modes:
+                    assert parsed['rounding_cuts_enabled'] == (solver == 'rust-rounding')
+                if solver in queue_modes:
                     search, order = queue_modes[solver]
                     assert parsed['search_strategy'] == {'depth':'DepthFirst','best':'BestBound','hybrid':'Hybrid'}[search]
                     assert parsed['child_order'] == {'down':'Down','estimate':'Estimate'}[order]
