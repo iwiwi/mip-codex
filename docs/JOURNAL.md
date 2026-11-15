@@ -199,3 +199,5 @@
 
 - 既定化source7e979b6: 101 Rust回帰、通常小1000/混合cut1000/中規模200が全成功。RANGES反例を新バイナリで再測定しoptimal1/元MPS GMP合格。8問×4solverの新5秒比較はmixed-cover-default-smoke-launch.logで実行中 (CPU0、1thread/16GiB)、完了までバイナリを変更しない。
 - 08:49 UTC baseline62/720、旧primary最適24/errors5、coordinator生存。新しいGLPK errorはex10の原MPS reader拒否 (69612行missing row type、driver exit3) とbuildingenergyの3660秒watchdog kill。snapshot改変/隠蔽/再試行はせず全結果へ計上する。保存解51件の新GMP別監査は50合格/既知cbs-cta GLPK不正1/未検証0。buildingenergy HS/SCIPは旧checker時間切れから保存解再監査で合格を回収。
+
+- 最終source7e979b6の新規8問×4solver5秒 (084917) は全32run時間制限/証明0。28返却解GMP絶対27合格/既知HiGHS pk1不正1/未検証0、公式28合格。Rust7解は双方合格、全51cutもFraction有効。主解/下界は最終対照と一致。新規比較を含む全表をBENCHMARKとmixed-cover-default-summary.jsonへ保存。PR15で混合cover既定化とRANGES誤最適修正を採用予定。次は整数行の丸めcutで下界強化を試す。
