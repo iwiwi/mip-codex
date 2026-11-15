@@ -37,6 +37,21 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PRIMAL_REPAIR must be 0 or 1".into()),
             };
         }
+        if let Ok(rule) = std::env::var("MIP_BRANCHING") {
+            limits.branching = match rule.as_str() {
+                "fractional" => mip_codex::branching::Rule::Fractional,
+                "pseudocost" => mip_codex::branching::Rule::Pseudocost,
+                _ => return Err("MIP_BRANCHING must be fractional or pseudocost".into()),
+            };
+        }
+        if let Ok(order) = std::env::var("MIP_CHILD_ORDER") {
+            limits.child_order = match order.as_str() {
+                "down" => mip_codex::branching::Order::Down,
+                "nearest" => mip_codex::branching::Order::Nearest,
+                "estimate" => mip_codex::branching::Order::Estimate,
+                _ => return Err("MIP_CHILD_ORDER must be down, nearest or estimate".into()),
+            };
+        }
         if let Some(s) = args.get(3) {
             limits.seconds = s.parse().map_err(|_| "invalid seconds")?;
         }
