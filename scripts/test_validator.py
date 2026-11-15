@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import copy
+from decimal import Decimal
 import unittest
 from pathlib import Path
 from validate_solution import validate
@@ -43,5 +44,9 @@ class ValidatorTests(unittest.TestCase):
             self.assertTrue(result['float_diagnostics']['valid'])
             self.assertFalse(result['valid'])
             self.assertEqual(result['exact']['row_violation'], '1')
+            result = validate(path, dict(objective=0, values=dict(x=Decimal('100000000.0000000001'), y=0)))
+            self.assertTrue(result['float_diagnostics']['valid'])
+            self.assertFalse(result['valid'])
+            self.assertEqual(result['exact']['row_violation'], '1/100')
 
 if __name__=='__main__':unittest.main()

@@ -195,3 +195,33 @@ fn enumeration_preserves_every_feasible_integer_point() {
         }
     }
 }
+#[test]
+fn mixed_continuous_grid_points_are_preserved() {
+    for k in -12..=12 {
+        let m = model(
+            vec![
+                variable("x", Some(-2.), Some(3.), true),
+                variable("y", Some(-2.), Some(3.), false),
+            ],
+            vec![row(
+                Some(k as f64 / 4.),
+                Some(k as f64 / 4. + 1.),
+                vec![(0, -1.25), (1, 2.5)],
+            )],
+        );
+        let (mut lo, mut up) = domains(&m);
+        let status = Propagator::new(&m).propagate(&mut lo, &mut up, None, None);
+        for x in -2..=3 {
+            for y in -8..=12 {
+                let point = [x as f64, y as f64 / 4.];
+                if m.check(&point, true, 1e-6).is_ok() {
+                    assert_ne!(status, Status::Infeasible);
+                    for j in 0..2 {
+                        assert!(lo[j].is_none_or(|v| point[j] >= v));
+                        assert!(up[j].is_none_or(|v| point[j] <= v));
+                    }
+                }
+            }
+        }
+    }
+}

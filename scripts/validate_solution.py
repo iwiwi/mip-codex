@@ -5,6 +5,7 @@ Usage: .venv/bin/python scripts/validate_solution.py original.mps.gz solution.js
 全変数の明示が必要。検査は最適性証明ではない。
 """
 import json
+import hashlib
 import math
 import sys
 import os
@@ -78,6 +79,8 @@ def validate(path, solution, feasibility=1e-6, integrality=1e-6):
                   feasibility_tolerance=feasibility, integrality_tolerance=integrality)
     if not checker.is_file():
         return dict(result, error='absolute rational checker unavailable')
+    with checker.open('rb') as stream:
+        result['checker_sha256'] = hashlib.file_digest(stream, 'sha256').hexdigest()
     with tempfile.TemporaryDirectory(prefix='mip-validation-') as directory:
         sol = Path(directory)/'solution.sol'
         lines = ['=obj= '+str(solution['objective'])]
