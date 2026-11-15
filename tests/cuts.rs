@@ -341,3 +341,25 @@ fn ranges_are_combined_as_original_decimal_values_before_rounding() {
     assert_eq!(result.status, "optimal");
     assert_eq!(result.objective, Some(1.));
 }
+#[test]
+fn replaying_uncut_root_diving_does_not_promote_an_incumbent_to_a_bound() {
+    use mip_codex::solve::{Limits, solve};
+    let model=mps::parse(std::io::Cursor::new("NAME triangle\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 2\n y c -1 r 2\n z c -1 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\n BV b z\nENDATA\n")).unwrap();
+    let result = solve(
+        &model,
+        &Limits {
+            nodes: 1,
+            cover_cuts: true,
+            primal_probe: false,
+            primal_repair: false,
+            lp_diving: true,
+            ..Limits::default()
+        },
+    );
+    assert_eq!(result.status, "node_limit");
+    assert_eq!(result.objective, Some(-1.));
+    assert_eq!(result.dual_bound, Some(-1.5));
+    assert_eq!(result.diving.uncut_root_calls, 1);
+    assert_eq!(result.diving.calls, 2);
+    assert!(!result.cut_proofs.is_empty());
+}

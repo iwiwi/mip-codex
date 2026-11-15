@@ -113,9 +113,9 @@ def validate_cut_proofs(model_path,result):
                 a*=sign
                 if not binary:
                     if name in selected:raise AssertionError('cover includes a nonbinary column')
-                    bound=var['lower'] if a>0 else var['upper']
-                    if bound is None:raise AssertionError('projection requires a finite bound')
-                    minimum+=a*bound
+                    column_bound=var['lower'] if a>0 else var['upper']
+                    if column_bound is None:raise AssertionError('projection requires a finite bound')
+                    minimum+=a*column_bound
                     continue
                 if name in selected:
                     found.add(name);c=1 if a>0 else -1;negative+=int(c<0)
