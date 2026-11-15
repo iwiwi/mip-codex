@@ -246,6 +246,8 @@ fn shifted_bound(
         bound = if upper { hi } else { lo };
         let error = if exact_shift && row.exact_coefficients {
             0.
+        } else if exact_shift {
+            row.activity_error_exact_point(shift)
         } else {
             row.activity_error(shift)
         };

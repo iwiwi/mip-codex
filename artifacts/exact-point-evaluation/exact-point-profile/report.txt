@@ -1,0 +1,113 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 297  of event 'cpu-clock'
+# Event count (approx.): 2999999970
+#
+# Overhead  Command    Shared Object     Symbol                                                                                                                                                                                                                                                                                                                                                                                              
+# ........  .........  ................  ....................................................................................................................................................................................................................................................................................................................................................................................................
+#
+     9.76%  mip-codex  mip-codex         [.] mip_codex::revised::warm_impl
+     8.75%  mip-codex  mip-codex         [.] <mip_codex::model::Row>::activity_error
+     8.75%  mip-codex  mip-codex         [.] <mip_codex::revised::Basis>::backward
+     7.41%  mip-codex  mip-codex         [.] <mip_codex::revised::Basis>::forward
+     6.06%  mip-codex  mip-codex         [.] mip_codex::solve::standard_sparse
+     3.70%  mip-codex  mip-codex         [.] <mip_codex::model::Row>::activity_error_exact_point
+     3.03%  mip-codex  mip-codex         [.] <mip_codex::model::Row>::coefficient_error
+     3.03%  mip-codex  mip-codex         [.] <mip_codex::revised::Simplex>::certificate
+     3.03%  mip-codex  mip-codex         [.] mip_codex::exact::dot_error::<core::iter::adapters::chain::Chain<core::iter::sources::once::Once<(f64, f64)>, core::iter::adapters::map::Map<core::slice::iter::Iter<(usize, f64)>, mip_codex::solve::shifted_bound::{closure#0}>>>
+     2.36%  mip-codex  libc.so.6         [.] realloc
+     2.02%  mip-codex  mip-codex         [.] faer::sparse::linalg::triangular_solve::solve_upper_triangular_transpose_in_place::<usize, f64>
+     2.02%  mip-codex  mip-codex         [.] mip_codex::scaling::solve
+     1.68%  mip-codex  mip-codex         [.] faer::perm::permute_rows::implementation::<u64, f64>
+     1.35%  mip-codex  mip-codex         [.] <mip_codex::exact::Sum>::rounded
+     1.35%  mip-codex  mip-codex         [.] <mip_codex::revised::Simplex>::recompute
+     1.35%  mip-codex  mip-codex         [.] faer::sparse::linalg::triangular_solve::solve_upper_triangular_in_place::<usize, f64>
+     1.01%  mip-codex  mip-codex         [.] <alloc::vec::Vec<(usize, f64)> as core::slice::cmp::SlicePartialEq<alloc::vec::Vec<(usize, f64)>>>::equal_same_length
+     1.01%  mip-codex  mip-codex         [.] mip_codex::exact::fast_dot_bounds::<core::iter::adapters::map::Map<core::slice::iter::Iter<(usize, f64)>, <mip_codex::model::Model>::check::{closure#3}::{closure#0}>>
+     0.67%  mip-codex  libc.so.6         [.] cfree
+     0.67%  mip-codex  libc.so.6         [.] malloc
+     0.67%  mip-codex  libc.so.6         [.] 0x0000000000093fec
+     0.67%  mip-codex  libc.so.6         [.] 0x00000000000940fc
+     0.67%  mip-codex  libc.so.6         [.] 0x0000000000094ee8
+     0.67%  mip-codex  libc.so.6         [.] 0x0000000000095028
+     0.67%  mip-codex  libc.so.6         [.] 0x0000000000095348
+     0.67%  mip-codex  libc.so.6         [.] 0x0000000000095d80
+     0.67%  mip-codex  libc.so.6         [.] 0x00000000000a1c40
+     0.67%  mip-codex  mip-codex         [.] <faer::mat::generic::Mat<faer::mat::matown::Own<f64>>>::from_fn::<<faer::mat::generic::Mat<faer::mat::matown::Own<f64>>>::zeros::{closure#0}>
+     0.67%  mip-codex  mip-codex         [.] <faer::sparse::linalg::lu::SymbolicLu<usize>>::factorize_numeric_lu::<f64>
+     0.67%  mip-codex  mip-codex         [.] __aarch64_ldadd8_rel
+     0.67%  mip-codex  mip-codex         [.] core::slice::sort::shared::smallsort::insertion_sort_shift_left::<(f64, usize, f64, f64), <[(f64, usize, f64, f64)]>::sort_unstable_by<<mip_codex::revised::Simplex>::dual_run::{closure#6}>::{closure#0}>
+     0.67%  mip-codex  mip-codex         [.] faer::perm::permute_rows_in_place::<usize, f64>
+     0.67%  mip-codex  mip-codex         [.] faer::sparse::linalg::qr::ghost_col_etree::<usize>
+     0.67%  mip-codex  mip-codex         [.] faer::sparse::linalg::triangular_solve::solve_unit_lower_triangular_transpose_in_place::<usize, f64>
+     0.67%  mip-codex  mip-codex         [.] mip_codex::exact::dot_lower::<core::iter::adapters::chain::Chain<core::iter::adapters::chain::Chain<core::iter::sources::once::Once<(f64, f64)>, core::iter::sources::once::Once<(f64, f64)>>, core::iter::adapters::map::Map<core::iter::adapters::zip::Zip<core::slice::iter::Iter<mip_codex::model::Variable>, core::slice::iter::Iter<f64>>, mip_codex::solve::solve_seeded::{closure#18}>>>
+     0.34%  mip-codex  [vdso]            [.] 0x0000000000000574
+     0.34%  mip-codex  [vdso]            [.] 0x0000000000000614
+     0.34%  mip-codex  libc.so.6         [.] clock_gettime
+     0.34%  mip-codex  libc.so.6         [.] posix_memalign
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000928bc
+     0.34%  mip-codex  libc.so.6         [.] 0x000000000009291c
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000929e0
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000092a44
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000092b10
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000093fc8
+     0.34%  mip-codex  libc.so.6         [.] 0x000000000009405c
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000940f4
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000940f8
+     0.34%  mip-codex  libc.so.6         [.] 0x000000000009413c
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094148
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094170
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094180
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000941a4
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094360
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094c54
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094c8c
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094d60
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094dbc
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094ed4
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094ed8
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000094f34
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095010
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095064
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095254
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095278
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000952dc
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095338
+     0.34%  mip-codex  libc.so.6         [.] 0x000000000009533c
+     0.34%  mip-codex  libc.so.6         [.] 0x000000000009543c
+     0.34%  mip-codex  libc.so.6         [.] 0x000000000009562c
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095638
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095654
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095658
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000956e8
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095c98
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095d70
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095db4
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095dd4
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000095e00
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000968f4
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000096974
+     0.34%  mip-codex  libc.so.6         [.] 0x0000000000096978
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000a1c10
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000a1c38
+     0.34%  mip-codex  libc.so.6         [.] 0x00000000000a1c48
+     0.34%  mip-codex  mip-codex         [.] <alloc::raw_vec::RawVecInner<_>>::reserve::do_reserve_and_handle::<alloc::alloc::Global>
+     0.34%  mip-codex  mip-codex         [.] <alloc::raw_vec::RawVecInner>::finish_grow
+     0.34%  mip-codex  mip-codex         [.] <alloc::vec::Vec<(usize, f64)> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<(usize, f64), core::iter::adapters::map::Map<core::iter::adapters::filter::Filter<core::iter::adapters::enumerate::Enumerate<core::slice::iter::Iter<f64>>, <mip_codex::revised::Basis>::update::{closure#0}>, <mip_codex::revised::Basis>::update::{closure#1}>>>::from_iter
+     0.34%  mip-codex  mip-codex         [.] <alloc::vec::Vec<f64> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<f64, core::iter::adapters::map::Map<core::slice::iter::Iter<usize>, <mip_codex::revised::Simplex>::multipliers::{closure#0}>>>::from_iter
+     0.34%  mip-codex  mip-codex         [.] <faer::mat::generic::Mat<_>>::copy_from::imp::<f64>
+     0.34%  mip-codex  mip-codex         [.] <faer::mat::generic::Mat<faer::mat::matown::Own<f64>>>::from_fn::<faer::col::colown::idx_to_pair<usize, f64, <mip_codex::revised::Basis>::forward::{closure#1}>::{closure#0}>
+     0.34%  mip-codex  mip-codex         [.] <faer::sparse::linalg::solvers::Lu<usize, f64> as faer::linalg::solvers::SolveCore<f64>>::solve_transpose_in_place_with_conj
+     0.34%  mip-codex  mip-codex         [.] <mip_codex::branching::Costs>::select
+     0.34%  mip-codex  mip-codex         [.] <mip_codex::objective_bound::I>::mul
+     0.34%  mip-codex  mip-codex         [.] mip_codex::exact::accumulated::<core::array::iter::IntoIter<(f64, f64), 2>>
+     0.34%  mip-codex  mip-codex         [.] mip_codex::exact::dot_lower::<alloc::vec::into_iter::IntoIter<(f64, f64)>>
+     0.34%  mip-codex  mip-codex         [.] mip_codex::model::in_domain
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#
