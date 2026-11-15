@@ -8,13 +8,13 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from validate_solution import absolute_checker
-from benchmark_common import require_solver_origin
+from benchmark_common import require_solver_origin, solver_source_fingerprint
 import json
 root=Path(__file__).resolve().parents[1]
 class Preflight(unittest.TestCase):
-    def fake_binary(self, directory, source, library=None):
+    def fake_binary(self, directory, source, library=None, fingerprint=None, library_fingerprint=None):
         path=Path(directory)/'solver'
-        path.write_text('#!'+sys.executable+'\nprint('+repr(json.dumps(dict(source_directory=str(source),library_source_directory=str(library or source),package_version='test')))+')\n')
+        path.write_text('#!'+sys.executable+'\nprint('+repr(json.dumps(dict(source_directory=str(source),library_source_directory=str(library or source),package_version='test',source_fingerprint=fingerprint or solver_source_fingerprint(root),library_source_fingerprint=library_fingerprint or fingerprint or solver_source_fingerprint(root))))+')\n')
         path.chmod(0o755)
         return path
     def test_binary_from_another_worktree_is_rejected(self):
@@ -31,6 +31,16 @@ class Preflight(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             binary=self.fake_binary(tmp,root)
             self.assertEqual(require_solver_origin(root,binary)['package_version'],'test')
+    def test_stale_source_at_the_same_path_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary=self.fake_binary(tmp,root,fingerprint='stale')
+            with self.assertRaisesRegex(RuntimeError,'source fingerprint'):
+                require_solver_origin(root,binary)
+    def test_library_fingerprint_must_match_as_well(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            binary=self.fake_binary(tmp,root,library_fingerprint='stale')
+            with self.assertRaisesRegex(RuntimeError,'library_source_fingerprint'):
+                require_solver_origin(root,binary)
     def test_explicit_checker_path_is_respected(self):
         with patch.dict(os.environ,{'MIP_ABSOLUTE_CHECKER':'/not-installed/checker'}):
             self.assertEqual(absolute_checker(),Path('/not-installed/checker'))

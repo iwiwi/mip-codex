@@ -5,7 +5,7 @@ fn run() -> Result<(), String> {
     if args.len() == 2 && args[1] == "build-info" {
         println!(
             "{}",
-            serde_json::json!({"source_directory":env!("CARGO_MANIFEST_DIR"),"library_source_directory":mip_codex::BUILD_SOURCE_DIRECTORY,"package_version":env!("CARGO_PKG_VERSION")})
+            serde_json::json!({"source_directory":env!("CARGO_MANIFEST_DIR"),"library_source_directory":mip_codex::BUILD_SOURCE_DIRECTORY,"source_fingerprint":env!("MIP_SOURCE_FINGERPRINT"),"library_source_fingerprint":mip_codex::BUILD_SOURCE_FINGERPRINT,"package_version":env!("CARGO_PKG_VERSION")})
         );
         return Ok(());
     }
