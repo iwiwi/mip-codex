@@ -29,6 +29,7 @@ pub struct Limits {
     pub graph_adaptive_local: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
+    pub aggregate_infeasibility: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -65,6 +66,7 @@ impl Default for Limits {
             graph_adaptive_local: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
+            aggregate_infeasibility: false,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
@@ -1092,7 +1094,10 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             if entries * 64 > limits.dense_bytes as u128 {
                                 return None;
                             }
-                            infeasibility_certifier = Certifier::feasibility(lp_model);
+                            infeasibility_certifier = Certifier::feasibility_with_aggregation(
+                                lp_model,
+                                limits.aggregate_infeasibility,
+                            );
                         }
                         let certifier = infeasibility_certifier.as_ref()?;
                         let mut multipliers = vec![0.; lp_model.rows.len()];
