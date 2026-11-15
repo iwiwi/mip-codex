@@ -7,6 +7,7 @@ pub(crate) struct Projection {
     pub binary: usize,
     pub general: usize,
     integers: Vec<usize>,
+    original_costs: Vec<f64>,
     sides: Vec<Option<(usize, usize)>>,
     seen: HashSet<Vec<i64>>,
 }
@@ -75,6 +76,7 @@ impl Projection {
             original_len: model.variables.len(),
             binary,
             general,
+            original_costs: model.variables.iter().map(|v| v.objective).collect(),
             integers,
             sides,
             seen: HashSet::new(),
@@ -113,12 +115,38 @@ impl Projection {
                 seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
                 order.swap(k, ((seed >> 32) as usize) % (k + 1));
             }
-            for k in order.into_iter().take((1 + target.len() / 20).min(32)) {
+            let count = (1 + target.len() / 20).min(32);
+            let mut ranked: Vec<_> = self
+                .integers
+                .iter()
+                .enumerate()
+                .filter_map(|(k, &j)| {
+                    let fraction = (point[j] - point[j].round()).abs();
+                    let impact = self.original_costs[j].abs() * fraction;
+                    (fraction > 1e-7 && impact > 0. && impact.is_finite()).then_some((k, impact))
+                })
+                .collect();
+            ranked.sort_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
+            let priority: Vec<_> = ranked
+                .into_iter()
+                .take(count.min(2))
+                .map(|(k, _)| k)
+                .collect();
+            order.retain(|k| !priority.contains(k));
+            let preferred = priority.len();
+            let mut selected = priority;
+            selected.extend(order.into_iter().take(count - preferred));
+            for (rank, k) in selected.into_iter().enumerate() {
                 let j = self.integers[k];
                 let value = target[k] as f64;
                 let up = upper[j].is_none_or(|u| value + 1. <= u.floor());
                 let down = lower[j].is_none_or(|l| value - 1. >= l.ceil());
-                let step = if up && (!down || (iteration + k) % 2 == 0) {
+                let prefer_up = if rank < preferred {
+                    point[j] >= value
+                } else {
+                    (iteration + k) % 2 == 0
+                };
+                let step = if up && (!down || prefer_up) {
                     1
                 } else if down {
                     -1
@@ -145,5 +173,34 @@ impl Projection {
             }
         }
         Some((candidate, cycle, changed))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn cycling_target_reserves_fractional_objective_impact_before_zero_cost_coordinates() {
+        for maximize in [false, true] {
+            let direction = if maximize { "OBJSENSE MAX\n" } else { "" };
+            let text = format!(
+                "NAME p\n{direction}ROWS\n N c\n L r\nCOLUMNS\n x c -100 r 1\n y c 1 r 1\n z r 1\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\n BV b z\nENDATA\n"
+            );
+            let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+            let lower = vec![Some(0.); 3];
+            let upper = vec![Some(1.); 3];
+            let mut projection = Projection::new(&model, &lower, &upper).unwrap();
+            let (first, cycle, _) = projection
+                .target(&[0.1, 0.4, 0.49], &lower, &upper, 0)
+                .unwrap();
+            assert_eq!(first, vec![0., 0., 0.]);
+            assert!(!cycle);
+            let (next, cycle, changed) = projection
+                .target(&[0.1, 0.4, 0.49], &lower, &upper, 1)
+                .unwrap();
+            assert!(cycle);
+            assert_eq!(changed, 1);
+            assert_eq!(next, vec![1., 0., 0.]);
+        }
     }
 }

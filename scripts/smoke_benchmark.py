@@ -116,6 +116,8 @@ with (output/'results.jsonl').open('w') as summary:
                     assert parsed['cover_round_limit'] == (2 if solver=='rust-cuts-two' else 4)
                 if solver in ('rust-objective', 'rust-no-objective'):
                     assert parsed['objective_rounding'] == (solver == 'rust-objective')
+                if solver in ('rust-pump','rust-no-pump'):
+                    assert parsed['feasibility_pump'] == (solver=='rust-pump')
                 if solver in ('rust-rins', 'rust-no-rins'):
                     assert parsed['rins_enabled'] == (solver == 'rust-rins')
                 if solver in ('rust-strong', 'rust-no-strong'):
