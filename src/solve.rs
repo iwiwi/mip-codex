@@ -52,7 +52,7 @@ impl Default for Limits {
             primal_repair: true,
             box_primal: true,
             binary_graph: true,
-            graph_local_search: false,
+            graph_local_search: true,
             lp_diving: true,
             primal_probe: true,
             cover_cuts: true,
