@@ -32,6 +32,7 @@ pub struct Limits {
     pub aggregate_infeasibility: bool,
     pub lp_diving: bool,
     pub feasibility_pump: bool,
+    pub pump_polishing: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
     pub cover_rounds: usize,
@@ -70,6 +71,7 @@ impl Default for Limits {
             aggregate_infeasibility: true,
             lp_diving: true,
             feasibility_pump: true,
+            pump_polishing: false,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 2,
@@ -130,6 +132,7 @@ pub struct Result {
     pub probe: ProbeStats,
     pub diving: DivingStats,
     pub feasibility_pump_enabled: bool,
+    pub pump_polishing_enabled: bool,
     pub pump: PumpStats,
     pub repair_calls: usize,
     pub repair_candidates: usize,
@@ -528,6 +531,92 @@ pub struct PumpStats {
     pub numerical_errors: usize,
     pub limited: usize,
     pub seconds: f64,
+    pub polish_lp_solves: usize,
+    pub polish_candidates: usize,
+    pub polish_improvements: usize,
+    pub polish_failures: usize,
+    pub polish_limited: usize,
+    pub polish_seconds: f64,
+}
+fn polish_pump_point(
+    model: &Model,
+    work: &Model,
+    root: &Node,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+    stats: &mut PumpStats,
+    lp_stats: &mut revised::Stats,
+) -> Option<Vec<f64>> {
+    if Instant::now() >= deadline
+        || !model.variables.iter().any(|v| {
+            !v.integer && v.objective != 0. && !v.lower.zip(v.upper).is_some_and(|(l, u)| l == u)
+        })
+    {
+        return None;
+    }
+    let mut fixed = root.clone();
+    for (j, v) in model.variables.iter().enumerate() {
+        if v.integer {
+            let value = point[j].round();
+            fixed.lower[j] = Some(value);
+            fixed.upper[j] = Some(value);
+        }
+    }
+    let Relaxation::Ready(p) = standard_sparse(
+        work,
+        &fixed,
+        limits.dense_bytes,
+        false,
+        limits.fixed_columns,
+    ) else {
+        return None;
+    };
+    let started = Instant::now();
+    let answer = revised::minimize_warm(
+        p.sparse.as_ref()?,
+        limits.pivots.min(4096),
+        Some(deadline),
+        if limits.warm_start {
+            root.warm.as_deref()
+        } else {
+            None
+        },
+    );
+    stats.lp_solves += 1;
+    stats.polish_lp_solves += 1;
+    lp_stats.add(&answer.stats);
+    stats.polish_seconds += started.elapsed().as_secs_f64();
+    match answer.outcome {
+        lp::Outcome::Optimal { x, .. } => {
+            let mut candidate: Vec<_> = p
+                .terms
+                .iter()
+                .enumerate()
+                .map(|(j, t)| p.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                .collect();
+            for (j, v) in model.variables.iter().enumerate() {
+                if v.integer {
+                    candidate[j] = candidate[j].round();
+                }
+            }
+            if heuristic::Repair::new(model).candidate_check(&candidate) {
+                stats.polish_candidates += 1;
+                Some(candidate)
+            } else {
+                stats.polish_failures += 1;
+                None
+            }
+        }
+        lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => {
+            stats.polish_limited += 1;
+            None
+        }
+        _ => {
+            stats.polish_failures += 1;
+            None
+        }
+    }
 }
 fn binary_pump(
     model: &Model,
@@ -1649,7 +1738,36 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             incumbent = value;
                             first_primal_seconds
                                 .get_or_insert_with(|| start.elapsed().as_secs_f64());
+                            let polished = if limits.pump_polishing {
+                                polish_pump_point(
+                                    model,
+                                    lp_model,
+                                    &node,
+                                    &x,
+                                    limits,
+                                    pump_deadline,
+                                    &mut pump,
+                                    &mut lp_stats,
+                                )
+                            } else {
+                                None
+                            };
                             best = Some(x);
+                            if let Some(x) = polished {
+                                let value = sign * model.objective(&x);
+                                if value.is_finite()
+                                    && value < incumbent
+                                    && candidate_respects_bound(
+                                        value,
+                                        node.certified_bound,
+                                        &mut objective_bound_stats,
+                                    )
+                                {
+                                    pump.polish_improvements += 1;
+                                    incumbent = value;
+                                    best = Some(x);
+                                }
+                            }
                         }
                     }
                     lp_solves += pump.lp_solves - old_solves;
@@ -2040,6 +2158,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         probe,
         diving,
         feasibility_pump_enabled: limits.feasibility_pump,
+        pump_polishing_enabled: limits.pump_polishing,
         pump,
         repair_calls: repair_stats.calls,
         repair_candidates: repair_stats.candidates,
@@ -2457,5 +2576,58 @@ mod pump_tests {
         .unwrap();
         assert!(m.check(&candidate, true, 1e-6).is_ok());
         assert!(s.lp_solves > 0);
+    }
+    #[test]
+    fn polishing_reoptimizes_continuous_cost_for_min_and_max_and_keeps_integer_point() {
+        for maximize in [false, true] {
+            let sense = if maximize { " MAX" } else { " MIN" };
+            let cost = if maximize { -1 } else { 1 };
+            let text = format!(
+                "NAME polish\nOBJSENSE\n{sense}\nROWS\n N obj\n G r\nCOLUMNS\n x obj 0 r -1\n t obj {cost} r 1\nRHS\n rhs r 0\nBOUNDS\n BV b x\n UP b t 10\nENDATA\n"
+            );
+            let (m, node, p, _) = prepare(&text);
+            let point = [1., 10.];
+            let mut stats = PumpStats::default();
+            let mut lp = revised::Stats::default();
+            assert!(
+                polish_pump_point(
+                    &m,
+                    &m,
+                    &node,
+                    &point,
+                    &Limits::default(),
+                    Instant::now(),
+                    &mut stats,
+                    &mut lp
+                )
+                .is_none()
+            );
+            assert_eq!(stats.lp_solves, 0);
+            let candidate = polish_pump_point(
+                &m,
+                &m,
+                &node,
+                &point,
+                &Limits::default(),
+                Instant::now() + std::time::Duration::from_secs(2),
+                &mut stats,
+                &mut lp,
+            )
+            .unwrap();
+            assert_eq!(candidate, vec![1., 1.]);
+            assert!(m.check(&candidate, true, 1e-6).is_ok());
+            assert_eq!(point, [1., 10.]);
+            assert_eq!(stats.polish_lp_solves, 1);
+            let answer = revised::minimize_warm(
+                p.sparse.as_ref().unwrap(),
+                1000,
+                None,
+                node.warm.as_deref(),
+            );
+            let lp::Outcome::Optimal { objective, .. } = answer.outcome else {
+                panic!("parent corrupted")
+            };
+            assert_eq!(objective, 0.);
+        }
     }
 }
