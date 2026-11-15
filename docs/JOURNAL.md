@@ -378,3 +378,11 @@ binary-conflict-engineは全モデルを検査してから、同一整数目的�
 最終161Rust、300小グラフ×6の1800探索、CLI200×6=1200（全列挙/GMP/彩色、偽証明3600拒否）、2700合成、300根LP、32数値回帰成功。41保存解/134cuts・51証明検査も全有効。初回未認識と既定変更による機能別テストの干渉も保存。全データartifacts/binary-graph-evaluation、詳細docs/BINARY_CONFLICT_RESULTS.md。
 
 snapshot7831746bはcreate-only、全Rust評価未開始。native v2はPID556757/session89978で継続、21/720完了・strict optimal15・errors0（17:10時点）。次はperf547sampleで約32%を占めたcolor内時計確認を間引き、固定節点・元問題解検査で比較する。open instanceへの追加探索も通常Benchmarkとは別枠で検討する。
+
+## 2026-11-15 17:40 UTC：彩色中の時計確認を256選択ごとへ
+
+graph-deadline-polling（コア3d18c03a）はcolorのInstant::nowを間引き、節点/分岐での確認は維持。同CPU交互3回・200万節点の内部中央値12.20450→5.99163秒（約51%短縮）。status/primal-16/dual-30/全変数/根彩色/順列/色分け回数/完了分岐数が同一。161Rust、1200小例、偽証明3600拒否、32数値回帰、小期限0/.2/.5/1秒、12保存点の全独立検査成功。profile時計比率約32→1.65%。詳細docs/GRAPH_DEADLINE_RESULTS.md、全生データartifacts/graph-polling-evaluation。
+
+sorrell7をBenchmark外explorationへ追加（hash記録済み）。既知値はコード/停止条件に渡さず15秒で旧404万→新795万節点、両方primal-168/dual-449。掲載値-198未達。通常240問の集計には混ぜない。今後は汎用の主解改良も試す。
+
+native v2は22/720、strict optimal15、errors1（17:33時点）。020-glpk/cbs-ctaが元問題検査不合格、行違反約1.449。直接APIの完全binary64十進点でも絶対検査不合格なので保存精度だけの問題ではない。補助完全十進点の公式checkerは32桁assertで判定不能、通常JSON点の公式checkerはConstraints0。全raw保持、比較設定/snapshotは変更しない。coordinator PID556757/session89978継続。全Rust最終版はNov19中に固定する計画。
