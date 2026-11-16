@@ -117,3 +117,41 @@ fn later_incumbent_does_not_trigger_an_unbudgeted_retry() {
     assert_eq!(result.rins.attempts, 0);
     assert_eq!(result.rins.calls, 0);
 }
+
+#[test]
+fn released_neighborhoods_keep_the_seed_and_preserve_every_unfixed_domain() {
+    use mip_codex::rins::neighborhood_released;
+    let m = model();
+    let seed = [1., 0., 0., 0.];
+    for salt in 1..32 {
+        let n = neighborhood_released(&m, &seed, &seed, 50, salt).unwrap();
+        assert_eq!(n.fixed, 2);
+        assert!(n.model.check(&seed, true, 0.).is_ok());
+        for mask in 0..16 {
+            let x: Vec<_> = (0..4).map(|j| ((mask >> j) & 1) as f64).collect();
+            if n.model.check(&x, true, 0.).is_ok() {
+                assert!(m.check(&x, true, 0.).is_ok());
+            }
+        }
+        for (j, (old, new)) in m.variables.iter().zip(&n.model.variables).enumerate() {
+            if new.lower == new.upper {
+                assert_eq!(new.lower, Some(seed[j]));
+                assert_eq!(new.lower_enclosure, Some([seed[j]; 2]));
+                assert_eq!(new.upper_enclosure, Some([seed[j]; 2]));
+            } else {
+                assert_eq!(new.lower, old.lower);
+                assert_eq!(new.upper, old.upper);
+                assert_eq!(new.lower_enclosure, old.lower_enclosure);
+                assert_eq!(new.upper_enclosure, old.upper_enclosure);
+            }
+        }
+        let repeated = neighborhood_released(&m, &seed, &seed, 50, salt).unwrap();
+        assert_eq!(
+            serde_json::to_value(n.model).unwrap(),
+            serde_json::to_value(repeated.model).unwrap()
+        );
+    }
+    assert!(neighborhood_released(&m, &seed, &seed, 100, 1).is_none());
+    assert!(neighborhood_released(&m, &[1.; 4], &[1.; 4], 50, 1).is_none());
+    assert_eq!(m.variables[0].lower, Some(0.));
+}

@@ -10,6 +10,15 @@ pub struct Neighborhood {
     pub eligible: usize,
 }
 pub fn neighborhood(model: &Model, point: &[f64], seed: &[f64]) -> Option<Neighborhood> {
+    neighborhood_released(model, point, seed, 0, 0)
+}
+pub fn neighborhood_released(
+    model: &Model,
+    point: &[f64],
+    seed: &[f64],
+    release: usize,
+    salt: u64,
+) -> Option<Neighborhood> {
     let n = model.variables.len();
     if point.len() != n || seed.len() != n || point.iter().chain(seed).any(|v| !v.is_finite()) {
         return None;
@@ -35,6 +44,15 @@ pub fn neighborhood(model: &Model, point: &[f64], seed: &[f64]) -> Option<Neighb
         if (point[j] - seed[j]).abs() <= 1e-6 {
             fixed.push(j);
         }
+    }
+    if release > 0 {
+        fixed.sort_by_key(|&j| {
+            let mut x = (j as u64).wrapping_add(salt.wrapping_mul(0x9e3779b97f4a7c15));
+            x = (x ^ (x >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
+            x = (x ^ (x >> 27)).wrapping_mul(0x94d049bb133111eb);
+            x ^ (x >> 31)
+        });
+        fixed.truncate(fixed.len().saturating_mul(100 - release.min(100)) / 100);
     }
     if fixed.len() < 2 || fixed.len().saturating_mul(10) < eligible {
         return None;

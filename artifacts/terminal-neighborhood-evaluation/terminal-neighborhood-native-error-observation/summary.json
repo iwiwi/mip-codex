@@ -1,0 +1,160 @@
+{
+  "job_id": "080-scip",
+  "name": "mas74.mps.gz",
+  "split": "development",
+  "solver": "scip",
+  "cpu": 8,
+  "input_sha256": "019a9ca2dac800342a887cd07e326526b463dca9646ba16ad955a16fa4b6ecc1",
+  "status": "invalid_solution",
+  "execution": {
+    "exit_code": 0,
+    "watchdog": false,
+    "recovered": false,
+    "boot_changed": false,
+    "resource": {
+      "user_seconds": 1288.48,
+      "system_seconds": 1.3,
+      "max_rss_kib": 904324,
+      "exit_code": 0
+    },
+    "wall_seconds": 1453.804840569006,
+    "finished_utc": "2026-11-16T12:04:42Z"
+  },
+  "resources_after_solver": {
+    "memory_events": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0,
+      "sock_throttled": 0
+    },
+    "memory.peak": 913735680,
+    "memory.current": 16142336,
+    "cpu.stat": {
+      "usage_usec": 1453414276,
+      "user_usec": 1400524744,
+      "system_usec": 52889532,
+      "nice_usec": 0,
+      "core_sched.force_idle_usec": 0,
+      "nr_periods": 14540,
+      "nr_throttled": 1602,
+      "throttled_usec": 269582,
+      "nr_bursts": 0,
+      "burst_usec": 0
+    }
+  },
+  "objective": 11801.098458493756,
+  "dual_bound": 11801.098458493756,
+  "gap": null,
+  "nodes": 4955335,
+  "seconds": 1453.557234,
+  "version": "10.0.2",
+  "options": {
+    "limits/time": 3600.0,
+    "limits/memory": 16384.0,
+    "parallel/maxnthreads": 1,
+    "lp/threads": 1,
+    "randomization/randomseedshift": 0,
+    "limits/gap": 0.0,
+    "limits/absgap": 0.0
+  },
+  "maximize": false,
+  "solution_encoding": "binary64_exact_large_integers_v1",
+  "solver_status": "optimal",
+  "native_primal_bound": 11801.098458493756,
+  "native_gap": 0.0,
+  "primal_bound": null,
+  "verified_optimal": false,
+  "validation_execution": {
+    "exit_code": 0,
+    "watchdog": false,
+    "recovered": false,
+    "boot_changed": false,
+    "resource": {
+      "user_seconds": 0.16,
+      "system_seconds": 0.01,
+      "max_rss_kib": 52328,
+      "exit_code": 0
+    },
+    "wall_seconds": 0.27541488700080663,
+    "finished_utc": "2026-11-16T12:04:42Z"
+  },
+  "strict_validation": {
+    "valid": false,
+    "float_diagnostics": {
+      "valid": false,
+      "objective": 11801.098458493756,
+      "bound_violation": 0.0,
+      "row_violation": 0.08727050625020638,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational absolute",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 11801.098458493756,
+    "bound_violation": 0.0,
+    "row_violation": 0.087270506244,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "2950274614623439/250000000000",
+      "bound_violation": "0",
+      "row_violation": "21817626561/250000000000",
+      "integer_violation": "0",
+      "objective_error": "0"
+    }
+  },
+  "official_validation": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/artifacts/runs/baseline-v2-20261115/snapshot/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mas74.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/runs/baseline-v2-20261115/cases/080-scip/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "490131e4c9a21de4b15756de0e6c3903aeeb636689ea0a438738ca827819dacc",
+  "solution_sha256": "490131e4c9a21de4b15756de0e6c3903aeeb636689ea0a438738ca827819dacc",
+  "cgroup_resources": {
+    "memory_events": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0,
+      "sock_throttled": 0
+    },
+    "memory.peak": 913735680,
+    "memory.current": 16125952,
+    "cpu.stat": {
+      "usage_usec": 1453642557,
+      "user_usec": 1400719017,
+      "system_usec": 52923539,
+      "nice_usec": 0,
+      "core_sched.force_idle_usec": 0,
+      "nr_periods": 14543,
+      "nr_throttled": 1602,
+      "throttled_usec": 269582,
+      "nr_bursts": 0,
+      "burst_usec": 0
+    }
+  },
+  "finished_utc": "2026-11-16T12:04:42Z"
+}
