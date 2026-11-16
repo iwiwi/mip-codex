@@ -176,6 +176,7 @@ pub struct Result {
     pub lp_warm_successes: Option<usize>,
     pub lp_warm_fallbacks: Option<usize>,
     pub lp_warm_rejections: Option<usize>,
+    pub lp_warm_row_extensions: Option<usize>,
     pub lp_warm_cost_attempts: Option<usize>,
     pub lp_warm_cost_successes: Option<usize>,
     pub lp_multiplier_cache_hits: Option<usize>,
@@ -2127,6 +2128,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             .then_some(lp_stats.warm_successes),
         lp_warm_fallbacks: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.warm_fallbacks),
+        lp_warm_row_extensions: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.warm_row_extensions),
         lp_warm_rejections: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.warm_rejections),
         lp_warm_cost_attempts: matches!(limits.engine, Engine::Revised)
@@ -2358,6 +2361,7 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         warm_successes: result.lp_warm_successes.unwrap_or(0),
         warm_fallbacks: result.lp_warm_fallbacks.unwrap_or(0),
         warm_rejections: result.lp_warm_rejections.unwrap_or(0),
+        warm_row_extensions: result.lp_warm_row_extensions.unwrap_or(0),
         warm_cost_attempts: result.lp_warm_cost_attempts.unwrap_or(0),
         warm_cost_successes: result.lp_warm_cost_successes.unwrap_or(0),
         multiplier_cache_hits: result.lp_multiplier_cache_hits.unwrap_or(0),

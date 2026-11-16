@@ -27,6 +27,7 @@ pub struct Stats {
     pub warm_successes: usize,
     pub warm_fallbacks: usize,
     pub warm_rejections: usize,
+    pub warm_row_extensions: usize,
     pub warm_cost_attempts: usize,
     pub warm_cost_successes: usize,
     pub dual_pivots: usize,
@@ -173,6 +174,67 @@ pub struct WarmStart {
     factor: Basis,
 }
 impl WarmStart {
+    // Auxiliary columns may be interleaved with artificial columns. Append new
+    // slacks at the end so every old internal index remains unchanged.
+    fn extend_rows(&self, p: &Problem, deadline: Option<Instant>) -> Option<Self> {
+        let a = &self.structure;
+        let old_m = a.equality.len();
+        let m = p.rhs.len();
+        if deadline.is_some_and(|d| Instant::now() >= d)
+            || !valid(p)
+            || m <= old_m
+            || a.costs != p.costs
+            || a.equality != p.equality[..old_m]
+            || a.slack_upper != p.slack_upper[..old_m]
+            || p.equality[old_m..].iter().any(|&v| v)
+        {
+            return None;
+        }
+        for (old, new) in a.columns.iter().zip(&p.columns) {
+            if !new.starts_with(old) || new[old.len()..].iter().any(|&(i, _)| i < old_m) {
+                return None;
+            }
+        }
+        let n = p.costs.len();
+        let mut columns = p.columns.clone();
+        columns.extend_from_slice(&a.columns[n..]);
+        let mut extra_upper = a.extra_upper.clone();
+        let mut basis = self.basis.clone();
+        let mut at_upper = self.at_upper.clone();
+        for i in old_m..m {
+            basis.push(columns.len());
+            columns.push(vec![(i, 1.)]);
+            extra_upper.push(p.slack_upper[i]);
+            at_upper.push(false);
+        }
+        let triplets: Vec<_> = basis
+            .iter()
+            .enumerate()
+            .flat_map(|(k, &j)| columns[j].iter().map(move |&(i, v)| Triplet::new(i, k, v)))
+            .collect();
+        let matrix = SparseColMat::try_new_from_triplets(m, m, &triplets).ok()?;
+        let lu = matrix.sp_lu().ok()?;
+        if deadline.is_some_and(|d| Instant::now() >= d) {
+            return None;
+        }
+        Some(Self {
+            structure: Arc::new(Structure {
+                columns: Arc::new(columns),
+                costs: p.costs.clone(),
+                equality: p.equality.clone(),
+                slack_upper: p.slack_upper.clone(),
+                extra_upper,
+                artificial: a.artificial.clone(),
+            }),
+            basis,
+            at_upper,
+            factor: Basis {
+                factor: Arc::new(Factor::Sparse(lu)),
+                updates: vec![],
+                multiplier_cache: None,
+            },
+        })
+    }
     fn compatible(&self, p: &Problem) -> bool {
         let a = &self.structure;
         a.costs.len() == p.costs.len()
@@ -812,6 +874,12 @@ fn warm_impl(
     let Some(w) = warm else {
         return cold(p, limit, deadline, true);
     };
+    let extended = if w.compatible(p) {
+        None
+    } else {
+        w.extend_rows(p, deadline)
+    };
+    let w = extended.as_ref().unwrap_or(w);
     if !w.compatible(p) {
         let mut answer = cold(p, limit, deadline, true);
         answer.stats.warm_rejections = 1;
@@ -849,6 +917,8 @@ fn warm_impl(
     }
     let mut c = vec![0.0; total];
     c[..n].copy_from_slice(&p.costs);
+    s.stats.warm_row_extensions = usize::from(extended.is_some());
+    s.stats.refactors += usize::from(extended.is_some());
     s.stats.warm_attempts = 1;
     let cost_changed = a.costs != p.costs;
     s.stats.warm_cost_attempts = usize::from(cost_changed);
@@ -924,6 +994,7 @@ impl Stats {
         self.warm_successes += other.warm_successes;
         self.warm_fallbacks += other.warm_fallbacks;
         self.warm_rejections += other.warm_rejections;
+        self.warm_row_extensions += other.warm_row_extensions;
         self.warm_cost_attempts += other.warm_cost_attempts;
         self.warm_cost_successes += other.warm_cost_successes;
         self.dual_pivots += other.dual_pivots;
@@ -1434,6 +1505,130 @@ mod long_restoration_test {
         for i in 0..n {
             assert_eq!(s.x[i], 0.);
             assert_eq!(s.x[n + i], 1.);
+        }
+    }
+}
+
+#[cfg(test)]
+mod row_extension_tests {
+    use super::*;
+    fn parent(equality: bool) -> Problem {
+        Problem {
+            columns: if equality {
+                vec![vec![]]
+            } else {
+                vec![vec![(0, 1.)], vec![(0, 1.)]]
+            },
+            rhs: vec![if equality { 0. } else { 3. }],
+            costs: if equality { vec![-1.] } else { vec![-1.; 2] },
+            upper: if equality { vec![2.] } else { vec![2.; 2] },
+            equality: vec![equality],
+            slack_upper: vec![f64::INFINITY],
+        }
+    }
+    fn append(p: &mut Problem, coeffs: &[f64], rhs: f64) {
+        let i = p.rhs.len();
+        for (c, &v) in p.columns.iter_mut().zip(coeffs) {
+            if v != 0. {
+                c.push((i, v));
+            }
+        }
+        p.rhs.push(rhs);
+        p.equality.push(false);
+        p.slack_upper.push(f64::INFINITY);
+    }
+    fn objective(a: &Answer) -> f64 {
+        match &a.outcome {
+            Outcome::Optimal { objective, .. } => *objective,
+            o => panic!("{o:?}"),
+        }
+    }
+    #[test]
+    fn appended_inequality_reuses_basis_and_preserves_parent_and_sibling() {
+        for equality in [false, true] {
+            let p = parent(equality);
+            let a = warm_impl(&p, 1000, None, None);
+            let warm = a.warm.as_deref().unwrap();
+            let basis = warm.basis.clone();
+            let columns = warm.structure.columns.clone();
+            let mut q = p.clone();
+            append(&mut q, &vec![1.; p.costs.len()], 1.);
+            let b = warm_impl(&q, 1000, None, Some(warm));
+            assert!((objective(&b) + 1.).abs() < 1e-9);
+            assert_eq!(objective(&b), objective(&cold(&q, 1000, None, true)));
+            assert_eq!(b.stats.warm_row_extensions, 1);
+            assert_eq!(b.stats.warm_successes, 1);
+            assert!(b.stats.dual_pivots > 0);
+            assert_eq!(warm.basis, basis);
+            assert!(Arc::ptr_eq(&warm.structure.columns, &columns));
+            assert_eq!(
+                objective(&warm_impl(&p, 1000, None, Some(warm))),
+                objective(&a)
+            );
+            let mut sibling = p.clone();
+            append(&mut sibling, &vec![1.; p.costs.len()], 0.5);
+            assert!((objective(&warm_impl(&sibling, 1000, None, Some(warm))) + 0.5).abs() < 1e-9);
+            // Extend an already extended structure as well.
+            append(&mut q, &vec![1.; p.costs.len()], 0.25);
+            let c = warm_impl(&q, 1000, None, b.warm.as_deref());
+            assert!((objective(&c) + 0.25).abs() < 1e-9);
+            assert_eq!(c.stats.warm_row_extensions, 1);
+        }
+    }
+    #[test]
+    fn appended_infeasible_row_returns_a_contradiction() {
+        let p = parent(false);
+        let a = warm_impl(&p, 1000, None, None);
+        let mut q = p.clone();
+        append(&mut q, &[1., 1.], -1.);
+        let b = minimize_warm(&q, 1000, None, a.warm.as_deref());
+        assert!(matches!(b.outcome, Outcome::Infeasible));
+        assert!(b.witness.is_some());
+        assert_eq!(b.stats.warm_row_extensions, 1);
+    }
+    #[test]
+    fn changed_old_structure_cost_or_new_equality_rejects_extension() {
+        let p = parent(false);
+        let a = warm_impl(&p, 1000, None, None);
+        let warm = a.warm.as_deref().unwrap();
+        let mut q = p.clone();
+        append(&mut q, &[1., 1.], 1.);
+        assert!(warm.extend_rows(&q, Some(Instant::now())).is_none());
+        for change in 0..4 {
+            let mut r = q.clone();
+            match change {
+                0 => r.costs[0] = -2.,
+                1 => r.columns[0][0].1 = 2.,
+                2 => r.equality[1] = true,
+                _ => r.slack_upper[0] = 4.,
+            }
+            assert!(warm.extend_rows(&r, None).is_none());
+            assert_eq!(
+                warm_impl(&r, 1000, None, Some(warm)).stats.warm_rejections,
+                1
+            );
+        }
+    }
+    #[test]
+    fn random_append_sequences_match_cold_solves() {
+        let mut seed = 12345u64;
+        let mut next = || {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+            (seed >> 32) as u32
+        };
+        for _ in 0..200 {
+            let mut p = parent(false);
+            p.costs = vec![-((next() % 9 + 1) as f64), -((next() % 9 + 1) as f64)];
+            let mut a = warm_impl(&p, 1000, None, None);
+            for _ in 0..4 {
+                let coeff = [(next() % 9) as f64 - 4., (next() % 9) as f64 - 4.];
+                append(&mut p, &coeff, (next() % 12 + 1) as f64);
+                let b = warm_impl(&p, 1000, None, a.warm.as_deref());
+                let c = cold(&p, 1000, None, true);
+                assert!((objective(&b) - objective(&c)).abs() < 1e-7);
+                assert_eq!(b.stats.warm_row_extensions, 1);
+                a = b;
+            }
         }
     }
 }
