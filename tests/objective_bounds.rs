@@ -105,6 +105,7 @@ fn optimization_limits() -> mip_codex::solve::Limits {
         nodes: 1,
         objective_rounding: true,
         cover_cuts: false,
+        mir_cuts: false,
         clique_cuts: false,
         rounding_cuts: false,
         strong_branching: false,

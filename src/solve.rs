@@ -30,6 +30,7 @@ pub struct Limits {
     pub graph_cover_local: bool,
     pub aggregate_cuts: bool,
     pub clique_cuts: bool,
+    pub mir_cuts: bool,
     pub graph_fractional_cover: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
@@ -72,6 +73,7 @@ impl Default for Limits {
             graph_cover_local: true,
             aggregate_cuts: true,
             clique_cuts: true,
+            mir_cuts: true,
             graph_fractional_cover: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
@@ -100,6 +102,7 @@ pub struct Result {
     pub graph_cover_local_enabled: bool,
     pub aggregate_cuts_enabled: bool,
     pub clique_cuts_enabled: bool,
+    pub mir_cuts_enabled: bool,
     pub graph_fractional_cover_enabled: bool,
     pub binary_graph: Option<crate::binary_graph::Stats>,
     pub branching: String,
@@ -891,7 +894,8 @@ fn prepare_cuts(
         || !((limits.cover_cuts && cuts::applicable(model))
             || (limits.rounding_cuts && cuts::rounding_applicable(model))
             || (limits.aggregate_cuts && cuts::aggregate_applicable(model))
-            || (limits.clique_cuts && cuts::applicable(model)))
+            || (limits.clique_cuts && cuts::applicable(model))
+            || (limits.mir_cuts && cuts::mir_applicable(model)))
         || limits.nodes == 0
         || Instant::now() >= deadline
     {
@@ -989,6 +993,9 @@ fn prepare_cuts(
                 cut_deadline,
             ));
         }
+        if limits.mir_cuts && generated.len() < 32 {
+            generated.extend(pool.separate_mir(model, &point, 32 - generated.len(), cut_deadline));
+        }
         if limits.cover_cuts && generated.len() < 32 {
             generated.extend(pool.separate(model, &point, 32 - generated.len(), cut_deadline));
         }
@@ -1056,6 +1063,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     graph_cover_local_enabled: limits.graph_cover_local,
                     aggregate_cuts_enabled: limits.aggregate_cuts,
                     clique_cuts_enabled: limits.clique_cuts,
+                    mir_cuts_enabled: limits.mir_cuts,
                     graph_fractional_cover_enabled: limits.graph_fractional_cover,
                     nodes: answer.stats.nodes,
                     first_primal_seconds: answer.stats.first_seconds,
@@ -2123,6 +2131,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         graph_cover_local_enabled: limits.graph_cover_local,
         aggregate_cuts_enabled: limits.aggregate_cuts,
         clique_cuts_enabled: limits.clique_cuts,
+        mir_cuts_enabled: limits.mir_cuts,
         graph_fractional_cover_enabled: limits.graph_fractional_cover,
         defer_infeasibility_enabled: limits.defer_infeasibility,
         joint_infeasibility_enabled: limits.joint_infeasibility,
