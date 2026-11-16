@@ -40,6 +40,13 @@ pub struct Cut {
 }
 #[derive(Default, Debug, Serialize)]
 pub struct Stats {
+    pub three_calls: usize,
+    pub three_work: usize,
+    pub three_added: usize,
+    pub three_lp_solves: usize,
+    pub three_rejected_cuts: usize,
+    pub three_seconds: f64,
+    pub three_trial_seconds: f64,
     pub mir_calls: usize,
     pub mir_lp_solves: usize,
     pub mir_rejected_cuts: usize,
