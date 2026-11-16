@@ -1,0 +1,71 @@
+{
+  "name": "rmatr100-p10.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "86e4b03e3db2298c29e3ce5863e76b319e95252da2a834d7441d9346dfa4a423",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 445.0000000000001,
+      "bound_violation": 1.3627987627273797e-14,
+      "row_violation": 1.176836406102666e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 445.0000000000001,
+    "bound_violation": 1.3627987627273797e-14,
+    "row_violation": 1.18e-14,
+    "integer_violation": 0.0,
+    "objective_error": 2.1523968520179675e-14,
+    "exact": {
+      "objective": "8900000000000002430479370403593489184898497029881/20000000000000000000000000000000000000000000000",
+      "bound_violation": "13627987627273797/1000000000000000000000000000000",
+      "row_violation": "59/5000000000000000",
+      "integer_violation": "0",
+      "objective_error": "430479370403593489184898497029881/20000000000000000000000000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "8920000000000002430479370403593489184898497029881/2000000000000000000000000000000000000000000000000000000",
+      "absolute_error": "430479370403593489184898497029881/20000000000000000000000000000000000000000000000",
+      "recomputed_exact": "8900000000000002430479370403593489184898497029881/20000000000000000000000000000000000000000000000",
+      "reported_token": "445.0000000000001"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/rmatr100-p10.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/dual-relative-row-development-audit/rmatr100-p10.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "13c505b774aa399bc2996e5fc55d80c563d458826d4bcc532e918e1e15db4933",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.4164207430148963
+}

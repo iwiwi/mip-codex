@@ -1,0 +1,71 @@
+{
+  "name": "lotsize.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "14702c1793474b78a30b91512a12917790ba860f7abe765b01b296fb86835902",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 14825679.0,
+      "bound_violation": 4.445110945994202e-12,
+      "row_violation": 3.637978807091713e-12,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 14825679.0,
+    "bound_violation": 4.445110945994202e-12,
+    "row_violation": 4e-12,
+    "integer_violation": 0.0,
+    "objective_error": 5.076281294186886e-11,
+    "exact": {
+      "objective": "3706419750000000012690703235467213679/250000000000000000000000000000",
+      "bound_violation": "2222555472997101/500000000000000000000000000",
+      "row_violation": "1/250000000000",
+      "integer_violation": "0",
+      "objective_error": "12690703235467213679/250000000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "3706420000000000012690703235467213679/25000000000000000000000000000000000000",
+      "absolute_error": "12690703235467213679/250000000000000000000000000000",
+      "recomputed_exact": "3706419750000000012690703235467213679/250000000000000000000000000000",
+      "reported_token": "14825679.0"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/dual-relative-row-development-audit/lotsize.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "e5a0372c1f970abb50f0c68419361b45ede639454e75c129d0af62068022550c",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.2661132370121777
+}
