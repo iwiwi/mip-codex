@@ -761,9 +761,12 @@ impl Simplex {
         }
     }
     fn run(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
-        self.run_priced::<false>(c)
+        self.run_priced::<false, false>(c)
     }
-    fn run_priced<const NORMALIZED: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+    fn run_priced<const NORMALIZED: bool, const PHASE_ONE: bool>(
+        &mut self,
+        c: &[f64],
+    ) -> Result<(f64, f64), Outcome> {
         let weights: Vec<f64> = if NORMALIZED {
             self.columns
                 .iter()
@@ -791,6 +794,9 @@ impl Simplex {
         };
         let pricing_budget = self.rhs.len().saturating_mul(8).max(100);
         let normalized_active = NORMALIZED && self.stats.pivots + self.stats.flips < pricing_budget;
+        // Phase II monomorphization omits this configuration check entirely.
+        let keep_phase_one_pricing =
+            PHASE_ONE && std::env::var("MIP_PHASE1_KEEP_PRICING").map_or(true, |v| v == "1");
         let mut degenerate = 0usize;
         let mut verified = false;
         let mut restoration_epoch = self.stats.restoration_attempts;
@@ -834,7 +840,7 @@ impl Simplex {
                     // Keep the first eligible column even if division underflows.
                     most_negative = score;
                     entering = Some((j, direction));
-                    if degenerate > 25 {
+                    if degenerate > 25 && !keep_phase_one_pricing {
                         break;
                     }
                 }
@@ -1245,9 +1251,9 @@ fn cold_priced(
                 c[j] = 1.0;
             }
             let (value, dual) = if normalized {
-                s.run_priced::<true>(&c)?
+                s.run_priced::<true, true>(&c)?
             } else {
-                s.run_priced::<false>(&c)?
+                s.run_priced::<false, true>(&c)?
             };
             if value > 1e-7 {
                 return Err(if dual > 1e-8 {
