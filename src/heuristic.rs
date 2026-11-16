@@ -224,6 +224,14 @@ pub struct BoxStats {
     pub first_seconds: Option<f64>,
 }
 impl Repair<'_> {
+    /// 元入力区間とJSON点誤差から、報告目的の精度を保守的に確認する。
+    pub(crate) fn objective_reliable(&self, point:&[f64], value:f64)->bool {
+        if !value.is_finite(){return false;}
+        let mut error=crate::model::scalar_error(self.model.offset,self.model.offset_enclosure);
+        for(v,&x)in self.model.variables.iter().zip(point){let cost_error=crate::model::scalar_error(v.objective,v.objective_enclosure);let point_error=crate::model::point_error(x);if x!=0.{crate::model::add_error(&mut error,(x.abs()*cost_error).next_up());}if point_error!=0.{crate::model::add_error(&mut error,((v.objective.abs()+cost_error).next_up()*point_error).next_up());}}
+        crate::model::add_error(&mut error,(value.next_up()-value).abs().max((value-value.next_down()).abs()));
+        error.is_finite()&&error<=(1e-8*(1.+value.abs())).next_down()
+    }
     /// Feasible box endpoints and objective descent; no bound or infeasibility claims.
     pub fn box_search(&self, deadline: Instant) -> (Option<Vec<f64>>, BoxStats) {
         let started = Instant::now();

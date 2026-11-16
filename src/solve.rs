@@ -22,6 +22,7 @@ pub struct Limits {
     pub primal_repair: bool,
     pub box_primal: bool,
     pub root_seed_repair: bool,
+    pub root_priced_repair: bool,
     pub root_objective_repair: bool,
     pub binary_graph: bool,
     pub parity_equalities: bool,
@@ -73,6 +74,7 @@ impl Default for Limits {
             primal_repair: true,
             box_primal: true,
             root_seed_repair: true,
+            root_priced_repair: false,
             root_objective_repair: true,
             binary_graph: true,
             parity_equalities: true,
@@ -138,6 +140,10 @@ pub struct Result {
     pub box_primal: heuristic::BoxStats,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub root_seed_repair: Option<heuristic::BoxStats>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub root_priced_repair: Option<heuristic::BoxStats>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub root_priced_scale: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub root_objective_repair: Option<heuristic::BoxStats>,
     pub root_incumbent_conflict: bool,
@@ -1467,6 +1473,8 @@ fn solve_seeded_warm(
     let mut box_candidate = None;
     let mut early_repair = None;
     let mut root_seed_repair = None;
+    let mut root_priced_repair = None;
+    let mut root_priced_scale = None;
     let mut root_objective_repair = None;
     if limits.box_primal && seed.is_none() && Instant::now() < deadline {
         let started = Instant::now();
@@ -1503,6 +1511,30 @@ fn solve_seeded_warm(
                 first_seconds: found.then(||start.elapsed().as_secs_f64()),
             });
             box_candidate = candidate;
+        }
+        if limits.root_priced_repair && root_seed_repair.is_some() && Instant::now()<deadline {
+            let began=Instant::now();
+            let costs:Vec<_>=model.variables.iter().map(|v|sign*v.objective).collect();
+            let min=costs.iter().copied().fold(f64::INFINITY,f64::min);
+            let max=costs.iter().copied().fold(f64::NEG_INFINITY,f64::max);
+            let mut positive:Vec<_>=costs.into_iter().filter(|c|c.is_finite()&&*c>0.).collect();
+            if min.is_finite()&&max.is_finite()&&min<max&&!positive.is_empty(){
+                positive.sort_by(f64::total_cmp);let scale=positive[positive.len()/2];
+                let end=deadline.min(began+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.1)));
+                let point:Vec<_>=root.lower.iter().zip(&root.upper).map(|(l,u)|0f64.max(l.unwrap_or(f64::NEG_INFINITY)).min(u.unwrap_or(f64::INFINITY))).collect();
+                let before=repair.stats.clone();let candidate=repair.search_priced(&point,&root.lower,&root.upper,end,100_000_000,0,1.,scale);
+                let found=candidate.is_some();let mut improved=false;
+                if let Some(point)=candidate.filter(|x|repair.candidate_check(x)&&repair.objective_reliable(x,model.objective(x))){
+                    let value=sign*model.objective(&point);
+                    let better=box_candidate.as_ref().is_none_or(|old|{
+                        let old_value=sign*model.objective(old);
+                        repair.objective_reliable(old,model.objective(old))&&value<old_value-4e-8*(1.+value.abs().max(old_value.abs()))
+                    });
+                    if better{box_candidate=Some(point);improved=true;}
+                }
+                root_priced_repair=Some(heuristic::BoxStats{calls:repair.stats.calls-before.calls,candidates:usize::from(found),improvements:usize::from(improved),moves:repair.stats.moves-before.moves,work:repair.stats.work-before.work,seconds:began.elapsed().as_secs_f64(),first_seconds:improved.then(||start.elapsed().as_secs_f64())});
+                root_priced_scale=Some(scale);
+            }
         }
         if limits.root_objective_repair && root_seed_repair.as_ref().is_some_and(|s|s.candidates>0) && Instant::now()<deadline {
             if let Some(point)=box_candidate.as_ref(){
@@ -1581,7 +1613,8 @@ fn solve_seeded_warm(
         incumbent = sign * model.objective(&x);
         first_primal_seconds = box_primal
             .first_seconds
-            .or_else(|| root_seed_repair.as_ref().and_then(|s| s.first_seconds));
+            .or_else(|| root_seed_repair.as_ref().and_then(|s| s.first_seconds))
+            .or_else(|| root_priced_repair.as_ref().and_then(|s| s.first_seconds));
         best = Some(x);
     }
     if let Some(x) = seed {
@@ -2680,6 +2713,8 @@ fn solve_seeded_warm(
         box_primal_enabled: limits.box_primal,
         box_primal,
         root_seed_repair,
+        root_priced_repair,
+        root_priced_scale,
         root_objective_repair,
         root_incumbent_conflict,
         lp_diving: limits.lp_diving,
