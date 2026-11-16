@@ -82,7 +82,7 @@ impl Default for Limits {
             root_priced_repair: true,
             root_priced_objective: true,
             root_priced_continue: true,
-            root_priced_budget: false,
+            root_priced_budget: true,
             root_price_portfolio: true,
             root_objective_repair: true,
             root_primal_descent: true,
