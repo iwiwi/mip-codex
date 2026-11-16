@@ -1,0 +1,5325 @@
+{
+  "binary_graph_enabled": true,
+  "graph_cover_local_enabled": true,
+  "aggregate_cuts_enabled": true,
+  "clique_cuts_enabled": true,
+  "mir_cuts_enabled": true,
+  "graph_fractional_cover_enabled": true,
+  "binary_graph": null,
+  "branching": "Pseudocost",
+  "child_order": "Down",
+  "search_strategy": "DepthFirst",
+  "search_pops": 176161,
+  "search_best_pops": 0,
+  "search_transfers": 0,
+  "max_open_nodes": 18,
+  "pseudocost_updates": 175003,
+  "pseudocost_selections": 88075,
+  "primal_repair": true,
+  "box_primal_enabled": true,
+  "box_primal": {
+    "calls": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "moves": 0,
+    "work": 136,
+    "seconds": 1.9235e-05,
+    "first_seconds": null
+  },
+  "root_incumbent_conflict": false,
+  "lp_diving": true,
+  "primal_probe": true,
+  "cover_cuts_enabled": true,
+  "cover_round_limit": 4,
+  "rounding_cuts_enabled": false,
+  "strong_branching": true,
+  "strong_objective": true,
+  "strong_infeasible_hint": true,
+  "strong": {
+    "calls": 1,
+    "candidates": 8,
+    "lp_solves": 16,
+    "optimal": 15,
+    "infeasible": 0,
+    "limited": 1,
+    "numerical_errors": 0,
+    "branch_changes": 0,
+    "evaluated_variables": [
+      27,
+      5,
+      10,
+      8,
+      26,
+      19,
+      7,
+      29
+    ],
+    "selected_variable": 27,
+    "infeasible_hint_selections": 0,
+    "seconds": 0.012829445
+  },
+  "rins_enabled": true,
+  "rins": {
+    "at_node": 1,
+    "attempts": 1,
+    "calls": 1,
+    "fixed": 6,
+    "eligible": 30,
+    "nodes": 1024,
+    "lp_solves": 1028,
+    "candidates": 1,
+    "improvements": 1,
+    "limited": 0,
+    "status": "node_limit",
+    "seconds": 0.052566826
+  },
+  "objective_rounding": true,
+  "objective_rounding_all": false,
+  "objective_grid": {
+    "min_domain": {
+      "base": 0,
+      "first_increment": 1
+    },
+    "offset": 0,
+    "step": 1,
+    "implied": [
+      {
+        "variable": 0,
+        "source_row": 0,
+        "source_name": "C1_"
+      },
+      {
+        "variable": 1,
+        "source_row": 1,
+        "source_name": "C2_"
+      },
+      {
+        "variable": 2,
+        "source_row": 2,
+        "source_name": "C3_"
+      },
+      {
+        "variable": 3,
+        "source_row": 3,
+        "source_name": "C4_"
+      }
+    ]
+  },
+  "objective_bound_stats": {
+    "box_pruned": 0,
+    "rejected_candidates": 0,
+    "calls": 0,
+    "trials": 0,
+    "valid": 0,
+    "rounded": 0,
+    "seconds": 0.0
+  },
+  "infeasibility_proof_calls": 0,
+  "infeasibility_proof_trials": 0,
+  "infeasibility_proof_failures": 0,
+  "infeasibility_proof_seconds": 0.0,
+  "cut_proofs": [
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          45.0,
+          45.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_1",
+        "lower": null,
+        "upper": 45.0,
+        "coefficients": [
+          [
+            5,
+            6.0
+          ],
+          [
+            6,
+            5.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            8,
+            2.0
+          ],
+          [
+            9,
+            4.0
+          ],
+          [
+            10,
+            4.0
+          ],
+          [
+            13,
+            4.0
+          ],
+          [
+            14,
+            3.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            2.0
+          ],
+          [
+            19,
+            2.0
+          ],
+          [
+            20,
+            5.0
+          ],
+          [
+            24,
+            6.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            4.0
+          ],
+          [
+            28,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            5.0
+          ],
+          [
+            32,
+            2.0
+          ],
+          [
+            33,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 36,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          48.0,
+          48.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_2",
+        "lower": null,
+        "upper": 48.0,
+        "coefficients": [
+          [
+            5,
+            6.0
+          ],
+          [
+            6,
+            6.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            8,
+            2.0
+          ],
+          [
+            9,
+            4.0
+          ],
+          [
+            10,
+            4.0
+          ],
+          [
+            13,
+            4.0
+          ],
+          [
+            14,
+            4.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            4.0
+          ],
+          [
+            19,
+            2.0
+          ],
+          [
+            20,
+            6.0
+          ],
+          [
+            24,
+            6.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            4.0
+          ],
+          [
+            28,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            6.0
+          ],
+          [
+            32,
+            2.0
+          ],
+          [
+            33,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 32,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          32.0,
+          32.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_3",
+        "lower": null,
+        "upper": 32.0,
+        "coefficients": [
+          [
+            5,
+            4.0
+          ],
+          [
+            6,
+            4.0
+          ],
+          [
+            7,
+            2.0
+          ],
+          [
+            9,
+            2.0
+          ],
+          [
+            10,
+            2.0
+          ],
+          [
+            13,
+            2.0
+          ],
+          [
+            14,
+            2.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            2.0
+          ],
+          [
+            20,
+            4.0
+          ],
+          [
+            24,
+            4.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            4.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 64,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          52.0,
+          52.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_4",
+        "lower": null,
+        "upper": 52.0,
+        "coefficients": [
+          [
+            5,
+            6.0
+          ],
+          [
+            6,
+            6.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            8,
+            2.0
+          ],
+          [
+            9,
+            6.0
+          ],
+          [
+            10,
+            4.0
+          ],
+          [
+            13,
+            4.0
+          ],
+          [
+            14,
+            4.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            4.0
+          ],
+          [
+            19,
+            2.0
+          ],
+          [
+            20,
+            6.0
+          ],
+          [
+            24,
+            6.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            4.0
+          ],
+          [
+            27,
+            4.0
+          ],
+          [
+            28,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            6.0
+          ],
+          [
+            32,
+            3.0
+          ],
+          [
+            33,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 30,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          34.0,
+          34.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_5",
+        "lower": null,
+        "upper": 34.0,
+        "coefficients": [
+          [
+            5,
+            4.0
+          ],
+          [
+            6,
+            4.0
+          ],
+          [
+            7,
+            2.0
+          ],
+          [
+            9,
+            4.0
+          ],
+          [
+            10,
+            2.0
+          ],
+          [
+            13,
+            2.0
+          ],
+          [
+            14,
+            2.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            2.0
+          ],
+          [
+            20,
+            4.0
+          ],
+          [
+            24,
+            4.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            4.0
+          ],
+          [
+            32,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 59,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          36.0,
+          36.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_6",
+        "lower": null,
+        "upper": 36.0,
+        "coefficients": [
+          [
+            5,
+            4.0
+          ],
+          [
+            6,
+            4.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            9,
+            4.0
+          ],
+          [
+            10,
+            2.0
+          ],
+          [
+            13,
+            2.0
+          ],
+          [
+            14,
+            2.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            2.0
+          ],
+          [
+            20,
+            4.0
+          ],
+          [
+            24,
+            4.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            4.0
+          ],
+          [
+            32,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 55,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          63.0,
+          63.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_7",
+        "lower": null,
+        "upper": 63.0,
+        "coefficients": [
+          [
+            4,
+            6.0
+          ],
+          [
+            5,
+            3.0
+          ],
+          [
+            6,
+            6.0
+          ],
+          [
+            7,
+            3.0
+          ],
+          [
+            9,
+            9.0
+          ],
+          [
+            14,
+            3.0
+          ],
+          [
+            15,
+            6.0
+          ],
+          [
+            16,
+            3.0
+          ],
+          [
+            19,
+            3.0
+          ],
+          [
+            20,
+            3.0
+          ],
+          [
+            21,
+            3.0
+          ],
+          [
+            22,
+            3.0
+          ],
+          [
+            24,
+            6.0
+          ],
+          [
+            26,
+            6.0
+          ],
+          [
+            27,
+            9.0
+          ],
+          [
+            28,
+            3.0
+          ],
+          [
+            29,
+            6.0
+          ],
+          [
+            30,
+            3.0
+          ],
+          [
+            31,
+            3.0
+          ],
+          [
+            32,
+            3.0
+          ],
+          [
+            33,
+            3.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 44,
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          38.0,
+          38.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_8",
+        "lower": null,
+        "upper": 38.0,
+        "coefficients": [
+          [
+            5,
+            4.0
+          ],
+          [
+            6,
+            4.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            9,
+            4.0
+          ],
+          [
+            10,
+            2.0
+          ],
+          [
+            13,
+            2.0
+          ],
+          [
+            14,
+            2.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            2.0
+          ],
+          [
+            20,
+            4.0
+          ],
+          [
+            24,
+            4.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            4.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            4.0
+          ],
+          [
+            32,
+            2.0
+          ],
+          [
+            33,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            5,
+            6,
+            7,
+            9,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 48,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          10.0,
+          10.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_8",
+        "lower": null,
+        "upper": 10.0,
+        "coefficients": [
+          [
+            5,
+            1.0
+          ],
+          [
+            7,
+            1.0
+          ],
+          [
+            9,
+            1.0
+          ],
+          [
+            16,
+            1.0
+          ],
+          [
+            19,
+            1.0
+          ],
+          [
+            20,
+            1.0
+          ],
+          [
+            24,
+            1.0
+          ],
+          [
+            26,
+            1.0
+          ],
+          [
+            27,
+            1.0
+          ],
+          [
+            29,
+            1.0
+          ],
+          [
+            30,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 0,
+        "source_name": "C1_",
+        "upper_side": true,
+        "cover": [
+          5,
+          7,
+          9,
+          16,
+          19,
+          20,
+          24,
+          26,
+          27,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          10.0,
+          10.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_9",
+        "lower": null,
+        "upper": 10.0,
+        "coefficients": [
+          [
+            5,
+            1.0
+          ],
+          [
+            6,
+            1.0
+          ],
+          [
+            9,
+            1.0
+          ],
+          [
+            15,
+            1.0
+          ],
+          [
+            16,
+            1.0
+          ],
+          [
+            19,
+            1.0
+          ],
+          [
+            24,
+            1.0
+          ],
+          [
+            26,
+            1.0
+          ],
+          [
+            27,
+            1.0
+          ],
+          [
+            29,
+            1.0
+          ],
+          [
+            30,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": true,
+        "cover": [
+          5,
+          6,
+          9,
+          15,
+          16,
+          19,
+          24,
+          26,
+          27,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          11.0,
+          11.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_10",
+        "lower": null,
+        "upper": 11.0,
+        "coefficients": [
+          [
+            5,
+            1.0
+          ],
+          [
+            6,
+            1.0
+          ],
+          [
+            7,
+            1.0
+          ],
+          [
+            9,
+            1.0
+          ],
+          [
+            15,
+            1.0
+          ],
+          [
+            16,
+            1.0
+          ],
+          [
+            20,
+            1.0
+          ],
+          [
+            24,
+            1.0
+          ],
+          [
+            26,
+            1.0
+          ],
+          [
+            27,
+            1.0
+          ],
+          [
+            29,
+            1.0
+          ],
+          [
+            30,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": [
+          5,
+          6,
+          7,
+          9,
+          15,
+          16,
+          20,
+          24,
+          26,
+          27,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -153.0,
+          -153.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_12",
+        "lower": null,
+        "upper": -153.0,
+        "coefficients": [
+          [
+            0,
+            -1.0
+          ],
+          [
+            5,
+            -18.0
+          ],
+          [
+            7,
+            -18.0
+          ],
+          [
+            8,
+            -18.0
+          ],
+          [
+            9,
+            -18.0
+          ],
+          [
+            10,
+            -9.0
+          ],
+          [
+            11,
+            -9.0
+          ],
+          [
+            12,
+            -27.0
+          ],
+          [
+            13,
+            -18.0
+          ],
+          [
+            14,
+            -15.0
+          ],
+          [
+            15,
+            -5.0
+          ],
+          [
+            16,
+            -13.0
+          ],
+          [
+            17,
+            -9.0
+          ],
+          [
+            18,
+            -9.0
+          ],
+          [
+            19,
+            -18.0
+          ],
+          [
+            20,
+            -18.0
+          ],
+          [
+            21,
+            -18.0
+          ],
+          [
+            22,
+            -18.0
+          ],
+          [
+            23,
+            -8.0
+          ],
+          [
+            24,
+            -9.0
+          ],
+          [
+            25,
+            -9.0
+          ],
+          [
+            26,
+            -9.0
+          ],
+          [
+            27,
+            -9.0
+          ],
+          [
+            28,
+            -18.0
+          ],
+          [
+            29,
+            -18.0
+          ],
+          [
+            30,
+            -18.0
+          ],
+          [
+            31,
+            -9.0
+          ],
+          [
+            32,
+            -9.0
+          ],
+          [
+            33,
+            -9.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 39,
+        "source_row": 0,
+        "source_name": "C1_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          34.0,
+          34.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_13",
+        "lower": null,
+        "upper": 34.0,
+        "coefficients": [
+          [
+            4,
+            2.0
+          ],
+          [
+            5,
+            2.0
+          ],
+          [
+            6,
+            4.0
+          ],
+          [
+            7,
+            2.0
+          ],
+          [
+            9,
+            2.0
+          ],
+          [
+            10,
+            4.0
+          ],
+          [
+            13,
+            2.0
+          ],
+          [
+            14,
+            2.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            2.0
+          ],
+          [
+            20,
+            4.0
+          ],
+          [
+            24,
+            4.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            4.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 64,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          47.0,
+          47.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_14",
+        "lower": null,
+        "upper": 47.0,
+        "coefficients": [
+          [
+            4,
+            2.0
+          ],
+          [
+            5,
+            4.0
+          ],
+          [
+            6,
+            5.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            8,
+            2.0
+          ],
+          [
+            9,
+            4.0
+          ],
+          [
+            10,
+            6.0
+          ],
+          [
+            13,
+            4.0
+          ],
+          [
+            14,
+            3.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            2.0
+          ],
+          [
+            19,
+            2.0
+          ],
+          [
+            20,
+            5.0
+          ],
+          [
+            24,
+            6.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            4.0
+          ],
+          [
+            28,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            5.0
+          ],
+          [
+            32,
+            2.0
+          ],
+          [
+            33,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 36,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          50.0,
+          50.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_15",
+        "lower": null,
+        "upper": 50.0,
+        "coefficients": [
+          [
+            4,
+            2.0
+          ],
+          [
+            5,
+            4.0
+          ],
+          [
+            6,
+            6.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            8,
+            2.0
+          ],
+          [
+            9,
+            4.0
+          ],
+          [
+            10,
+            6.0
+          ],
+          [
+            13,
+            4.0
+          ],
+          [
+            14,
+            4.0
+          ],
+          [
+            15,
+            2.0
+          ],
+          [
+            16,
+            2.0
+          ],
+          [
+            18,
+            4.0
+          ],
+          [
+            19,
+            2.0
+          ],
+          [
+            20,
+            6.0
+          ],
+          [
+            24,
+            6.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            2.0
+          ],
+          [
+            27,
+            4.0
+          ],
+          [
+            28,
+            2.0
+          ],
+          [
+            29,
+            2.0
+          ],
+          [
+            30,
+            6.0
+          ],
+          [
+            32,
+            2.0
+          ],
+          [
+            33,
+            2.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 32,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          388.0,
+          388.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_16",
+        "lower": null,
+        "upper": 388.0,
+        "coefficients": [
+          [
+            4,
+            21.0
+          ],
+          [
+            5,
+            21.0
+          ],
+          [
+            6,
+            13.0
+          ],
+          [
+            7,
+            42.0
+          ],
+          [
+            9,
+            21.0
+          ],
+          [
+            10,
+            21.0
+          ],
+          [
+            11,
+            21.0
+          ],
+          [
+            15,
+            42.0
+          ],
+          [
+            16,
+            42.0
+          ],
+          [
+            17,
+            16.0
+          ],
+          [
+            18,
+            21.0
+          ],
+          [
+            20,
+            42.0
+          ],
+          [
+            21,
+            21.0
+          ],
+          [
+            23,
+            21.0
+          ],
+          [
+            24,
+            42.0
+          ],
+          [
+            25,
+            21.0
+          ],
+          [
+            26,
+            39.0
+          ],
+          [
+            27,
+            21.0
+          ],
+          [
+            29,
+            42.0
+          ],
+          [
+            30,
+            21.0
+          ],
+          [
+            31,
+            2.0
+          ],
+          [
+            33,
+            21.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 63,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          391.0,
+          391.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_17",
+        "lower": null,
+        "upper": 391.0,
+        "coefficients": [
+          [
+            4,
+            21.0
+          ],
+          [
+            5,
+            21.0
+          ],
+          [
+            6,
+            13.0
+          ],
+          [
+            7,
+            42.0
+          ],
+          [
+            9,
+            21.0
+          ],
+          [
+            10,
+            21.0
+          ],
+          [
+            11,
+            22.0
+          ],
+          [
+            13,
+            3.0
+          ],
+          [
+            15,
+            42.0
+          ],
+          [
+            16,
+            42.0
+          ],
+          [
+            17,
+            21.0
+          ],
+          [
+            18,
+            21.0
+          ],
+          [
+            20,
+            42.0
+          ],
+          [
+            21,
+            21.0
+          ],
+          [
+            23,
+            22.0
+          ],
+          [
+            24,
+            42.0
+          ],
+          [
+            25,
+            21.0
+          ],
+          [
+            26,
+            42.0
+          ],
+          [
+            27,
+            21.0
+          ],
+          [
+            29,
+            42.0
+          ],
+          [
+            30,
+            21.0
+          ],
+          [
+            31,
+            7.0
+          ],
+          [
+            33,
+            21.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 58,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          392.0,
+          392.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_18",
+        "lower": null,
+        "upper": 392.0,
+        "coefficients": [
+          [
+            4,
+            21.0
+          ],
+          [
+            5,
+            21.0
+          ],
+          [
+            6,
+            13.0
+          ],
+          [
+            7,
+            42.0
+          ],
+          [
+            9,
+            21.0
+          ],
+          [
+            10,
+            21.0
+          ],
+          [
+            11,
+            24.0
+          ],
+          [
+            13,
+            4.0
+          ],
+          [
+            15,
+            42.0
+          ],
+          [
+            16,
+            42.0
+          ],
+          [
+            17,
+            21.0
+          ],
+          [
+            18,
+            21.0
+          ],
+          [
+            20,
+            42.0
+          ],
+          [
+            21,
+            21.0
+          ],
+          [
+            23,
+            24.0
+          ],
+          [
+            24,
+            42.0
+          ],
+          [
+            25,
+            21.0
+          ],
+          [
+            26,
+            42.0
+          ],
+          [
+            27,
+            21.0
+          ],
+          [
+            29,
+            42.0
+          ],
+          [
+            30,
+            22.0
+          ],
+          [
+            31,
+            8.0
+          ],
+          [
+            32,
+            1.0
+          ],
+          [
+            33,
+            21.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 57,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -163.0,
+          -163.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_19",
+        "lower": null,
+        "upper": -163.0,
+        "coefficients": [
+          [
+            0,
+            -1.0
+          ],
+          [
+            5,
+            -19.0
+          ],
+          [
+            7,
+            -18.0
+          ],
+          [
+            8,
+            -18.0
+          ],
+          [
+            9,
+            -18.0
+          ],
+          [
+            10,
+            -13.0
+          ],
+          [
+            11,
+            -9.0
+          ],
+          [
+            12,
+            -27.0
+          ],
+          [
+            13,
+            -19.0
+          ],
+          [
+            14,
+            -17.0
+          ],
+          [
+            15,
+            -7.0
+          ],
+          [
+            16,
+            -17.0
+          ],
+          [
+            17,
+            -9.0
+          ],
+          [
+            18,
+            -11.0
+          ],
+          [
+            19,
+            -22.0
+          ],
+          [
+            20,
+            -18.0
+          ],
+          [
+            21,
+            -18.0
+          ],
+          [
+            22,
+            -18.0
+          ],
+          [
+            23,
+            -8.0
+          ],
+          [
+            24,
+            -9.0
+          ],
+          [
+            25,
+            -9.0
+          ],
+          [
+            26,
+            -9.0
+          ],
+          [
+            27,
+            -9.0
+          ],
+          [
+            28,
+            -18.0
+          ],
+          [
+            29,
+            -18.0
+          ],
+          [
+            30,
+            -18.0
+          ],
+          [
+            31,
+            -9.0
+          ],
+          [
+            32,
+            -9.0
+          ],
+          [
+            33,
+            -9.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 37,
+        "source_row": 0,
+        "source_name": "C1_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          11.0,
+          11.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_19",
+        "lower": null,
+        "upper": 11.0,
+        "coefficients": [
+          [
+            4,
+            1.0
+          ],
+          [
+            6,
+            1.0
+          ],
+          [
+            7,
+            1.0
+          ],
+          [
+            9,
+            1.0
+          ],
+          [
+            15,
+            1.0
+          ],
+          [
+            16,
+            1.0
+          ],
+          [
+            20,
+            1.0
+          ],
+          [
+            24,
+            1.0
+          ],
+          [
+            26,
+            1.0
+          ],
+          [
+            27,
+            1.0
+          ],
+          [
+            29,
+            1.0
+          ],
+          [
+            30,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": true,
+        "cover": [
+          4,
+          6,
+          7,
+          9,
+          15,
+          16,
+          20,
+          24,
+          26,
+          27,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          11.0,
+          11.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_20",
+        "lower": null,
+        "upper": 11.0,
+        "coefficients": [
+          [
+            4,
+            1.0
+          ],
+          [
+            7,
+            1.0
+          ],
+          [
+            9,
+            1.0
+          ],
+          [
+            10,
+            1.0
+          ],
+          [
+            15,
+            1.0
+          ],
+          [
+            16,
+            1.0
+          ],
+          [
+            20,
+            1.0
+          ],
+          [
+            24,
+            1.0
+          ],
+          [
+            26,
+            1.0
+          ],
+          [
+            27,
+            1.0
+          ],
+          [
+            29,
+            1.0
+          ],
+          [
+            30,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": [
+          4,
+          7,
+          9,
+          10,
+          15,
+          16,
+          20,
+          24,
+          26,
+          27,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          12.0,
+          12.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_21",
+        "lower": null,
+        "upper": 12.0,
+        "coefficients": [
+          [
+            4,
+            1.0
+          ],
+          [
+            6,
+            1.0
+          ],
+          [
+            7,
+            1.0
+          ],
+          [
+            9,
+            1.0
+          ],
+          [
+            10,
+            1.0
+          ],
+          [
+            15,
+            1.0
+          ],
+          [
+            16,
+            1.0
+          ],
+          [
+            20,
+            1.0
+          ],
+          [
+            24,
+            1.0
+          ],
+          [
+            26,
+            1.0
+          ],
+          [
+            27,
+            1.0
+          ],
+          [
+            29,
+            1.0
+          ],
+          [
+            30,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": [
+          4,
+          6,
+          7,
+          9,
+          10,
+          15,
+          16,
+          20,
+          24,
+          26,
+          27,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          78.0,
+          78.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_23",
+        "lower": null,
+        "upper": 78.0,
+        "coefficients": [
+          [
+            4,
+            8.0
+          ],
+          [
+            5,
+            4.0
+          ],
+          [
+            6,
+            8.0
+          ],
+          [
+            7,
+            4.0
+          ],
+          [
+            9,
+            8.0
+          ],
+          [
+            10,
+            2.0
+          ],
+          [
+            14,
+            4.0
+          ],
+          [
+            15,
+            8.0
+          ],
+          [
+            16,
+            4.0
+          ],
+          [
+            19,
+            4.0
+          ],
+          [
+            20,
+            4.0
+          ],
+          [
+            21,
+            4.0
+          ],
+          [
+            22,
+            4.0
+          ],
+          [
+            24,
+            8.0
+          ],
+          [
+            26,
+            8.0
+          ],
+          [
+            27,
+            8.0
+          ],
+          [
+            28,
+            4.0
+          ],
+          [
+            29,
+            8.0
+          ],
+          [
+            30,
+            4.0
+          ],
+          [
+            31,
+            4.0
+          ],
+          [
+            32,
+            4.0
+          ],
+          [
+            33,
+            4.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 50,
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          153.0,
+          153.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_24",
+        "lower": null,
+        "upper": 153.0,
+        "coefficients": [
+          [
+            4,
+            2.0
+          ],
+          [
+            5,
+            19.0
+          ],
+          [
+            6,
+            15.0
+          ],
+          [
+            7,
+            14.0
+          ],
+          [
+            8,
+            7.0
+          ],
+          [
+            9,
+            14.0
+          ],
+          [
+            10,
+            17.0
+          ],
+          [
+            13,
+            14.0
+          ],
+          [
+            14,
+            13.0
+          ],
+          [
+            15,
+            7.0
+          ],
+          [
+            16,
+            7.0
+          ],
+          [
+            18,
+            11.0
+          ],
+          [
+            19,
+            7.0
+          ],
+          [
+            20,
+            15.0
+          ],
+          [
+            24,
+            21.0
+          ],
+          [
+            25,
+            7.0
+          ],
+          [
+            26,
+            7.0
+          ],
+          [
+            27,
+            14.0
+          ],
+          [
+            28,
+            7.0
+          ],
+          [
+            29,
+            7.0
+          ],
+          [
+            30,
+            15.0
+          ],
+          [
+            32,
+            7.0
+          ],
+          [
+            33,
+            7.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 36,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -335.0,
+          -335.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_25",
+        "lower": null,
+        "upper": -335.0,
+        "coefficients": [
+          [
+            2,
+            -1.0
+          ],
+          [
+            4,
+            -18.0
+          ],
+          [
+            5,
+            -24.0
+          ],
+          [
+            6,
+            -4.0
+          ],
+          [
+            7,
+            -36.0
+          ],
+          [
+            8,
+            -6.0
+          ],
+          [
+            9,
+            -18.0
+          ],
+          [
+            10,
+            -12.0
+          ],
+          [
+            11,
+            -42.0
+          ],
+          [
+            12,
+            -18.0
+          ],
+          [
+            13,
+            -18.0
+          ],
+          [
+            14,
+            -6.0
+          ],
+          [
+            15,
+            -36.0
+          ],
+          [
+            16,
+            -36.0
+          ],
+          [
+            17,
+            -24.0
+          ],
+          [
+            18,
+            -36.0
+          ],
+          [
+            19,
+            -6.0
+          ],
+          [
+            20,
+            -36.0
+          ],
+          [
+            21,
+            -29.0
+          ],
+          [
+            22,
+            -6.0
+          ],
+          [
+            23,
+            -42.0
+          ],
+          [
+            24,
+            -36.0
+          ],
+          [
+            25,
+            -34.0
+          ],
+          [
+            26,
+            -30.0
+          ],
+          [
+            27,
+            -21.0
+          ],
+          [
+            28,
+            -12.0
+          ],
+          [
+            29,
+            -36.0
+          ],
+          [
+            30,
+            -22.0
+          ],
+          [
+            31,
+            -18.0
+          ],
+          [
+            32,
+            -18.0
+          ],
+          [
+            33,
+            -39.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 15,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -305.0,
+          -305.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_26",
+        "lower": null,
+        "upper": -305.0,
+        "coefficients": [
+          [
+            2,
+            -1.0
+          ],
+          [
+            4,
+            -12.0
+          ],
+          [
+            5,
+            -23.0
+          ],
+          [
+            7,
+            -36.0
+          ],
+          [
+            8,
+            -12.0
+          ],
+          [
+            9,
+            -12.0
+          ],
+          [
+            10,
+            -12.0
+          ],
+          [
+            11,
+            -36.0
+          ],
+          [
+            12,
+            -16.0
+          ],
+          [
+            13,
+            -20.0
+          ],
+          [
+            14,
+            -10.0
+          ],
+          [
+            15,
+            -36.0
+          ],
+          [
+            16,
+            -36.0
+          ],
+          [
+            17,
+            -24.0
+          ],
+          [
+            18,
+            -36.0
+          ],
+          [
+            19,
+            -12.0
+          ],
+          [
+            20,
+            -31.0
+          ],
+          [
+            21,
+            -25.0
+          ],
+          [
+            22,
+            -6.0
+          ],
+          [
+            23,
+            -36.0
+          ],
+          [
+            24,
+            -36.0
+          ],
+          [
+            25,
+            -36.0
+          ],
+          [
+            26,
+            -24.0
+          ],
+          [
+            27,
+            -17.0
+          ],
+          [
+            28,
+            -12.0
+          ],
+          [
+            29,
+            -36.0
+          ],
+          [
+            30,
+            -18.0
+          ],
+          [
+            31,
+            -24.0
+          ],
+          [
+            32,
+            -17.0
+          ],
+          [
+            33,
+            -36.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 32,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -496.0,
+          -496.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_27",
+        "lower": null,
+        "upper": -496.0,
+        "coefficients": [
+          [
+            3,
+            -1.0
+          ],
+          [
+            5,
+            -58.0
+          ],
+          [
+            6,
+            -58.0
+          ],
+          [
+            7,
+            -45.0
+          ],
+          [
+            8,
+            -36.0
+          ],
+          [
+            9,
+            -50.0
+          ],
+          [
+            10,
+            -58.0
+          ],
+          [
+            11,
+            -6.0
+          ],
+          [
+            12,
+            -5.0
+          ],
+          [
+            13,
+            -64.0
+          ],
+          [
+            14,
+            -58.0
+          ],
+          [
+            15,
+            -5.0
+          ],
+          [
+            16,
+            -23.0
+          ],
+          [
+            17,
+            -7.0
+          ],
+          [
+            18,
+            -58.0
+          ],
+          [
+            19,
+            -29.0
+          ],
+          [
+            20,
+            -58.0
+          ],
+          [
+            21,
+            -19.0
+          ],
+          [
+            22,
+            -15.0
+          ],
+          [
+            23,
+            -16.0
+          ],
+          [
+            24,
+            -63.0
+          ],
+          [
+            25,
+            -48.0
+          ],
+          [
+            26,
+            -25.0
+          ],
+          [
+            27,
+            -39.0
+          ],
+          [
+            28,
+            -36.0
+          ],
+          [
+            29,
+            -14.0
+          ],
+          [
+            30,
+            -58.0
+          ],
+          [
+            32,
+            -52.0
+          ],
+          [
+            33,
+            -41.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 36,
+        "source_row": 3,
+        "source_name": "C4_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          553.0,
+          553.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_28",
+        "lower": null,
+        "upper": 553.0,
+        "coefficients": [
+          [
+            4,
+            28.0
+          ],
+          [
+            5,
+            39.0
+          ],
+          [
+            6,
+            9.0
+          ],
+          [
+            7,
+            61.0
+          ],
+          [
+            8,
+            8.0
+          ],
+          [
+            9,
+            27.0
+          ],
+          [
+            10,
+            20.0
+          ],
+          [
+            11,
+            54.0
+          ],
+          [
+            12,
+            18.0
+          ],
+          [
+            13,
+            22.0
+          ],
+          [
+            14,
+            4.0
+          ],
+          [
+            15,
+            60.0
+          ],
+          [
+            16,
+            63.0
+          ],
+          [
+            17,
+            34.0
+          ],
+          [
+            18,
+            51.0
+          ],
+          [
+            19,
+            9.0
+          ],
+          [
+            20,
+            55.0
+          ],
+          [
+            21,
+            36.0
+          ],
+          [
+            23,
+            54.0
+          ],
+          [
+            24,
+            61.0
+          ],
+          [
+            25,
+            45.0
+          ],
+          [
+            26,
+            51.0
+          ],
+          [
+            27,
+            36.0
+          ],
+          [
+            28,
+            16.0
+          ],
+          [
+            29,
+            61.0
+          ],
+          [
+            30,
+            36.0
+          ],
+          [
+            31,
+            26.0
+          ],
+          [
+            32,
+            19.0
+          ],
+          [
+            33,
+            54.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 15,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          583.0,
+          583.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_29",
+        "lower": null,
+        "upper": 583.0,
+        "coefficients": [
+          [
+            4,
+            34.0
+          ],
+          [
+            5,
+            40.0
+          ],
+          [
+            6,
+            13.0
+          ],
+          [
+            7,
+            61.0
+          ],
+          [
+            8,
+            2.0
+          ],
+          [
+            9,
+            33.0
+          ],
+          [
+            10,
+            20.0
+          ],
+          [
+            11,
+            60.0
+          ],
+          [
+            12,
+            20.0
+          ],
+          [
+            13,
+            20.0
+          ],
+          [
+            15,
+            60.0
+          ],
+          [
+            16,
+            63.0
+          ],
+          [
+            17,
+            34.0
+          ],
+          [
+            18,
+            51.0
+          ],
+          [
+            19,
+            3.0
+          ],
+          [
+            20,
+            60.0
+          ],
+          [
+            21,
+            40.0
+          ],
+          [
+            23,
+            60.0
+          ],
+          [
+            24,
+            61.0
+          ],
+          [
+            25,
+            43.0
+          ],
+          [
+            26,
+            57.0
+          ],
+          [
+            27,
+            40.0
+          ],
+          [
+            28,
+            16.0
+          ],
+          [
+            29,
+            61.0
+          ],
+          [
+            30,
+            40.0
+          ],
+          [
+            31,
+            20.0
+          ],
+          [
+            32,
+            20.0
+          ],
+          [
+            33,
+            57.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 32,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -681.0,
+          -681.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_30",
+        "lower": null,
+        "upper": -681.0,
+        "coefficients": [
+          [
+            1,
+            -1.0
+          ],
+          [
+            4,
+            -85.0
+          ],
+          [
+            5,
+            -40.0
+          ],
+          [
+            6,
+            -71.0
+          ],
+          [
+            7,
+            -8.0
+          ],
+          [
+            8,
+            -8.0
+          ],
+          [
+            9,
+            -87.0
+          ],
+          [
+            11,
+            -15.0
+          ],
+          [
+            12,
+            -38.0
+          ],
+          [
+            13,
+            -15.0
+          ],
+          [
+            14,
+            -49.0
+          ],
+          [
+            15,
+            -80.0
+          ],
+          [
+            16,
+            -39.0
+          ],
+          [
+            17,
+            -26.0
+          ],
+          [
+            18,
+            -31.0
+          ],
+          [
+            19,
+            -73.0
+          ],
+          [
+            20,
+            -6.0
+          ],
+          [
+            21,
+            -73.0
+          ],
+          [
+            22,
+            -67.0
+          ],
+          [
+            23,
+            -22.0
+          ],
+          [
+            24,
+            -68.0
+          ],
+          [
+            25,
+            -41.0
+          ],
+          [
+            26,
+            -57.0
+          ],
+          [
+            27,
+            -85.0
+          ],
+          [
+            28,
+            -46.0
+          ],
+          [
+            29,
+            -61.0
+          ],
+          [
+            30,
+            -40.0
+          ],
+          [
+            31,
+            -57.0
+          ],
+          [
+            32,
+            -54.0
+          ],
+          [
+            33,
+            -59.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 50,
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -279.0,
+          -279.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_31",
+        "lower": null,
+        "upper": -279.0,
+        "coefficients": [
+          [
+            2,
+            -1.0
+          ],
+          [
+            4,
+            -11.0
+          ],
+          [
+            5,
+            -22.0
+          ],
+          [
+            7,
+            -33.0
+          ],
+          [
+            8,
+            -11.0
+          ],
+          [
+            9,
+            -11.0
+          ],
+          [
+            10,
+            -11.0
+          ],
+          [
+            11,
+            -33.0
+          ],
+          [
+            12,
+            -15.0
+          ],
+          [
+            13,
+            -19.0
+          ],
+          [
+            14,
+            -10.0
+          ],
+          [
+            15,
+            -33.0
+          ],
+          [
+            16,
+            -33.0
+          ],
+          [
+            17,
+            -22.0
+          ],
+          [
+            18,
+            -33.0
+          ],
+          [
+            19,
+            -11.0
+          ],
+          [
+            20,
+            -28.0
+          ],
+          [
+            21,
+            -23.0
+          ],
+          [
+            22,
+            -6.0
+          ],
+          [
+            23,
+            -33.0
+          ],
+          [
+            24,
+            -33.0
+          ],
+          [
+            25,
+            -33.0
+          ],
+          [
+            26,
+            -22.0
+          ],
+          [
+            27,
+            -15.0
+          ],
+          [
+            28,
+            -11.0
+          ],
+          [
+            29,
+            -33.0
+          ],
+          [
+            30,
+            -16.0
+          ],
+          [
+            31,
+            -22.0
+          ],
+          [
+            32,
+            -16.0
+          ],
+          [
+            33,
+            -33.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 32,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          161.0,
+          161.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_32",
+        "lower": null,
+        "upper": 161.0,
+        "coefficients": [
+          [
+            4,
+            4.0
+          ],
+          [
+            5,
+            15.0
+          ],
+          [
+            6,
+            2.0
+          ],
+          [
+            7,
+            18.0
+          ],
+          [
+            8,
+            11.0
+          ],
+          [
+            9,
+            16.0
+          ],
+          [
+            10,
+            14.0
+          ],
+          [
+            11,
+            7.0
+          ],
+          [
+            12,
+            17.0
+          ],
+          [
+            13,
+            15.0
+          ],
+          [
+            14,
+            9.0
+          ],
+          [
+            15,
+            7.0
+          ],
+          [
+            16,
+            15.0
+          ],
+          [
+            17,
+            5.0
+          ],
+          [
+            18,
+            7.0
+          ],
+          [
+            19,
+            15.0
+          ],
+          [
+            20,
+            17.0
+          ],
+          [
+            21,
+            11.0
+          ],
+          [
+            22,
+            14.0
+          ],
+          [
+            23,
+            1.0
+          ],
+          [
+            24,
+            10.0
+          ],
+          [
+            25,
+            2.0
+          ],
+          [
+            26,
+            11.0
+          ],
+          [
+            27,
+            8.0
+          ],
+          [
+            28,
+            11.0
+          ],
+          [
+            29,
+            20.0
+          ],
+          [
+            30,
+            18.0
+          ],
+          [
+            31,
+            3.0
+          ],
+          [
+            32,
+            5.0
+          ],
+          [
+            33,
+            5.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 5,
+        "source_row": 0,
+        "source_name": "C1_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          609.0,
+          609.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_33",
+        "lower": null,
+        "upper": 609.0,
+        "coefficients": [
+          [
+            4,
+            35.0
+          ],
+          [
+            5,
+            41.0
+          ],
+          [
+            6,
+            13.0
+          ],
+          [
+            7,
+            64.0
+          ],
+          [
+            8,
+            3.0
+          ],
+          [
+            9,
+            34.0
+          ],
+          [
+            10,
+            21.0
+          ],
+          [
+            11,
+            63.0
+          ],
+          [
+            12,
+            21.0
+          ],
+          [
+            13,
+            21.0
+          ],
+          [
+            15,
+            63.0
+          ],
+          [
+            16,
+            66.0
+          ],
+          [
+            17,
+            36.0
+          ],
+          [
+            18,
+            54.0
+          ],
+          [
+            19,
+            4.0
+          ],
+          [
+            20,
+            63.0
+          ],
+          [
+            21,
+            42.0
+          ],
+          [
+            23,
+            63.0
+          ],
+          [
+            24,
+            64.0
+          ],
+          [
+            25,
+            46.0
+          ],
+          [
+            26,
+            59.0
+          ],
+          [
+            27,
+            42.0
+          ],
+          [
+            28,
+            17.0
+          ],
+          [
+            29,
+            64.0
+          ],
+          [
+            30,
+            42.0
+          ],
+          [
+            31,
+            22.0
+          ],
+          [
+            32,
+            21.0
+          ],
+          [
+            33,
+            60.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 32,
+        "source_row": 2,
+        "source_name": "C3_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -237.0,
+          -237.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_34",
+        "lower": null,
+        "upper": -237.0,
+        "coefficients": [
+          [
+            1,
+            -1.0
+          ],
+          [
+            4,
+            -30.0
+          ],
+          [
+            5,
+            -15.0
+          ],
+          [
+            6,
+            -25.0
+          ],
+          [
+            7,
+            -2.0
+          ],
+          [
+            8,
+            -5.0
+          ],
+          [
+            9,
+            -30.0
+          ],
+          [
+            11,
+            -5.0
+          ],
+          [
+            12,
+            -15.0
+          ],
+          [
+            13,
+            -5.0
+          ],
+          [
+            14,
+            -20.0
+          ],
+          [
+            15,
+            -28.0
+          ],
+          [
+            16,
+            -13.0
+          ],
+          [
+            17,
+            -10.0
+          ],
+          [
+            18,
+            -11.0
+          ],
+          [
+            19,
+            -27.0
+          ],
+          [
+            21,
+            -27.0
+          ],
+          [
+            22,
+            -25.0
+          ],
+          [
+            23,
+            -10.0
+          ],
+          [
+            24,
+            -25.0
+          ],
+          [
+            25,
+            -15.0
+          ],
+          [
+            26,
+            -20.0
+          ],
+          [
+            27,
+            -30.0
+          ],
+          [
+            28,
+            -20.0
+          ],
+          [
+            29,
+            -20.0
+          ],
+          [
+            30,
+            -14.0
+          ],
+          [
+            31,
+            -21.0
+          ],
+          [
+            32,
+            -20.0
+          ],
+          [
+            33,
+            -23.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 15,
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          384.0,
+          384.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_35",
+        "lower": null,
+        "upper": 384.0,
+        "coefficients": [
+          [
+            4,
+            47.0
+          ],
+          [
+            5,
+            22.0
+          ],
+          [
+            6,
+            40.0
+          ],
+          [
+            7,
+            6.0
+          ],
+          [
+            8,
+            4.0
+          ],
+          [
+            9,
+            48.0
+          ],
+          [
+            10,
+            2.0
+          ],
+          [
+            11,
+            7.0
+          ],
+          [
+            12,
+            18.0
+          ],
+          [
+            13,
+            7.0
+          ],
+          [
+            14,
+            26.0
+          ],
+          [
+            15,
+            44.0
+          ],
+          [
+            16,
+            22.0
+          ],
+          [
+            17,
+            12.0
+          ],
+          [
+            18,
+            15.0
+          ],
+          [
+            19,
+            38.0
+          ],
+          [
+            20,
+            6.0
+          ],
+          [
+            21,
+            38.0
+          ],
+          [
+            22,
+            35.0
+          ],
+          [
+            23,
+            10.0
+          ],
+          [
+            24,
+            38.0
+          ],
+          [
+            25,
+            20.0
+          ],
+          [
+            26,
+            33.0
+          ],
+          [
+            27,
+            47.0
+          ],
+          [
+            28,
+            24.0
+          ],
+          [
+            29,
+            35.0
+          ],
+          [
+            30,
+            22.0
+          ],
+          [
+            31,
+            30.0
+          ],
+          [
+            32,
+            28.0
+          ],
+          [
+            33,
+            31.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 4,
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -375.0,
+          -375.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_36",
+        "lower": null,
+        "upper": -375.0,
+        "coefficients": [
+          [
+            1,
+            -1.0
+          ],
+          [
+            4,
+            -46.0
+          ],
+          [
+            5,
+            -22.0
+          ],
+          [
+            6,
+            -39.0
+          ],
+          [
+            7,
+            -6.0
+          ],
+          [
+            8,
+            -4.0
+          ],
+          [
+            9,
+            -47.0
+          ],
+          [
+            11,
+            -8.0
+          ],
+          [
+            12,
+            -20.0
+          ],
+          [
+            13,
+            -8.0
+          ],
+          [
+            14,
+            -27.0
+          ],
+          [
+            15,
+            -44.0
+          ],
+          [
+            16,
+            -21.0
+          ],
+          [
+            17,
+            -14.0
+          ],
+          [
+            18,
+            -16.0
+          ],
+          [
+            19,
+            -39.0
+          ],
+          [
+            20,
+            -4.0
+          ],
+          [
+            21,
+            -39.0
+          ],
+          [
+            22,
+            -36.0
+          ],
+          [
+            23,
+            -12.0
+          ],
+          [
+            24,
+            -38.0
+          ],
+          [
+            25,
+            -21.0
+          ],
+          [
+            26,
+            -32.0
+          ],
+          [
+            27,
+            -46.0
+          ],
+          [
+            28,
+            -26.0
+          ],
+          [
+            29,
+            -34.0
+          ],
+          [
+            30,
+            -22.0
+          ],
+          [
+            31,
+            -31.0
+          ],
+          [
+            32,
+            -30.0
+          ],
+          [
+            33,
+            -32.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 4,
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -625.0,
+          -625.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_37",
+        "lower": null,
+        "upper": -625.0,
+        "coefficients": [
+          [
+            0,
+            -1.0
+          ],
+          [
+            4,
+            -13.0
+          ],
+          [
+            5,
+            -60.0
+          ],
+          [
+            6,
+            -7.0
+          ],
+          [
+            7,
+            -69.0
+          ],
+          [
+            8,
+            -47.0
+          ],
+          [
+            9,
+            -63.0
+          ],
+          [
+            10,
+            -55.0
+          ],
+          [
+            11,
+            -30.0
+          ],
+          [
+            12,
+            -71.0
+          ],
+          [
+            13,
+            -60.0
+          ],
+          [
+            14,
+            -36.0
+          ],
+          [
+            15,
+            -28.0
+          ],
+          [
+            16,
+            -58.0
+          ],
+          [
+            17,
+            -21.0
+          ],
+          [
+            18,
+            -32.0
+          ],
+          [
+            19,
+            -63.0
+          ],
+          [
+            20,
+            -68.0
+          ],
+          [
+            21,
+            -47.0
+          ],
+          [
+            22,
+            -58.0
+          ],
+          [
+            23,
+            -7.0
+          ],
+          [
+            24,
+            -36.0
+          ],
+          [
+            25,
+            -9.0
+          ],
+          [
+            26,
+            -44.0
+          ],
+          [
+            27,
+            -31.0
+          ],
+          [
+            28,
+            -46.0
+          ],
+          [
+            29,
+            -76.0
+          ],
+          [
+            30,
+            -69.0
+          ],
+          [
+            31,
+            -13.0
+          ],
+          [
+            32,
+            -22.0
+          ],
+          [
+            33,
+            -21.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 5,
+        "source_row": 0,
+        "source_name": "C1_",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          522.0,
+          522.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_38",
+        "lower": null,
+        "upper": 522.0,
+        "coefficients": [
+          [
+            4,
+            63.0
+          ],
+          [
+            5,
+            29.0
+          ],
+          [
+            6,
+            54.0
+          ],
+          [
+            7,
+            10.0
+          ],
+          [
+            8,
+            3.0
+          ],
+          [
+            9,
+            65.0
+          ],
+          [
+            10,
+            2.0
+          ],
+          [
+            11,
+            10.0
+          ],
+          [
+            12,
+            23.0
+          ],
+          [
+            13,
+            10.0
+          ],
+          [
+            14,
+            33.0
+          ],
+          [
+            15,
+            60.0
+          ],
+          [
+            16,
+            30.0
+          ],
+          [
+            17,
+            16.0
+          ],
+          [
+            18,
+            20.0
+          ],
+          [
+            19,
+            50.0
+          ],
+          [
+            20,
+            10.0
+          ],
+          [
+            21,
+            50.0
+          ],
+          [
+            22,
+            46.0
+          ],
+          [
+            23,
+            12.0
+          ],
+          [
+            24,
+            51.0
+          ],
+          [
+            25,
+            26.0
+          ],
+          [
+            26,
+            45.0
+          ],
+          [
+            27,
+            63.0
+          ],
+          [
+            28,
+            30.0
+          ],
+          [
+            29,
+            49.0
+          ],
+          [
+            30,
+            30.0
+          ],
+          [
+            31,
+            40.0
+          ],
+          [
+            32,
+            38.0
+          ],
+          [
+            33,
+            40.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            4,
+            6,
+            7,
+            9,
+            10,
+            15,
+            16,
+            20,
+            24,
+            26,
+            27,
+            29,
+            30
+          ]
+        },
+        "divisor": 15,
+        "source_row": 1,
+        "source_name": "C2_",
+        "upper_side": true,
+        "cover": []
+      }
+    }
+  ],
+  "cut_stats": {
+    "mir_calls": 4,
+    "mir_work": 59760,
+    "mir_added": 32,
+    "mir_seconds": 0.003047669,
+    "clique_calls": 4,
+    "clique_edges": 0,
+    "clique_work": 1752,
+    "clique_added": 0,
+    "clique_seconds": 4.2468e-05,
+    "aggregate_calls": 4,
+    "aggregate_pairs": 96,
+    "aggregate_work": 406656,
+    "aggregate_added": 0,
+    "aggregate_seconds": 0.001990578,
+    "rounding_calls": 0,
+    "rounding": 0,
+    "rounding_projected": 0,
+    "rounding_work": 0,
+    "calls": 4,
+    "eligible": 16,
+    "candidates": 11,
+    "added": 38,
+    "integer": 6,
+    "interval": 0,
+    "projected": 6,
+    "rejected": 0,
+    "work": 7616
+  },
+  "cut_rounds": 4,
+  "cut_lp_solves": 4,
+  "cut_seconds": 0.006017658,
+  "cut_initial_lp_seconds": 4.9175e-05,
+  "root_lp_reused": false,
+  "probe": {
+    "calls": 1,
+    "nodes": 4096,
+    "lp_solves": 4100,
+    "max_open_nodes": 28,
+    "seconds": 0.205690621,
+    "status": "node_limit",
+    "candidates": 1,
+    "improvements": 1
+  },
+  "diving": {
+    "calls": 1,
+    "lp_solves": 14,
+    "reversals": 0,
+    "infeasible": 0,
+    "numerical_errors": 0,
+    "limited": 0,
+    "candidates": 1,
+    "improvements": 1,
+    "seconds": 0.000831284
+  },
+  "feasibility_pump_enabled": true,
+  "pump": {
+    "calls": 1,
+    "lp_solves": 3,
+    "perturbations": 1,
+    "candidates": 1,
+    "improvements": 1,
+    "numerical_errors": 0,
+    "limited": 0,
+    "seconds": 0.000678633
+  },
+  "repair_calls": 327,
+  "repair_candidates": 102,
+  "repair_improvements": 0,
+  "repair_moves": 1843,
+  "first_primal_seconds": 0.007985673,
+  "repair_lp_solves": 327,
+  "repair_lp_candidates": 90,
+  "repair_work": 231442,
+  "lp_engine": "Revised",
+  "propagation": false,
+  "propagation_calls": 0,
+  "propagation_rows": 0,
+  "propagation_tightenings": 0,
+  "propagation_pruned": 0,
+  "propagation_budget_hits": 0,
+  "fixed_leaves": 0,
+  "lp_solves": 181652,
+  "defer_infeasibility_enabled": true,
+  "joint_infeasibility_enabled": true,
+  "aggregate_infeasibility_enabled": true,
+  "deferred_infeasibilities": 0,
+  "deferred_infeasibilities_pending": 0,
+  "deferred_infeasibilities_pruned": 0,
+  "deferred_infeasibility_bound": null,
+  "deferred_infeasibility_unbounded": false,
+  "lp_search_termination": "time_limit",
+  "fixed_columns_enabled": true,
+  "lp_workspace_bytes": 536870912,
+  "root_fixed_columns": 0,
+  "lp_scaled_columns": 0,
+  "lp_scaled_rows": 0,
+  "lp_warm_start": true,
+  "lp_warm_attempts": 181649,
+  "lp_warm_successes": 179977,
+  "lp_warm_fallbacks": 1672,
+  "lp_warm_rejections": 0,
+  "lp_warm_row_extensions": 12,
+  "lp_warm_cost_attempts": 3,
+  "lp_warm_cost_successes": 3,
+  "lp_multiplier_cache_hits": 364032,
+  "lp_multiplier_cache_misses": 644645,
+  "lp_certificate_repair_trials": 0,
+  "lp_certificate_repairs": 0,
+  "lp_restoration_attempts": 0,
+  "lp_restoration_successes": 0,
+  "lp_restoration_infeasible_candidates": 0,
+  "lp_restoration_pivots": 0,
+  "lp_refinement_attempts": 0,
+  "lp_refinement_steps": 0,
+  "lp_refinement_successes": 0,
+  "lp_dual_pivots": 620863,
+  "lp_dual_flips": 278377,
+  "lp_pivots": 641368,
+  "lp_flips": 279412,
+  "lp_refactors": 16377,
+  "status": "time_limit",
+  "objective": 0.9999999999999524,
+  "dual_bound": 0.0,
+  "gap": 0.9999999999999524,
+  "nodes": 176160,
+  "seconds": 10.000008476,
+  "values": {
+    "s1": 0.0,
+    "s2": 1.0000000000000384,
+    "s3": 0.0,
+    "s4": -8.604228440844963e-14,
+    "x1": 1.0,
+    "x10": 1.0,
+    "x11": 1.0,
+    "x12": 1.0,
+    "x13": 1.0,
+    "x14": 0.0,
+    "x15": 1.0,
+    "x16": 0.0,
+    "x17": 1.0,
+    "x18": 0.0,
+    "x19": 1.0,
+    "x2": 0.0,
+    "x20": 0.0,
+    "x21": 1.0,
+    "x22": 1.0,
+    "x23": 1.0,
+    "x24": 0.0,
+    "x25": 0.0,
+    "x26": 1.0,
+    "x27": 0.0,
+    "x28": 0.0,
+    "x29": 0.0,
+    "x3": 0.0,
+    "x30": 0.0,
+    "x4": 0.0,
+    "x5": 1.0,
+    "x6": 1.0,
+    "x7": 0.0,
+    "x8": 0.0,
+    "x9": 0.0
+  }
+}

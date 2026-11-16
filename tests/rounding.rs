@@ -31,6 +31,7 @@ fn division_closes_a_root_that_pairwise_covers_cannot_close() {
         strong_branching: false,
         nodes: 1,
         cover_cuts: false,
+        mir_cuts: false,
         clique_cuts: false,
         primal_repair: false,
         feasibility_pump: false,

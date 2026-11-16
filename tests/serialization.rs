@@ -8,6 +8,7 @@ fn limits(engine: Engine) -> Limits {
         fixed_columns: true,
         objective_rounding: false,
         cover_cuts: false,
+        mir_cuts: false,
         clique_cuts: false,
         rounding_cuts: false,
         primal_repair: false,

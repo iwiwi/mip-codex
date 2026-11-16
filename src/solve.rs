@@ -30,6 +30,7 @@ pub struct Limits {
     pub graph_cover_local: bool,
     pub aggregate_cuts: bool,
     pub clique_cuts: bool,
+    pub mir_cuts: bool,
     pub graph_fractional_cover: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
@@ -72,6 +73,7 @@ impl Default for Limits {
             graph_cover_local: true,
             aggregate_cuts: true,
             clique_cuts: true,
+            mir_cuts: true,
             graph_fractional_cover: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
@@ -100,6 +102,7 @@ pub struct Result {
     pub graph_cover_local_enabled: bool,
     pub aggregate_cuts_enabled: bool,
     pub clique_cuts_enabled: bool,
+    pub mir_cuts_enabled: bool,
     pub graph_fractional_cover_enabled: bool,
     pub binary_graph: Option<crate::binary_graph::Stats>,
     pub branching: String,
@@ -891,7 +894,8 @@ fn prepare_cuts(
         || !((limits.cover_cuts && cuts::applicable(model))
             || (limits.rounding_cuts && cuts::rounding_applicable(model))
             || (limits.aggregate_cuts && cuts::aggregate_applicable(model))
-            || (limits.clique_cuts && cuts::applicable(model)))
+            || (limits.clique_cuts && cuts::applicable(model))
+            || (limits.mir_cuts && cuts::mir_applicable(model)))
         || limits.nodes == 0
         || Instant::now() >= deadline
     {
@@ -1005,12 +1009,123 @@ fn prepare_cuts(
             .extend(generated.iter().map(|cut| cut.row.clone()));
         prepared.cuts.extend(generated);
     }
+    if limits.mir_cuts && global_first {
+        improve_with_mir(
+            model,
+            root,
+            limits,
+            cut_deadline,
+            lp_stats,
+            &mut work,
+            &mut pool,
+            &mut prepared,
+        );
+    }
     if !prepared.cuts.is_empty() {
         prepared.model = Some(work);
     }
     prepared.stats = pool.stats;
     prepared.seconds = started.elapsed().as_secs_f64();
     prepared
+}
+// MIR is an optional extension of an already solved root. Keep its rows only
+// after a timely reoptimization shows useful objective progress. Rejected trials
+// leave the original point, model prefix and immutable warm basis available.
+fn improve_with_mir(
+    model: &Model,
+    root: &mut Node,
+    limits: &Limits,
+    deadline: Instant,
+    lp_stats: &mut revised::Stats,
+    work: &mut Model,
+    pool: &mut cuts::Pool,
+    prepared: &mut CutPreparation,
+) {
+    fn point(q: &Standard, answer: &revised::Answer) -> Option<Vec<f64>> {
+        let lp::Outcome::Optimal { x, .. } = &answer.outcome else {
+            return None;
+        };
+        Some(
+            q.terms
+                .iter()
+                .enumerate()
+                .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                .collect(),
+        )
+    }
+    let Some(mut baseline) = prepared.cached.take() else {
+        return;
+    };
+    for _ in 0..limits.cover_rounds {
+        if Instant::now() >= deadline {
+            break;
+        }
+        let Some(old_point) = point(&baseline.standard, &baseline.answer) else {
+            break;
+        };
+        let old_objective = model.objective(&old_point);
+        if !old_objective.is_finite() || work.check(&old_point, false, 1e-6).is_err() {
+            break;
+        }
+        let proposed = pool.separate_mir(model, &old_point, 8, deadline);
+        if proposed.is_empty() {
+            break;
+        }
+        let old_rows = work.rows.len();
+        work.rows.extend(proposed.iter().map(|c| c.row.clone()));
+        let started = Instant::now();
+        let trial = if let Relaxation::Ready(q) =
+            standard_sparse(work, root, limits.dense_bytes, true, limits.fixed_columns)
+        {
+            let answer = revised::minimize_warm(
+                q.sparse.as_ref().unwrap(),
+                limits.pivots,
+                Some(deadline),
+                if limits.warm_start {
+                    baseline.answer.warm.as_deref()
+                } else {
+                    None
+                },
+            );
+            prepared.lp_solves += 1;
+            prepared.rounds += 1;
+            pool.stats.mir_lp_solves += 1;
+            lp_stats.add(&answer.stats);
+            Some(CachedRoot {
+                standard: q,
+                answer,
+            })
+        } else {
+            None
+        };
+        pool.stats.mir_trial_seconds += started.elapsed().as_secs_f64();
+        let accepted = trial
+            .as_ref()
+            .and_then(|t| point(&t.standard, &t.answer))
+            .is_some_and(|p| {
+                let new_objective = model.objective(&p);
+                let sign = if model.maximize { -1. } else { 1. };
+                let gain = sign * (new_objective - old_objective);
+                Instant::now() < deadline
+                    && new_objective.is_finite()
+                    && work.check(&p, false, 1e-6).is_ok()
+                    && (gain >= 1e-3 * old_objective.abs().max(1.)
+                        || model.check(&p, true, 1e-6).is_ok())
+            });
+        if !accepted {
+            work.rows.truncate(old_rows);
+            pool.stats.mir_added -= proposed.len();
+            pool.stats.added -= proposed.len();
+            pool.stats.mir_rejected_cuts += proposed.len();
+            break;
+        }
+        prepared.cuts.extend(proposed);
+        baseline = trial.unwrap();
+        if limits.warm_start {
+            root.warm = baseline.answer.warm.clone();
+        }
+    }
+    prepared.cached = Some(baseline);
 }
 pub fn solve(model: &Model, limits: &Limits) -> Result {
     solve_seeded(model, limits, None)
@@ -1056,6 +1171,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     graph_cover_local_enabled: limits.graph_cover_local,
                     aggregate_cuts_enabled: limits.aggregate_cuts,
                     clique_cuts_enabled: limits.clique_cuts,
+                    mir_cuts_enabled: limits.mir_cuts,
                     graph_fractional_cover_enabled: limits.graph_fractional_cover,
                     nodes: answer.stats.nodes,
                     first_primal_seconds: answer.stats.first_seconds,
@@ -1838,6 +1954,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
+                    probe_limits.mir_cuts = false;
                     probe_limits.box_primal = false;
                     probe_limits.rounding_cuts = false;
                     probe_limits.strong_branching = false;
@@ -1928,6 +2045,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             local.feasibility_pump = false;
                             local.strong_branching = false;
                             local.cover_cuts = false;
+                            // This neighborhood search seeks a quick incumbent;
+                            // root MIR trials must not redirect its limited tree.
+                            local.mir_cuts = false;
                             local.box_primal = false;
                             local.rounding_cuts = false;
                             local.propagation = false;
@@ -2123,6 +2243,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         graph_cover_local_enabled: limits.graph_cover_local,
         aggregate_cuts_enabled: limits.aggregate_cuts,
         clique_cuts_enabled: limits.clique_cuts,
+        mir_cuts_enabled: limits.mir_cuts,
         graph_fractional_cover_enabled: limits.graph_fractional_cover,
         defer_infeasibility_enabled: limits.defer_infeasibility,
         joint_infeasibility_enabled: limits.joint_infeasibility,
