@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-objective-repair/scripts/smoke_benchmark.py", line 24, in <module>
+    output=Path(tempfile.mkdtemp(prefix='smoke-'+time.strftime('%Y%m%d-%H%M%S',time.gmtime())+'-',dir=root/'artifacts'))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/tempfile.py", line 523, in mkdtemp
+    _os.mkdir(file, 0o700)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/mip-objective-repair/artifacts/smoke-20261116-163720-q5_c_6l_'

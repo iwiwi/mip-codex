@@ -13,3 +13,9 @@
 cygnetの60秒でも220→218/下界170同値。初回単独native比較はartifactsディレクトリ不足で未開始、作成後の実行では新ワークツリーのPython仮想環境にHiGHS/SCIPがなく両者error。いずれもログを残した。pyvenv.cfgとlibの参照を既存環境に揃え、モデル/solver設定は変えず再測定した。
 
 PR83採用後のmain eeb0c692e/FP7e7a368cf545ac9dはprimary cygnet220/170、seymour1460/359、enlight37最適を再現し、3点/3証明全有効。全240のrow-packing-bound-final-20261116はcreate-onlyで全SHA確認済み。147ファイル2901953bytesとELF4本のSHA参照を保存した。
+
+全188×10秒（FP10e763eef59eca62）と監査完了：主解1改善0悪化187同値、有限下界130件全同値/新規損失0、状態両版171time/11resource/1optimal/5numerical、最適件数両版1。376証明/120整数点がすべて厳密・公式検査有効。選択10証明/10点も全有効。
+
+最終既定有効版FP9faaaa51331767bbは232 Rust試験（4 ignored）成功、最終選択4出力/4整数点も全有効。native10秒はRust218/170、HS203/0、SCIP290/0、GLPK点/下界なし、3整数点の厳密・公式再監査も成功。追加計算0.515773291秒は0.5秒期限をわずかに超過しており、実測を保持しLP予算へ返さない。
+
+最終監査4出力/4点も全件有効。5445一次ファイル213569968bytes、ELF/生成GLPKモデル5本はローカルSHA参照。PR84として採用する。
