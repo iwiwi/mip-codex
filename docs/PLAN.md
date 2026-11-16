@@ -52,3 +52,9 @@ PR19で目的下界の根限定、PR20で費用変更warmを採用。PR21の根p
 潜り探索の一括整数固定解除はPR23で主解1改善/1悪化/LP増加のため未マージ。既定の固定方式を維持する。測定前の独立checker確認、binary/libraryの出自とビルド時source fingerprint照合を別修正で追加した。全件snapshot作成にも適用し、既存baseline snapshotは変更しない。以後worktreeごとにtargetを分ける。
 
 次は厳密整数行と元のinteger point境界だけを使うi128境界伝播。元十進が整数へ丸まっただけの係数/辺/境界は証明情報で除外する。連続変数のmin活動量もpoint整数境界なら含められるが、整数丸めで狭めるのは元integer変数だけ。overflow/不明値は省略し、厳密不等式だけで矛盾を判定する。既存float伝播は既定offのまま、別flagで正しさと性能を対照する。
+
+## 2026-11-16 06:11 UTC 再開時の最新ポインタ
+
+最新の採用済み基準はmain8f70b1e45/FP839469b484e9f3e4（PR71）。上の過去の仮説はJOURNAL末尾と個別RESULTS文書で採否を確認する。全240用snapshotは作成のみで、最終Rustキャンペーンは未開始。
+
+稼働中はdual-restoration-fallback worktreeのcore968487c72/FP3365eb6d5aedf8c8とmainを比較する188開発screen、GMP/公式/Fraction監査、統合合成回帰。artifacts/dual-restoration-plan.jsonと対応workerログ/exit.jsonから再開する。一律安定pivotはneos60秒で悪化したため採用しない。失敗時だけのfallbackも、188と60秒検査の終了前には採用しない。次の独立仮説は原問題の厳密整数3行集約であり、まだ実装・採用していない。
