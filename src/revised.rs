@@ -1061,7 +1061,38 @@ impl Stats {
     }
 }
 fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> Answer {
-    cold_priced(p, limit, deadline, retain, p.costs.iter().all(|&c| c == 0.))
+    cold_with_probe(
+        p,
+        limit,
+        deadline,
+        retain,
+        std::time::Duration::from_secs(1),
+    )
+}
+fn cold_with_probe(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    retain: bool,
+    probe: std::time::Duration,
+) -> Answer {
+    if !p.costs.iter().all(|&c| c == 0.) {
+        return cold_priced(p, limit, deadline, retain, false);
+    }
+    let probe_deadline = Instant::now() + probe;
+    let first_deadline = Some(deadline.map_or(probe_deadline, |d| d.min(probe_deadline)));
+    let first = cold_priced(p, limit, first_deadline, retain, false);
+    if matches!(first.outcome, Outcome::TimeLimit)
+        && deadline.is_none_or(|d| probe_deadline < d && Instant::now() < d)
+    {
+        let remaining = limit.saturating_sub(first.stats.pivots + first.stats.flips);
+        if remaining > 0 {
+            let mut retry = cold_priced(p, remaining, deadline, retain, true);
+            retry.stats.add(&first.stats);
+            return retry;
+        }
+    }
+    first
 }
 fn cold_priced(
     p: &Problem,
@@ -1743,12 +1774,16 @@ mod pricing_budget_tests {
             equality: vec![false],
             slack_upper: vec![f64::INFINITY],
         };
-        let a = cold(&p, 1000, None, true);
+        let fast = cold(&p, 1000, None, true);
+        assert!(matches!(fast.outcome,Outcome::Optimal{objective,..}if objective == 0.));
+        assert_eq!(fast.stats.flips + fast.stats.pivots, 200);
+        assert_eq!(fast.stats.feasibility_pricing_calls, 0);
+        let a = cold_with_probe(&p, 1000, None, true, std::time::Duration::ZERO);
         assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective == 0.));
         assert_eq!(a.stats.pricing_cutoffs, 1);
         assert_eq!(a.stats.flips + a.stats.pivots, 300);
         assert_eq!(a.stats.pricing_fallbacks, 1);
-        let a = cold(&p, 120, None, true);
+        let a = cold_with_probe(&p, 120, None, true, std::time::Duration::ZERO);
         assert!(matches!(a.outcome, Outcome::IterationLimit));
         assert_eq!(a.stats.flips + a.stats.pivots, 120);
         assert_eq!(a.stats.pricing_cutoffs, 1);
