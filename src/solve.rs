@@ -136,6 +136,8 @@ pub struct Result {
     pub strong: StrongStats,
     pub rins_enabled: bool,
     pub rins: RinsStats,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub terminal_neighborhood: Option<RinsStats>,
     pub objective_rounding: bool,
     pub objective_rounding_all: bool,
     pub objective_grid: Option<Grid>,
@@ -2432,6 +2434,107 @@ fn solve_seeded_warm(
     if deferred.pending != 0 {
         status = "numerical_error".into();
     }
+    let mut terminal_neighborhood = None;
+    // 数値停止後の主解専用探索。局所の境界・終了判定は大域探索に戻さない。
+    if status == "numerical_error"
+        && limits.rins
+        && matches!(limits.engine, Engine::Revised)
+        && std::env::var("MIP_TERMINAL_NEIGHBORHOOD").as_deref() == Ok("1")
+        && best.is_some()
+        && model.variables.len() <= 50_000
+        && model.rows.len() <= 50_000
+        && model.variables.iter().filter(|v| v.integer).count() <= 4096
+        && model
+            .rows
+            .iter()
+            .map(|r| r.coefficients.len())
+            .sum::<usize>()
+            <= 1_000_000
+        && Instant::now() < deadline
+    {
+        let mut terminal = RinsStats::default();
+        terminal.at_node = Some(nodes);
+        let started = Instant::now();
+        let end = deadline.min(started + std::time::Duration::from_secs(10));
+        let protected_bound = stack.min_bound(terminal_bound.min(deferred.minimum));
+        for attempt in 0..16 {
+            if Instant::now() >= end {
+                break;
+            }
+            terminal.attempts += 1;
+            let seed = best.as_ref().unwrap();
+            let Some(neighborhood) = rins::neighborhood_released(
+                model,
+                seed,
+                seed,
+                [20, 40, 60, 80][attempt % 4],
+                attempt as u64 + 1,
+            ) else {
+                continue;
+            };
+            if Instant::now() >= end {
+                break;
+            }
+            let mut local = limits.clone();
+            local.rins = false;
+            local.objective_rounding = false;
+            local.objective_rounding_all = false;
+            local.primal_probe = false;
+            local.primal_repair = false;
+            local.lp_diving = false;
+            local.feasibility_pump = false;
+            local.strong_branching = false;
+            local.cover_cuts = false;
+            local.mir_cuts = false;
+            local.three_row_cuts = false;
+            local.box_primal = false;
+            local.rounding_cuts = false;
+            local.propagation = false;
+            local.nodes = 1024;
+            local.pivots = local.pivots.min(4096);
+            local.seconds = end
+                .saturating_duration_since(Instant::now())
+                .as_secs_f64()
+                .min(1.);
+            local.search = search::Strategy::DepthFirst;
+            local.branching = branching::Rule::Pseudocost;
+            local.child_order = branching::Order::Nearest;
+            let result = solve_seeded(&neighborhood.model, &local, Some(&neighborhood.seed));
+            terminal.calls += 1;
+            terminal.fixed = neighborhood.fixed;
+            terminal.eligible = neighborhood.eligible;
+            terminal.nodes += result.nodes;
+            terminal.lp_solves += result.lp_solves;
+            terminal.status = Some(format!("terminal:{}", result.status));
+            lp_solves += result.lp_solves;
+            add_lp_result(&mut lp_stats, &result);
+            if let Some(values) = result.values {
+                let candidate: Option<Vec<_>> = model
+                    .variables
+                    .iter()
+                    .map(|v| values.get(&v.name).copied())
+                    .collect();
+                if let Some(x) = candidate {
+                    if heuristic::Repair::new(model).candidate_check(&x) {
+                        terminal.candidates += 1;
+                        let value = sign * model.objective(&x);
+                        if value.is_finite()
+                            && value < incumbent
+                            && (protected_bound == f64::NEG_INFINITY
+                                || value + 1e-8 * (1. + value.abs().max(protected_bound.abs()))
+                                    >= protected_bound)
+                        {
+                            incumbent = value;
+                            best = Some(x);
+                            terminal.improvements += 1;
+                        }
+                    }
+                }
+            }
+        }
+        terminal.seconds += started.elapsed().as_secs_f64();
+        terminal_neighborhood = Some(terminal);
+    }
     let internal_dual = stack.min_bound(terminal_bound.min(incumbent).min(deferred.minimum));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
@@ -2496,6 +2599,7 @@ fn solve_seeded_warm(
         strong,
         rins_enabled: limits.rins,
         rins,
+        terminal_neighborhood,
         objective_rounding: limits.objective_rounding,
         objective_rounding_all: limits.objective_rounding_all,
         objective_grid,
