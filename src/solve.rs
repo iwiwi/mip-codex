@@ -574,13 +574,13 @@ fn binary_pump(
         .filter(|(_, v)| v.integer)
     {
         let (Some(l), Some(u)) = (v.lower, v.upper) else {
-            return None;
+            continue;
         };
         if l.ceil() == u.floor() {
             continue;
         }
         if l < 0. || u > 1. {
-            return None;
+            continue;
         }
         binary.push(j);
     }
@@ -2727,6 +2727,31 @@ mod pump_tests {
         );
         assert_eq!(s.candidates, 0);
         assert_eq!(s.lp_solves, 64);
+    }
+    #[test]
+    fn binary_projection_checks_general_integer_variables_too() {
+        for rhs in [2., 0.5] {
+            let text = format!("NAME mixedint\nOBJSENSE\n MAX\nROWS\n N obj\n L cap\n E general\nCOLUMNS\n x obj 1 cap 1\n y obj 1 cap 1\n z obj 0 general 1\nRHS\n rhs cap 1.5 general {rhs}\nBOUNDS\n BV b x\n BV b y\n LI b z 0\n UP b z 3\nENDATA\n");
+            let (m, node, p, point) = prepare(&text);
+            let mut stats = PumpStats::default();
+            let candidate = binary_pump(
+                &m, &node, &p, &point, &Limits::default(),
+                Instant::now() + std::time::Duration::from_secs(2),
+                &mut stats, &mut revised::Stats::default(),
+            );
+            assert_eq!(stats.calls, 1);
+            assert!(stats.lp_solves > 0);
+            if rhs == 2. {
+                let candidate = candidate.unwrap();
+                assert!(m.check(&candidate, true, 1e-7).is_ok());
+                assert_eq!(m.objective(&candidate), 1.);
+            } else {
+                assert!(candidate.is_none());
+                assert_eq!(stats.candidates, 0);
+            }
+            let parent = revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
+            assert!(matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9));
+        }
     }
     #[test]
     fn mixed_continuous_projection_keeps_original_constraints() {
