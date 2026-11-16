@@ -1,0 +1,75 @@
+{
+  "source": "/home/ubuntu/mip-codex/artifacts/row-ray-bound-v2-paired-41/n3div36.mps.gz/before/result.json",
+  "sha256": "475045f928c60cfb8219f00e1fecef3ed2b6f283e37e26f81e86b4cbeeb39fd5",
+  "cut": {
+    "valid": true,
+    "checked": 10,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "e38ea474b0a575defa1cbe100a99dac71af1fd163760ef5211b69dd5eb11be67",
+    "objective_grid_valid": true,
+    "objective_step": 200,
+    "implied_integer_variables": 0,
+    "objective_domains": 2,
+    "objective_domain_report_valid": true,
+    "aggregate_checked": 10,
+    "input_sha256": "cd26f712a2873ac77bbc30df522d0bbaf1b4f0c4214ab1f804bb67d43f8f62d8"
+  },
+  "point": {
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 168800.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 168800.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "168800",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "168801/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "168800",
+        "reported_token": "168800.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n3div36.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/row-ray-bound-selected-audit/row-ray-bound-v2-paired-41/n3div36.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+}
