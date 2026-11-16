@@ -117,7 +117,7 @@ impl Default for Limits {
             objective_rounding: true,
             objective_domain_report: true,
             row_ray_report: true,
-            row_subgradient_report: false,
+            row_subgradient_report: true,
             row_packing_report: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
