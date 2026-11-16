@@ -4,7 +4,7 @@ use crate::lp::Outcome;
 #[cfg(test)]
 use faer::Col;
 use faer::{
-    Mat,
+    MatMut,
     linalg::solvers::Solve,
     sparse::{SparseColMat, Triplet, linalg::solvers::Lu},
 };
@@ -114,11 +114,11 @@ impl Basis {
         let mut x = match self.factor.as_ref() {
             Factor::Diagonal(d) => v.iter().zip(d).map(|(v, d)| v / d).collect(),
             Factor::Sparse(lu) => {
-                // Preserve a nonzero column stride for faer row permutations.
-                // A Col view has stride zero and may copy one element per row.
-                let mut x = Mat::from_fn(v.len(), 1, |i, _| v[i]);
-                lu.solve_in_place(x.as_mut());
-                (0..v.len()).map(|i| x[(i, 0)]).collect::<Vec<_>>()
+                // A Vec-backed matrix retains column stride n, unlike a Col view.
+                // Solve in the final output buffer, avoiding a second allocation/copy.
+                let mut x = v.to_vec();
+                lu.solve_in_place(MatMut::from_column_major_slice_mut(&mut x, v.len(), 1));
+                x
             }
         };
         for e in &self.updates {
@@ -146,9 +146,12 @@ impl Basis {
         match self.factor.as_ref() {
             Factor::Diagonal(d) => x.iter().zip(d).map(|(v, d)| v / d).collect(),
             Factor::Sparse(lu) => {
-                let mut x = Mat::from_fn(v.len(), 1, |i, _| x[i]);
-                lu.solve_transpose_in_place(x.as_mut());
-                (0..v.len()).map(|i| x[(i, 0)]).collect()
+                lu.solve_transpose_in_place(MatMut::from_column_major_slice_mut(
+                    &mut x,
+                    v.len(),
+                    1,
+                ));
+                x
             }
         }
     }
