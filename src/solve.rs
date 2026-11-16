@@ -29,6 +29,7 @@ pub struct Limits {
     pub root_price_portfolio: bool,
     pub root_objective_repair: bool,
     pub component_objective_repair: bool,
+    pub component_work_share: bool,
     pub root_primal_descent: bool,
     pub binary_graph: bool,
     pub parity_equalities: bool,
@@ -91,6 +92,7 @@ impl Default for Limits {
             root_price_portfolio: true,
             root_objective_repair: true,
             component_objective_repair: true,
+            component_work_share: false,
             root_primal_descent: true,
             binary_graph: true,
             parity_equalities: true,
@@ -1616,7 +1618,7 @@ fn solve_seeded_warm(
         if limits.component_objective_repair && limits.seconds>10. && root_seed_repair.as_ref().is_some_and(|s|s.candidates>0) && Instant::now()<deadline {
             if let Some(point)=box_candidate.as_ref(){
                 let offset=start.elapsed().as_secs_f64();let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(30.)));
-                if let Some((point,mut stats))=crate::component_objective_repair::improve(model,&repair,point,&root.lower,&root.upper,end){
+                if let Some((point,mut stats))=crate::component_objective_repair::improve_shared(model,&repair,point,&root.lower,&root.upper,end,limits.component_work_share){
                     if let Some(t)=&mut stats.first_seconds{*t+=offset;}box_candidate=Some(point);component_objective_repair=Some(stats);
                 }
             }
