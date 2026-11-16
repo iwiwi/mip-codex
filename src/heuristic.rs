@@ -72,6 +72,14 @@ impl<'a> Repair<'a> {
         budget: usize,
         seed: u64,
     ) -> Option<Vec<f64>> {
+        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.)
+    }
+    /// 費用を正規化した修復順位を診断する。実行可能性判定は元のguardを使う。
+    pub fn search_priced(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64)->Option<Vec<f64>> {
+        if !weight.is_finite()||weight<0.||!scale.is_finite()||scale<=0.{return None;}
+        self.search_impl(point,lower,upper,deadline,budget,seed,weight,scale)
+    }
+    fn search_impl(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64)->Option<Vec<f64>> {
         self.stats.calls += 1;
         let mut rng = seed.wrapping_add(0x9e3779b97f4a7c15);
         let mut work = 0usize;
@@ -176,12 +184,13 @@ impl<'a> Repair<'a> {
                         let cost = (if self.model.maximize { -1. } else { 1. })
                             * self.model.variables[j].objective
                             * delta;
-                        if gain > 1e-12
+                        let score=if weight==0.{gain}else{gain/(1.+weight*(cost.max(0.)/scale))};
+                        if gain > 1e-12 && (weight==0. || score.is_finite())
                             && best.is_none_or(|(_, _, g, c)| {
-                                gain > g + 1e-12 || ((gain - g).abs() <= 1e-12 && cost < c)
+                                score > g + 1e-12 || ((score - g).abs() <= 1e-12 && cost < c)
                             })
                         {
-                            best = Some((j, value, gain, cost));
+                            best = Some((j, value, score, cost));
                         }
                     }
                     if work >= budget || Instant::now() >= deadline {
