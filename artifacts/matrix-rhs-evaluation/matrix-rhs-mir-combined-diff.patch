@@ -1,0 +1,42 @@
+diff --git a/src/revised.rs b/src/revised.rs
+index 2a0f0c355..e2752e1d5 100644
+--- a/src/revised.rs
++++ b/src/revised.rs
+@@ -1,8 +1,10 @@
+ //! 有界変数の改訂単体法。最適化の処理は本リポジトリのRustで実装。
+ //! faerは汎用の疎LU分解と線形方程式の解法だけに使用する。
+ use crate::lp::Outcome;
++#[cfg(test)]
++use faer::Col;
+ use faer::{
+-    Col,
++    Mat,
+     linalg::solvers::Solve,
+     sparse::{SparseColMat, Triplet, linalg::solvers::Lu},
+ };
+@@ -106,9 +108,11 @@ impl Basis {
+         let mut x = match self.factor.as_ref() {
+             Factor::Diagonal(d) => v.iter().zip(d).map(|(v, d)| v / d).collect(),
+             Factor::Sparse(lu) => {
+-                let mut x = Col::from_fn(v.len(), |i| v[i]);
++                // Preserve a nonzero column stride for faer row permutations.
++                // A Col view has stride zero and may copy one element per row.
++                let mut x = Mat::from_fn(v.len(), 1, |i, _| v[i]);
+                 lu.solve_in_place(x.as_mut());
+-                (0..v.len()).map(|i| x[i]).collect::<Vec<_>>()
++                (0..v.len()).map(|i| x[(i, 0)]).collect::<Vec<_>>()
+             }
+         };
+         for e in &self.updates {
+@@ -136,9 +140,9 @@ impl Basis {
+         match self.factor.as_ref() {
+             Factor::Diagonal(d) => x.iter().zip(d).map(|(v, d)| v / d).collect(),
+             Factor::Sparse(lu) => {
+-                let mut x = Col::from_fn(v.len(), |i| x[i]);
++                let mut x = Mat::from_fn(v.len(), 1, |i, _| x[i]);
+                 lu.solve_transpose_in_place(x.as_mut());
+-                (0..v.len()).map(|i| x[i]).collect()
++                (0..v.len()).map(|i| x[(i, 0)]).collect()
+             }
+         }
+     }
