@@ -24,3 +24,10 @@ fn successful_series_can_continue_and_unsuccessful_series_stops_at_sixteen(){
  for continued in [false,true]{let(x,s)=improve_priced_continued(&m,&repair,&[1.,1.,1.],&lo,&hi,Instant::now()+Duration::from_secs(1),continued).unwrap();assert_eq!(m.objective(&x),2.);assert!(m.check(&x,true,0.).is_ok());assert!(s.improvements>0);assert_eq!(s.calls,if continued{64}else{16});}
  let(x,s)=improve_priced_continued(&m,&repair,&[0.,1.,1.],&lo,&hi,Instant::now()+Duration::from_secs(1),true).unwrap();assert_eq!(m.objective(&x),2.);assert_eq!(s.improvements,0);assert_eq!(s.calls,16);
 }
+
+#[test]
+fn extended_budget_is_available_only_after_an_initial_improvement(){
+ use mip_codex::priced_objective_repair::improve_priced_budgeted;
+ let m=mps::parse(std::io::Cursor::new("NAME extended\nROWS\n N obj\n G a\n G b\nCOLUMNS\n x obj 100 a 1\n x b 1\n y obj 1 a 1\n z obj 1 b 1\nRHS\n rhs a 1 b 1\nBOUNDS\n BV b x\n BV b y\n BV b z\nENDATA\n")).unwrap();let repair=Repair::new(&m);let lo=vec![Some(0.);3];let hi=vec![Some(1.);3];
+ for (seed,expected) in [([1.,1.,1.],1024),([0.,1.,1.],16)]{let began=Instant::now();let(x,s)=improve_priced_budgeted(&m,&repair,&seed,&lo,&hi,began+Duration::from_secs(1),true,Some(began+Duration::from_secs(2))).unwrap();assert_eq!(m.objective(&x),2.);assert!(m.check(&x,true,0.).is_ok());assert_eq!(s.calls,expected);}
+}

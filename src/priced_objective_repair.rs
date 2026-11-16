@@ -15,6 +15,9 @@ pub fn improve_priced(
     improve_priced_continued(model,original,point,lower,upper,deadline,false)
 }
 pub fn improve_priced_continued(model:&Model,original:&Repair<'_>,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,continue_success:bool)->Option<(Vec<f64>,BoxStats)>{
+    improve_priced_budgeted(model,original,point,lower,upper,deadline,continue_success,None)
+}
+pub fn improve_priced_budgeted(model:&Model,original:&Repair<'_>,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,continue_success:bool,extension:Option<Instant>)->Option<(Vec<f64>,BoxStats)>{
     let began = Instant::now();
     if began >= deadline
         || point.len() != model.variables.len()
@@ -58,11 +61,15 @@ pub fn improve_priced_continued(model:&Model,original:&Repair<'_>,point:&[f64],l
         lower_enclosure: None,
         upper_enclosure: None,
     });
-    for seed in 0..if continue_success{64}else{16} {
+    let extension=extension.filter(|&end|continue_success&&end>deadline);
+    let initial_seeds=if continue_success{64}else{16};
+    let mut active_deadline=deadline;let mut work_budget=100_000_000;let mut extended=false;
+    for seed in 0..if extension.is_some(){1024}else{initial_seeds} {
         if seed>=16 && stats.improvements==0 {break;}
-        if Instant::now() >= deadline || stats.work>=100_000_000 {
-            break;
+        if !extended && (Instant::now()>=deadline || stats.work>=100_000_000 || seed>=initial_seeds){
+            if let Some(end)=extension.filter(|&end|stats.improvements>0&&Instant::now()<end){active_deadline=end;work_budget=1_000_000_000;extended=true;}else{break;}
         }
+        if Instant::now()>=active_deadline || stats.work>=work_budget {break;}
         let target = (model.objective(&x) - step)/scale;
         if !target.is_finite(){break;}
         let row = work.rows.last_mut().unwrap();
@@ -73,7 +80,7 @@ pub fn improve_priced_continued(model:&Model,original:&Repair<'_>,point:&[f64],l
             .iter()
             .map(|&v| if v > 0.5 { 0.95 } else { 0.001 })
             .collect();
-        let candidate = repair.search(&start, lower, upper, deadline, 100_000_000usize.saturating_sub(stats.work), seed);
+        let candidate = repair.search(&start, lower, upper, active_deadline, work_budget.saturating_sub(stats.work), seed);
         stats.calls += repair.stats.calls;
         stats.moves += repair.stats.moves;
         stats.work += repair.stats.work;
