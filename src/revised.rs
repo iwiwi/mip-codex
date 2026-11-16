@@ -10,7 +10,7 @@ use std::{sync::Arc, time::Instant};
 const FEAS: f64 = 1e-8;
 const PIVOT: f64 = 1e-10;
 // Experimental static ranking only: 0=Dantzig, 1=L2, 2=L1.
-const PRICING_NORM: u8 = 1;
+const PRICING_NORM: u8 = 2;
 #[derive(Clone, Debug)]
 pub struct Problem {
     pub columns: Vec<Vec<(usize, f64)>>,
