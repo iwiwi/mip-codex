@@ -1,0 +1,24 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+    Finished `release` profile [optimized] target(s) in 6.70s
+     Running tests/incumbent_lp_warm.rs (target/release/build/mip-codex/7b1c0e18aee3a9c7/out/incumbent_lp_warm-7b1c0e18aee3a9c7)
+
+running 3 tests
+test equality_and_ranged_slack_bases_are_valid_and_reusable ... ok
+test invalid_interior_and_wrong_length_points_fall_back_and_expiry_is_preserved ... ok
+test feasible_endpoint_basis_skips_phase_one_and_matches_cold_across_scaling ... FAILED
+
+failures:
+
+---- feasible_endpoint_basis_skips_phase_one_and_matches_cold_across_scaling stdout ----
+
+thread 'feasible_endpoint_basis_skips_phase_one_and_matches_cold_across_scaling' (1659953) panicked at tests/incumbent_lp_warm.rs:33:9:
+assertion failed: cold.stats.feasibility_pricing_calls > 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    feasible_endpoint_basis_skips_phase_one_and_matches_cold_across_scaling
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test incumbent_lp_warm`
