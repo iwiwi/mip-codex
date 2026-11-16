@@ -1,0 +1,13 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+error: missing `fn` for function definition
+  --> tests/objective_domain_report.rs:11:1
+   |
+11 | fn_disabled_grid_does_not_invent_a_domain_proof(){let m=model(false,true);let r=solve(&m,&Limits{objective_rounding:false,..limits()...
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: add `fn` here to parse `fn_disabled_grid_does_not_invent_a_domain_proof` as a function
+   |
+11 | fn fn_disabled_grid_does_not_invent_a_domain_proof(){let m=model(false,true);let r=solve(&m,&Limits{objective_rounding:false,..limits()});assert!(r.objective_grid.is_none());assert!(r.objective_domain_bound.is_none());assert!(r.dual_bound.is_none());}
+   | ++
+
+error: could not compile `mip-codex` (test "objective_domain_report") due to 1 previous error

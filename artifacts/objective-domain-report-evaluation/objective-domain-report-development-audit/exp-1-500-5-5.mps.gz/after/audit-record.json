@@ -1,0 +1,71 @@
+{
+  "name": "exp-1-500-5-5.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "6e00da7741d808d331ff37bfcaf498bcc4c57ac24f32622f01047b6bbc7d870f",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "91c87bb0a76e45562710c63e9bca7b1df8f978e35019347375ac6565ed1da3aa"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 179115.0,
+      "bound_violation": 7.105427357601002e-15,
+      "row_violation": 1.2079226507921703e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 179115.0,
+    "bound_violation": 7.105427357601002e-15,
+    "row_violation": 1.1e-13,
+    "integer_violation": 0.0,
+    "objective_error": 4.57156581139192e-13,
+    "exact": {
+      "objective": "11194687499999999971427713678800501/62500000000000000000000000000",
+      "bound_violation": "3552713678800501/500000000000000000000000000000",
+      "row_violation": "11/100000000000000",
+      "integer_violation": "0",
+      "objective_error": "28572286321199499/62500000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "11194749999999999971427713678800501/6250000000000000000000000000000000000",
+      "absolute_error": "28572286321199499/62500000000000000000000000000",
+      "recomputed_exact": "11194687499999999971427713678800501/62500000000000000000000000000",
+      "reported_token": "179115.0"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/objective-domain-report-development-audit/exp-1-500-5-5.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "2ac8da4d1986a6e046c6b6793996132d97109a8c67d55fa2e34b699387308383",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26609495699813124
+}

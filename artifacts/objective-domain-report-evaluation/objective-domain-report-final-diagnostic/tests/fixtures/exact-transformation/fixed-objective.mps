@@ -1,0 +1,14 @@
+NAME cancel
+ROWS
+ N c
+COLUMNS
+ x c 10000000000000000
+ y c 1
+ z c -10000000000000000
+RHS
+ rhs c 0
+BOUNDS
+ FX b x 1
+ FX b y 1
+ FX b z 1
+ENDATA
