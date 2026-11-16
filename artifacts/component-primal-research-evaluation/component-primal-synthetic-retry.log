@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/artifacts/component-primal-synthetic.py", line 24, in <module>
+    assert r.returncode==0;assert all(json.load(open(audit/(k+'-validation.json')))['valid']is True for k in ['strict','official']);records.append(dict(case=case,maximize=maximize,objective=opt,status=v['status'],model_sha256=sha256(model)));atomic_json(out/'records.json',records)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

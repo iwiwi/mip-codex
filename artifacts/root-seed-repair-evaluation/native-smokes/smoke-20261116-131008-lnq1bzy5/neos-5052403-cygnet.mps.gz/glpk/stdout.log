@@ -1,0 +1,42 @@
+Reading problem data from '/home/ubuntu/mip-dual-restoration/data/raw/benchmark/neos-5052403-cygnet.mps.gz'...
+Problem: neos-5052403-cygnet
+Objective: R38269
+38269 rows, 32868 columns, 4931172 non-zeros
+32868 integer variables, all of which are binary
+5040585 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261116-131008-lnq1bzy5/neos-5052403-cygnet.mps.gz/glpk/model.glp'...
+5040580 lines were written
+GLPK Integer Optimizer 5.0
+38268 rows, 32868 columns, 4898304 non-zeros
+32868 integer variables, all of which are binary
+Preprocessing...
+38268 rows, 27642 columns, 4898304 non-zeros
+27642 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 38268
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+38268 rows, 27642 columns, 4898304 non-zeros
+      0: obj =   0.000000000e+00 inf =   1.913e+04 (19134)
+Perturbing LP to avoid stalling [785]...
+   1505: obj =   2.523432012e+02 inf =   1.006e-05 (0) 9
+*  4897: obj =   2.364857360e+02 inf =   5.766e-05 (8202) 31
+*  7197: obj =   2.352024441e+02 inf =   5.541e-05 (9688) 22
+*  9579: obj =   2.321191769e+02 inf =   4.572e-05 (10545) 22
+* 11828: obj =   2.301133613e+02 inf =   3.902e-05 (11518) 21
+* 13981: obj =   2.285048091e+02 inf =   3.541e-05 (10826) 21
+* 16008: obj =   2.272407485e+02 inf =   6.091e-05 (11353) 19
+* 17936: obj =   2.263320032e+02 inf =   1.191e-04 (11284) 18
+* 19829: obj =   2.258706291e+02 inf =   1.228e-04 (12154) 17
+* 21544: obj =   2.254840503e+02 inf =   1.257e-04 (11872) 17
+* 23160: obj =   2.224490307e+02 inf =   3.522e-05 (11955) 15
+* 24929: obj =   2.217468698e+02 inf =   3.258e-05 (11683) 17
+Removing LP perturbation [25884]...
+  25884: obj =   2.212969482e+02 inf =   4.435e-06 (3) 9
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261116-131008-lnq1bzy5/neos-5052403-cygnet.mps.gz/glpk/solution.raw'...
+71145 lines were written

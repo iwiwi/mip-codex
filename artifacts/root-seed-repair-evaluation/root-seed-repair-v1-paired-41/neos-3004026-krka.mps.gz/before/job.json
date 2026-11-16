@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-v1-paired-41/neos-3004026-krka.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3004026-krka.mps.gz",
+    "10"
+  ],
+  "input_sha256": "98e00480fca9f452b1185089c154e14e3af9e79113e1bc0237a2fd444a271516",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROOT_SEED_REPAIR": "0"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

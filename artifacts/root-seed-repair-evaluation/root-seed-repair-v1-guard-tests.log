@@ -1,0 +1,13 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+error: missing `fn` for function definition
+  --> tests/root_seed_repair.rs:11:1
+   |
+11 | fn_existing_box_point_disabled_flag_and_expired_budget_skip_the_extra_search(){let m=model(false);let r=solve(&m,&limits());assert!(...
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: add `fn` here to parse `fn_existing_box_point_disabled_flag_and_expired_budget_skip_the_extra_search` as a function
+   |
+11 | fn fn_existing_box_point_disabled_flag_and_expired_budget_skip_the_extra_search(){let m=model(false);let r=solve(&m,&limits());assert!(r.values.is_some());assert!(r.root_seed_repair.is_none());let m=model(true);let r=solve(&m,&Limits{root_seed_repair:false,..limits()});assert!(r.root_seed_repair.is_none());assert!(r.values.is_none());let r=solve(&m,&Limits{seconds:0.,..limits()});assert!(r.root_seed_repair.is_none());assert!(r.values.is_none());assert_eq!(r.status,"time_limit");}
+   | ++
+
+error: could not compile `mip-codex` (test "root_seed_repair") due to 1 previous error

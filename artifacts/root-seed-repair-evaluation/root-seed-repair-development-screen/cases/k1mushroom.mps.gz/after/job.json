@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-development-screen/cases/k1mushroom.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/k1mushroom.mps.gz",
+    "10"
+  ],
+  "input_sha256": "c610c5ad663b16ffd99faea168daa42f3a6cb0364c3592fd57bf92bc28eae516",
+  "split": "development",
+  "cpu": 5,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_ROOT_SEED_REPAIR": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

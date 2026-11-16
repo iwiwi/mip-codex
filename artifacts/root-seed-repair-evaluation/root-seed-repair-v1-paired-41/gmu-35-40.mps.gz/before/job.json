@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-v1-paired-41/gmu-35-40.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/gmu-35-40.mps.gz",
+    "10"
+  ],
+  "input_sha256": "0c91e71117164becea8109a414127a2223be82215498f243767a7f5f51b1f11d",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROOT_SEED_REPAIR": "0"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

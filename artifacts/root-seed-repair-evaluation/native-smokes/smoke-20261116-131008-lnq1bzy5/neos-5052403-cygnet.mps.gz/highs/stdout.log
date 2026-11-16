@@ -1,0 +1,53 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261116-131008-lnq1bzy5/neos-5052403-cygnet.mps.gz/highs/options.txt
+MIP neos-5052403-cygnet has 38268 rows; 32868 cols; 4898304 nonzeros; 32868 integer variables (32868 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 2e+00]
+Presolving model
+38268 rows, 32868 cols, 4898304 nonzeros 0s
+19134 rows, 27593 cols, 2448853 nonzeros 3s
+19134 rows, 27593 cols, 2448853 nonzeros 3s
+Presolve reductions: rows 19134(-19134); columns 27593(-5275); nonzeros 2448853(-2449451) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   19134 rows
+   27593 cols (27593 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   2448853 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            203                Large        0      0      0         0    11.9s
+         0       0         0   0.00%   0               203              100.00%        0      0      5     50643    60.0s
+
+Solving report
+  Model             neos-5052403-cygnet
+  Status            Time limit reached
+  Primal bound      203
+  Dual bound        0
+  Gap               100%
+  P-D integral      60.03
+  Solution status   feasible
+                    203 (objective)
+  Timing            60.03
+                    5.29 (Presolve)
+                    54.74 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     50643
+                    0 (strong br.)
+                    0 (separation)
+                    0 (heuristics)
