@@ -122,7 +122,7 @@ impl Default for Limits {
             row_ray_report: true,
             row_subgradient_report: true,
             row_subgradient_uniform: true,
-            post_primal_subgradient: false,
+            post_primal_subgradient: true,
             dual_guided_primal: true,
             row_packing_report: true,
             objective_rounding_all: false,
@@ -1626,7 +1626,7 @@ fn solve_seeded_warm(
             }
         }
     }
-    if limits.post_primal_subgradient && limits.row_subgradient_report {
+    if limits.post_primal_subgradient && limits.row_subgradient_report && (row_ray_proof.is_some() || row_subgradient_proof.is_some()) {
         let end=deadline.min(row_subgradient_started+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(2.)));
         if Instant::now()<end {
             if let Some(point)=box_candidate.as_ref(){
