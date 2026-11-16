@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/probe-root-warm-gate-paired-2/roll3000.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/runs/zero-cost-pricing-final-20261116/snapshot/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/roll3000.mps.gz",
+    "10"
+  ],
+  "input_sha256": "47a0a827ac2d697b717fb55401afa5de9e042f026d6a462fb97d968a869d282d",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "cpu": 2,
+  "seconds": 10
+}
