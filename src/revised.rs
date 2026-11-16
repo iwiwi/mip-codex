@@ -106,8 +106,8 @@ impl Basis {
         let mut x = match self.factor.as_ref() {
             Factor::Diagonal(d) => v.iter().zip(d).map(|(v, d)| v / d).collect(),
             Factor::Sparse(lu) => {
-                let rhs = Col::from_fn(v.len(), |i| v[i]);
-                let x = lu.solve(&rhs);
+                let mut x = Col::from_fn(v.len(), |i| v[i]);
+                lu.solve_in_place(x.as_mut());
                 (0..v.len()).map(|i| x[i]).collect::<Vec<_>>()
             }
         };
@@ -136,8 +136,8 @@ impl Basis {
         match self.factor.as_ref() {
             Factor::Diagonal(d) => x.iter().zip(d).map(|(v, d)| v / d).collect(),
             Factor::Sparse(lu) => {
-                let rhs = Col::from_fn(v.len(), |i| x[i]);
-                let x = lu.solve_transpose(&rhs);
+                let mut x = Col::from_fn(v.len(), |i| x[i]);
+                lu.solve_transpose_in_place(x.as_mut());
                 (0..v.len()).map(|i| x[i]).collect()
             }
         }
