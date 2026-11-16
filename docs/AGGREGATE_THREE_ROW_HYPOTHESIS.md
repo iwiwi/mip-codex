@@ -31,3 +31,7 @@ mainはPR72の双対復元失敗時のみ安定pivotで再試行する版（4525
 同CPU40・1thread・16GiB・60秒のnative比較実runはsmoke-20261116-071518-h85e9ltx。timtab HS/SCIP764772最適、GLPK1147266/417472.7251。sp150 HS/SCIP69最適、GLPK75/51。enlight HS/SCIP37最適、GLPK37/27。全9点がGMP絶対/公式有効。自作はtimtab1072270/150732.54、sp15071/30でGLPKより主解だけ良いがdualは弱く、HS/SCIPには両方で及ばない。enlightは自作整数点なし。全体優位・世界記録ではない。
 
 10秒での悪化と60秒での改善が混在するため、採用前に凍結FPddf7で全開発188問題の60秒ON/OFFを開始した。CPU3..7の5 shard、同AS16GiB、1thread、各solver60秒+外側120秒PG watchdog、入力SHA/split検査。artifacts/aggregate-three-grid60-development-screenと-auditへ記録。native全件720測定は従来CPU8..15で継続し変更しない。
+
+全188対60秒（旧LP基準FPddf7、同一binary on/off）が完了。主解1改善/0悪化/187同値、dual3改善/0悪化/94同値/91比較不能。前後ともtime_limit167/numerical_error8/resource_limit11/optimal2。最適宣言2件は独立点検査済みという集計であり探索全木の再演算ではない。376/376元MPS証明、118/118保存整数点がGMP絶対/公式とも有効。未解決60秒ペナルティSGMは59.5206013→59.5226242で速度改善とは主張しない。10秒のtimtab悪化も保持する。
+
+PR73 main c54dfda2d/FP8bへrebaseした統合候補を準備。候補branchではthree_row_cuts既定trueにし、同一binaryの環境変数0/1で再比較する。mainにはまだ入れていない。純LP oracleでは明示的に3行cutを無効にする。既定変更後の比較unitがbeforeにも3行cutを使って失敗したため、基準beforeのfalseを明示した。実装ロジックを緩めず214 Rustが通過。source/ELFの初回凍結はsparse checkoutでdocsが無く失敗し、docsを恒常的に展開して再作成する。これから全188対10秒、主要60秒対照、2700合成/500純LP/数値32を統合版で検査する。
