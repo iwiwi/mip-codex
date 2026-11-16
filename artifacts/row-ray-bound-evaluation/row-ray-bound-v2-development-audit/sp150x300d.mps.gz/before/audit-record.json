@@ -1,0 +1,78 @@
+{
+  "name": "sp150x300d.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "47051527397e27d1a62d0462ded35042d5eb5f4c4a3b5e3257c82279b97f1e42",
+  "cut_validation": {
+    "valid": true,
+    "checked": 58,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "e38ea474b0a575defa1cbe100a99dac71af1fd163760ef5211b69dd5eb11be67",
+    "objective_grid_valid": true,
+    "objective_step": 1,
+    "implied_integer_variables": 0,
+    "objective_domains": 2,
+    "objective_domain_report_valid": true,
+    "aggregate_checked": 58,
+    "input_sha256": "47051527397e27d1a62d0462ded35042d5eb5f4c4a3b5e3257c82279b97f1e42"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 71.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 71.0,
+    "bound_violation": 0.0,
+    "row_violation": 0.0,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "71",
+      "bound_violation": "0",
+      "row_violation": "0",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "9/12500000",
+      "absolute_error": "0",
+      "recomputed_exact": "71",
+      "reported_token": "71.0"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/sp150x300d.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/row-ray-bound-v2-development-audit/sp150x300d.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "159194376a61a7fc70cc9e2ebbd042b1c184d38f3dd969314a5bb07159b19eaa",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26582910600700416
+}
