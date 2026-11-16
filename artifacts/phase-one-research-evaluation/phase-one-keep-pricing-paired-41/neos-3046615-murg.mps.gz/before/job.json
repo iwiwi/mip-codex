@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/phase-one-keep-pricing-paired-41/neos-3046615-murg.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/phase-one-keep-pricing-final-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3046615-murg.mps.gz",
+    "10"
+  ],
+  "input_sha256": "07d98d3032b201c023a7628a75974093c945987119a19803bcc69f0476956e19",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_PHASE1_KEEP_PRICING": "0"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

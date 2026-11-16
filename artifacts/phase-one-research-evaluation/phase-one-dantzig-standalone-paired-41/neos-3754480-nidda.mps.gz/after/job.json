@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/phase-one-dantzig-standalone-paired-41/neos-3754480-nidda.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/phase-one-dantzig-standalone-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3754480-nidda.mps.gz",
+    "10"
+  ],
+  "input_sha256": "63f322dd9be49acf31f7579d8f04e3bb578bdd7ca7d3525683384190c9a8bf7f",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_PHASE1_DANTZIG": "1"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

@@ -1,0 +1,21 @@
+import json,sys,subprocess,signal,os
+from pathlib import Path
+sys.path.insert(0,'scripts')
+from benchmark_common import atomic_json,sha256
+from importlib.util import spec_from_file_location,module_from_spec
+spec=spec_from_file_location('three_checker','/home/ubuntu/mip-codex/artifacts/aggregate-three-combined-diagnostic-20261116/scripts/verify_cover_cuts.py');checker_module=module_from_spec(spec);spec.loader.exec_module(checker_module);validate_cut_proofs=checker_module.validate_cut_proofs
+row_spec=spec_from_file_location('row_checker','/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-diagnostic/scripts/verify_row_dominance.py');row_module=module_from_spec(row_spec);row_spec.loader.exec_module(row_module)
+os.sched_setaffinity(0,{37});root=Path.cwd();out=root/'artifacts/phase-one-research-audit';out.mkdir(exist_ok=False);manifest={r['name']:r for r in json.loads((root/'data/manifest.json').read_text())['instances']};records=[]
+for run in sorted(list(root.glob('artifacts/phase-one-keep-pricing-long-paired-*'))+list(root.glob('artifacts/phase-one-delayed-pricing-mip-*'))+list(root.glob('artifacts/phase-one-keep-pricing-paired-*'))+list(root.glob('artifacts/phase1-dantzig-combined-row-paired-*'))):
+ if not run.is_dir():continue
+ for p in sorted(run.glob('*/*/result.json')):
+  name=p.parent.parent.name;r=manifest[name];assert r['split']=='development';model=root/r['path'];assert sha256(model)==r['sha256'];v=json.loads(p.read_text());d=out/run.name/name/p.parent.name;d.mkdir(parents=True);record=dict(source=str(p),sha256=sha256(p),cut=validate_cut_proofs(model,v),row_dominance=row_module.validate_row_dominance(model,v),point=None);assert record['row_dominance']['valid']
+  if v.get('values')is not None:
+   cmd=[sys.executable,str(root/'scripts/benchmark_validate.py'),str(model),str(p),str(root/'third_party/miplib-checker/bin/solchecker'),str(d)]
+   with (d/'audit.log').open('w')as stream:
+    proc=subprocess.Popen(cmd,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
+    try:proc.wait(timeout=600)
+    except subprocess.TimeoutExpired:os.killpg(proc.pid,signal.SIGKILL);proc.wait()
+   record['point']={kind:json.loads((d/(kind+'-validation.json')).read_text())for kind in ['strict','official']}
+  records.append(record);atomic_json(d/'record.json',record)
+summary=dict(records=len(records),cut_valid=sum(r['cut']['valid']is True for r in records),points=sum(r['point']is not None for r in records),point_valid=sum(r['point']is not None and all(v['valid']is True for v in r['point'].values())for r in records));atomic_json(out/'summary.json',summary);atomic_json(out/'records.json',records);print(json.dumps(summary));assert summary['cut_valid']==summary['records']and summary['points']==summary['point_valid']

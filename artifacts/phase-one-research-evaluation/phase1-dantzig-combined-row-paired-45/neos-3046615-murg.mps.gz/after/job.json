@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/phase1-dantzig-combined-row-paired-45/neos-3046615-murg.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/phase1-dantzig-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3046615-murg.mps.gz",
+    "60"
+  ],
+  "input_sha256": "07d98d3032b201c023a7628a75974093c945987119a19803bcc69f0476956e19",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_EXACT_ROW_DOMINANCE": "1",
+    "MIP_PHASE1_DANTZIG": "1"
+  },
+  "cpu": 45,
+  "seconds": 60
+}

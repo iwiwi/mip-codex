@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/phase-one-keep-pricing-development-screen/cases/proteindesign121hz512p9.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/phase-one-keep-pricing-final-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/proteindesign121hz512p9.mps.gz",
+    "10"
+  ],
+  "input_sha256": "b90c2e3271c22c5e605e8fb18b956ddc130a60e9aaf236082b7f769e1563a91f",
+  "split": "development",
+  "cpu": 3,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_PHASE1_KEEP_PRICING": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

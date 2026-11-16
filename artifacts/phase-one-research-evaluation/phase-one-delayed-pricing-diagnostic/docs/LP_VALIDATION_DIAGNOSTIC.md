@@ -1,0 +1,11 @@
+# LPスケーリング後の数値失敗診断
+
+2026-11-15。main51から計算判定を変えない診断を追加。MIP_LP_TRACEで元単位検証失敗の種類、MIP_LP_NUMERICAL_DUMPで元標準LPとその証明係数を保存する。glass4で4件、全てscaled_post_validation/Infeasible。通常の点残差失敗ではなかった。app1-1のunscaled raw失敗は今回の追加箇所では捕捉していない。
+
+同じ4標準LPをHiGHS1.16.0の比較用zero-cost連続LPとして解くと全件infeasibleとなったが、これは独立した厳密不能証明として扱わない。threads1、10秒、primal tolerance1e-9、small_matrix_value1e-12であり、正式ベンチマークではない。元のwrapperが未検証の不能を受理しないことは維持する。
+
+元標準LPのbinary64係数をexactとしてModelへ変換し、既存の個別/結合行有限箱を試しても4件とも正の証明にならなかった。実際には上限なし列の等式的な相殺が必要で、例えば200*y1と500*y2の残差が±1.11e-14になる。
+
+候補生成の予備実験：正と負それぞれの最大絶対値の小さい方をanchorとし、比をPython Fraction.limit_denominatorで小分母化、共通分母を払って整数weightsへする。上限2^52で表せる候補だけ既存Rust Certifierへ渡すと、分母上限16の候補で4件とも正の区間下界を証明できた（約3.8e6/2.112e8/4.777e7/1.056e9）。生成コードは診断のみ、最適化処理へPythonを委譲しない。次は自作Rustの連分数候補生成と既存contradiction(p,y)で再検証し、実探索と合成問題で効果/安全性を確認する。
+
+native全件v2は61/720、strict optimal24/error3。019-glpk/buildingenergyは外側watchdog3660.158秒でSIGKILL、結果ファイルなし。020-glpkは点不正、044-glpkはMPS入力parser失敗であり、別種として原ログ保持。正式snapshot/資源/計画は変更していない。

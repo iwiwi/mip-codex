@@ -1,0 +1,71 @@
+{
+  "name": "neos-911970.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "cf9ad35ade0015d140f33ce83a593d76672c09fd8cc30c0539213be7e4a65ebb",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 144.23000000000002,
+      "bound_violation": 0.0,
+      "row_violation": 2.6645352591003757e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 144.23000000000002,
+    "bound_violation": 0.0,
+    "row_violation": 3.3e-15,
+    "integer_violation": 0.0,
+    "objective_error": 1.0236e-14,
+    "exact": {
+      "objective": "36057500000000007559/250000000000000000",
+      "bound_violation": "0",
+      "row_violation": "33/10000000000000000",
+      "integer_violation": "0",
+      "objective_error": "2559/250000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "36307500000000007559/25000000000000000000000000",
+      "absolute_error": "2559/250000000000000000",
+      "recomputed_exact": "36057500000000007559/250000000000000000",
+      "reported_token": "144.23000000000002"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos-911970.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/phase-one-keep-pricing-development-audit/neos-911970.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "bf86aa44ff00262315fd5b120774d8ccc2f2855ead7ff3d5adb42c43215db73e",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26625820199842565
+}

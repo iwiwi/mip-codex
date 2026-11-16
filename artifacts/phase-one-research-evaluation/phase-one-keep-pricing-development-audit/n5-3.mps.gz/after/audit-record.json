@@ -1,0 +1,71 @@
+{
+  "name": "n5-3.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 10225.000000000004,
+      "bound_violation": 0.0,
+      "row_violation": 1.9510504323250187e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 10225.000000000004,
+    "bound_violation": 0.0,
+    "row_violation": 1.9535426328389712e-13,
+    "integer_violation": 0.0,
+    "objective_error": 1.1245114702867574e-12,
+    "exact": {
+      "objective": "1022500000000000287548852971324252057/100000000000000000000000000000000",
+      "bound_violation": "0",
+      "row_violation": "19535426328389713/100000000000000000000000000000",
+      "integer_violation": "0",
+      "objective_error": "112451147028675747943/100000000000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "1022600000000000287548852971324252057/10000000000000000000000000000000000000000",
+      "absolute_error": "112451147028675747943/100000000000000000000000000000000",
+      "recomputed_exact": "1022500000000000287548852971324252057/100000000000000000000000000000000",
+      "reported_token": "10225.000000000004"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/phase-one-keep-pricing-development-audit/n5-3.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "722d6447e1afc366a1c155fbfda4cbbb59df4935fd43a4997f6459b5ad54c7c2",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26589986600447446
+}

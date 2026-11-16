@@ -1,0 +1,348 @@
+[
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/neos-3046615-murg.mps.gz/after/result.json",
+    "sha256": "c326e060f7ea6822c61feddda5a2b7f3df87c67c0c2d56f8428991a478ed122a",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+    },
+    "point": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 4027.0,
+          "bound_violation": 0.0,
+          "row_violation": 4.263256414560601e-14,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 4027.0,
+        "bound_violation": 0.0,
+        "row_violation": 4e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "exact": {
+          "objective": "4027",
+          "bound_violation": "0",
+          "row_violation": "1/25000000000000",
+          "integer_violation": "0",
+          "objective_error": "0"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "1007/25000000",
+          "absolute_error": "0",
+          "recomputed_exact": "4027",
+          "reported_token": "4027.0"
+        },
+        "row_dominance": {
+          "valid": true,
+          "checked": 120,
+          "criterion": "exact original coefficient equality and retained inner row range"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3046615-murg.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-selected-audit/exact-row-dominance-v1-paired-41/neos-3046615-murg.mps.gz/after/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/neos-3046615-murg.mps.gz/before/result.json",
+    "sha256": "8f58d808c766d93d9a5623b0632b210f8951ee412bc48df155c082b02db1fab4",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+    },
+    "point": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 2201.0000000000005,
+          "bound_violation": 0.0,
+          "row_violation": 2.842170943040401e-14,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 2201.0000000000005,
+        "bound_violation": 0.0,
+        "row_violation": 4e-14,
+        "integer_violation": 0.0,
+        "objective_error": 2e-13,
+        "exact": {
+          "objective": "22010000000000003/10000000000000",
+          "bound_violation": "0",
+          "row_violation": "1/25000000000000",
+          "integer_violation": "0",
+          "objective_error": "1/5000000000000"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "22020000000000003/1000000000000000000000",
+          "absolute_error": "1/5000000000000",
+          "recomputed_exact": "22010000000000003/10000000000000",
+          "reported_token": "2201.0000000000005"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3046615-murg.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-selected-audit/exact-row-dominance-v1-paired-41/neos-3046615-murg.mps.gz/before/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/neos-860300.mps.gz/after/result.json",
+    "sha256": "598e5f8fcc5be0b661a3b89a2fe8fd64961deea5c072eaf9fe2fc07a65aa309d",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384",
+      "objective_grid_valid": true,
+      "objective_step": 1,
+      "implied_integer_variables": 1,
+      "objective_domains": 1,
+      "input_sha256": "d1b2a0a0500834ef6e3a97a6dbfc17c48226c6619056edfedf990e4d83c01504"
+    },
+    "point": null
+  },
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/neos-860300.mps.gz/before/result.json",
+    "sha256": "4537c70c4b52eacb45061f3d2ab6004161190871de8f9a6bc04dd4236fd518e0",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384",
+      "objective_grid_valid": true,
+      "objective_step": 1,
+      "implied_integer_variables": 1,
+      "objective_domains": 1,
+      "input_sha256": "d1b2a0a0500834ef6e3a97a6dbfc17c48226c6619056edfedf990e4d83c01504"
+    },
+    "point": null
+  },
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/neos-957323.mps.gz/after/result.json",
+    "sha256": "3218bc59d457e32da78338a0479552bba70dd638c0a27b30003da0100d444d74",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+    },
+    "point": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 0.0,
+          "bound_violation": 0.0,
+          "row_violation": 0.0,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 0.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "exact": {
+          "objective": "0",
+          "bound_violation": "0",
+          "row_violation": "0",
+          "integer_violation": "0",
+          "objective_error": "0"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "1/100000000",
+          "absolute_error": "0",
+          "recomputed_exact": "0",
+          "reported_token": "0.0"
+        },
+        "row_dominance": {
+          "valid": true,
+          "checked": 514,
+          "criterion": "exact original coefficient equality and retained inner row range"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/neos-957323.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-selected-audit/exact-row-dominance-v1-paired-41/neos-957323.mps.gz/after/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/neos-957323.mps.gz/before/result.json",
+    "sha256": "727f4daccd8af0b726927debf76926470f0000d6ce1092449c3ad2fed57ec7d8",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+    },
+    "point": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 0.0,
+          "bound_violation": 0.0,
+          "row_violation": 0.0,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 0.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "exact": {
+          "objective": "0",
+          "bound_violation": "0",
+          "row_violation": "0",
+          "integer_violation": "0",
+          "objective_error": "0"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "1/100000000",
+          "absolute_error": "0",
+          "recomputed_exact": "0",
+          "reported_token": "0.0"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/neos-957323.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-selected-audit/exact-row-dominance-v1-paired-41/neos-957323.mps.gz/before/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/ns1208400.mps.gz/after/result.json",
+    "sha256": "2c7dd6c62b5ebe4d7d68f600c8b1ed18ddf61595324bff45e508f11a7a0897b4",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384",
+      "objective_grid_valid": true,
+      "objective_step": 1,
+      "implied_integer_variables": 3,
+      "objective_domains": 0,
+      "input_sha256": "993b8f2dce018d3d339334345eb22db979089318e708c45cfbed28b988e4d145"
+    },
+    "point": null
+  },
+  {
+    "source": "/home/ubuntu/mip-codex/artifacts/exact-row-dominance-v1-paired-41/ns1208400.mps.gz/before/result.json",
+    "sha256": "744bde6ccbffce744d81599421334f2eb913566f305046566a5e470110435ed6",
+    "cut": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384",
+      "objective_grid_valid": true,
+      "objective_step": 1,
+      "implied_integer_variables": 3,
+      "objective_domains": 0,
+      "input_sha256": "993b8f2dce018d3d339334345eb22db979089318e708c45cfbed28b988e4d145"
+    },
+    "point": null
+  }
+]

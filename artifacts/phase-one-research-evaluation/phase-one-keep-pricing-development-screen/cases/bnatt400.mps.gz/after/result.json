@@ -1,0 +1,1592 @@
+{
+  "binary_graph_enabled": true,
+  "graph_cover_local_enabled": true,
+  "aggregate_cuts_enabled": true,
+  "clique_cuts_enabled": true,
+  "mir_cuts_enabled": true,
+  "three_row_cuts_enabled": true,
+  "graph_fractional_cover_enabled": true,
+  "binary_graph": null,
+  "branching": "Pseudocost",
+  "child_order": "Down",
+  "search_strategy": "DepthFirst",
+  "search_pops": 5,
+  "search_best_pops": 0,
+  "search_transfers": 0,
+  "max_open_nodes": 5,
+  "pseudocost_updates": 3,
+  "pseudocost_selections": 0,
+  "primal_repair": true,
+  "box_primal_enabled": true,
+  "box_primal": {
+    "calls": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "moves": 0,
+    "work": 14400,
+    "seconds": 0.000460333,
+    "first_seconds": null
+  },
+  "root_incumbent_conflict": false,
+  "lp_diving": true,
+  "primal_probe": true,
+  "cover_cuts_enabled": true,
+  "cover_round_limit": 4,
+  "rounding_cuts_enabled": false,
+  "strong_branching": true,
+  "strong_objective": true,
+  "strong_infeasible_hint": true,
+  "strong": {
+    "calls": 1,
+    "candidates": 1,
+    "lp_solves": 2,
+    "optimal": 0,
+    "infeasible": 0,
+    "limited": 2,
+    "numerical_errors": 0,
+    "branch_changes": 0,
+    "evaluated_variables": [
+      3584
+    ],
+    "selected_variable": null,
+    "infeasible_hint_selections": 0,
+    "seconds": 0.100876623
+  },
+  "rins_enabled": true,
+  "rins": {
+    "at_node": null,
+    "attempts": 0,
+    "calls": 0,
+    "fixed": 0,
+    "eligible": 0,
+    "nodes": 0,
+    "lp_solves": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "limited": 0,
+    "status": null,
+    "seconds": 0.0
+  },
+  "objective_rounding": true,
+  "objective_rounding_all": false,
+  "objective_grid": {
+    "min_domain": {
+      "base": 0,
+      "first_increment": 1
+    },
+    "max_domain": {
+      "base": -1,
+      "first_increment": 1
+    },
+    "offset": 0,
+    "step": 1,
+    "implied": []
+  },
+  "objective_bound_stats": {
+    "box_pruned": 0,
+    "rejected_candidates": 0,
+    "calls": 0,
+    "trials": 0,
+    "valid": 0,
+    "rounded": 0,
+    "seconds": 0.0
+  },
+  "infeasibility_proof_calls": 0,
+  "infeasibility_proof_trials": 0,
+  "infeasibility_proof_failures": 0,
+  "infeasibility_proof_seconds": 0.0,
+  "cut_proofs": [
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_1",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            286,
+            1.0
+          ],
+          [
+            288,
+            -1.0
+          ],
+          [
+            289,
+            -1.0
+          ],
+          [
+            291,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 327,
+            "source_name": "c328",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 330,
+            "source_name": "c331",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 327,
+        "source_name": "c328",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_2",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            699,
+            -1.0
+          ],
+          [
+            958,
+            -1.0
+          ],
+          [
+            1082,
+            -1.0
+          ],
+          [
+            1084,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 1436,
+            "source_name": "c1437",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 1440,
+            "source_name": "c1441",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 1436,
+        "source_name": "c1437",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_3",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            224,
+            -1.0
+          ],
+          [
+            820,
+            -1.0
+          ],
+          [
+            1129,
+            -1.0
+          ],
+          [
+            1131,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 1508,
+            "source_name": "c1509",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 1510,
+            "source_name": "c1511",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 1508,
+        "source_name": "c1509",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_4",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            39,
+            -1.0
+          ],
+          [
+            887,
+            1.0
+          ],
+          [
+            1235,
+            -1.0
+          ],
+          [
+            1236,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 1670,
+            "source_name": "c1671",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 1668,
+            "source_name": "c1669",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 1670,
+        "source_name": "c1671",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_5",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            223,
+            -1.0
+          ],
+          [
+            224,
+            -1.0
+          ],
+          [
+            226,
+            -1.0
+          ],
+          [
+            228,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 253,
+            "source_name": "c254",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 249,
+            "source_name": "c250",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 253,
+        "source_name": "c254",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_6",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            48,
+            -1.0
+          ],
+          [
+            50,
+            -1.0
+          ],
+          [
+            51,
+            -1.0
+          ],
+          [
+            55,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 60,
+            "source_name": "c61",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 54,
+            "source_name": "c55",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 60,
+        "source_name": "c61",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_7",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            564,
+            -1.0
+          ],
+          [
+            565,
+            -1.0
+          ],
+          [
+            566,
+            -1.0
+          ],
+          [
+            568,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 667,
+            "source_name": "c668",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 671,
+            "source_name": "c672",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 667,
+        "source_name": "c668",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_8",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            335,
+            -1.0
+          ],
+          [
+            564,
+            -1.0
+          ],
+          [
+            566,
+            -1.0
+          ],
+          [
+            570,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 667,
+            "source_name": "c668",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 675,
+            "source_name": "c676",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 667,
+        "source_name": "c668",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_9",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            62,
+            -1.0
+          ],
+          [
+            84,
+            -1.0
+          ],
+          [
+            85,
+            -1.0
+          ],
+          [
+            88,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 101,
+            "source_name": "c102",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 97,
+            "source_name": "c98",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 101,
+        "source_name": "c102",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_10",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            304,
+            -1.0
+          ],
+          [
+            305,
+            -1.0
+          ],
+          [
+            306,
+            -1.0
+          ],
+          [
+            308,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 354,
+            "source_name": "c355",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 352,
+            "source_name": "c353",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 354,
+        "source_name": "c355",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_11",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            304,
+            -1.0
+          ],
+          [
+            306,
+            -1.0
+          ],
+          [
+            307,
+            -1.0
+          ],
+          [
+            311,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 358,
+            "source_name": "c359",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 352,
+            "source_name": "c353",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 358,
+        "source_name": "c359",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_12",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            8,
+            -1.0
+          ],
+          [
+            2433,
+            -1.0
+          ],
+          [
+            2434,
+            -1.0
+          ],
+          [
+            2435,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 3593,
+            "source_name": "c3594",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 3595,
+            "source_name": "c3596",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 3593,
+        "source_name": "c3594",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -1.0,
+          -1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_13",
+        "lower": null,
+        "upper": -1.0,
+        "coefficients": [
+          [
+            654,
+            -1.0
+          ],
+          [
+            2433,
+            -1.0
+          ],
+          [
+            2434,
+            -1.0
+          ],
+          [
+            2438,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 3593,
+            "source_name": "c3594",
+            "upper_side": false,
+            "weight": 1
+          },
+          {
+            "source_row": 3600,
+            "source_name": "c3601",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 3593,
+        "source_name": "c3594",
+        "upper_side": false,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_13",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            61,
+            1.0
+          ],
+          [
+            64,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 71,
+        "source_name": "c72",
+        "upper_side": true,
+        "cover": [
+          61,
+          64
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          1.0,
+          1.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_14",
+        "lower": null,
+        "upper": 1.0,
+        "coefficients": [
+          [
+            73,
+            1.0
+          ],
+          [
+            75,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 85,
+        "source_name": "c86",
+        "upper_side": true,
+        "cover": [
+          73,
+          75
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          1.0,
+          1.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_15",
+        "lower": null,
+        "upper": 1.0,
+        "coefficients": [
+          [
+            74,
+            1.0
+          ],
+          [
+            77,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 87,
+        "source_name": "c88",
+        "upper_side": true,
+        "cover": [
+          74,
+          77
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_16",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            108,
+            -1.0
+          ],
+          [
+            110,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 126,
+        "source_name": "c127",
+        "upper_side": true,
+        "cover": [
+          108,
+          110
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_17",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            167,
+            -1.0
+          ],
+          [
+            170,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 193,
+        "source_name": "c194",
+        "upper_side": true,
+        "cover": [
+          167,
+          170
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_18",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            201,
+            -1.0
+          ],
+          [
+            204,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 228,
+        "source_name": "c229",
+        "upper_side": true,
+        "cover": [
+          201,
+          204
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_19",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            201,
+            -1.0
+          ],
+          [
+            208,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 233,
+        "source_name": "c234",
+        "upper_side": true,
+        "cover": [
+          201,
+          208
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_20",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            217,
+            1.0
+          ],
+          [
+            219,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 245,
+        "source_name": "c246",
+        "upper_side": true,
+        "cover": [
+          217,
+          219
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_21",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            14,
+            -1.0
+          ],
+          [
+            236,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 266,
+        "source_name": "c267",
+        "upper_side": true,
+        "cover": [
+          14,
+          236
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_22",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            260,
+            -1.0
+          ],
+          [
+            263,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 298,
+        "source_name": "c299",
+        "upper_side": true,
+        "cover": [
+          260,
+          263
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_23",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            273,
+            1.0
+          ],
+          [
+            276,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 312,
+        "source_name": "c313",
+        "upper_side": true,
+        "cover": [
+          273,
+          276
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_24",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            285,
+            1.0
+          ],
+          [
+            288,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 326,
+        "source_name": "c327",
+        "upper_side": true,
+        "cover": [
+          285,
+          288
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          1.0,
+          1.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_25",
+        "lower": null,
+        "upper": 1.0,
+        "coefficients": [
+          [
+            74,
+            1.0
+          ],
+          [
+            332,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 383,
+        "source_name": "c384",
+        "upper_side": true,
+        "cover": [
+          74,
+          332
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_26",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            337,
+            1.0
+          ],
+          [
+            340,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 391,
+        "source_name": "c392",
+        "upper_side": true,
+        "cover": [
+          337,
+          340
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_27",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            372,
+            1.0
+          ],
+          [
+            374,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 434,
+        "source_name": "c435",
+        "upper_side": true,
+        "cover": [
+          372,
+          374
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_28",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            382,
+            1.0
+          ],
+          [
+            384,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 444,
+        "source_name": "c445",
+        "upper_side": true,
+        "cover": [
+          382,
+          384
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_29",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            394,
+            1.0
+          ],
+          [
+            395,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 456,
+        "source_name": "c457",
+        "upper_side": true,
+        "cover": [
+          394,
+          395
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_30",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            403,
+            1.0
+          ],
+          [
+            413,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 480,
+        "source_name": "c481",
+        "upper_side": false,
+        "cover": [
+          403,
+          413
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_31",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            426,
+            1.0
+          ],
+          [
+            435,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 508,
+        "source_name": "c509",
+        "upper_side": false,
+        "cover": [
+          426,
+          435
+        ]
+      }
+    }
+  ],
+  "cut_stats": {
+    "three_calls": 0,
+    "three_work": 0,
+    "three_added": 0,
+    "three_lp_solves": 0,
+    "three_rejected_cuts": 0,
+    "three_seconds": 0.0,
+    "three_trial_seconds": 0.0,
+    "mir_calls": 0,
+    "mir_lp_solves": 0,
+    "mir_rejected_cuts": 0,
+    "mir_trial_seconds": 0.0,
+    "mir_work": 0,
+    "mir_added": 0,
+    "mir_seconds": 0.0,
+    "clique_calls": 1,
+    "clique_edges": 0,
+    "clique_work": 44244,
+    "clique_added": 0,
+    "clique_seconds": 0.00107559,
+    "aggregate_calls": 1,
+    "aggregate_pairs": 464,
+    "aggregate_work": 16150,
+    "aggregate_added": 13,
+    "aggregate_seconds": 0.002238385,
+    "rounding_calls": 0,
+    "rounding": 0,
+    "rounding_projected": 0,
+    "rounding_work": 0,
+    "calls": 1,
+    "eligible": 684,
+    "candidates": 94,
+    "added": 32,
+    "integer": 0,
+    "interval": 19,
+    "projected": 0,
+    "rejected": 0,
+    "work": 32984
+  },
+  "cut_rounds": 2,
+  "cut_lp_solves": 2,
+  "cut_seconds": 1.271323652,
+  "cut_initial_lp_seconds": 1.018474511,
+  "root_lp_reused": false,
+  "probe": {
+    "precut_roots": 0,
+    "calls": 1,
+    "nodes": 1,
+    "lp_solves": 3,
+    "max_open_nodes": 1,
+    "seconds": 1.001428045,
+    "status": "time_limit",
+    "candidates": 0,
+    "improvements": 0
+  },
+  "diving": {
+    "calls": 1,
+    "lp_solves": 4,
+    "reversals": 0,
+    "infeasible": 0,
+    "numerical_errors": 0,
+    "limited": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "seconds": 0.250473482
+  },
+  "feasibility_pump_enabled": true,
+  "pump": {
+    "calls": 1,
+    "lp_solves": 1,
+    "perturbations": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "numerical_errors": 0,
+    "limited": 1,
+    "seconds": 1.000494496
+  },
+  "repair_calls": 1,
+  "repair_candidates": 0,
+  "repair_improvements": 0,
+  "repair_moves": 327,
+  "first_primal_seconds": null,
+  "repair_lp_solves": 1,
+  "repair_lp_candidates": 0,
+  "repair_work": 2000716,
+  "lp_engine": "Revised",
+  "propagation": false,
+  "propagation_calls": 0,
+  "propagation_rows": 0,
+  "propagation_tightenings": 0,
+  "propagation_pruned": 0,
+  "propagation_budget_hits": 0,
+  "fixed_leaves": 0,
+  "lp_solves": 18,
+  "defer_infeasibility_enabled": true,
+  "joint_infeasibility_enabled": true,
+  "aggregate_infeasibility_enabled": true,
+  "deferred_infeasibilities": 0,
+  "deferred_infeasibilities_pending": 0,
+  "deferred_infeasibilities_pruned": 0,
+  "deferred_infeasibility_bound": null,
+  "deferred_infeasibility_unbounded": false,
+  "lp_search_termination": "time_limit",
+  "fixed_columns_enabled": true,
+  "lp_workspace_bytes": 536870912,
+  "root_fixed_columns": 0,
+  "lp_scaled_columns": 0,
+  "lp_scaled_rows": 0,
+  "lp_warm_start": true,
+  "lp_warm_attempts": 17,
+  "lp_warm_successes": 4,
+  "lp_warm_fallbacks": 6,
+  "lp_warm_rejections": 0,
+  "lp_warm_row_extensions": 4,
+  "lp_warm_cost_attempts": 1,
+  "lp_warm_cost_successes": 0,
+  "lp_multiplier_cache_hits": 26,
+  "lp_multiplier_cache_misses": 26140,
+  "lp_certificate_repair_trials": 0,
+  "lp_certificate_repairs": 0,
+  "lp_restoration_attempts": 0,
+  "lp_restoration_restarts": 0,
+  "lp_restoration_extended_attempts": 0,
+  "lp_restoration_successes": 0,
+  "lp_restoration_infeasible_candidates": 0,
+  "lp_restoration_pivots": 0,
+  "lp_refinement_attempts": 0,
+  "lp_refinement_steps": 0,
+  "lp_refinement_successes": 0,
+  "lp_dual_pivots": 3989,
+  "lp_dual_flips": 2048,
+  "lp_pivots": 26125,
+  "lp_feasibility_pricing_calls": 0,
+  "lp_pricing_cutoffs": 0,
+  "lp_pricing_fallbacks": 0,
+  "lp_flips": 2048,
+  "lp_refactors": 525,
+  "status": "time_limit",
+  "objective": null,
+  "dual_bound": 0.0,
+  "gap": null,
+  "nodes": 5,
+  "seconds": 10.00064215,
+  "values": null
+}
