@@ -632,7 +632,17 @@ impl Simplex {
                     candidates.push((beta, j, direction, denom));
                 }
             }
-            candidates.sort_unstable_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
+            candidates.sort_unstable_by(|a, b| {
+                a.0.total_cmp(&b.0)
+                    .then_with(|| {
+                        if RESTORATION {
+                            b.3.total_cmp(&a.3)
+                        } else {
+                            std::cmp::Ordering::Equal
+                        }
+                    })
+                    .then(a.1.cmp(&b.1))
+            });
             let mut remaining = t * (target - self.x[leaving]);
             let mut flips = Vec::new();
             let mut enter = None;
