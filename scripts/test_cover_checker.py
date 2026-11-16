@@ -94,6 +94,25 @@ class Covers(unittest.TestCase):
                     self.assertFalse(validate_cut_proofs(path,dict(cut_proofs=[bad]))['valid'],mode)
                 path.write_text(model.replace('x a 2','x a 2.000000000000000000001'))
                 self.assertFalse(validate_cut_proofs(path,dict(cut_proofs=[cut]))['valid'])
+    def test_three_integer_rows_cancel_two_free_variables(self):
+        for lower in [False,True]:
+            sign=-1 if lower else 1;kind='G'if lower else'L'
+            model=f'NAME aggregate3\nROWS\n N obj\n L a\n {kind} b\n L c\nCOLUMNS\n x a 3\n z c 3\n t a 2 b {-sign}\n u b {3*sign} c -6\nRHS\n rhs a 3 b 0\n rhs c 1\nBOUNDS\n BV bd x\n BV bd z\n FR bd t\n FR bd u\nENDATA\n'
+            cut=copy.deepcopy(CUT);cut['proof']=dict(source_row=0,source_name='a',upper_side=True,cover=[],divisor=3,aggregation=[dict(source_row=i,source_name=name,upper_side=upper,weight=weight)for i,name,upper,weight in [(0,'a',True,1),(1,'b',not lower,2),(2,'c',True,1)]])
+            with tempfile.TemporaryDirectory()as directory:
+                path=Path(directory)/'model.mps';path.write_text(model)
+                self.assertTrue(validate_cut_proofs(path,dict(cut_proofs=[cut]))['valid'])
+                for mode in range(6):
+                    bad=copy.deepcopy(cut);term=bad['proof']['aggregation'][2]
+                    if mode==0:term['weight']=0
+                    elif mode==1:term['source_row']=0
+                    elif mode==2:term['source_name']='wrong'
+                    elif mode==3:bad['proof']['aggregation'].append(copy.deepcopy(term))
+                    elif mode==4:bad['row']['upper']=0
+                    else:bad['proof']['aggregation'].pop()
+                    self.assertFalse(validate_cut_proofs(path,dict(cut_proofs=[bad]))['valid'],mode)
+                path.write_text(model.replace('x a 3','x a 3.0000000000000000001'))
+                self.assertFalse(validate_cut_proofs(path,dict(cut_proofs=[cut]))['valid'])
     def test_empty_cuts_need_no_parser(self):
         self.assertTrue(validate_cut_proofs('/does/not/exist',dict(cut_proofs=[]))['valid'])
     def test_invalid_cut_blocks_infeasible_claim_without_primal(self):

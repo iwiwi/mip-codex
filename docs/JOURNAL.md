@@ -523,3 +523,13 @@ PR72をmergeしmain45257f737/FP3365へ更新した。失敗したdual回復だ�
 3行集約は別branchで既定false。10秒188対は主解0改善/1悪化（timtab1）・dual3改善、376証明/108点有効。timtab60秒では1089832→1072270と改善するため、全188対の60秒on/offをCPU3..7で継続中。さらに十進行の厳密整数倍MIRは別branchで明示flagのみ。元MPS Fractionを使った77点154分離出力で十進由来66cut/11問題の証明がすべて有効。213 Rust/10 Python検査通過、8問10秒trialの16出力/10点も有効。ただしbinkar10秒主解6888.55→6994.55が悪化しdual6646.31→6669.29は改善、60秒対照中。両案ともまだmainへ混ぜない。
 
 native全240×3は凍結条件で継続し、08:02 UTCは209/720。新error055-glpk（validation split、gfd...）は3660秒PG watchdog・OOMなし・出力なし。holdoutのモデル内容は調べずログ/資源/実行状態だけを記録した。全失敗をrawのまま残す。最終Rust全240評価はまだ未開始。
+
+### 2026-11-16 09:08 UTC PR73採用、3行集約の統合候補
+
+PR73をmain c54dfda2d/FP8bへmerge。188対の主解1改善/dual1悪化を両方残し、全240snapshot restoration-progress-final-20261116は作成照合のみ、未実行。AI最新PRコメント累積654560522 tokens。
+
+3行集約の旧基準188対60秒は主解1改善/0悪化・dual3改善、376証明/118点有効。main73統合・既定ON候補FP337114ffc2f9a6b7は214 Rust/2700合成/500純LP/数値32が通過。統合188対10秒は主解0改善/1悪化・dual3改善、376証明/110点有効。timtabは10秒悪化を残すが統合60秒1089832→1072270を再現し、neos/german/nu維持。主workspaceのnative同CPU60秒も再現したがHS/SCIP最適764772には及ばず、GLPKには主解だけ良い。詳細AGGREGATE_THREE_ROW_RESULTS。現在PR準備、十進MIRは混ぜない。
+
+十進MIRは188対10秒主解0改善/1悪化・dual1改善、376証明/110点有効。binkar60秒も主解悪化。未採用としてdecimal-row-mir branchに4996 files/170316448 bytesをSHA台帳付き保存。疎LP内部workspace512→2048MiBは6例10/60秒で点なしのため未採用。制約追加と連続実行可能性のRust診断も4例で新規主解なし（supportcase12の全0点は既存box候補と同じと確認）、未採用。partial-phase1-pricingは212 Rust/最後block検査を通過し生成LP6例で約8%短いがgermanrr LP17.9秒→60秒点なしへ悪化し未採用。原出力と検査を各branchに保持。
+
+native全件は09:03 UTC 224/720、厳密最適103、error15。新070-glpk k1mushroomは3660秒PG watchdog、OOMなし・出力なし。凍結条件を変えずraw errorのまま報告する。最終Rust全240評価は未開始、期限11月22日14:59 UTC。

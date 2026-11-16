@@ -254,7 +254,7 @@ def validate_cut_proofs(model_path,result):
             aggregation=proof.get('aggregation',[])
             if not isinstance(aggregation,list):raise AssertionError('bad aggregation terms')
             if aggregation:
-                if len(aggregation)!=2 or divisor is None:raise AssertionError('aggregation requires two terms and rounding')
+                if len(aggregation)not in (2,3) or divisor is None:raise AssertionError('aggregation requires two or three terms and rounding')
                 first=aggregation[0]
                 if any(first.get(k)!=proof[k]for k in ['source_row','source_name','upper_side']):raise AssertionError('aggregation first source mismatch')
                 combined={};combined_rhs=Fraction(0);used=set()

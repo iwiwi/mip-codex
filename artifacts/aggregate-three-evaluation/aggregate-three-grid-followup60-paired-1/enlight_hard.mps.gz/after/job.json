@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid-followup60-paired-1/enlight_hard.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid-diagnostic-20261116/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/enlight_hard.mps.gz",
+    "60"
+  ],
+  "input_sha256": "942168c2126a2a91ae3ec1ededea59bc1af0cad55f94223edf4c03d20e831f66",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_THREE_ROW_CUTS": "1"
+  },
+  "cpu": 1,
+  "seconds": 60
+}

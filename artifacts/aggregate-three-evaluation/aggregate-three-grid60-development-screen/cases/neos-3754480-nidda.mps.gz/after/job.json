@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid60-development-screen/cases/neos-3754480-nidda.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid-diagnostic-20261116/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3754480-nidda.mps.gz",
+    "60"
+  ],
+  "input_sha256": "63f322dd9be49acf31f7579d8f04e3bb578bdd7ca7d3525683384190c9a8bf7f",
+  "split": "development",
+  "cpu": 3,
+  "seconds": 60,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 120,
+  "environment": {
+    "MIP_THREE_ROW_CUTS": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}
