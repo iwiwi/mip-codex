@@ -192,6 +192,7 @@ fn clique_cut_strengthens_the_root_without_other_cuts_or_heuristics() {
     let l = Limits {
         clique_cuts: false,
         cover_cuts: false,
+        mir_cuts: false,
         aggregate_cuts: false,
         rounding_cuts: false,
         binary_graph: false,

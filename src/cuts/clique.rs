@@ -116,6 +116,7 @@ fn verify_until(model: &Model, cut: &Cut, deadline: Option<Instant>) -> bool {
                 exact_coefficient_flags: vec![],
             },
             proof: Proof {
+                mir: None,
                 clique: vec![],
                 aggregation: vec![],
                 divisor: None,
@@ -303,6 +304,7 @@ impl Pool {
                     exact_coefficient_flags: vec![],
                 },
                 proof: Proof {
+                    mir: None,
                     source_row: first.source_row,
                     source_name: first.source_name.clone(),
                     upper_side: first.upper_side,

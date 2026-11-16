@@ -12,6 +12,7 @@ fn limits() -> Limits {
         binary_graph: false,
         objective_rounding: false,
         cover_cuts: false,
+        mir_cuts: false,
         clique_cuts: false,
         rounding_cuts: false,
         strong_branching: false,

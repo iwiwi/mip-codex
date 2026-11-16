@@ -134,6 +134,37 @@ def verify_objective_grid(names,variables,rows,objective,offset,proof):
     return dict(objective_grid_valid=True,objective_step=step,implied_integer_variables=len(implications),objective_domains=domains)
 
 
+def verify_mir_exact(names,variables,source,cut):
+    p=cut['proof'];row=cut['row'];d=p.get('divisor');upper=p['mir']['upper_bounds']
+    if type(d)is not int or not 2<=d<=2**52 or p['cover'] or p.get('clique') or p.get('aggregation'):raise AssertionError('MIR proof kinds/divisor')
+    if not isinstance(upper,list)or any(type(j)is not int or not 0<=j<len(names)for j in upper)or upper!=sorted(set(upper)):raise AssertionError('MIR complements')
+    sign=1 if p['upper_side'] else -1
+    b=sign*source['upper' if sign==1 else 'lower'];terms=[];used=set();has_integer=False;indices={n:j for j,n in enumerate(names)}
+    if b.denominator!=1:raise AssertionError('MIR integral source RHS')
+    for name,a in source['coefficients'].items():
+        if not a:continue
+        if a.denominator!=1:raise AssertionError('MIR integral source coefficient')
+        j=indices[name];v=variables[name];complement=j in upper
+        if complement:used.add(j)
+        bound=v['upper' if complement else 'lower']
+        if bound is None or bound.denominator!=1:raise AssertionError('MIR bound')
+        a*=sign;b-=a*bound;direction=-1 if complement else 1
+        terms.append((j,a*direction,bound,direction,v['integer']));has_integer|=v['integer']
+    if used!=set(upper)or not has_integer:raise AssertionError('MIR complement/source')
+    beta=b/d;f=beta-beta.__floor__()
+    if not f:raise AssertionError('MIR integral beta')
+    scale=d*(1-f);rhs=scale*beta.__floor__();coeff=[]
+    for j,a,bound,direction,is_integer in sorted(terms):
+        alpha=a/d
+        if is_integer:
+            floor=alpha.__floor__();fraction=alpha-floor
+            c=Fraction(floor)+max(Fraction(0),(fraction-f)/(1-f))
+        else:c=min(alpha,Fraction(0))/(1-f)
+        c*=scale*direction;rhs+=c*bound
+        if c:coeff.append((j,c))
+    actual=[(j,Fraction(a))for j,a in row['coefficients']]
+    if actual!=coeff or row['lower']is not None or Fraction(row['upper'])!=rhs or row.get('exact_integral')is not True:raise AssertionError('MIR inequality mismatch')
+
 def verify_clique_exact(names,variables,rows,cut):
     proof=cut['proof'];pairs=proof['clique'];row=cut['row']
     if proof.get('aggregation',[]) or proof.get('divisor') is not None:raise AssertionError('clique cannot combine other proof kinds')
@@ -206,6 +237,11 @@ def validate_cut_proofs(model_path,result):
             selected={names[j] for j in cover};sign=1 if side else -1
             bound=source['upper' if side else 'lower']
             if bound is None:raise AssertionError('source side missing')
+            if proof.get('mir') is not None:
+                verify_mir_exact(names,variables,source,cut)
+                metadata['checked']+=1
+                metadata['mir_checked']=metadata.get('mir_checked',0)+1
+                continue
             clique=proof.get('clique',[])
             if not isinstance(clique,list):raise AssertionError('bad clique pairs')
             if clique:

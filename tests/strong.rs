@@ -9,6 +9,7 @@ fn limits() -> Limits {
         objective_rounding: false,
         rins: false,
         cover_cuts: false,
+        mir_cuts: false,
         clique_cuts: false,
         rounding_cuts: false,
         primal_repair: false,

@@ -8,6 +8,27 @@ import benchmark_case
 MODEL='NAME cover\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1 r 2\n y obj -1 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n'
 CUT=dict(proof=dict(source_row=0,source_name='r',upper_side=True,cover=[0,1]),row=dict(name='cut',exact_integral=True,lower=None,upper=1,coefficients=[[0,1],[1,1]]))
 class Covers(unittest.TestCase):
+    def test_mir_mixed_row_and_tampered_original_bounds(self):
+        model='NAME mir\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 3\n t c 1 r -1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n'
+        cut=dict(proof=dict(source_row=0,source_name='r',upper_side=True,cover=[],divisor=3,mir=dict(upper_bounds=[])),row=dict(coefficients=[[0,2],[1,-1]],lower=None,upper=0,exact_integral=True))
+        with tempfile.TemporaryDirectory() as directory:
+            p=Path(directory)/'model.mps';p.write_text(model)
+            self.assertTrue(validate_cut_proofs(p,dict(cut_proofs=[cut]))['valid'])
+            for change in ['rhs','complement','divisor','cover','source']:
+                bad=copy.deepcopy(cut)
+                if change=='rhs':bad['row']['upper']=1
+                elif change=='complement':bad['proof']['mir']['upper_bounds']=[1]
+                elif change=='divisor':bad['proof']['divisor']=2
+                elif change=='cover':bad['proof']['cover']=[0]
+                else:bad['proof']['source_name']='other'
+                self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[bad]))['valid'],change)
+            # Integral translation of x can legitimately reproduce the same MIR row.
+            p.write_text(model.replace('LI b x 0','LI b x -1'))
+            self.assertTrue(validate_cut_proofs(p,dict(cut_proofs=[cut]))['valid'])
+            for changed in [model.replace('LI b x 0','LO b x 0'),model.replace('ENDATA',' LO b t -1\nENDATA'),model.replace('rhs r 1','rhs r 1.0000000000000000001')]:
+                p.write_text(changed)
+                self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[cut]))['valid'])
+
     def test_valid_and_tampered_certificates(self):
         with tempfile.TemporaryDirectory() as directory:
             p=Path(directory)/'model.mps';p.write_text(MODEL)

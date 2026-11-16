@@ -77,6 +77,7 @@ fn all_rules_orders_and_objective_senses_preserve_optimum() {
                         rins: false,
                         strong_branching: false,
                         cover_cuts: false,
+                        mir_cuts: false,
                         clique_cuts: false,
                         branching,
                         child_order,

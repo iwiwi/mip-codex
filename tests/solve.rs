@@ -8,8 +8,15 @@ fn run(body: &str) -> mip_codex::solve::Result {
 }
 #[test]
 fn branching_and_dual_bound() {
-    let r = run(
+    let model = mps::parse(std::io::Cursor::new(
         "NAME branch\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 2\nRHS\n rhs r 3\nBOUNDS\n LI b x 0\n UP b x 3\nENDATA\n",
+    )).unwrap();
+    let r = solve(
+        &model,
+        &Limits {
+            mir_cuts: false,
+            ..Limits::default()
+        },
     );
     assert_eq!(r.status, "optimal");
     assert_eq!(r.objective, Some(-1.));
@@ -51,6 +58,7 @@ fn limits_do_not_claim_infeasibility() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                mir_cuts: false,
                 clique_cuts: false,
                 seconds: 0.,
                 ..Limits::default()
@@ -62,6 +70,7 @@ fn limits_do_not_claim_infeasibility() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                mir_cuts: false,
                 clique_cuts: false,
                 nodes: 0,
                 ..Limits::default()
@@ -73,6 +82,7 @@ fn limits_do_not_claim_infeasibility() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                mir_cuts: false,
                 clique_cuts: false,
                 dense_bytes: 0,
                 ..Limits::default()
@@ -98,6 +108,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
             rins: false,
             strong_branching: false,
             cover_cuts: false,
+            mir_cuts: false,
             clique_cuts: false,
             propagation: false,
             primal_repair: false,
@@ -115,6 +126,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
             rins: false,
             strong_branching: false,
             cover_cuts: false,
+            mir_cuts: false,
             clique_cuts: false,
             propagation: true,
             primal_repair: false,
@@ -149,6 +161,7 @@ fn dense_reference_handles_row_and_objective_scales() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                mir_cuts: false,
                 clique_cuts: false,
                 engine: mip_codex::solve::Engine::Dense,
                 primal_repair: false,
