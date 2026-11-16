@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-budget-development-screen/cases/map16715-04.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-budget-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/map16715-04.mps.gz",
+    "10"
+  ],
+  "input_sha256": "3bb8fa8aa10d5be68f5aa272570a118a4c97a6d75bc1426dd0fec3eafaaec2e8",
+  "split": "development",
+  "cpu": 6,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_ROOT_PRICED_BUDGET": "0",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

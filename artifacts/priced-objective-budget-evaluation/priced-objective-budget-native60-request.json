@@ -1,0 +1,21 @@
+{
+  "cwd": "/home/ubuntu/mip-objective-repair",
+  "command": [
+    "taskset",
+    "-c",
+    "42",
+    ".venv/bin/python",
+    "scripts/smoke_benchmark.py",
+    "60",
+    "sp97ar.mps.gz",
+    "sp98ar.mps.gz"
+  ],
+  "environment": {
+    "MIP_ROOT_PRICED_BUDGET": "1",
+    "MIP_ABSOLUTE_CHECKER": "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker-absolute",
+    "MIP_GLPK_DRIVER": "/home/ubuntu/mip-codex/target/glpk-benchmark"
+  },
+  "binary_sha256": "6858c72bfc0bfce0326097a520988a1d4cba810a9d67b42a32eea6cfbdb4d46f",
+  "script_sha256": "3a29864b10f6946c399a399f7a0be4c7a579e6304b172743d00ca001fc82868e",
+  "note": "request metadata written during active run; fixed smoke environment.json key list omits the budget flag"
+}
