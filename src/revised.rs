@@ -287,6 +287,8 @@ struct Simplex {
     deadline: Option<Instant>,
     artificial: Vec<usize>,
     original: usize,
+    restoration_epoch: usize,
+    restoration_objective: f64,
     witness: Option<Vec<f64>>,
     witness_point: Option<Vec<f64>>,
 }
@@ -363,6 +365,28 @@ impl Simplex {
             Err(e @ (Outcome::TimeLimit | Outcome::IterationLimit)) => Err(e),
             _ => Err(numerical()),
         }
+    }
+    #[inline(never)]
+    fn recover_primal(&mut self, c: &[f64]) -> Result<(), Outcome> {
+        let objective = crate::exact::dot(c.iter().copied().zip(self.x.iter().copied()))
+            .ok_or_else(numerical)?;
+        if !objective.is_finite() {
+            return Err(numerical());
+        }
+        if !self.restoration_objective.is_finite()
+            || objective
+                < self.restoration_objective - 1e-7 * (1. + self.restoration_objective.abs())
+        {
+            self.restoration_epoch = self.stats.restoration_attempts;
+            self.restoration_objective = objective;
+        }
+        if std::env::var_os("MIP_LP_TRACE").is_some() {
+            eprintln!(
+                "restoration progress objective={objective:e} best={:e} epoch={} attempts={}",
+                self.restoration_objective, self.restoration_epoch, self.stats.restoration_attempts
+            );
+        }
+        self.restore_primal(self.restoration_epoch)
     }
     fn refine_ratio(
         &mut self,
@@ -790,8 +814,8 @@ impl Simplex {
         let normalized_active = NORMALIZED && self.stats.pivots + self.stats.flips < pricing_budget;
         let mut degenerate = 0usize;
         let mut verified = false;
-        let mut restoration_epoch = self.stats.restoration_attempts;
-        let mut restoration_objective = f64::INFINITY;
+        self.restoration_epoch = self.stats.restoration_attempts;
+        self.restoration_objective = f64::INFINITY;
         'iterations: loop {
             if self.deadline.is_some_and(|d| Instant::now() >= d) {
                 return Err(Outcome::TimeLimit);
@@ -868,27 +892,7 @@ impl Simplex {
                         if let Some(step) = self.refine_ratio(&d, direction, j) {
                             step
                         } else {
-                            let objective =
-                                crate::exact::dot(c.iter().copied().zip(self.x.iter().copied()))
-                                    .ok_or_else(numerical)?;
-                            if !objective.is_finite() {
-                                return Err(numerical());
-                            }
-                            if !restoration_objective.is_finite()
-                                || objective
-                                    < restoration_objective
-                                        - 1e-7 * (1. + restoration_objective.abs())
-                            {
-                                restoration_epoch = self.stats.restoration_attempts;
-                                restoration_objective = objective;
-                            }
-                            if std::env::var_os("MIP_LP_TRACE").is_some() {
-                                eprintln!(
-                                    "restoration progress objective={objective:e} best={restoration_objective:e} epoch={restoration_epoch} attempts={}",
-                                    self.stats.restoration_attempts
-                                );
-                            }
-                            self.restore_primal(restoration_epoch)?;
+                            self.recover_primal(c)?;
                             continue 'iterations;
                         }
                     } else {
@@ -1012,6 +1016,8 @@ fn warm_impl(
         deadline,
         artificial: a.artificial.clone(),
         original: n,
+        restoration_epoch: 0,
+        restoration_objective: f64::INFINITY,
         witness: None,
         witness_point: None,
     };
@@ -1188,6 +1194,8 @@ fn cold_priced(
         deadline,
         artificial: vec![],
         original: n,
+        restoration_epoch: 0,
+        restoration_objective: f64::INFINITY,
         witness: None,
         witness_point: None,
     };
@@ -1546,6 +1554,8 @@ mod refinement_tests {
             deadline: None,
             artificial: vec![],
             original: 3,
+            restoration_epoch: 0,
+            restoration_objective: f64::INFINITY,
             witness: None,
             witness_point: None,
         }
@@ -1601,6 +1611,8 @@ mod restoration_tests {
             deadline: None,
             artificial: vec![],
             original: 3,
+            restoration_epoch: 0,
+            restoration_objective: f64::INFINITY,
             witness: None,
             witness_point: None,
         }
@@ -1691,6 +1703,8 @@ mod long_restoration_test {
             deadline: None,
             artificial: vec![],
             original: 2 * n,
+            restoration_epoch: 0,
+            restoration_objective: f64::INFINITY,
             witness: None,
             witness_point: None,
         };

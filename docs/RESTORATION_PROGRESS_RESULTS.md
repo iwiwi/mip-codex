@@ -19,3 +19,9 @@ main45257f737/FP3365のrestore_primalは、LP全体のstats.restoration_attempts
 kumeu60秒は約48.46秒・39372 pivotsで数値停止し点なし。uccase9も約60秒・14169 pivotsで点なしの時間制限。この2件を性能改善として数えない。neos860300/germanrrの60秒MIP回帰と188開発問題10秒の比較/独立監査は継続中。188比較はmainFP3365と本凍結版をCPU0..2の3 shard、1thread/16GiB ASで交互順に実行する。3行集約は両方無効。原結果はartifacts/restoration-progress-development-*へ保存。
 
 棄却した双対逆積補正・primal方向補正・数値失敗後PhaseI再始動の実データはartifacts/lp-recovery-negative-evaluation（680 files/4,307,049 bytes）へSHA relocation ledger付きで保存した。3 ELFはlocalに保持しhashを記録。各凍結版のsrc/Cargo/build fingerprintはELFのbuild metadataと一致する。初版進捗案のELFだけは後続cargo testに上書きされたが、測定時FP一致のsourceを再構成保存し、その制限を明記した。
+
+## 通常経路からの状態管理分離を対照中
+
+初版188対ではnidda主解改善1件・主解悪化なしの一方、非発動loueのdual22966→22953を観測した。strong offでも差が残り、前後で根cutが96→64本になった。根cut予算はmin(全時間5%,0.25秒)であり、先の0.5秒という説明は誤りだった。60秒も同じ0.25秒上限のため差が残る。新しい復元処理は両方0回で直接発動していないが、codegen/時間境界の差を無視しない。
+
+別branch restoration-progress-cold-pathで、復元の進捗状態をSimplexへ置き、回復処理をinlineしないメソッドに分離して通常単体法ループから追加ローカル状態を除く対照を試す。許容差/進捗閾値/総予算/証明は同じ。最初のsnapshot作成はsparse checkoutでdocsが無く途中失敗したため、docsを展開して再作成する。正式な測定は完全なsource/ELF receiptを保存してから行う。
