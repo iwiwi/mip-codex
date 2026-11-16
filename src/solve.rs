@@ -675,7 +675,7 @@ fn binary_pump(
         }
         let answer = revised::minimize_warm(
             &problem,
-            limits.pivots.min(4096),
+            limits.pivots.min(binary.len().saturating_mul(2).max(4096)),
             Some(deadline),
             if limits.warm_start {
                 warm.as_deref()
