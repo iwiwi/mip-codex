@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/general-integer-pump-v1-paired-41/neos-2657525-crna.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/general-integer-pump-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-2657525-crna.mps.gz",
+    "10"
+  ],
+  "input_sha256": "447ffaafa253582984b35bb6f16b44ec5d8692ef4f5b84ffb389c2d84b938983",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_GENERAL_INTEGER_PUMP": "1"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

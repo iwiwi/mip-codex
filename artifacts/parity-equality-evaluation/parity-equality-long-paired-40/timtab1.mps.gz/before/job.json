@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/parity-equality-long-paired-40/timtab1.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/parity-equality-final-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+    "60"
+  ],
+  "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_PARITY_EQUALITIES": "0"
+  },
+  "cpu": 40,
+  "seconds": 60
+}

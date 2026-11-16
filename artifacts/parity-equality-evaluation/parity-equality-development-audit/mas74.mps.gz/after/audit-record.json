@@ -1,0 +1,71 @@
+{
+  "name": "mas74.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "019a9ca2dac800342a887cd07e326526b463dca9646ba16ad955a16fa4b6ecc1",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 13481.309483399995,
+      "bound_violation": 0.0,
+      "row_violation": 1.4551915228366852e-11,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 13481.309483399995,
+    "bound_violation": 0.0,
+    "row_violation": 6e-12,
+    "integer_violation": 0.0,
+    "objective_error": 1e-12,
+    "exact": {
+      "objective": "6740654741699997/500000000000",
+      "bound_violation": "0",
+      "row_violation": "3/500000000000",
+      "integer_violation": "0",
+      "objective_error": "1/1000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "6741154741699997/50000000000000000000",
+      "absolute_error": "1/1000000000000",
+      "recomputed_exact": "6740654741699997/500000000000",
+      "reported_token": "13481.309483399995"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mas74.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/parity-equality-development-audit/mas74.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "6937006413023b2321877fe5b9bf3073f36aa659adfb7d114781e54002a9f1e1",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.21606306699686684
+}

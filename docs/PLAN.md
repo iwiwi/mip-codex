@@ -72,3 +72,9 @@ PR73採用済み。3行集約統合FP337は214 Rustと全188対10秒/元MPS検�
 PR74まで採用済み、main FP337。全件nativeは234/720で継続、自作全240/3600秒は最終凍結前のsnapshot作成のみ。11月19日UTC目安の自作全件開始と11月22日14:59UTC期限を維持。未採用LP実験の一次データをlp-numerical-negative-evaluationへ保全し、再開資料を追加した。
 
 進行仮説はNumericalError限定の元係数区間を使うbound tighteningとcold retry。100ケースの有理格子点保存検査成功、nidda70→139ノードだが主解/下界不変。単なる探索継続を改善扱いしない。まず停止枝と元モデル証明の失敗箇所を分離し、改善信号がなければ未採用記録に留める。原問題の独立点/証明検査と残りpivot/deadlineを維持する。
+
+## 2026-11-16 10:36 UTC
+
+偶奇等式の一意性を厳密検査するFP527の188対と全独立監査を完了。主解/dual各1改善、品質悪化0、enlight_hardで独立証明付き最適37を再現。PR76は原データ/AI使用量を付けて採用判断する。source/ELF/再現条件はPARITY_EQUALITY_RESULTSとparity-equality-evaluationに保存。全240/3600秒snapshotはparity-equality-final-20261116を作成/照合のみ、自作最終全件は未開始。
+
+区間回復・完全ピボット回復・一般整数pumpは改善不足で未採用としてsource/原出力を保存済み。次はdual ratioで逆積とforward分母が食い違い、eta更新が残る場合だけfresh LUで再計算する。成功シグナルを選択対照で確認してから188へ進む。許容誤差/証明ガードを弱めず、pivot/flip/deadlineを返さない。nativeの残り全件と並行し、11月19日UTC目安で最終自作全240を開始する。

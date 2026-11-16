@@ -1,0 +1,48 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+error[E0283]: type annotations needed for `faer::mat::generic::Mat<faer::mat::Own<_>>`
+   --> src/revised.rs:334:17
+    |
+334 |             let mut matrix = Mat::zeros(self.rhs.len(), self.rhs.len());
+    |                 ^^^^^^^^^^   ------------------------------------------ type must be known at this point
+    |
+    = note: the type must implement `ComplexField`
+    = help: the following types implement trait `ComplexField`:
+              Symbolic
+              f32
+              f64
+              faer::num_complex::Complex<T>
+              qd::Quad
+note: required by a bound in `mat::matown::<impl faer::mat::generic::Mat<faer::mat::Own<T, Rows, Cols>>>::zeros`
+   --> /home/ubuntu/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/faer-0.24.4/src/mat/matown.rs:407:6
+    |
+340 | impl<T, Rows: Shape, Cols: Shape> Mat<T, Rows, Cols> {
+...
+405 |     pub fn zeros(nrows: Rows, ncols: Cols) -> Self
+406 |     where
+407 |         T: ComplexField,
+    |            ^^^^^^^^^^^^ required by this bound in `mat::matown::<impl Mat<Own<T, Rows, Cols>>>::zeros`
+help: consider giving `matrix` an explicit type, where the type for type parameter `T` is specified
+    |
+334 |             let mut matrix: faer::mat::generic::Mat<faer::mat::Own<T>> = Mat::zeros(self.rhs.len(), self.rhs.len());
+    |                           ++++++++++++++++++++++++++++++++++++++++++++
+
+error[E0283]: type annotations needed
+   --> src/revised.rs:334:17
+    |
+334 |             let mut matrix = Mat::zeros(self.rhs.len(), self.rhs.len());
+    |                 ^^^^^^^^^^
+...
+337 |                     matrix[(i, k)] += a;
+    |                                    -- type must be known at this point
+    |
+    = note: multiple `impl`s satisfying `_: AddAssign<f64>` found in the following crates: `core`, `num_complex`:
+            - impl AddAssign for f64;
+            - impl<T> AddAssign<T> for faer::num_complex::Complex<T>
+              where T: Clone, T: NumAssign;
+help: consider giving `matrix` an explicit type, where the type for type parameter `T` is specified
+    |
+334 |             let mut matrix: f64 = Mat::zeros(self.rhs.len(), self.rhs.len());
+    |                           +++++
+
+For more information about this error, try `rustc --explain E0283`.
+error: could not compile `mip-codex` (lib) due to 2 previous errors
