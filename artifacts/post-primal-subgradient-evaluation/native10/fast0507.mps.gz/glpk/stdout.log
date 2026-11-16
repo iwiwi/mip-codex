@@ -1,0 +1,47 @@
+Reading problem data from '/home/ubuntu/mip-objective-repair/data/raw/benchmark/fast0507.mps.gz'...
+Problem: fast0507
+Objective: obj
+508 rows, 63009 columns, 472358 non-zeros
+63009 integer variables, all of which are binary
+317257 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-objective-repair/artifacts/smoke-20261116-213549-wx61t47u/fast0507.mps.gz/glpk/model.glp'...
+536385 lines were written
+GLPK Integer Optimizer 5.0
+507 rows, 63009 columns, 409349 non-zeros
+63009 integer variables, all of which are binary
+Preprocessing...
+1 hidden packing inequaliti(es) were detected
+489 rows, 63001 columns, 407720 non-zeros
+63001 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 489
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+489 rows, 63001 columns, 407720 non-zeros
+      0: obj =   1.300000000e+01 inf =   4.890e+02 (489)
+    115: obj =   2.350000000e+02 inf =   0.000e+00 (0)
+*  3289: obj =   1.721455667e+02 inf =   6.856e-15 (0) 25
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 488
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 0 + 2 = 2 vertices
++  3289: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 190
+Pass 1
++  3289: mip =   1.900000000e+02 >=   1.730000000e+02   8.9% (2; 0)
++  3289: mip =   1.900000000e+02 >=   1.730000000e+02   8.9% (2; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-objective-repair/artifacts/smoke-20261116-213549-wx61t47u/fast0507.mps.gz/glpk/solution.raw'...
+63525 lines were written

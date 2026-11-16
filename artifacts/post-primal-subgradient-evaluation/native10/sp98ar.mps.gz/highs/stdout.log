@@ -1,0 +1,65 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-objective-repair/artifacts/smoke-20261116-213549-wx61t47u/sp98ar.mps.gz/highs/options.txt
+MIP sp98ar has 1435 rows; 15085 cols; 426148 nonzeros; 15085 integer variables (15085 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 3e+01]
+  Cost    [1e+06, 8e+07]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 3e+01]
+WARNING: Problem has some excessively large costs
+WARNING:    Consider scaling the objective by 1e-2, or setting the user_objective_scale option to -7
+WARNING: Problem has excessively large ratio (8e+14) between max objective coefficient (8e+07) and dual feasibility tolerance (1e-07)
+WARNING:    Improve scaling and/or increase tolerance
+WARNING: Problem is badly scaled, particularly relative to tolerances, which may compromise the speed, accuracy and reliability of solvers in HiGHS
+Presolving model
+1435 rows, 15085 cols, 426148 nonzeros 0s
+1402 rows, 15083 cols, 419241 nonzeros 0s
+Presolve reductions: rows 1402(-33); columns 15083(-2); nonzeros 419241(-6907) 
+
+Solving MIP model with:
+   1402 rows
+   15083 cols (15083 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   419241 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            1579247035.52      Large        0      0      0         0     1.0s
+         0       0         0   0.00%   524401296.5572  1579247035.52     66.79%        0      0      2      1118     1.5s
+         0       0         0   0.00%   526268191.8097  1579247035.52     66.68%      749     98     23      2270     6.6s
+ L       0       0         0   0.00%   526299546.9696  971199029.6       45.81%      501    105     23      2521    10.0s
+         0       0         0   0.00%   526299546.9696  971199029.6       45.81%      444    105     23      3009    10.0s
+
+Solving report
+  Model             sp98ar
+  Status            Time limit reached
+  Primal bound      971199029.6
+  Dual bound        526299546.97
+  Gap               45.81%
+  P-D integral      7.18
+  Solution status   feasible
+                    971199029.6 (objective)
+  Timing            10.03
+                    1.30 (Presolve)
+                        MIP    time [calls] = 0.64 [1]
+                        subMIP time [calls] = 0.66 [3]
+                    8.72 (Solve)
+                        MIP    time [calls] = 7.13 [1]
+                        subMIP time [calls] = 1.59 [3]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [3]
+  Max sub-MIP depth 6
+  Nodes             0
+  Repair LPs        0
+  LP iterations     3009
+                    0 (strong br.)
+                    1403 (separation)
+                    488 (heuristics)

@@ -1,0 +1,71 @@
+{
+  "name": "neos-3046615-murg.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "07d98d3032b201c023a7628a75974093c945987119a19803bcc69f0476956e19",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 2201.0000000000005,
+      "bound_violation": 0.0,
+      "row_violation": 2.842170943040401e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 2201.0000000000005,
+    "bound_violation": 0.0,
+    "row_violation": 4e-14,
+    "integer_violation": 0.0,
+    "objective_error": 2e-13,
+    "exact": {
+      "objective": "22010000000000003/10000000000000",
+      "bound_violation": "0",
+      "row_violation": "1/25000000000000",
+      "integer_violation": "0",
+      "objective_error": "1/5000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "22020000000000003/1000000000000000000000",
+      "absolute_error": "1/5000000000000",
+      "recomputed_exact": "22010000000000003/10000000000000",
+      "reported_token": "2201.0000000000005"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3046615-murg.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/post-primal-subgradient-development-audit/neos-3046615-murg.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "dc218b9d2fdec189b72b08b7e22ebc0b5745e182b612f2503836a37a1a5da605",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.2658898340014275
+}
