@@ -1,0 +1,41 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 32868 variables (32868 bin, 0 int, 0 cont) and 38268 constraints
+presolving:
+(round 1, fast)       5226 del vars, 0 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 0 implints
+(round 2, exhaustive) 5226 del vars, 19134 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 0 implints
+(round 3, exhaustive) 5275 del vars, 19134 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 0 implints
+   (1.5s) probing: 51/27593 (0.2%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (1.5s) probing aborted: 50/50 successive totally useless probings
+   (5.4s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (5.5s) no symmetry present (symcode time: 0.02)
+presolving (4 rounds: 4 fast, 3 medium, 3 exhaustive):
+ 5275 deleted vars, 19134 deleted constraints, 0 added constraints, 0 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques, 0 implied integral variables (0 bin, 0 int, 0 cont)
+presolved problem has 27593 variables (27593 bin, 0 int, 0 cont) and 19134 constraints
+  19134 constraints of type <linear>
+transformed objective value is always integral (scale: 1)
+Presolving Time: 5.17
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+p 6.5s|     1 |     0 |     0 |     - |   locks|   0 |  27k|  19k|  19k|   0 |  0 | 355 |   0 | 0.000000e+00 | 4.280000e+02 |    Inf | unknown
+i 6.7s|     1 |     0 |     0 |     - |  oneopt|   0 |  27k|  19k|  19k|   0 |  0 | 355 |   0 | 0.000000e+00 | 2.900000e+02 |    Inf | unknown
+ 60.0s|     1 |     0 | 29066 |     - |  2570M |   0 |  27k|  19k|  19k|   0 |  0 | 355 |   0 | 0.000000e+00 | 2.900000e+02 |    Inf | unknown
+(node 1) LP solver hit time limit in LP 1 -- using pseudo solution instead
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 60.00
+Solving Nodes      : 1
+Primal Bound       : +2.90000000000000e+02 (2 solutions)
+Dual Bound         : +0.00000000000000e+00
+Gap                : infinite
+wrote parameter settings to file /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261116-161836-ns2fyw_s/neos-5052403-cygnet.mps.gz/scip/options.txt
