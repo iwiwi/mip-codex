@@ -36,3 +36,5 @@ pub mod parity;
 pub mod row_ray;
 
 pub mod row_packing;
+
+pub mod objective_repair;
