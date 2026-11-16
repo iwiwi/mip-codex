@@ -22,6 +22,11 @@ fn run() -> Result<(), String> {
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();
+        if let Ok(v) = std::env::var("MIP_STALLED_CERTIFICATE_RECOVERY")
+            && !["0", "1"].contains(&v.as_str())
+        {
+            return Err("MIP_STALLED_CERTIFICATE_RECOVERY must be 0 or 1".into());
+        }
         if let Ok(value) = std::env::var("MIP_THREE_ROW_CUTS") {
             limits.three_row_cuts = match value.as_str() {
                 "0" => false,

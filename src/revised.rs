@@ -1234,7 +1234,7 @@ fn cold_priced(
     }
     s.factor.factor = Arc::new(Factor::Diagonal(diagonal));
     s.factor.multiplier_cache = None;
-    let outcome = (|| {
+    let mut outcome = (|| {
         if !s.artificial.is_empty() {
             s.stats.feasibility_pricing_calls += usize::from(normalized);
             let mut c = vec![0.0; s.columns.len()];
@@ -1265,6 +1265,47 @@ fn cold_priced(
         let (objective, dual) = s.run(&c)?;
         Ok((objective, dual))
     })();
+    if matches!(outcome, Err(Outcome::NumericalError))
+        && std::env::var("MIP_STALLED_CERTIFICATE_RECOVERY").is_ok_and(|v| v == "1")
+        && deadline.is_none_or(|d| Instant::now() < d)
+        && p.columns
+            .iter()
+            .map(Vec::len)
+            .sum::<usize>()
+            .saturating_add(m)
+            .saturating_add(n)
+            <= 1_000_000
+    {
+        let mut phase_one = vec![0.; s.columns.len()];
+        for &j in &s.artificial {
+            phase_one[j] = 1.;
+        }
+        let pricing = s.multipliers(&phase_one);
+        let candidate = pricing.values.clone();
+        'repair: for cap in [16, 32, 256, 4096, 65536] {
+            if deadline.is_some_and(|d| Instant::now() >= d) {
+                break;
+            }
+            for proposed in [
+                crate::certificate::integer_weights(&candidate, cap),
+                crate::certificate::clipped_integer_weights(&candidate, cap),
+            ]
+            .into_iter()
+            .flatten()
+            {
+                for sign in [1., -1.] {
+                    let weights: Vec<_> = proposed.iter().map(|v| sign * v).collect();
+                    s.stats.certificate_repair_trials += 1;
+                    if crate::scaling::contradiction(p, &weights) {
+                        s.witness = Some(weights);
+                        s.stats.certificate_repairs += 1;
+                        outcome = Err(Outcome::Infeasible);
+                        break 'repair;
+                    }
+                }
+            }
+        }
+    }
     if normalized
         && (matches!(outcome, Err(Outcome::NumericalError))
             || (matches!(outcome, Err(Outcome::IterationLimit)) && s.stats.pricing_cutoffs > 0))
