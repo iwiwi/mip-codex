@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-continue-default-on-paired-41/tbfp-network.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-continue-default-on-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/tbfp-network.mps.gz",
+    "10"
+  ],
+  "input_sha256": "80269ad17c17581db84385c5a1f3d91cf7a48f3df8c614ecc21d4ad6a83106c4",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_ROOT_PRICED_CONTINUE": "1"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

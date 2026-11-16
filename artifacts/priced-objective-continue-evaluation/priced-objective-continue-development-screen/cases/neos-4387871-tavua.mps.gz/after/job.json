@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-continue-development-screen/cases/neos-4387871-tavua.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-continue-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-4387871-tavua.mps.gz",
+    "10"
+  ],
+  "input_sha256": "afc84607bc03e0b0ba68010c0f59b0ea0999f4bafb7ef6af63b841a36445a28e",
+  "split": "development",
+  "cpu": 6,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_ROOT_PRICED_CONTINUE": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}
