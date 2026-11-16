@@ -2695,11 +2695,20 @@ mod pump_tests {
     fn local_probe_reuses_root_warm_without_changing_parent_or_bound() {
         let (m, node, p, _) = prepare(FRACTIONAL);
         let limits = Limits {
-            binary_graph: false, box_primal: false, cover_cuts: false,
-            aggregate_cuts: false, clique_cuts: false, mir_cuts: false,
-            rounding_cuts: false, objective_rounding: false,
-            strong_branching: false, rins: false, primal_repair: false,
-            lp_diving: false, feasibility_pump: false, nodes: 1,
+            binary_graph: false,
+            box_primal: false,
+            cover_cuts: false,
+            aggregate_cuts: false,
+            clique_cuts: false,
+            mir_cuts: false,
+            rounding_cuts: false,
+            objective_rounding: false,
+            strong_branching: false,
+            rins: false,
+            primal_repair: false,
+            lp_diving: false,
+            feasibility_pump: false,
+            nodes: 1,
             ..Limits::default()
         };
         let result = solve_seeded_warm(&m, &limits, None, node.warm.clone());
@@ -2709,8 +2718,11 @@ mod pump_tests {
         assert_eq!(result.probe.calls, 1);
         assert_eq!(result.probe.improvements, 1);
         assert!(result.lp_warm_successes.unwrap() >= 2);
-        let parent = revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
-        assert!(matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9));
+        let parent =
+            revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
+        assert!(
+            matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9)
+        );
     }
     #[test]
     fn pump_projects_and_perturbs_without_changing_parent_lp() {
