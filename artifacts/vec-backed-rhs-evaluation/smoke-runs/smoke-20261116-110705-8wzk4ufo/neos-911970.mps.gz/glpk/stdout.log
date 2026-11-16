@@ -1,0 +1,61 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/neos-911970.mps.gz'...
+Problem: neos-911970
+Objective: R0108
+108 rows, 888 columns, 3456 non-zeros
+840 integer variables, all of which are binary
+4519 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-110705-8wzk4ufo/neos-911970.mps.gz/glpk/model.glp'...
+4610 lines were written
+GLPK Integer Optimizer 5.0
+107 rows, 888 columns, 3408 non-zeros
+840 integer variables, all of which are binary
+Preprocessing...
+107 rows, 888 columns, 3408 non-zeros
+840 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.350e+02  ratio =  1.350e+02
+GM: min|aij| =  2.831e-01  max|aij| =  3.532e+00  ratio =  1.248e+01
+EQ: min|aij| =  8.015e-02  max|aij| =  1.000e+00  ratio =  1.248e+01
+2N: min|aij| =  5.156e-02  max|aij| =  1.438e+00  ratio =  2.788e+01
+Constructing initial basis...
+Size of triangular part is 107
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+107 rows, 888 columns, 3408 non-zeros
+      0: obj =   0.000000000e+00 inf =   1.343e+02 (25)
+     86: obj =   2.707089793e+02 inf =   0.000e+00 (0)
+*   127: obj =   2.326000000e+01 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 59
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 840 + 0 = 840 vertices
++   127: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Pass 3
+Solution found by heuristic: 230.58
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 7; mir = 35;
+Cuts on level 258: gmi = 7; mir = 35;
++  4803: >>>>>   1.820000000e+02 >=   2.326000000e+01  87.2% (259; 0)
+Cuts on level 192: gmi = 11; mir = 115;
++ 19049: >>>>>   7.998000000e+01 >=   2.326000000e+01  70.9% (443; 3)
+Cuts on level 209: gmi = 12; mir = 126;
++ 36635: >>>>>   6.068000000e+01 >=   2.326000000e+01  61.7% (1088; 326)
++112461: mip =   6.068000000e+01 >=   2.327041289e+01  61.7% (1323; 884)
++135682: mip =   6.068000000e+01 >=   2.341901784e+01  61.4% (1482; 887)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-110705-8wzk4ufo/neos-911970.mps.gz/glpk/solution.raw'...
+1004 lines were written

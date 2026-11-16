@@ -1,0 +1,7 @@
+# 非零column strideを保つVec直結LU RHS
+
+2026-11-16、main4556e45d6/FP527633393c003557から。hardware perf cycles:u/99Hz/dwarfでbinkar10秒の995 samplesを採取（計測オーバーヘッドがあるため性能得点には使わない）。run_priced13.65%、warm_impl7.01%、faer row permutation5.75%、Mat copy4.27%、forward/backwardのMat→Vec収集が計約2.95%。cpu-clock samplingはPMU未対応で失敗、失敗ログも保存。
+
+Basis.forwardは従来Matを確保し入力をコピー、LUsolve後に別Vecへ収集していた。backwardは既に持つVecからMatへさらにコピーし、新Vecへ戻していた。MatMut::from_column_major_slice_mutを使い、出力Vecをn行1列の非零column stride=nの行列viewとしてそのまま解く。PR68で避けたCol viewのstride0を再導入しない。数式/探索規則/許容誤差/予算は変えない。
+
+次: 凍結main対候補の根LPで共通JSON/ピボット/目的/点を照合し、同CPU交互反復で内部時間を比較。改善信号があれば219 Rust/2700合成/500根LP/数値32と元MPS点検査、全188/60秒へ進む。main全240snapshotはparity-equality-final-20261116を作成/照合のみ。holdout入力は使わない。

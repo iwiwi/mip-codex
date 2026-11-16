@@ -1,0 +1,65 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261116-110705-8wzk4ufo/neos-3627168-kasai.mps.gz/highs/options.txt
+MIP neos-3627168-kasai has 1655 rows; 1462 cols; 5158 nonzeros; 535 integer variables (535 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+04]
+  Cost    [1e+00, 1e+00]
+  Cost    [3e+00, 8e+03] (effective)
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [2e+00, 4e+03]
+Presolving model
+1655 rows, 1462 cols, 5158 nonzeros 0s
+1206 rows, 1400 cols, 3266 nonzeros 0s
+Presolve reductions: rows 1206(-449); columns 1400(-62); nonzeros 3266(-1892) 
+
+Solving MIP model with:
+   1206 rows
+   1400 cols (476 binary, 0 integer, 0 implied int., 924 continuous, 0 domain fixed)
+   3266 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   0               inf                  inf        0      0      0         0     0.0s
+         0       0         0   0.00%   954341.026667   inf                  inf        0      0      4      1126     0.0s
+ L       0       0         0   0.00%   968615.432541   998839.52          3.03%     9983    569    200      7969     1.7s
+ L       0       0         0   0.00%   968615.432541   997662.72          2.91%     9983    328    200      9532     2.1s
+ L     100      84         5   0.00%   968615.432541   990280.68          2.19%     9434    642    234     41429     4.9s
+ L     232      99        34   1.95%   969965.897012   988585.62          1.88%     9968    796    331     50264     6.3s
+       816     104       289  21.93%   975527.215507   988585.62          1.32%    11170    717   1459    102804    10.0s
+
+Solving report
+  Model             neos-3627168-kasai
+  Status            Time limit reached
+  Primal bound      988585.62
+  Dual bound        975527.215507
+  Gap               1.32%
+  P-D integral      1.89
+  Solution status   feasible
+                    988585.62 (objective)
+                    4.97379915032e-14 (integrality violation)
+  Timing            10.01
+                    0.06 (Presolve)
+                        MIP    time [calls] = 0.01 [1]
+                        subMIP time [calls] = 0.05 [12]
+                    9.95 (Solve)
+                        MIP    time [calls] = 8.43 [1]
+                        subMIP time [calls] = 1.52 [12]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [12]
+  Max sub-MIP depth 8
+  Nodes             816
+  Repair LPs        0
+  LP iterations     102804
+                    32101 (strong br.)
+                    12271 (separation)
+                    12385 (heuristics)

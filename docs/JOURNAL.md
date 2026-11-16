@@ -557,3 +557,15 @@ main PR75以降のparity-equality-solverで、私有±2整数補助を持つbina
 artifacts/parity-equality-evaluationに5917一次ファイル183,165,108bytes、ELF6本ローカル参照/生成GLPKモデル3省略。heuristic-recovery-negative-evaluationには未採用の区間回復/完全ピボット/一般整数pump 2557一次ファイル47,211,813bytes、ELF6本ローカル参照。全relocation-ledgerを照合。全240用parity-equality-final-20261116はcreate-onlyで全hash照合、最終自作全件は未開始。
 
 native凍結評価は10:26UTC 240/720、厳密最適108、エラー17。077-glpk map16715-04は3660.23秒watchdog、OOMなし、出力なしでraw errorを保全。holdout入力を改善判断には使っていない。次はeta更新後のdual分母不一致だけを新LUで再分解する仮説を別branchで検査する。11月19日UTC目安の全件開始と11月22日14:59UTC期限を守る。
+
+## 2026-11-16 11:12 UTC Vec直結LU RHS
+
+PR76をmain4556e45d6/FP527へマージ済み。次のvec-backed-lp-rhs FP5a6ccff29edba788は、Mat/Vec間の余分な確保とコピーを除き、非零column stride=nを維持する。根LPはbinkar20対4.03%、german3対5.32%、neos-860300 3対1.00%、neos-911970 10対1.25%短縮。全36対で時間以外のJSONが完全一致、保存72連続点も元MPS Fraction有効。219 Rust/2700合成/500 LP出力/数値32を成功。units初回はcheckerパス指定を落として未検証となり、同ELFでパスを正して100件成功、初回ログは保全。
+
+全188×10秒は主解1改善/1悪化/186同値、dual1改善/0悪化/78同値/109比較不能。376出力/112整数点の独立監査成功。kasai1072846.63→1072833.43、loue22956→22966、neos-911970主解111.84→144.23の悪化は60秒でも残る。probe無効の対照は両版148.86で同じ。根LP自体の返却値はこの問題も同一だが、1秒probeの進み方とRINS固定集合が変わっている。原差を消さず、一般MIP品質改善とは言わない。60秒10問＋probe無効の22出力/18点も有効。LP費用を減らしたことを採用理由とし、この品質悪化を既知の制約として記録する。
+
+主workspaceで再ビルドし、CPU41/10秒のkasai/neos-911970 native比較ではRustは全nativeより弱かった。kasaiの小さい主解改善は主workspaceでは再現せず1072846.63、neosは144.23。追加binkar6888.55/nidda14054.95/enlight37最適は従来品質を維持。11点と5Rust出力23切断・格子証明が有効。詳細はVEC_BACKED_RHS_RESULTS。PR77に原出力5435一次ファイル189,023,738bytesを保全、ELF6本とsamplingデータ2ファイルはローカルSHA参照、生成GLPKモデル2省略。全台帳照合成功。全240/3600秒vec-backed-rhs-final-20261116はcreate-onlyで全hash確認、全件は未開始。
+
+分母不一致後の新LU再試行90afeはnidda主解悪化で棄却、8出力/4点が有効、source/原出力をsupporting-recordsに保全。perf cpu-clock samplingはPMU未対応、cycles:uは995samplesを取得し、コピー等の費用を確認。sampling時間を性能得点には使わない。
+
+開発188だけのRust parser構造分類を完了（最適化呼出しなし、holdoutなし）。同係数の厳密行が多い例があり、次は元整数行の範囲支配で本当に冗長な行だけを除く仮説を検査する。係数一致の分類だけを削除証明とは呼ばない。nativeは11:11UTC 250/720、厳密最適112、エラー17で継続。11月19日UTC目安で最終Rust全件を開始し、11月22日14:59UTC期限を維持。

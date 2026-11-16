@@ -1,0 +1,68 @@
+{
+  "source": "/home/ubuntu/mip-codex/artifacts/dual-denominator-refactor-v1-paired-41/neos-3754480-nidda.mps.gz/before/result.json",
+  "sha256": "26609b249837a3fbc7f6fda25a83bf7a8cbda855c5b4311d13723f1f206593ec",
+  "cut": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+  },
+  "point": {
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 14054.945596895108,
+        "bound_violation": 1.0387703533452505e-12,
+        "row_violation": 3.4219738154206425e-11,
+        "integer_violation": 0.0,
+        "objective_error": 1.4006218407303095e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 14054.945596895006,
+      "bound_violation": 1.0387703533452505e-12,
+      "row_violation": 4.0405132364e-11,
+      "integer_violation": 0.0,
+      "objective_error": 3.808033448720026e-11,
+      "exact": {
+        "objective": "175686819961187576004181090003248866033870477549208624232518789383/12500000000000000000000000000000000000000000000000000000000000",
+        "bound_violation": "2077540706690501/2000000000000000000000000000",
+        "row_violation": "10101283091/250000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "476004181090003248866033870477549208624232518789383/12500000000000000000000000000000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "175699319961187576004181090003248866033870477549208624232518789383/1250000000000000000000000000000000000000000000000000000000000000000000",
+        "absolute_error": "476004181090003248866033870477549208624232518789383/12500000000000000000000000000000000000000000000000000000000000",
+        "recomputed_exact": "175686819961187576004181090003248866033870477549208624232518789383/12500000000000000000000000000000000000000000000000000000000000",
+        "reported_token": "14054.945596894968"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3754480-nidda.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/dual-denominator-refactor-point-audit/dual-denominator-refactor-v1-paired-41/neos-3754480-nidda.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+}

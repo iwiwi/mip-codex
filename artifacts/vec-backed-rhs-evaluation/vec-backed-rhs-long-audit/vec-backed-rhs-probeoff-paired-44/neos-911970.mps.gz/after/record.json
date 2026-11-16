@@ -1,0 +1,68 @@
+{
+  "source": "/home/ubuntu/mip-codex/artifacts/vec-backed-rhs-probeoff-paired-44/neos-911970.mps.gz/after/result.json",
+  "sha256": "7b62df1f3de3bd8efe2554dae5d578b366a3573afa3226d1362e4e1a270eb5d8",
+  "cut": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+  },
+  "point": {
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 148.85999999999999,
+        "bound_violation": 7.105427357601002e-15,
+        "row_violation": 7.105427357601002e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 148.85999999999999,
+      "bound_violation": 7.105427357601002e-15,
+      "row_violation": 7.105427357601002e-15,
+      "integer_violation": 0.0,
+      "objective_error": 9.47572642398998e-16,
+      "exact": {
+        "objective": "74429999999999995473786321199499/500000000000000000000000000000",
+        "bound_violation": "3552713678800501/500000000000000000000000000000",
+        "row_violation": "3552713678800501/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "473786321199499/500000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "74929999999999995473786321199499/50000000000000000000000000000000000000",
+        "absolute_error": "473786321199499/500000000000000000000000000000",
+        "recomputed_exact": "74429999999999995473786321199499/500000000000000000000000000000",
+        "reported_token": "148.85999999999999"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/neos-911970.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/vec-backed-rhs-long-audit/vec-backed-rhs-probeoff-paired-44/neos-911970.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+}

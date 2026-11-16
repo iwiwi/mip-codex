@@ -78,3 +78,9 @@ PR74まで採用済み、main FP337。全件nativeは234/720で継続、自作�
 偶奇等式の一意性を厳密検査するFP527の188対と全独立監査を完了。主解/dual各1改善、品質悪化0、enlight_hardで独立証明付き最適37を再現。PR76は原データ/AI使用量を付けて採用判断する。source/ELF/再現条件はPARITY_EQUALITY_RESULTSとparity-equality-evaluationに保存。全240/3600秒snapshotはparity-equality-final-20261116を作成/照合のみ、自作最終全件は未開始。
 
 区間回復・完全ピボット回復・一般整数pumpは改善不足で未採用としてsource/原出力を保存済み。次はdual ratioで逆積とforward分母が食い違い、eta更新が残る場合だけfresh LUで再計算する。成功シグナルを選択対照で確認してから188へ進む。許容誤差/証明ガードを弱めず、pivot/flip/deadlineを返さない。nativeの残り全件と並行し、11月19日UTC目安で最終自作全240を開始する。
+
+## 2026-11-16 11:12 UTC
+
+PR76採用済み、Vec直結LU FP5a6候補は219 Rust/2700/500 LP/数値32、全188対と独立監査を完了。4LPで1–5%短縮し出力完全一致、MIP主解は1改善/1悪化。neos-911970の60秒悪化とprimary kasai小改善の非再現を含めPR77へ記録し採用判断する。全240snapshotはvec-backed-rhs-final-20261116を作成/照合のみ。最終全件は未開始。
+
+次は元整数の同係数行で範囲支配が証明できる場合だけの冗長行削除。分類診断structure-inventory-20261116は開発188/188成功、例のsource SHAも保存した。初めに本当に支配される行数と費用を調べ、削除の原MPS証明/行番号対応/点・目的・不能の区別を維持する。native凍結250/720と並行し、11月19日UTC目安で全件開始を守る。
