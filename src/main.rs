@@ -180,6 +180,9 @@ fn run() -> Result<(), String> {
         if let Ok(v) = std::env::var("MIP_ROW_PACKING_REPORT") {
             limits.row_packing_report=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROW_PACKING_REPORT must be 0 or 1".into())};
         }
+        if let Ok(v) = std::env::var("MIP_POST_PRIMAL_SUBGRADIENT") {
+            limits.post_primal_subgradient=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_POST_PRIMAL_SUBGRADIENT must be 0 or 1".into())};
+        }
         if let Ok(v) = std::env::var("MIP_ROW_SUBGRADIENT_UNIFORM") {
             limits.row_subgradient_uniform=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROW_SUBGRADIENT_UNIFORM must be 0 or 1".into())};
         }

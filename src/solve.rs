@@ -62,6 +62,7 @@ pub struct Limits {
     pub row_ray_report: bool,
     pub row_subgradient_report: bool,
     pub row_subgradient_uniform: bool,
+    pub post_primal_subgradient: bool,
     pub dual_guided_primal: bool,
     pub row_packing_report: bool,
     pub objective_rounding_all: bool,
@@ -89,7 +90,7 @@ impl Default for Limits {
             root_priced_budget: true,
             root_price_portfolio: true,
             root_objective_repair: true,
-            component_objective_repair: false,
+            component_objective_repair: true,
             root_primal_descent: true,
             binary_graph: true,
             parity_equalities: true,
@@ -123,6 +124,7 @@ impl Default for Limits {
             row_ray_report: true,
             row_subgradient_report: true,
             row_subgradient_uniform: true,
+            post_primal_subgradient: true,
             dual_guided_primal: true,
             row_packing_report: true,
             objective_rounding_all: false,
@@ -1621,7 +1623,8 @@ fn solve_seeded_warm(
         }
         early_repair = Some(repair);
     }
-    let row_subgradient_proof=if limits.row_subgradient_report && Instant::now()<deadline {
+    let row_subgradient_started=Instant::now();
+    let mut row_subgradient_proof=if limits.row_subgradient_report && Instant::now()<deadline {
         box_candidate.as_ref().and_then(|point|{
             let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.1)));
             crate::row_subgradient::compute_with_uniform(model,model.objective(point),row_ray_proof.as_ref(),end,limits.row_subgradient_uniform)
@@ -1633,6 +1636,16 @@ fn solve_seeded_warm(
             let offset=start.elapsed().as_secs_f64();let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.1)));
             if let Some((point,mut stats))=crate::dual_guided_primal::improve(model,repair,point,&root.lower,&root.upper,proof,end){
                 if let Some(t)=&mut stats.first_seconds{*t+=offset;}box_candidate=Some(point);dual_guided_primal=Some(stats);
+            }
+        }
+    }
+    if limits.post_primal_subgradient && limits.row_subgradient_report && (row_ray_proof.is_some() || row_subgradient_proof.is_some()) {
+        let end=deadline.min(row_subgradient_started+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(2.)));
+        if Instant::now()<end {
+            if let Some(point)=box_candidate.as_ref(){
+                if let Some(next)=crate::row_subgradient::compute_with_uniform(model,model.objective(point),row_ray_proof.as_ref(),end,limits.row_subgradient_uniform){
+                    if row_subgradient_proof.as_ref().is_none_or(|old|next.normalized_bound>old.normalized_bound){row_subgradient_proof=Some(next);}
+                }
             }
         }
     }

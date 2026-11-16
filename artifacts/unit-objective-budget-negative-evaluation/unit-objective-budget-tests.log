@@ -1,0 +1,36 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-priced-repair)
+error[E0308]: mismatched types
+  --> src/objective_repair.rs:74:142
+   |
+74 | ...{100_000_000u64.min(1_000_000_000u64.saturating_sub(stats.work))}else{100_000_000}, seed);
+   |                                         -------------- ^^^^^^^^^^ expected `u64`, found `usize`
+   |                                         |
+   |                                         arguments to this method are incorrect
+   |
+note: method defined here
+  --> /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/num/uint_macros.rs:2569:21
+  --> /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/num/mod.rs:1327:4
+  ::: /rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/num/mod.rs:1351:5
+   |
+   = note: in this macro invocation
+   = note: this error originates in the macro `uint_impl` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: you can convert a `usize` to a `u64` and panic if the converted value doesn't fit
+   |
+74 |         let candidate = repair.search(&start, lower, upper, active_deadline, if extended {100_000_000u64.min(1_000_000_000u64.saturating_sub(stats.work.try_into().unwrap()))}else{100_000_000}, seed);
+   |                                                                                                                                                        ++++++++++++++++++++
+
+error[E0308]: mismatched types
+  --> src/objective_repair.rs:74:91
+   |
+74 | ...ine, if extended {100_000_000u64.min(1_000_000_000u64.saturating_sub(stats.work))}else{100_000_000}, seed);
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `usize`, found `u64`
+   |
+help: you can convert a `u64` to a `usize` and panic if the converted value doesn't fit
+   |
+74 |         let candidate = repair.search(&start, lower, upper, active_deadline, if extended {100_000_000u64.min(1_000_000_000u64.saturating_sub(stats.work)).try_into().unwrap()}else{100_000_000}, seed);
+   |                                                                                                                                                          ++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `mip-codex` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `mip-codex` (lib test) due to 2 previous errors
