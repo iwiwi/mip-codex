@@ -13,6 +13,7 @@ fn small_cover_points_stay_feasible_and_above_the_enumerated_optimum(){
   let m=mps::parse(std::io::Cursor::new(text)).unwrap();let repair=Repair::new(&m);let seed=vec![1.;n];let lower=vec![Some(0.);n];let upper=vec![Some(1.);n];
   let optimum=(0..1usize<<n).filter(|&mask|rows.iter().all(|r|r.iter().any(|&j|mask&(1<<j)!=0))).map(|mask|(0..n).filter(|&j|mask&(1<<j)!=0).map(|j|costs[j]).sum::<usize>()).min().unwrap() as f64;
   let(x,_)=improve_priced(&m,&repair,&seed,&lower,&upper,Instant::now()+Duration::from_millis(10)).unwrap();assert!(m.check(&x,true,0.).is_ok());assert!(m.objective(&x)>=optimum);assert!(m.objective(&x)<=m.objective(&seed));
+  let(y,_)=mip_codex::priced_objective_repair::improve_priced_continued(&m,&repair,&seed,&lower,&upper,Instant::now()+Duration::from_millis(10),true).unwrap();assert!(m.check(&y,true,0.).is_ok());assert!(m.objective(&y)>=optimum);assert!(m.objective(&y)<=m.objective(&seed));
  }
 }
 

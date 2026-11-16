@@ -80,7 +80,7 @@ impl Default for Limits {
             root_seed_repair: true,
             root_priced_repair: true,
             root_priced_objective: true,
-            root_priced_continue: false,
+            root_priced_continue: true,
             root_price_portfolio: true,
             root_objective_repair: true,
             root_primal_descent: true,
