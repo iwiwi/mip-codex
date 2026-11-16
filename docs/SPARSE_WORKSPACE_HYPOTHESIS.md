@@ -1,0 +1,9 @@
+# 疎LPの内部workspace上限
+
+外側は16GiBなのに、疎LP標準化の見積もりもLimits.dense_bytes既定512MiBで停止する。PR73の188開発問題では11件がresource_limit、0 LP pivotsだった。既存のMIP_LP_WORKSPACE_MIBで512/2048を比較し、まずコード変更なしで点取得と実使用量を調べる。
+
+初回は存在しないMIP_DENSE_MIBを指定したため両方512のままだった。設定名を正し、重複起動のあった試行も明示的に無効化し、driverとその子process groupを停止して単独で再実行した。無効ログ/理由を保持し、比較に使わない。
+
+有効な単独10秒診断はbuildingenergy/ns1760995/square41/supportcase12/map10/temukaの6件。512はresource_limit、2048は全てLP計算へ進むがtime_limitで点・境界なし。ピークRSSは確認済み例370〜918MiB。終了状態変化だけを性能改善と数えない。同一凍結FP8b、CPU41、1thread、AS16GiB、元MPS SHA確認、全件development、root1nodeでheuristics/cuts無効。artifacts/sparse-budget-isolated-diagnosticに保存。
+
+60秒でも同じ6件の512/2048診断を実行中（sparse-budget60-diagnostic）。点が得られれば元MPS Fractionで行/境界/目的値を検査し、整数点とは区別する。大きい行列を許可しただけでdefaultを変えず、メモリ使用/誤答/未解決状態と実際の点取得を確認して判断する。実装するならdenseとsparseのworkspaceを分け、denseの安全上限を意図せず広げない。
