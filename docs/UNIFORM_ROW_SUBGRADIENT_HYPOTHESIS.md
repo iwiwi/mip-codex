@@ -9,3 +9,7 @@ main PR91/FPeb58f7ae33131dafを基点に別branch uniform-row-subgradientで試�
 実験flag MIP_ROW_SUBGRADIENT_UNIFORMは既定false。既存公開API computeは以前の非一様費用限定を保ち、新API compute_with_uniformとmainの追加flagで対象を広げる。隙間がない時の探索省略もflag有効側だけへ限定し、無効側は親の挙動を保つ。既存243 Rust後、小規模一様費用でAPI互換/強い下界/node_limit・LP0回保持の3試験が成功。元MPS oracle200出力全有効（半数は一様費用）、142新証明、568改変全拒否。
 
 試作FP25ed2389c349655eを実行前に全source/ELF/SHA固定。選択10秒はseymour1主解460同値/下界359→386.87949692755086、glass-sc主解28同値/下界8→11.118797276413423、cygnet218/170同値。60秒も主解460/28同値、下界seymour359→387.01271525665254、glass8→11.118797276413423。独立監査と全188対を継続、まだ未採用。修復portfolioのmain採用後、初期対照の固定版を保持して併合・相互作用を再確認する。
+
+選択10秒6/6・60秒4/4の元MPS証明/主解は全有効。188件途中のneos-3024952-loueは22959→22966だが両側ともrow_subgradient_proof=Noneであり、本機能の因果的改善とは扱わない。実行時間制限内の探索差を含め、全結果を残す。PR92採用後のprimary再監査5主解/5証明は全有効、3600秒240件FPdfaスナップショットのcreate-only記録を同branchへ保存済み。
+
+10秒外部比較はseymour1/glass-scの8出力を完了した後、誤指定cygnet.mps.gzでdriver exit1。部分run/失敗JSON/生logを保持し、正しいneos-5052403-cygnet.mps.gzだけ別runへ訂正した。既存smoke共通driverにも全名称・development所属の事前検査を追加し、誤指定が出力directory/solver実行より前にexit1となることを確認した。完了8主解・2証明の独立監査は全有効。

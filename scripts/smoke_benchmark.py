@@ -21,6 +21,9 @@ seconds=int(sys.argv[1]) if len(sys.argv)>1 else 10
 names=sys.argv[2:] or ['pk1.mps.gz','mad.mps.gz','markshare_4_0.mps.gz']
 manifest=json.load(open(root/'data/manifest.json'))
 records={r['name']:r for r in manifest['instances']}
+invalid_names=[name for name in names if name not in records or records[name]['split']!='development']
+if invalid_names:
+    raise SystemExit('smoke benchmark requires development manifest names: '+', '.join(invalid_names))
 output=Path(tempfile.mkdtemp(prefix='smoke-'+time.strftime('%Y%m%d-%H%M%S',time.gmtime())+'-',dir=root/'artifacts'))
 core=min(os.sched_getaffinity(0))
 env=os.environ.copy();env.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
