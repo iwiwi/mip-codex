@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/dual-restoration-combined-development-screen/cases/neos-4300652-rahue.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/runs/probe-root-warm-formatted-final-20261116/snapshot/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-4300652-rahue.mps.gz",
+    "10"
+  ],
+  "input_sha256": "8b98fc99420b10ba879cfd68f4401a2f3cb8f1861c0aac498278a57aec42b10c",
+  "split": "development",
+  "cpu": 5,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

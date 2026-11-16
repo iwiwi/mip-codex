@@ -1,0 +1,59 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/ran14x18-disj-8.mps.gz'...
+Problem: ran14x18-disj-8
+Objective: obj
+448 rows, 504 columns, 10781 non-zeros
+252 integer variables, all of which are binary
+6587 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-053951-vy5ednpm/ran14x18-disj-8.mps.gz/glpk/model.glp'...
+12435 lines were written
+GLPK Integer Optimizer 5.0
+447 rows, 504 columns, 10277 non-zeros
+252 integer variables, all of which are binary
+Preprocessing...
+447 rows, 504 columns, 10277 non-zeros
+252 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  3.223e-09  max|aij| =  3.800e+01  ratio =  1.179e+10
+GM: min|aij| =  1.214e-03  max|aij| =  8.235e+02  ratio =  6.781e+05
+EQ: min|aij| =  1.475e-06  max|aij| =  1.000e+00  ratio =  6.781e+05
+2N: min|aij| =  9.978e-07  max|aij| =  1.625e+00  ratio =  1.629e+06
+Constructing initial basis...
+Size of triangular part is 446
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+447 rows, 504 columns, 10277 non-zeros
+      0: obj =   2.960000000e+03 inf =   1.887e+03 (153)
+    240: obj =   5.609690569e+03 inf =   9.994e-11 (0) 1
+*   720: obj =   3.444421066e+03 inf =   8.885e-08 (0) 3
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 163
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++   720: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 4956
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 4; mir = 38; cov = 1;
+Cuts on level 115: gmi = 4; mir = 38; cov = 1;
++  3887: >>>>>   4.626000000e+03 >=   3.452419595e+03  25.4% (116; 0)
+Cuts on level 116: gmi = 8; mir = 50; cov = 3;
++ 11240: >>>>>   4.553000000e+03 >=   3.453081896e+03  24.2% (375; 3)
+Cuts on level 134: gmi = 7; mir = 46; cov = 4;
++ 14120: >>>>>   4.538000000e+03 >=   3.453141595e+03  23.9% (497; 18)
++ 39052: mip =   4.538000000e+03 >=   3.458319954e+03  23.8% (1522; 29)
++ 51288: mip =   4.538000000e+03 >=   3.458685183e+03  23.8% (2010; 35)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-053951-vy5ednpm/ran14x18-disj-8.mps.gz/glpk/solution.raw'...
+960 lines were written

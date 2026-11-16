@@ -45,6 +45,7 @@ pub struct Stats {
     pub certificate_repair_trials: usize,
     pub certificate_repairs: usize,
     pub restoration_attempts: usize,
+    pub restoration_restarts: usize,
     pub restoration_successes: usize,
     pub restoration_infeasible_candidates: usize,
     pub restoration_pivots: usize,
@@ -270,6 +271,7 @@ fn snapshot(p: &Problem, s: &Simplex, structure: Option<Arc<Structure>>) -> Arc<
         factor: s.factor.clone(),
     })
 }
+#[derive(Clone)]
 struct Simplex {
     columns: Arc<Vec<Vec<(usize, f64)>>>,
     rhs: Vec<f64>,
@@ -325,7 +327,18 @@ impl Simplex {
         // simplex can then repair the basis without changing the LP bounds.
         let zero = vec![0.; self.columns.len()];
         let before = self.stats.dual_pivots;
-        let result = self.dual_run::<true>(&zero);
+        let backup = self.clone();
+        let mut result = self.dual_run::<true>(&zero);
+        if matches!(result, Err(Outcome::NumericalError))
+            && self.deadline.is_none_or(|d| Instant::now() < d)
+            && self.stats.pivots + self.stats.flips < self.limit
+        {
+            let spent = std::mem::take(&mut self.stats);
+            *self = backup;
+            self.stats = spent;
+            self.stats.restoration_restarts += 1;
+            result = self.dual_run_mode::<true, true>(&zero);
+        }
         self.stats.restoration_pivots += self.stats.dual_pivots - before;
         match result {
             Ok(_)
@@ -549,7 +562,14 @@ impl Simplex {
     }
     /// 有界変数のdual simplex。有限幅を使い切る候補をまとめてflipする。
     fn dual_run<const RESTORATION: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        self.dual_run_mode::<RESTORATION, false>(c)
+    }
+    fn dual_run_mode<const RESTORATION: bool, const STABLE: bool>(
+        &mut self,
+        c: &[f64],
+    ) -> Result<(f64, f64), Outcome> {
         let mut degenerate = 0usize;
+        let initial_dual_pivots = self.stats.dual_pivots;
         loop {
             if self.deadline.is_some_and(|d| Instant::now() >= d) {
                 return Err(Outcome::TimeLimit);
@@ -632,7 +652,17 @@ impl Simplex {
                     candidates.push((beta, j, direction, denom));
                 }
             }
-            candidates.sort_unstable_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
+            candidates.sort_unstable_by(|a, b| {
+                a.0.total_cmp(&b.0)
+                    .then_with(|| {
+                        if STABLE {
+                            b.3.total_cmp(&a.3)
+                        } else {
+                            std::cmp::Ordering::Equal
+                        }
+                    })
+                    .then(a.1.cmp(&b.1))
+            });
             let mut remaining = t * (target - self.x[leaving]);
             let mut flips = Vec::new();
             let mut enter = None;
@@ -680,6 +710,13 @@ impl Simplex {
             let denom = -t * d[r] * direction;
             let remaining = t * (target - self.x[leaving]);
             if !denom.is_finite() || denom <= PIVOT || remaining < -1e-7 {
+                if std::env::var_os("MIP_LP_TRACE").is_some() {
+                    eprintln!(
+                        "dual ratio failure restoration={RESTORATION} denom={denom:e} remaining={remaining:e} t={t} direction={direction} row={r} entering={j} flips={} updates={}",
+                        flips.len(),
+                        self.factor.updates.len()
+                    );
+                }
                 return Err(numerical());
             }
             let theta = remaining.max(0.0) / denom;
@@ -704,9 +741,12 @@ impl Simplex {
             } else {
                 degenerate = 0;
             }
-            if self.stats.dual_pivots > 64.max(4 * self.rhs.len())
-                || (!RESTORATION && degenerate > 500)
-            {
+            let dual_pivots = if STABLE {
+                self.stats.dual_pivots - initial_dual_pivots
+            } else {
+                self.stats.dual_pivots
+            };
+            if dual_pivots > 64.max(4 * self.rhs.len()) || (!RESTORATION && degenerate > 500) {
                 return Err(numerical());
             }
             if self.factor.updates.len() >= 50 {
@@ -1052,6 +1092,7 @@ impl Stats {
         self.certificate_repair_trials += other.certificate_repair_trials;
         self.certificate_repairs += other.certificate_repairs;
         self.restoration_attempts += other.restoration_attempts;
+        self.restoration_restarts += other.restoration_restarts;
         self.restoration_successes += other.restoration_successes;
         self.restoration_infeasible_candidates += other.restoration_infeasible_candidates;
         self.restoration_pivots += other.restoration_pivots;
