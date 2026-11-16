@@ -23,6 +23,7 @@ pub struct Limits {
     pub box_primal: bool,
     pub root_seed_repair: bool,
     pub root_priced_repair: bool,
+    pub root_price_portfolio: bool,
     pub root_objective_repair: bool,
     pub root_primal_descent: bool,
     pub binary_graph: bool,
@@ -76,6 +77,7 @@ impl Default for Limits {
             box_primal: true,
             root_seed_repair: true,
             root_priced_repair: true,
+            root_price_portfolio: true,
             root_objective_repair: true,
             root_primal_descent: true,
             binary_graph: true,
@@ -1528,17 +1530,23 @@ fn solve_seeded_warm(
                 positive.sort_by(f64::total_cmp);let scale=positive[positive.len()/2];
                 let end=deadline.min(began+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.1)));
                 let point:Vec<_>=root.lower.iter().zip(&root.upper).map(|(l,u)|0f64.max(l.unwrap_or(f64::NEG_INFINITY)).min(u.unwrap_or(f64::INFINITY))).collect();
-                let before=repair.stats.clone();let candidate=repair.search_priced(&point,&root.lower,&root.upper,end,100_000_000,0,1.,scale);
-                let found=candidate.is_some();let mut improved=false;
-                if let Some(point)=candidate.filter(|x|repair.candidate_check(x)&&repair.objective_reliable(x,model.objective(x))){
-                    let value=sign*model.objective(&point);
-                    let better=box_candidate.as_ref().is_none_or(|old|{
-                        let old_value=sign*model.objective(old);
-                        repair.objective_reliable(old,model.objective(old))&&value<old_value-4e-8*(1.+value.abs().max(old_value.abs()))
-                    });
-                    if better{box_candidate=Some(point);improved=true;}
+                let before=repair.stats.clone();let mut candidates=0;let mut improvements=0;let mut first_seconds=None;
+                let weights:&[f64]=if limits.root_price_portfolio{&[1.,0.3]}else{&[1.]};
+                for &weight in weights{
+                    let remaining_work=100_000_000usize.saturating_sub(repair.stats.work-before.work);
+                    if Instant::now()>=end || remaining_work==0{break;}
+                    let candidate=repair.search_priced(&point,&root.lower,&root.upper,end,remaining_work,0,weight,scale);
+                    candidates+=usize::from(candidate.is_some());
+                    if let Some(point)=candidate.filter(|x|repair.candidate_check(x)&&repair.objective_reliable(x,model.objective(x))){
+                        let value=sign*model.objective(&point);
+                        let better=box_candidate.as_ref().is_none_or(|old|{
+                            let old_value=sign*model.objective(old);
+                            repair.objective_reliable(old,model.objective(old))&&value<old_value-4e-8*(1.+value.abs().max(old_value.abs()))
+                        });
+                        if better{box_candidate=Some(point);improvements+=1;first_seconds.get_or_insert_with(||start.elapsed().as_secs_f64());}
+                    }
                 }
-                root_priced_repair=Some(heuristic::BoxStats{calls:repair.stats.calls-before.calls,candidates:usize::from(found),improvements:usize::from(improved),moves:repair.stats.moves-before.moves,work:repair.stats.work-before.work,seconds:began.elapsed().as_secs_f64(),first_seconds:improved.then(||start.elapsed().as_secs_f64())});
+                root_priced_repair=Some(heuristic::BoxStats{calls:repair.stats.calls-before.calls,candidates,improvements,moves:repair.stats.moves-before.moves,work:repair.stats.work-before.work,seconds:began.elapsed().as_secs_f64(),first_seconds});
                 root_priced_scale=Some(scale);
             }
         }

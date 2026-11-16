@@ -1,0 +1,62 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-181144-8ed_xpy7/n3div36.mps.gz/highs/options.txt
+MIP n3div36 has 4484 rows; 22120 cols; 340740 nonzeros; 22120 integer variables (22120 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+01]
+  Cost    [1e+04, 1e+05]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 2e+01]
+Presolving model
+4484 rows, 22120 cols, 340740 nonzeros 0s
+4453 rows, 20602 cols, 169954 nonzeros 0s
+Presolve reductions: rows 4453(-31); columns 20602(-1518); nonzeros 169954(-170786) 
+Objective function is integral with scale 0.005
+
+Solving MIP model with:
+   4453 rows
+   20602 cols (20602 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   169954 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            344400             Large        0      0      0         0     0.8s
+         0       0         0   0.00%   114333.374741   344400            66.80%        0      0      0       124     0.9s
+ L       0       0         0   0.00%   120030.510248   145000            17.22%      344     30      2       637     6.8s
+ L       0       0         0   0.00%   120344.710729   137400            12.41%      357     31      2      1461    10.0s
+         0       0         0   0.00%   120344.710729   137400            12.41%      350     31      2      2442    10.0s
+
+Solving report
+  Model             n3div36
+  Status            Time limit reached
+  Primal bound      137400
+  Dual bound        120400
+  Gap               12.37%
+  P-D integral      5.29
+  Solution status   feasible
+                    137400 (objective)
+                    7.32747196253e-15 (integrality violation)
+  Timing            10.05
+                    1.42 (Presolve)
+                        MIP    time [calls] = 0.64 [1]
+                        subMIP time [calls] = 0.78 [20]
+                    8.62 (Solve)
+                        MIP    time [calls] = 3.18 [1]
+                        subMIP time [calls] = 5.44 [20]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [20]
+  Max sub-MIP depth 22
+  Nodes             0
+  Repair LPs        0
+  LP iterations     2442
+                    0 (strong br.)
+                    595 (separation)
+                    1723 (heuristics)
