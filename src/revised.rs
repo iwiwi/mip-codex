@@ -888,7 +888,17 @@ impl Simplex {
                                     self.stats.restoration_attempts
                                 );
                             }
-                            self.restore_primal(restoration_epoch)?;
+                            if let Err(outcome) = self.restore_primal(restoration_epoch) {
+                                if std::env::var_os("MIP_CERTIFICATE_CANDIDATE_DUMP").is_some()
+                                    && matches!(outcome, Outcome::NumericalError)
+                                {
+                                    let pricing = self.multipliers(c);
+                                    if pricing.values.iter().all(|v| v.is_finite()) {
+                                        self.witness = Some(pricing.values.clone());
+                                    }
+                                }
+                                return Err(outcome);
+                            }
                             continue 'iterations;
                         }
                     } else {

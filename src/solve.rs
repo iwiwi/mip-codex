@@ -2373,6 +2373,19 @@ fn solve_seeded_warm(
                 }
             }
             other => {
+                if let Some(mut path) = std::env::var_os("MIP_CERTIFICATE_CANDIDATE_DUMP") {
+                    path.push(format!(".{}.{}.json", std::process::id(), nodes));
+                    if let Ok(file) = std::fs::OpenOptions::new()
+                        .write(true)
+                        .create_new(true)
+                        .open(path)
+                    {
+                        let _ = serde_json::to_writer(
+                            file,
+                            &serde_json::json!({"purpose":"uncertified multiplier candidate only; no pruning","node":nodes,"names":model.variables.iter().map(|v|&v.name).collect::<Vec<_>>(),"row_names":lp_model.rows.iter().map(|r|&r.name).collect::<Vec<_>>(),"lower":node.lower,"upper":node.upper,"row_sources":p.row_sources,"multipliers":relaxation_witness,"scaled_columns_total":lp_stats.scaled_columns,"scaled_rows_total":lp_stats.scaled_rows}),
+                        );
+                    }
+                }
                 status = match other {
                     Ok(lp::Outcome::Unbounded) => "unbounded_relaxation",
                     Ok(lp::Outcome::TimeLimit) => "time_limit",
