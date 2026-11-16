@@ -1,0 +1,74 @@
+Reading problem data from '/home/ubuntu/mip-dual-restoration/data/raw/benchmark/neos-3754480-nidda.mps.gz'...
+Problem: neos-3754480-nidda
+Objective: R0403
+403 rows, 253 columns, 1741 non-zeros
+50 integer variables, all of which are binary
+2403 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261116-123308-knqw3gv4/neos-3754480-nidda.mps.gz/glpk/model.glp'...
+3005 lines were written
+GLPK Integer Optimizer 5.0
+402 rows, 253 columns, 1488 non-zeros
+50 integer variables, all of which are binary
+Preprocessing...
+402 rows, 253 columns, 1488 non-zeros
+50 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  3.083e-01  max|aij| =  1.000e+04  ratio =  3.243e+04
+GM: min|aij| =  1.408e-01  max|aij| =  7.101e+00  ratio =  5.042e+01
+EQ: min|aij| =  1.983e-02  max|aij| =  1.000e+00  ratio =  5.042e+01
+2N: min|aij| =  1.562e-02  max|aij| =  1.641e+00  ratio =  1.050e+02
+Constructing initial basis...
+Size of triangular part is 402
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+402 rows, 253 columns, 1488 non-zeros
+      0: obj =   0.000000000e+00 inf =   2.232e+02 (51)
+    242: obj =   1.688527673e+04 inf =   1.247e-09 (0) 2
+*   454: obj =  -1.216923270e+06 inf =   2.558e-13 (0) 1
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 2
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++   454: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 16992.3895233
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
++   746: >>>>>   1.676352273e+04 >=  -1.148207511e+06        (44; 0)
++  1376: >>>>>   1.654110259e+04 >=  -1.029988437e+06        (125; 3)
++  1643: >>>>>   1.634984721e+04 >=  -1.003101778e+06        (157; 18)
++  1964: >>>>>   1.571733237e+04 >=  -9.754885849e+05        (189; 30)
++  2243: >>>>>   1.492461824e+04 >=  -9.725849789e+05        (203; 78)
++  4591: >>>>>   1.489869974e+04 >=  -8.603768978e+05        (517; 101)
++ 15177: >>>>>   1.447989662e+04 >=  -7.283471570e+05        (1937; 163)
++ 23778: >>>>>   1.414323506e+04 >=  -6.721357892e+05        (3078; 304)
++ 83346: mip =   1.414323506e+04 >=  -5.505285754e+05        (11283; 805)
++ 99614: >>>>>   1.392655417e+04 >=  -5.355731206e+05        (13476; 923)
++147895: mip =   1.392655417e+04 >=  -4.991737971e+05        (20047; 1527)
++189587: mip =   1.392655417e+04 >=  -4.777576114e+05        (25849; 1867)
++226793: mip =   1.392655417e+04 >=  -4.610488975e+05        (31167; 2175)
++260603: mip =   1.392655417e+04 >=  -4.486651309e+05        (35853; 2465)
+Warning: numerical instability (dual simplex, phase II)
++292446: mip =   1.392655417e+04 >=  -4.387807123e+05        (40201; 2737)
++321451: mip =   1.392655417e+04 >=  -4.303169623e+05        (44288; 2994)
++346250: >>>>>   1.389384953e+04 >=  -4.243324857e+05        (47734; 3207)
++372043: mip =   1.389384953e+04 >=  -4.184780680e+05        (51286; 3571)
++396971: mip =   1.389384953e+04 >=  -4.133219888e+05        (54722; 3797)
+Warning: numerical instability (dual simplex, phase II)
+Warning: numerical instability (dual simplex, phase II)
++421425: mip =   1.389384953e+04 >=  -4.088444707e+05        (58095; 4013)
++432233: mip =   1.389384953e+04 >=  -4.062058373e+05        (59531; 4110)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261116-123308-knqw3gv4/neos-3754480-nidda.mps.gz/glpk/solution.raw'...
+664 lines were written

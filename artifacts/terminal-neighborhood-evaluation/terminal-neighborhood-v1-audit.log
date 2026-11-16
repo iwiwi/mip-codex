@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/artifacts/terminal-neighborhood-audit.py", line 19, in <module>
+    record['point']={kind:json.loads((d/(kind+'-validation.json')).read_text())for kind in ['strict','official']}
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1029, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/mip-codex/artifacts/terminal-neighborhood-v1-audit/terminal-neighborhood-v1-paired-41/glass4.mps.gz/after/strict-validation.json'
