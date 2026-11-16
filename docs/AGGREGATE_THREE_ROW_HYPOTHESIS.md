@@ -23,3 +23,11 @@ mainはPR72の双対復元失敗時のみ安定pivotで再試行する版（4525
 現行grid版timtab1の60秒では主解1089832→1072270、境界も上記と同じ改善。2点はGMP絶対許容差・公式checkerで有効。10秒悪化と60秒改善の両方を残す。追加5問題10秒は主解同値で、sp150x300dのみ境界27.3014103→30へ改善。これら追加点の監査は最初システムPythonのhighspy不足で起動失敗したため、.venvで再実行し、失敗ログも保持する。
 
 現行同一凍結binaryの環境変数ON/OFFによる開発188問題比較を5 shardで実行中。artifacts/aggregate-three-grid-development-screen、同-audit、同-analysis.jsonが記録。最初の74対の主解は監査待ち1件を除き同値で、enlight_hardの境界1件改善。集約証明は凍結版の3行対応Fraction checkerで検査する。mainの旧2行checkerを代用しない。現行版の2,700小規模問題照合も実行中。採否は全件、timtab1短時間悪化、数値終了/資源終了、および60秒再現を合わせて判断する。holdoutは使わない。
+
+188問題10秒の現行同一binary ON/OFF比較と監査が完了。主解0改善/1悪化/187同値、dual3改善/0悪化/75同値/110比較不能、最適宣言0件。before169 time_limit/8 numerical_error/11 resource_limit、after168/9/11。376/376カット証明有効、108/108保存整数点が元MPSのGMP絶対許容差・公式検査とも有効。試行58問題のうち3行cut保持はenlight_hard 24本、sp150x300d 8本、timtab1 8本だけだった。主解悪化はtimtab1。swath1のstatus差は両variantの同CPU再実行でnumerical_error/同じ448.882839・334.496858となり、3行cutは保持されなかった。raw終了状態は変更しない。
+
+現行2700合成全件がHiGHS比較/適用可能時全列挙/元問題検査に合格。追加60秒はenlight_hard dual16→16.4583333（両主解なし）、sp150主解71同値/dual27.3014103→30、neos860300 3966/2031同値、binkar6865.969997/6646.3136788同値。これらとswath再実行の10出力/8整数点が独立検査有効。初期3行版と現行版の60秒ablationはtimtab主解1125560→1072270、sp150は71同値、dual両方同値。4点ともGMP/公式有効であり、precut局所探索は10秒悪化を消さなかったが60秒の主解には効果が見られる。
+
+同CPU40・1thread・16GiB・60秒のnative比較実runはsmoke-20261116-071518-h85e9ltx。timtab HS/SCIP764772最適、GLPK1147266/417472.7251。sp150 HS/SCIP69最適、GLPK75/51。enlight HS/SCIP37最適、GLPK37/27。全9点がGMP絶対/公式有効。自作はtimtab1072270/150732.54、sp15071/30でGLPKより主解だけ良いがdualは弱く、HS/SCIPには両方で及ばない。enlightは自作整数点なし。全体優位・世界記録ではない。
+
+10秒での悪化と60秒での改善が混在するため、採用前に凍結FPddf7で全開発188問題の60秒ON/OFFを開始した。CPU3..7の5 shard、同AS16GiB、1thread、各solver60秒+外側120秒PG watchdog、入力SHA/split検査。artifacts/aggregate-three-grid60-development-screenと-auditへ記録。native全件720測定は従来CPU8..15で継続し変更しない。
