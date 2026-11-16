@@ -720,6 +720,16 @@ impl Simplex {
                         self.factor.updates.len()
                     );
                 }
+                if std::env::var("MIP_DUAL_DENOMINATOR_REFACTOR").is_ok_and(|v| v == "1")
+                    && !self.factor.updates.is_empty()
+                    && self.deadline.is_none_or(|d| Instant::now() < d)
+                    && self.stats.pivots + self.stats.flips < self.limit
+                {
+                    // Flips already spent remain charged. Recompute the same basis
+                    // from the original columns before selecting a new dual step.
+                    self.refactor()?;
+                    continue;
+                }
                 return Err(numerical());
             }
             let theta = remaining.max(0.0) / denom;
