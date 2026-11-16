@@ -11,3 +11,11 @@ CPU4 timtabは旧120576、新152468.343936、MIR off120576。比較専用HiGHS�
 生記録: `artifacts/mir-*`。初期一次比較はsmoke-20261116-023733-z_kwi7ua、smoke-20261116-023734-twvnjhcx、60秒はsmoke-20261116-023918-6j17q30c。価格付けの未採用PR66とは独立の変更であり、LP価格付けはmainのDantzigのまま。最終採否前に生ディレクトリを含むSHA台帳でアーカイブする。
 
 本番native比較は133/720・厳密最適59・エラー11（02:37 UTC）。追加030/031/076-glpkは全てwatchdog3660秒、結果JSONなし、OOMなしであり、内部incumbent不明。既存8件とともに欠測を通常timeoutへ置換しない。自作full campaignはまだcreate-only。
+
+## 再開位置
+
+基底の冗長コピー削減PR67をmainへ採用（1143bda01、core0e16dc3ea、F0c8fbf36c1facc49）。MIRをd8c887be1へrebaseし、205 Rustテスト再通過。これから新しいmain固定バイナリと同CPUで比較し、初期版の無効時退行が解消していることを調べる。初期版978/220候補の証明検証・生結果は引き続き保存し、後版の結果へ置換しない。
+
+基底コピー削減を継承しても、MIR offの根LP12組は0.0846259→0.1063533秒と退行し、時間と追加MIR統計以外の全出力は一致。従ってPR67だけで退行が解消したとは扱わない。再版も合成2700問と根LP300問/500 engine出力を通過。別targetの環境変数CODEGEN_UNITS=1試作は0.0789896秒まで短縮するが、ビルド設定としては未採用。
+
+faer0.24.4のColRef::as_matは列間stride0のMatRefを返し、permute_rowsはrow_stride<col_strideでなければ各行copy_fromを呼ぶ。1列のColではこの経路が1要素コピーを行数分呼び、インライン化で速度が変わりうる。この入力レイアウトを避ける一般的なMat一列RHSを、再びmainから独立変更として評価する。ソースはインストール済みfaerのcol/colref.rs、perm/mod.rsを参照。外部実装のコード移植は行わない。
