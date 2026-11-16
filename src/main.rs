@@ -182,6 +182,11 @@ fn run() -> Result<(), String> {
                 return Err("MIP_PHASE1_KEEP_PRICING must be 0 or 1".into());
             }
         }
+        if let Ok(v) = std::env::var("MIP_PHASE1_DELAYED_PRICING") {
+            if v != "0" && v != "1" {
+                return Err("MIP_PHASE1_DELAYED_PRICING must be 0 or 1".into());
+            }
+        }
         if let Ok(propagation) = std::env::var("MIP_PROPAGATION") {
             limits.propagation = match propagation.as_str() {
                 "0" => false,

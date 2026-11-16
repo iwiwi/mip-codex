@@ -797,6 +797,9 @@ impl Simplex {
         // Phase II monomorphization omits this configuration check entirely.
         let keep_phase_one_pricing =
             PHASE_ONE && std::env::var("MIP_PHASE1_KEEP_PRICING").map_or(true, |v| v == "1");
+        let delayed_phase_one =
+            PHASE_ONE && std::env::var("MIP_PHASE1_DELAYED_PRICING").is_ok_and(|v| v == "1");
+        let phase_one_start = self.stats.pivots + self.stats.flips;
         let mut degenerate = 0usize;
         let mut verified = false;
         let mut restoration_epoch = self.stats.restoration_attempts;
@@ -840,7 +843,13 @@ impl Simplex {
                     // Keep the first eligible column even if division underflows.
                     most_negative = score;
                     entering = Some((j, direction));
-                    if degenerate > 25 && !keep_phase_one_pricing {
+                    if degenerate > 25
+                        && !(keep_phase_one_pricing
+                            && (!delayed_phase_one
+                                || (self.stats.pivots + self.stats.flips)
+                                    .saturating_sub(phase_one_start)
+                                    >= pricing_budget))
+                    {
                         break;
                     }
                 }
@@ -1255,6 +1264,12 @@ fn cold_priced(
             } else {
                 s.run_priced::<false, true>(&c)?
             };
+            if std::env::var_os("MIP_LP_TRACE").is_some() {
+                eprintln!(
+                    "Phase I completed pivots={} flips={} rows={} objective={value:e}",
+                    s.stats.pivots, s.stats.flips, m
+                );
+            }
             if value > 1e-7 {
                 return Err(if dual > 1e-8 {
                     Outcome::Infeasible
