@@ -45,6 +45,7 @@ pub struct Stats {
     pub certificate_repair_trials: usize,
     pub certificate_repairs: usize,
     pub restoration_attempts: usize,
+    pub restoration_restarts: usize,
     pub restoration_successes: usize,
     pub restoration_infeasible_candidates: usize,
     pub restoration_pivots: usize,
@@ -270,6 +271,7 @@ fn snapshot(p: &Problem, s: &Simplex, structure: Option<Arc<Structure>>) -> Arc<
         factor: s.factor.clone(),
     })
 }
+#[derive(Clone)]
 struct Simplex {
     columns: Arc<Vec<Vec<(usize, f64)>>>,
     rhs: Vec<f64>,
@@ -325,7 +327,18 @@ impl Simplex {
         // simplex can then repair the basis without changing the LP bounds.
         let zero = vec![0.; self.columns.len()];
         let before = self.stats.dual_pivots;
-        let result = self.dual_run::<true>(&zero);
+        let backup = self.clone();
+        let mut result = self.dual_run::<true>(&zero);
+        if matches!(result, Err(Outcome::NumericalError))
+            && self.deadline.is_none_or(|d| Instant::now() < d)
+            && self.stats.pivots + self.stats.flips < self.limit
+        {
+            let spent = std::mem::take(&mut self.stats);
+            *self = backup;
+            self.stats = spent;
+            self.stats.restoration_restarts += 1;
+            result = self.dual_run_mode::<true, true>(&zero);
+        }
         self.stats.restoration_pivots += self.stats.dual_pivots - before;
         match result {
             Ok(_)
@@ -549,7 +562,14 @@ impl Simplex {
     }
     /// 有界変数のdual simplex。有限幅を使い切る候補をまとめてflipする。
     fn dual_run<const RESTORATION: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        self.dual_run_mode::<RESTORATION, false>(c)
+    }
+    fn dual_run_mode<const RESTORATION: bool, const STABLE: bool>(
+        &mut self,
+        c: &[f64],
+    ) -> Result<(f64, f64), Outcome> {
         let mut degenerate = 0usize;
+        let initial_dual_pivots = self.stats.dual_pivots;
         loop {
             if self.deadline.is_some_and(|d| Instant::now() >= d) {
                 return Err(Outcome::TimeLimit);
@@ -635,7 +655,7 @@ impl Simplex {
             candidates.sort_unstable_by(|a, b| {
                 a.0.total_cmp(&b.0)
                     .then_with(|| {
-                        if RESTORATION {
+                        if STABLE {
                             b.3.total_cmp(&a.3)
                         } else {
                             std::cmp::Ordering::Equal
@@ -717,7 +737,12 @@ impl Simplex {
             } else {
                 degenerate = 0;
             }
-            if self.stats.dual_pivots > 64.max(4 * self.rhs.len())
+            let dual_pivots = if STABLE {
+                self.stats.dual_pivots - initial_dual_pivots
+            } else {
+                self.stats.dual_pivots
+            };
+            if dual_pivots > 64.max(4 * self.rhs.len())
                 || (!RESTORATION && degenerate > 500)
             {
                 return Err(numerical());
@@ -1065,6 +1090,7 @@ impl Stats {
         self.certificate_repair_trials += other.certificate_repair_trials;
         self.certificate_repairs += other.certificate_repairs;
         self.restoration_attempts += other.restoration_attempts;
+        self.restoration_restarts += other.restoration_restarts;
         self.restoration_successes += other.restoration_successes;
         self.restoration_infeasible_candidates += other.restoration_infeasible_candidates;
         self.restoration_pivots += other.restoration_pivots;
