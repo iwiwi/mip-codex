@@ -301,6 +301,24 @@ pub(crate) fn solve(
     warm: Option<&WarmStart>,
     retain: bool,
 ) -> Answer {
+    solve_impl(p, limit, deadline, warm, retain, None)
+}
+pub(crate) fn solve_from_point(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    point: &[f64],
+) -> Answer {
+    solve_impl(p, limit, deadline, None, true, Some(point))
+}
+fn solve_impl(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+    retain: bool,
+    point: Option<&[f64]>,
+) -> Answer {
     if !revised::valid(p) {
         return error();
     }
@@ -309,7 +327,11 @@ pub(crate) fn solve(
         Err(()) => return error(),
     };
     let Some((q, factors, rows)) = normalized else {
-        let mut answer = revised::raw(p, limit, deadline, warm, retain);
+        let mut answer = if let Some(point) = point {
+            revised::raw_from_point(p, limit, deadline, point)
+        } else {
+            revised::raw(p, limit, deadline, warm, retain)
+        };
         if matches!(answer.outcome, Outcome::Unbounded)
             && !(answer
                 .witness
@@ -328,7 +350,18 @@ pub(crate) fn solve(
         }
         return answer;
     };
-    let mut answer = revised::raw(&q, limit, deadline, warm, retain);
+    let scaled_point = point.map(|point| {
+        point
+            .iter()
+            .zip(&factors)
+            .map(|(&x, &s)| x * s)
+            .collect::<Vec<_>>()
+    });
+    let mut answer = if let Some(point) = scaled_point.as_deref() {
+        revised::raw_from_point(&q, limit, deadline, point)
+    } else {
+        revised::raw(&q, limit, deadline, warm, retain)
+    };
     if matches!(answer.outcome, Outcome::NumericalError) {
         validation_diagnostic(p, &answer, "raw_scaled");
     }

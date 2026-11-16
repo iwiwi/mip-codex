@@ -17,6 +17,7 @@ pub struct Limits {
     pub dense_bytes: usize,
     pub engine: Engine,
     pub warm_start: bool,
+    pub incumbent_lp_warm: bool,
     pub fixed_columns: bool,
     pub propagation: bool,
     pub primal_repair: bool,
@@ -65,6 +66,7 @@ impl Default for Limits {
             dense_bytes: 512 * 1024 * 1024,
             engine: Engine::Revised,
             warm_start: true,
+            incumbent_lp_warm: false,
             fixed_columns: true,
             propagation: false,
             primal_repair: true,
@@ -260,6 +262,27 @@ struct Standard {
     c: Vec<f64>,
     shift: Vec<f64>,
     terms: Vec<Vec<(usize, f64)>>,
+}
+impl Standard {
+    fn endpoint_point(&self, original: &[f64]) -> Option<Vec<f64>> {
+        if original.len() != self.shift.len() {
+            return None;
+        }
+        let problem = self.sparse.as_ref()?;
+        let mut point = vec![0.; problem.costs.len()];
+        for (j, terms) in self.terms.iter().enumerate() {
+            let value = original[j] - self.shift[j];
+            if !value.is_finite() {
+                return None;
+            }
+            match terms.as_slice() {
+                [] if value == 0. => {}
+                [(k, a)] if *a != 0. => point[*k] = value / *a,
+                _ => return None,
+            }
+        }
+        Some(point)
+    }
 }
 enum Relaxation {
     Ready(Standard),
@@ -918,6 +941,7 @@ fn prepare_cuts(
     limits: &Limits,
     deadline: Instant,
     lp_stats: &mut revised::Stats,
+    initial_point: Option<&[f64]>,
 ) -> CutPreparation {
     let mut prepared = CutPreparation::default();
     if !matches!(limits.engine, Engine::Revised)
@@ -959,16 +983,30 @@ fn prepare_cuts(
             break;
         };
         let lp_started = Instant::now();
-        let answer = revised::minimize_warm(
-            q.sparse.as_ref().unwrap(),
-            limits.pivots,
-            Some(solve_deadline),
-            if limits.warm_start {
-                root.warm.as_deref()
-            } else {
-                None
-            },
-        );
+        let seed_point = if round == 0 && limits.warm_start && root.warm.is_none() {
+            initial_point.and_then(|point| q.endpoint_point(point))
+        } else {
+            None
+        };
+        let answer = if let Some(point) = seed_point {
+            revised::minimize_from_point(
+                q.sparse.as_ref().unwrap(),
+                limits.pivots,
+                Some(solve_deadline),
+                &point,
+            )
+        } else {
+            revised::minimize_warm(
+                q.sparse.as_ref().unwrap(),
+                limits.pivots,
+                Some(solve_deadline),
+                if limits.warm_start {
+                    root.warm.as_deref()
+                } else {
+                    None
+                },
+            )
+        };
         if round == 0 && global_first {
             prepared.initial_lp_seconds = lp_started.elapsed().as_secs_f64();
             cut_deadline = deadline.min(Instant::now() + cut_budget);
@@ -1486,7 +1524,19 @@ fn solve_seeded_warm(
         early_repair = Some(repair);
     }
     let mut lp_stats = revised::Stats::default();
-    let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
+    let root_lp_point = if limits.incumbent_lp_warm && limits.warm_start && matches!(limits.engine,Engine::Revised)
+        && (4096..=100_000).contains(&model.variables.len())
+        && model.variables.iter().all(|v|v.integer
+            && matches!((v.lower,v.upper),(Some(l),Some(u)) if (l==0. || l==1.) && (u==0. || u==1.)))
+    { box_candidate.clone() } else { None };
+    let mut prepared = prepare_cuts(
+        model,
+        &mut root,
+        limits,
+        deadline,
+        &mut lp_stats,
+        root_lp_point.as_deref(),
+    );
     let mut cached_root = prepared.cached.take();
     let mut primal_root = prepared.primal_root.take();
     let root_lp_reused = cached_root.is_some();
@@ -1676,7 +1726,16 @@ fn solve_seeded_warm(
         let mut next_warm = None;
         let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
             let answer = cached_answer.unwrap_or_else(|| {
-                if limits.warm_start {
+                let seed_point = if limits.warm_start && nodes == 1 && node.warm.is_none() {
+                    root_lp_point
+                        .as_ref()
+                        .and_then(|point| p.endpoint_point(point))
+                } else {
+                    None
+                };
+                if let Some(point) = seed_point {
+                    revised::minimize_from_point(sparse, limits.pivots, Some(deadline), &point)
+                } else if limits.warm_start {
                     revised::minimize_warm(
                         sparse,
                         limits.pivots,

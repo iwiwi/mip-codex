@@ -248,6 +248,77 @@ impl WarmStart {
             },
         })
     }
+    // 箱端点にある構造変数と行slackから実行可能な対角基底を提案する。
+    fn from_point(p: &Problem, point: &[f64], deadline: Option<Instant>) -> Option<Self> {
+        let n = p.costs.len();
+        let m = p.rhs.len();
+        if !valid(p) || m == 0 || point.len() != n || deadline.is_some_and(|d| Instant::now() >= d)
+        {
+            return None;
+        }
+        let mut at_upper = vec![false; n + m];
+        let mut residual = p.rhs.clone();
+        for (j, &x) in point.iter().enumerate() {
+            if !x.is_finite() {
+                return None;
+            }
+            if x != 0. {
+                if !p.upper[j].is_finite() || x != p.upper[j] || x <= 0. {
+                    return None;
+                }
+                at_upper[j] = true;
+                for &(i, a) in &p.columns[j] {
+                    residual[i] -= a * x;
+                }
+            }
+            if j % 256 == 0 && deadline.is_some_and(|d| Instant::now() >= d) {
+                return None;
+            }
+        }
+        for (i, &x) in residual.iter().enumerate() {
+            if !x.is_finite()
+                || if p.equality[i] {
+                    x.abs() > FEAS
+                } else {
+                    x < -FEAS || x > p.slack_upper[i] + FEAS
+                }
+            {
+                return None;
+            }
+        }
+        if deadline.is_some_and(|d| Instant::now() >= d) {
+            return None;
+        }
+        let mut columns = p.columns.clone();
+        let mut artificial = Vec::new();
+        let mut extra_upper = Vec::with_capacity(m);
+        for i in 0..m {
+            columns.push(vec![(i, 1.)]);
+            extra_upper.push(if p.equality[i] {
+                artificial.push(n + i);
+                0.
+            } else {
+                p.slack_upper[i]
+            });
+        }
+        Some(Self {
+            structure: Arc::new(Structure {
+                columns: Arc::new(columns),
+                costs: p.costs.clone(),
+                equality: p.equality.clone(),
+                slack_upper: p.slack_upper.clone(),
+                extra_upper,
+                artificial,
+            }),
+            basis: (n..n + m).collect(),
+            at_upper,
+            factor: Basis {
+                factor: Arc::new(Factor::Diagonal(vec![1.; m])),
+                updates: vec![],
+                multiplier_cache: None,
+            },
+        })
+    }
     fn compatible(&self, p: &Problem) -> bool {
         let a = &self.structure;
         a.costs.len() == p.costs.len()
@@ -982,6 +1053,15 @@ fn warm_impl(
     deadline: Option<Instant>,
     warm: Option<&WarmStart>,
 ) -> Answer {
+    warm_impl_mode(p, limit, deadline, warm, false)
+}
+fn warm_impl_mode(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+    primal_seed: bool,
+) -> Answer {
     let Some(w) = warm else {
         return cold(p, limit, deadline, true);
     };
@@ -1001,6 +1081,12 @@ fn warm_impl(
     let total = a.columns.len();
     let mut upper = p.upper.clone();
     upper.extend_from_slice(&a.extra_upper);
+    // 新規端点基底の試行は行数に比例して制限し、消費済みworkを返さない。
+    let trial_limit = if primal_seed {
+        limit.min(p.rhs.len().saturating_mul(8).max(4096))
+    } else {
+        limit
+    };
     let mut s = Simplex {
         columns: a.columns.clone(),
         rhs: p.rhs.clone(),
@@ -1011,7 +1097,7 @@ fn warm_impl(
         x: vec![0.0; total],
         factor: w.factor.clone(),
         stats: Stats::default(),
-        limit,
+        limit: trial_limit,
         deadline,
         artificial: a.artificial.clone(),
         original: n,
@@ -1034,7 +1120,7 @@ fn warm_impl(
     let cost_changed = a.costs != p.costs;
     s.stats.warm_cost_attempts = usize::from(cost_changed);
     let outcome = s.recompute().and_then(|_| {
-        if cost_changed {
+        if cost_changed || primal_seed {
             // 新目的ではdual feasibleを仮定できない。元の基底がprimal feasibleな場合だけ使う。
             if s.x
                 .iter()
@@ -1078,6 +1164,17 @@ fn warm_impl(
                 witness: s.witness,
                 witness_point: s.witness_point,
             }
+        }
+        Err(Outcome::IterationLimit)
+            if primal_seed
+                && trial_limit < limit
+                && deadline.is_none_or(|d| Instant::now() < d) =>
+        {
+            let used = s.stats.pivots + s.stats.flips;
+            let mut answer = cold(p, limit.saturating_sub(used), deadline, true);
+            s.stats.warm_fallbacks += 1;
+            answer.stats.add(&s.stats);
+            answer
         }
         Err(outcome @ (Outcome::TimeLimit | Outcome::IterationLimit)) => Answer {
             outcome,
@@ -1495,6 +1592,34 @@ pub fn minimize_warm(
     warm: Option<&WarmStart>,
 ) -> Answer {
     crate::scaling::solve(p, limit, deadline, warm, true)
+}
+/// 実行可能な箱端点を初期基底候補とする。拒否時は従来coldに戻る。
+pub fn minimize_from_point(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    point: &[f64],
+) -> Answer {
+    if point.len() != p.costs.len() {
+        let mut answer = crate::scaling::solve(p, limit, deadline, None, true);
+        answer.stats.warm_rejections += 1;
+        return answer;
+    }
+    crate::scaling::solve_from_point(p, limit, deadline, point)
+}
+pub(crate) fn raw_from_point(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    point: &[f64],
+) -> Answer {
+    if let Some(warm) = WarmStart::from_point(p, point, deadline) {
+        warm_impl_mode(p, limit, deadline, Some(&warm), true)
+    } else {
+        let mut answer = cold(p, limit, deadline, true);
+        answer.stats.warm_rejections += 1;
+        answer
+    }
 }
 pub(crate) fn raw(
     p: &Problem,
