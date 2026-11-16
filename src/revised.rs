@@ -245,6 +245,104 @@ impl WarmStart {
             },
         })
     }
+    /// Extend an immutable parent basis with distance columns and paired rows.
+    /// The resulting basis is only a proposal; minimize_warm rechecks primal feasibility.
+    pub(crate) fn append_distances(
+        &self,
+        p: &Problem,
+        pairs: &[(usize, usize, bool)],
+        deadline: Option<Instant>,
+    ) -> Option<Self> {
+        if deadline.is_some_and(|d| Instant::now() >= d) || !valid(p) {
+            return None;
+        }
+        let old = &self.structure;
+        let old_n = old.costs.len();
+        let old_m = old.equality.len();
+        let n = p.costs.len();
+        let m = p.rhs.len();
+        let extra = n.checked_sub(old_n)?;
+        if extra != pairs.len()
+            || m != old_m + 2 * extra
+            || old.equality != p.equality[..old_m]
+            || old.slack_upper != p.slack_upper[..old_m]
+            || p.equality[old_m..].iter().any(|v| *v)
+        {
+            return None;
+        }
+        for (a, b) in old.columns[..old_n].iter().zip(&p.columns) {
+            if !b.starts_with(a) || b[a.len()..].iter().any(|&(i, _)| i < old_m) {
+                return None;
+            }
+        }
+        let remap = |j: usize| if j < old_n { j } else { j + extra };
+        let mut columns = p.columns.clone();
+        columns.extend_from_slice(&old.columns[old_n..]);
+        let slack_start = columns.len();
+        let mut extra_upper = old.extra_upper.clone();
+        let mut basis: Vec<_> = self.basis.iter().map(|&j| remap(j)).collect();
+        for i in old_m..m {
+            basis.push(columns.len());
+            columns.push(vec![(i, 1.)]);
+            extra_upper.push(p.slack_upper[i]);
+        }
+        let mut seen_rows = vec![false; m - old_m];
+        let mut seen_columns = vec![false; extra];
+        for &(row, col, positive) in pairs {
+            if row < old_m
+                || row + 1 >= m
+                || col < old_n
+                || col >= n
+                || p.columns[col] != vec![(row, -1.), (row + 1, -1.)]
+                || seen_rows[row - old_m]
+                || seen_rows[row + 1 - old_m]
+                || seen_columns[col - old_n]
+            {
+                return None;
+            }
+            seen_rows[row - old_m] = true;
+            seen_rows[row + 1 - old_m] = true;
+            seen_columns[col - old_n] = true;
+            basis[if positive { row } else { row + 1 }] = col;
+        }
+        if seen_rows.iter().any(|v| !*v) || seen_columns.iter().any(|v| !*v) {
+            return None;
+        }
+        let triplets: Vec<_> = basis
+            .iter()
+            .enumerate()
+            .flat_map(|(k, &j)| columns[j].iter().map(move |&(i, a)| Triplet::new(i, k, a)))
+            .collect();
+        let matrix = SparseColMat::try_new_from_triplets(m, m, &triplets).ok()?;
+        let lu = matrix.sp_lu().ok()?;
+        if deadline.is_some_and(|d| Instant::now() >= d) {
+            return None;
+        }
+        let mut at_upper = vec![false; columns.len()];
+        for (j, &v) in self.at_upper.iter().enumerate() {
+            at_upper[remap(j)] = v;
+        }
+        let mut costs = old.costs.clone();
+        costs.resize(n, 0.);
+        debug_assert_eq!(slack_start, n + old.extra_upper.len());
+        Some(Self {
+            structure: Arc::new(Structure {
+                columns: Arc::new(columns),
+                costs,
+                equality: p.equality.clone(),
+                slack_upper: p.slack_upper.clone(),
+                extra_upper,
+                artificial: old.artificial.iter().map(|&j| remap(j)).collect(),
+            }),
+            basis,
+            at_upper,
+            factor: Basis {
+                factor: Arc::new(Factor::Sparse(lu)),
+                updates: vec![],
+                multiplier_cache: None,
+            },
+        })
+    }
     fn compatible(&self, p: &Problem) -> bool {
         let a = &self.structure;
         a.costs.len() == p.costs.len()
@@ -1888,5 +1986,61 @@ mod pricing_budget_tests {
         assert_eq!(a.stats.feasibility_pricing_calls, 0);
         assert_eq!(a.stats.pricing_cutoffs, 0);
         assert_eq!(a.stats.pricing_fallbacks, 0);
+    }
+}
+
+#[cfg(test)]
+mod distance_extension_tests {
+    use super::*;
+    #[test]
+    fn appended_distance_basis_handles_both_sides_and_keeps_parent_immutable() {
+        let p = Problem {
+            columns: vec![vec![(0, 1.)]],
+            rhs: vec![1.5],
+            costs: vec![-1.],
+            upper: vec![3.],
+            equality: vec![false],
+            slack_upper: vec![f64::INFINITY],
+        };
+        let parent = minimize_warm(&p, 1000, None, None);
+        let w = parent.warm.as_ref().unwrap();
+        for target in [1., 2.] {
+            let q = Problem {
+                columns: vec![vec![(0, 1.), (1, 1.), (2, -1.)], vec![(1, -1.), (2, -1.)]],
+                rhs: vec![1.5, target, -target],
+                costs: vec![0., 1.],
+                upper: vec![3., f64::INFINITY],
+                equality: vec![false; 3],
+                slack_upper: vec![f64::INFINITY; 3],
+            };
+            let extended = w
+                .append_distances(&q, &[(1, 1, 1.5 >= target)], None)
+                .unwrap();
+            let a = minimize_warm(&q, 1000, None, Some(&extended));
+            let b = minimize(&q, 1000, None);
+            let Outcome::Optimal { objective, x } = a.outcome else {
+                panic!("extension failed: {:?}", a.outcome)
+            };
+            let Outcome::Optimal {
+                objective: expected,
+                ..
+            } = b.outcome
+            else {
+                panic!("cold failed")
+            };
+            assert!((objective - expected).abs() < 1e-9);
+            assert!((objective - (target - 1.5f64).max(0.)).abs() < 1e-9);
+            assert!((x[0] - target).abs() <= x[1] + 1e-9);
+            assert_eq!(a.stats.warm_successes, 1);
+            assert!(
+                w.append_distances(&q, &[(1, 1, true)], Some(Instant::now()))
+                    .is_none()
+            );
+            assert!(w.append_distances(&q, &[(0, 1, true)], None).is_none());
+        }
+        let parent_again = minimize_warm(&p, 1000, None, Some(w));
+        assert!(
+            matches!(parent_again.outcome,Outcome::Optimal{objective,..}if(objective+1.5).abs()<1e-9)
+        );
     }
 }

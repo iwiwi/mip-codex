@@ -565,6 +565,210 @@ pub struct PumpStats {
     pub limited: usize,
     pub seconds: f64,
 }
+/// General integer distances use two inequalities and one nonnegative auxiliary.
+/// Only original-model feasible points escape this local optimization.
+fn general_integer_pump(
+    model: &Model,
+    root: &Node,
+    standard: &Standard,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+    stats: &mut PumpStats,
+    lp_stats: &mut revised::Stats,
+) -> Option<Vec<f64>> {
+    let integers: Vec<_> = model
+        .variables
+        .iter()
+        .enumerate()
+        .filter(|(_, v)| {
+            v.integer
+                && !v
+                    .lower
+                    .zip(v.upper)
+                    .is_some_and(|(l, u)| l.ceil() == u.floor())
+        })
+        .map(|(j, _)| j)
+        .collect();
+    if integers.is_empty() || integers.len() > 1024 {
+        return None;
+    }
+    let mut problem = standard.sparse.as_ref()?.clone();
+    if problem.columns.iter().map(Vec::len).sum::<usize>() > 200_000 {
+        return None;
+    }
+    let base_rows = problem.rhs.len();
+    let base_cols = problem.costs.len();
+    let mut auxiliaries = vec![None; integers.len()];
+    for (k, &j) in integers.iter().enumerate() {
+        let v = &model.variables[j];
+        if v.lower.is_some_and(|l| l >= 0.) && v.upper.is_some_and(|u| u <= 1.) {
+            continue;
+        }
+        let row = problem.rhs.len();
+        let column = problem.columns.len();
+        auxiliaries[k] = Some((row, column));
+        for &(col, sign) in &standard.terms[j] {
+            problem.columns[col].push((row, sign));
+            problem.columns[col].push((row + 1, -sign));
+        }
+        problem.columns.push(vec![(row, -1.), (row + 1, -1.)]);
+        problem.costs.push(1.);
+        problem.upper.push(f64::INFINITY);
+        problem.rhs.extend([0., 0.]);
+        problem.equality.extend([false, false]);
+        problem.slack_upper.extend([f64::INFINITY, f64::INFINITY]);
+    }
+    if problem.rhs.len() == base_rows || problem.costs.len() == base_cols {
+        return None;
+    }
+    stats.calls += 1;
+    let checker = heuristic::Repair::new(model);
+    let mut current = point.to_vec();
+    let mut warm = None;
+    let mut history = std::collections::VecDeque::<Vec<i64>>::new();
+    let mut seed = 0xace189e3914b5837u64;
+    for _ in 0..64 {
+        if Instant::now() >= deadline {
+            stats.limited += 1;
+            return None;
+        }
+        let mut rounded = current.clone();
+        for (j, v) in model.variables.iter().enumerate() {
+            if v.integer {
+                rounded[j] = rounded[j].round();
+            }
+        }
+        if checker.candidate_check(&rounded) {
+            stats.candidates += 1;
+            return Some(rounded);
+        }
+        let mut target = Vec::with_capacity(integers.len());
+        for &j in &integers {
+            let v = &model.variables[j];
+            let mut value = current[j].round();
+            if let Some(l) = v.lower {
+                value = value.max(l.ceil());
+            }
+            if let Some(u) = v.upper {
+                value = value.min(u.floor());
+            }
+            if !value.is_finite() || value.abs() > ((1u64 << 52) as f64) {
+                return None;
+            }
+            target.push(value as i64);
+        }
+        if history.iter().any(|old| *old == target) {
+            let mut ranking: Vec<_> = integers
+                .iter()
+                .enumerate()
+                .map(|(k, &j)| {
+                    seed ^= seed << 13;
+                    seed ^= seed >> 7;
+                    seed ^= seed << 17;
+                    let noise = (seed >> 11) as f64 / (1u64 << 53) as f64;
+                    (k, (current[j] - current[j].round()).abs() + 0.2 * noise)
+                })
+                .collect();
+            ranking.sort_unstable_by(|a, b| b.1.total_cmp(&a.1).then(a.0.cmp(&b.0)));
+            for &(k, _) in ranking
+                .iter()
+                .take(((integers.len() as f64).sqrt() as usize).clamp(1, 32))
+            {
+                let j = integers[k];
+                let v = &model.variables[j];
+                let old = target[k] as f64;
+                let direction = if current[j] >= old { 1. } else { -1. };
+                for sign in [direction, -direction] {
+                    let value = old + sign;
+                    if value.abs() <= ((1u64 << 52) as f64)
+                        && v.lower.is_none_or(|l| value >= l.ceil())
+                        && v.upper.is_none_or(|u| value <= u.floor())
+                    {
+                        target[k] = value as i64;
+                        break;
+                    }
+                }
+            }
+            stats.perturbations += 1;
+        }
+        history.push_back(target.clone());
+        if history.len() > 8 {
+            history.pop_front();
+        }
+        problem.costs.fill(0.);
+        for (k, &j) in integers.iter().enumerate() {
+            if let Some((row, column)) = auxiliaries[k] {
+                let rhs = checked_difference(target[k] as f64, standard.shift[j]);
+                if !rhs.is_finite() {
+                    return None;
+                }
+                problem.rhs[row] = rhs;
+                problem.rhs[row + 1] = -rhs;
+                problem.costs[column] = 1.;
+            } else {
+                let coefficient = if target[k] == 1 { -1. } else { 1. };
+                for &(col, sign) in &standard.terms[j] {
+                    problem.costs[col] += coefficient * sign;
+                }
+            }
+        }
+        if warm.is_none()
+            && limits.warm_start
+            && std::env::var("MIP_GENERAL_PUMP_WARM_EXTENSION").is_ok_and(|v| v == "1")
+        {
+            if let Some(parent) = root.warm.as_ref() {
+                let pairs: Vec<_> = auxiliaries
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(k, p)| {
+                        p.map(|(row, col)| (row, col, current[integers[k]] >= target[k] as f64))
+                    })
+                    .collect();
+                warm = parent
+                    .append_distances(&problem, &pairs, Some(deadline))
+                    .map(Arc::new);
+            }
+        }
+        let answer = revised::minimize_warm(
+            &problem,
+            limits.pivots.min(4096),
+            Some(deadline),
+            if limits.warm_start {
+                warm.as_deref()
+            } else {
+                None
+            },
+        );
+        stats.lp_solves += 1;
+        lp_stats.add(&answer.stats);
+        match answer.outcome {
+            lp::Outcome::Optimal { x, .. } => {
+                current = standard
+                    .terms
+                    .iter()
+                    .enumerate()
+                    .map(|(j, t)| standard.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                    .collect();
+                if model.check(&current, false, 1e-6).is_err() {
+                    stats.numerical_errors += 1;
+                    return None;
+                }
+                warm = answer.warm;
+            }
+            lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => {
+                stats.limited += 1;
+                return None;
+            }
+            _ => {
+                stats.numerical_errors += 1;
+                return None;
+            }
+        }
+    }
+    stats.limited += 1;
+    None
+}
 fn binary_pump(
     model: &Model,
     root: &Node,
@@ -575,6 +779,19 @@ fn binary_pump(
     stats: &mut PumpStats,
     lp_stats: &mut revised::Stats,
 ) -> Option<Vec<f64>> {
+    if std::env::var("MIP_GENERAL_INTEGER_PUMP").is_ok_and(|v| v == "1")
+        && model.variables.iter().any(|v| {
+            v.integer
+                && !v
+                    .lower
+                    .zip(v.upper)
+                    .is_some_and(|(l, u)| l.ceil() == u.floor() || (l >= 0. && u <= 1.))
+        })
+    {
+        return general_integer_pump(
+            model, root, standard, point, limits, deadline, stats, lp_stats,
+        );
+    }
     let mut binary = Vec::new();
     for (j, v) in model
         .variables
@@ -2888,6 +3105,90 @@ mod pump_tests {
         assert!(
             matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9)
         );
+    }
+    #[test]
+    fn general_integer_pump_escapes_rounding_cycle_and_preserves_parent() {
+        let text = "NAME general\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1 r 1\nRHS\n b r 1.5\nBOUNDS\n LI b x 0\n UI b x 3\nENDATA\n";
+        let (m, node, p, point) = prepare(text);
+        let mut stats = PumpStats::default();
+        let mut lp = revised::Stats::default();
+        let x = general_integer_pump(
+            &m,
+            &node,
+            &p,
+            &point,
+            &Limits::default(),
+            Instant::now() + std::time::Duration::from_secs(2),
+            &mut stats,
+            &mut lp,
+        )
+        .unwrap();
+        assert!(m.check(&x, true, 1e-6).is_ok());
+        assert_eq!(x, vec![1.]);
+        assert!(stats.lp_solves > 0);
+        assert!(stats.perturbations > 0);
+        let parent =
+            revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
+        assert!(
+            matches!(parent.outcome,lp::Outcome::Optimal{objective,..}if(objective+1.5).abs()<1e-9)
+        );
+    }
+    #[test]
+    fn general_integer_pump_handles_negative_free_integer_and_continuous_columns() {
+        let text = "NAME generalfree\nROWS\n N obj\n G r\nCOLUMNS\n x obj 1 r 1\n y obj 0 r 1\nRHS\n b r -0.5\nBOUNDS\n MI b x\n UI b x 3\n UP b y 0.2\nENDATA\n";
+        let (m, node, p, point) = prepare(text);
+        let mut stats = PumpStats::default();
+        let mut lp = revised::Stats::default();
+        let x = general_integer_pump(
+            &m,
+            &node,
+            &p,
+            &point,
+            &Limits::default(),
+            Instant::now() + std::time::Duration::from_secs(2),
+            &mut stats,
+            &mut lp,
+        )
+        .unwrap();
+        assert!(m.check(&x, true, 1e-6).is_ok());
+        assert_eq!(x[0], 0.);
+        assert!(stats.lp_solves > 0);
+    }
+    #[test]
+    fn general_integer_projection_never_turns_local_failure_into_global_proof() {
+        let text = "NAME impossiblegeneral\nROWS\n N obj\n E r\nCOLUMNS\n x obj 0 r 1\nRHS\n b r 0.5\nBOUNDS\n LI b x 0\n UI b x 3\nENDATA\n";
+        let (m, node, p, point) = prepare(text);
+        let mut stats = PumpStats::default();
+        let mut lp = revised::Stats::default();
+        assert!(
+            general_integer_pump(
+                &m,
+                &node,
+                &p,
+                &point,
+                &Limits::default(),
+                Instant::now(),
+                &mut stats,
+                &mut lp
+            )
+            .is_none()
+        );
+        assert_eq!(stats.lp_solves, 0);
+        assert!(
+            general_integer_pump(
+                &m,
+                &node,
+                &p,
+                &point,
+                &Limits::default(),
+                Instant::now() + std::time::Duration::from_secs(2),
+                &mut stats,
+                &mut lp
+            )
+            .is_none()
+        );
+        assert_eq!(stats.candidates, 0);
+        assert_eq!(stats.lp_solves, 64);
     }
     #[test]
     fn pump_projects_and_perturbs_without_changing_parent_lp() {
