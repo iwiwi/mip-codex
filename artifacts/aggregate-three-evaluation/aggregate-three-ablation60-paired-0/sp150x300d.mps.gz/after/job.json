@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-ablation60-paired-0/sp150x300d.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid-diagnostic-20261116/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/sp150x300d.mps.gz",
+    "60"
+  ],
+  "input_sha256": "47051527397e27d1a62d0462ded35042d5eb5f4c4a3b5e3257c82279b97f1e42",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_THREE_ROW_CUTS": "1"
+  },
+  "cpu": 0,
+  "seconds": 60
+}

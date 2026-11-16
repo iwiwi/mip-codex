@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid-development-screen/cases/ex9.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid-diagnostic-20261116/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/ex9.mps.gz",
+    "10"
+  ],
+  "input_sha256": "9c7758e2a75cb9270f9b09cbd05a7918acf69a4cba1a6ebc6234cf9bff89164c",
+  "split": "development",
+  "cpu": 7,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_THREE_ROW_CUTS": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "pg5_34.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "29c7f2f89edffca59ade03e38303124c078431736183a70fc0b07126c81ac384"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": -14070.76891423202,
+      "bound_violation": 0.0,
+      "row_violation": 6.394884621840902e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": -14070.76891423202,
+    "bound_violation": 0.0,
+    "row_violation": 6.54e-14,
+    "integer_violation": 0.0,
+    "objective_error": 4.26568e-13,
+    "exact": {
+      "objective": "-1758846114279002446679/125000000000000000",
+      "bound_violation": "0",
+      "row_violation": "327/5000000000000000",
+      "integer_violation": "0",
+      "objective_error": "53321/125000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "1758971114279002446679/12500000000000000000000000",
+      "absolute_error": "53321/125000000000000000",
+      "recomputed_exact": "-1758846114279002446679/125000000000000000",
+      "reported_token": "-14070.76891423202"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/aggregate-three-grid60-development-audit/pg5_34.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "814ae6721815c7802b29a8bf6acd9f950a9a91a7a0e873925befb88ba42e5d88",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.2661885359993903
+}

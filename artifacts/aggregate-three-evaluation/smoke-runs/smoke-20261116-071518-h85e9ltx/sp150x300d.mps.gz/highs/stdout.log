@@ -1,0 +1,71 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261116-071518-h85e9ltx/sp150x300d.mps.gz/highs/options.txt
+Number of BV entries in BOUNDS section is 300
+MIP sp150x300d has 450 rows; 600 cols; 1200 nonzeros; 300 integer variables (300 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 3e+03]
+  Cost    [1e+00, 1e+00]
+  Bound   [3e+03, 3e+03] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 2e+03]
+Presolving model
+450 rows, 600 cols, 1200 nonzeros 0s
+343 rows, 493 cols, 986 nonzeros 0s
+269 rows, 416 cols, 844 nonzeros 0s
+269 rows, 416 cols, 844 nonzeros 0s
+Presolve reductions: rows 269(-181); columns 416(-184); nonzeros 844(-356) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   269 rows
+   416 cols (211 binary, 0 integer, 0 implied int., 205 continuous, 0 domain fixed)
+   844 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   29              inf                  inf        0      0      0         0     0.0s
+ S       0       0         0   0.00%   29              70                58.57%        0      0      0         0     0.0s
+         0       0         0   0.00%   34.13643818     70                51.23%        0      0      4        21     0.0s
+ L       0       0         0   0.00%   67.67292651     69                 1.92%      610    100      6       147     0.0s
+
+54.0% inactive integer columns, restarting
+Model after restart has 124 rows, 178 cols (88 bin., 0 int., 0 impl., 90 cont., 0 dom.fix.), and 347 nonzeros
+
+         0       0         0   0.00%   67.71249748     69                 1.87%       59      0      0       194     0.1s
+         1       0         1 100.00%   68.73092932     69                 0.39%       59     39      0       252     0.1s
+
+Solving report
+  Model             sp150x300d
+  Status            Optimal
+  Primal bound      69
+  Dual bound        69
+  Gap               0%
+  P-D integral      0.01
+  Solution status   feasible
+                    69 (objective)
+                    6.55031584529e-15 (integrality violation)
+  Timing            0.06
+                    0.01 (Presolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [2]
+                    0.05 (Solve)
+                        MIP    time [calls] = 0.04 [1]
+                        subMIP time [calls] = 0.01 [2]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [2]
+  Max sub-MIP depth 2
+  Nodes             1
+  Repair LPs        0
+  LP iterations     252
+                    0 (strong br.)
+                    132 (separation)
+                    41 (heuristics)

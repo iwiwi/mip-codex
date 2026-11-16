@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/aggregate-three-precut-paired-3/eil33-2.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/target-aggregate-three/release/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/eil33-2.mps.gz",
+    "10"
+  ],
+  "input_sha256": "2d349f8ba12aaf170c9f8bf85327d6592cc0f4d89d300dfb77197acd34a7ffb1",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_THREE_ROW_CUTS": "1"
+  },
+  "cpu": 3,
+  "seconds": 10
+}
