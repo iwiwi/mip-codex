@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-v1-paired-41/enlight_hard.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/root-seed-repair-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/enlight_hard.mps.gz",
+    "10"
+  ],
+  "input_sha256": "942168c2126a2a91ae3ec1ededea59bc1af0cad55f94223edf4c03d20e831f66",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROOT_SEED_REPAIR": "0"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

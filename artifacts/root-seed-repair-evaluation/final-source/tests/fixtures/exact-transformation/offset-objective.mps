@@ -1,0 +1,12 @@
+NAME offset-cancel
+ROWS
+ N c
+COLUMNS
+ x c -10000000000000000
+ y c 1
+RHS
+ rhs c -10000000000000000
+BOUNDS
+ FX b x 1
+ FX b y 1
+ENDATA
