@@ -714,22 +714,21 @@ impl Simplex {
         self.run_priced::<false>(c)
     }
     fn run_priced<const NORMALIZED: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
-        let weights: Vec<f64> = self
-            .columns
-            .iter()
-            .map(|column| {
-                let weight = if NORMALIZED {
-                    1. + column.iter().map(|&(_, a)| a.abs()).sum::<f64>()
-                } else {
-                    1.
-                };
-                if weight.is_finite() && weight > 0. {
-                    weight
-                } else {
-                    1.
-                }
-            })
-            .collect();
+        let weights: Vec<f64> = if NORMALIZED {
+            self.columns
+                .iter()
+                .map(|column| {
+                    let weight = 1. + column.iter().map(|&(_, a)| a.abs()).sum::<f64>();
+                    if weight.is_finite() && weight > 0. {
+                        weight
+                    } else {
+                        1.
+                    }
+                })
+                .collect()
+        } else {
+            vec![]
+        };
         let minimum_cost = c
             .iter()
             .map(|v| v.abs())
@@ -774,9 +773,12 @@ impl Simplex {
                 } else {
                     reduced
                 };
-                if reduced < -tolerance.max(noise_floor)
-                    && (entering.is_none() || score < most_negative)
-                {
+                let better = if NORMALIZED {
+                    entering.is_none() || score < most_negative
+                } else {
+                    reduced < most_negative
+                };
+                if reduced < -tolerance.max(noise_floor) && better {
                     // Keep the first eligible column even if division underflows.
                     most_negative = score;
                     entering = Some((j, direction));
