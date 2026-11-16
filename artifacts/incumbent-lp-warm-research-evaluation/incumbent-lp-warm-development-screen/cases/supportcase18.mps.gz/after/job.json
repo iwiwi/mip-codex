@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/incumbent-lp-warm-development-screen/cases/supportcase18.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/incumbent-lp-warm-v3-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/supportcase18.mps.gz",
+    "10"
+  ],
+  "input_sha256": "72fca441584d5c98df27cd709e752fc65c788f6c6e39a48e2116727d6a3a29cc",
+  "split": "development",
+  "cpu": 7,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_INCUMBENT_LP_WARM": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

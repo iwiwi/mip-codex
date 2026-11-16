@@ -11,3 +11,27 @@
 Problemは全非等式を+1 slack付きの≤行として保持する。端点点が実行可能なら残差rhs−Axをそのslack基底へ置ける。等式はゼロの人工列を基底にしてupper=0とする候補。coldのRHS依存人工列配置を模倣する必要はなく、保持するStructure内のaux番号を一貫させる必要がある。WarmStartは現状dual-feasibleを想定し、cost_changed時だけprimal runへ進むため、新しい初期基底ではprimal-feasible経路を明示しなければならない。
 
 scaling::solveは縮尺を決めてからrawを呼ぶため、基底生成は縮尺決定後のProblemで行い、点の内部座標も列縮尺へ変換する。既存warmがある場合はそちらを優先。新経路専用のfrom_point factoryとforced primal warmの薄いwrapperを候補とし、通常warm/cold経路を変えない。まず小さいLPの冷/温oracleと原点の厳密検査、期限/不適切点/内部点の拒否を確認する。まだ未実装。
+
+## 最初のkernel実装と検査
+
+from_pointは構造変数が0または有限上限に一致するときだけ候補を作る。非等式は+1 slack、等式は上限0の人工列で対角基底を作り、再計算でprimal feasibleを確認した上でprimal単体法へ進む。縮尺決定後に点を列factor倍して座標を一致させる（返却点はfactorで割る既存規則）。寸法不一致/非有限/箱内部点/不実行可能点/期限切れは拒否し、従来coldへ戻す。既存cold/warmの公開経路は候補なしなら同じ処理を保持する。
+
+3ガード試験と300のLP oracleを実施し、冷/温600点がHiGHSの検証用最適値と一致しFractionの原LP制約/箱/目的検査も全件通過。提案基底300成功・冷開始への戻り0・拒否0。最初の試験はfeasibility_pricing_callsをPhase I全体の数と誤認し1失敗した。これは正規化価格付けだけのカウンタなので、目的一致・warm成功/拒否/戻りの適切な観測に直し、3試験成功。初回ログを保持する。
+
+MIP試作はMIP_INCUMBENT_LP_WARM=1限定（既定無効）。最初の根LPで既存warm/cachedがなく、4096–100000変数の純二値モデルに検査済み箱点がある場合だけ使用する。元座標からStandardのshift/termsへ写し、固定列を検査する。後続節点は従来のwarmを使う。候補が作れない場合はcold、pivot/deadlineや許容誤差は従来と同じ。まだ採用していない。まずcygnet/sp97ar/sp98ar/tbfpを10秒同一ELFで比較する。
+
+## 接続修正と不採用の観測
+
+V1 FPc9e5cb0f7326b33eはmain loopだけに接続したため、prepare_cutsが先に根LPを解くcygnetでは候補が使われなかった。V2 FPa3a4056cb5a3152dでround0の最初のLPにも接続。10秒でsp97ar 1233230307.52→878368979.52/下界652560752.13、sp98ar951499667.52→776467506.56/524472892.32、cygnet/tbfpは主解同じ。8出力/8整数点の独立検査が有効。
+
+ただし60秒tbfpでは主解109.5486111118は同じでも従来下界23.26153549→不明に悪化し、提案開始801079 pivotでもLP未完了（従来70429 pivot）。V2は不採用。V3は提案基底をmax(8*m,4096) pivot+flipに制限し、未完了なら実際の消費済みworkを引いた残予算と同じ全体期限でcoldへ戻す。4097変数の独立した試験でfallback発生と全体budgetの非返還を確認、4ガード試験成功。V3を再測定する。
+
+Kernel oracleの測定時SourceFP aac6247c43fa8cc5は、後でMIP接続コードを追加する前のmain/solveと同一のrevised/scalingからsourceを再構成し、記録済みFNVと完全一致を確認して保存した。測定後再構成であることをsource-reconstruction.jsonへ明記。ELF/全入力/全結果はそのまま保持。
+
+mainはPR80/5792ef5ac/FPa11。primaryでcygnet220/下界0、bnatt500点なし/下界0、enlight37最適、Nidda13590.8271/−1216923.2701を再現し、3整数点/4証明出力が有効。全240用objective-domain-report-final-20261116はcreate-only、全SHAを照合、本ジョブ未開始。receiptをexperimentsへ保存。
+
+14:42 UTC: V3 FPd1c4f425b6679560。再LP oracle300件600点が全件成功、4ガード試験も成功。10秒sp97ar/sp98arの改善と下界を維持。tbfpはpilot終了後にcoldへ戻り（fallback1）、主解109.5486111118を保持。60秒下界回復を確認中。coldへ戻る際は消費済みpivot+flipを差し引き、同じ全体deadlineを使い、予算を返していない。mainはまだFPa11のまま。
+
+最終判断: V3は全188主解2改善/2悪化、下界1悪化。V4のcold-firstで速い2問題の品質は回復したがsp98ar60秒は悪化し、V3の300秒でも持続。mainへは不採用。詳細はINCUMBENT_LP_WARM_RESULTS。選択/長期の追加監査が終わってから証跡をまとめる。
+
+数値確認: 全188のneos-911970は111.84→144.23、888変数で4096以上の基底試行対象外。選択V4では両版144.23のため回復を証明しない。時間境界の原差として保持し基底の因果効果にはしない。全variant追加46出力/46整数点も独立検査を通過。
