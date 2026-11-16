@@ -251,6 +251,7 @@ impl Pool {
                     let cut = Cut {
                         row,
                         proof: Proof {
+                            mir: None,
                             clique: vec![],
                             aggregation: terms.clone(),
                             divisor: Some(d),

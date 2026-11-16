@@ -144,6 +144,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
         strong_branching: false,
         cover_cuts: false,
         clique_cuts: false,
+        mir_cuts: false,
         nodes: 1,
         primal_repair: false,
         feasibility_pump: false,
@@ -382,6 +383,7 @@ fn root_cut_incumbent_does_not_replace_the_fractional_global_bound() {
                 nodes: 1,
                 cover_cuts: true,
                 cover_rounds: rounds,
+                mir_cuts: false,
                 primal_probe: false,
                 primal_repair: false,
                 feasibility_pump: false,
@@ -395,4 +397,42 @@ fn root_cut_incumbent_does_not_replace_the_fractional_global_bound() {
         assert!(!result.cut_proofs.is_empty());
         assert!(result.cut_proofs.iter().all(|c| verify(&model, c)));
     }
+}
+
+#[test]
+fn mir_alone_strengthens_a_mixed_integer_root_and_has_an_original_row_proof() {
+    use mip_codex::solve::{Limits, solve};
+    let model=mps::parse(std::io::Cursor::new("NAME mixed\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 3\n t c 1 r -1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n")).unwrap();
+    let limits = Limits {
+        cover_cuts: false,
+        clique_cuts: false,
+        aggregate_cuts: false,
+        rounding_cuts: false,
+        mir_cuts: false,
+        box_primal: false,
+        binary_graph: false,
+        objective_rounding: false,
+        rins: false,
+        strong_branching: false,
+        primal_repair: false,
+        feasibility_pump: false,
+        lp_diving: false,
+        primal_probe: false,
+        nodes: 1,
+        ..Limits::default()
+    };
+    let before = solve(&model, &limits);
+    let after = solve(
+        &model,
+        &Limits {
+            mir_cuts: true,
+            ..limits
+        },
+    );
+    assert!(before.dual_bound.unwrap() < -0.3);
+    assert_eq!(after.status, "optimal");
+    assert_eq!(after.objective, Some(0.));
+    assert_eq!(after.dual_bound, Some(0.));
+    assert!(after.cut_proofs.iter().any(|c| c.proof.mir.is_some()));
+    assert!(after.cut_proofs.iter().all(|c| verify(&model, c)));
 }

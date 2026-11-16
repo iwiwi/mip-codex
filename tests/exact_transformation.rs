@@ -14,6 +14,7 @@ fn limits(engine: Engine) -> Limits {
         rins: false,
         strong_branching: false,
         cover_cuts: false,
+        mir_cuts: false,
         clique_cuts: false,
         rounding_cuts: false,
         ..Limits::default()
