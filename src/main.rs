@@ -18,7 +18,16 @@ fn run() -> Result<(), String> {
                 .into(),
         );
     }
-    let model = mps::read(&args[2])?;
+    let decimal_rows = match std::env::var("MIP_DECIMAL_ROW_MIR").as_deref() {
+        Err(_) | Ok("0") => false,
+        Ok("1") => true,
+        _ => return Err("MIP_DECIMAL_ROW_MIR must be 0 or 1".into()),
+    };
+    let model = if decimal_rows {
+        mps::read_with_decimal_scaling(&args[2])?
+    } else {
+        mps::read(&args[2])?
+    };
     let mut out = io::BufWriter::new(io::stdout().lock());
     if args[1] == "solve" {
         let mut limits = mip_codex::solve::Limits::default();

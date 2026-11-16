@@ -135,14 +135,16 @@ def verify_objective_grid(names,variables,rows,objective,offset,proof):
 
 
 def verify_mir_exact(names,variables,source,cut):
-    p=cut['proof'];row=cut['row'];d=p.get('divisor');upper=p['mir']['upper_bounds']
+    p=cut['proof'];row=cut['row'];d=p.get('divisor');upper=p['mir']['upper_bounds'];row_scale=p['mir'].get('row_scale',1)
+    if type(row_scale)is not int or row_scale not in [10**k for k in range(10)]:raise AssertionError('MIR row scale')
     if type(d)is not int or not 2<=d<=2**52 or p['cover'] or p.get('clique') or p.get('aggregation'):raise AssertionError('MIR proof kinds/divisor')
     if not isinstance(upper,list)or any(type(j)is not int or not 0<=j<len(names)for j in upper)or upper!=sorted(set(upper)):raise AssertionError('MIR complements')
     sign=1 if p['upper_side'] else -1
-    b=sign*source['upper' if sign==1 else 'lower'];terms=[];used=set();has_integer=False;indices={n:j for j,n in enumerate(names)}
+    b=sign*row_scale*source['upper' if sign==1 else 'lower'];terms=[];used=set();has_integer=False;indices={n:j for j,n in enumerate(names)}
     if b.denominator!=1:raise AssertionError('MIR integral source RHS')
     for name,a in source['coefficients'].items():
         if not a:continue
+        a*=row_scale
         if a.denominator!=1:raise AssertionError('MIR integral source coefficient')
         j=indices[name];v=variables[name];complement=j in upper
         if complement:used.add(j)

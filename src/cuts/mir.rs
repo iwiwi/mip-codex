@@ -3,8 +3,16 @@
 //! No external implementation or optimization call is used.
 use super::*;
 use std::time::Duration;
+fn one() -> u64 {
+    1
+}
+fn is_one(value: &u64) -> bool {
+    *value == 1
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MirProof {
+    #[serde(default = "one", skip_serializing_if = "is_one")]
+    pub row_scale: u64,
     pub upper_bounds: Vec<usize>,
 }
 fn bound(model: &Model, j: usize, upper: bool) -> Option<i128> {
@@ -19,12 +27,55 @@ fn bound(model: &Model, j: usize, upper: bool) -> Option<i128> {
 }
 pub fn applicable(model: &Model) -> bool {
     model.variables.iter().any(|v| v.integer)
-        && model
-            .rows
-            .iter()
-            .any(|r| r.exact_integral && r.coefficients.len() <= 4096)
+        && model.rows.iter().any(|r| {
+            (r.exact_integral || r.decimal_scale.is_some()) && r.coefficients.len() <= 4096
+        })
+}
+fn integer_source(source: &Row) -> Option<std::borrow::Cow<'_, Row>> {
+    if source.exact_integral {
+        return Some(std::borrow::Cow::Borrowed(source));
+    }
+    let scale = source.decimal_scale?;
+    if !(1..=9).any(|k| 10u64.pow(k) == scale) {
+        return None;
+    }
+    let mut row = source.clone();
+    for (_, a) in &mut row.coefficients {
+        *a = (*a * scale as f64).round();
+        integer(*a)?;
+    }
+    for (bound, enclosure) in [
+        (&mut row.lower, &mut row.lower_enclosure),
+        (&mut row.upper, &mut row.upper_enclosure),
+    ] {
+        if let Some(b) = bound {
+            *b = (*b * scale as f64).round();
+            integer(*b)?;
+            *enclosure = Some([*b; 2]);
+        }
+    }
+    row.exact_integral = true;
+    row.exact_coefficients = true;
+    row.exact_coefficient_flags.clear();
+    row.decimal_scale = None;
+    Some(std::borrow::Cow::Owned(row))
 }
 fn derive(model: &Model, source: &Row, upper: bool, d: i64, complements: &[usize]) -> Option<Row> {
+    derive_integer(
+        model,
+        integer_source(source)?.as_ref(),
+        upper,
+        d,
+        complements,
+    )
+}
+fn derive_integer(
+    model: &Model,
+    source: &Row,
+    upper: bool,
+    d: i64,
+    complements: &[usize],
+) -> Option<Row> {
     if !source.exact_integral
         || source.coefficients.len() > 4096
         || !(2..=1i64 << 52).contains(&d)
@@ -104,6 +155,7 @@ fn derive(model: &Model, source: &Row, upper: bool, d: i64, complements: &[usize
         lower_enclosure: None,
         upper_enclosure: Some([rhs as f64; 2]),
         exact_integral: true,
+        decimal_scale: None,
         exact_coefficients: true,
         exact_coefficient_flags: vec![],
     })
@@ -116,7 +168,14 @@ pub(super) fn verify(model: &Model, cut: &Cut) -> bool {
     let Some(source) = model.rows.get(p.source_row) else {
         return false;
     };
-    if source.name != p.source_name {
+    if source.name != p.source_name
+        || p.mir.as_ref().unwrap().row_scale
+            != if source.exact_integral {
+                1
+            } else {
+                source.decimal_scale.unwrap_or(0)
+            }
+    {
         return false;
     }
     let Some(row) = p.divisor.and_then(|d| {
@@ -157,7 +216,16 @@ impl Pool {
         if x.len() != model.variables.len() || x.iter().any(|v| !v.is_finite()) {
             return vec![];
         }
-        'rows: for (i, source) in model.rows.iter().enumerate() {
+        'rows: for (i, original) in model.rows.iter().enumerate() {
+            let row_scale = if original.exact_integral {
+                1
+            } else {
+                original.decimal_scale.unwrap_or(0)
+            };
+            let Some(integer_row) = integer_source(original) else {
+                continue;
+            };
+            let source = integer_row.as_ref();
             // A unit-coefficient row intersected with integer box bounds has
             // integral vertices; MIR cannot separate a feasible point from it.
             if !source.exact_integral
@@ -167,6 +235,16 @@ impl Pool {
                 continue;
             }
             let mut ds = vec![2, 3, 4, 5, 10];
+            if row_scale > 1 {
+                for multiplier in [1u64, 2, 3, 5, 10] {
+                    if let Some(d) = row_scale.checked_mul(multiplier)
+                        && d <= 1u64 << 52
+                        && !ds.contains(&(d as i64))
+                    {
+                        ds.push(d as i64);
+                    }
+                }
+            }
             for &(_, a) in &source.coefficients {
                 if a.abs() >= 2.
                     && a.abs() <= 64.
@@ -218,7 +296,7 @@ impl Pool {
                             .stats
                             .mir_work
                             .saturating_add(source.coefficients.len());
-                        let Some(row) = derive(model, source, side, d, &complements) else {
+                        let Some(row) = derive_integer(model, source, side, d, &complements) else {
                             continue;
                         };
                         let violation =
@@ -240,6 +318,7 @@ impl Pool {
                                 row,
                                 proof: Proof {
                                     mir: Some(MirProof {
+                                        row_scale,
                                         upper_bounds: complements.clone(),
                                     }),
                                     clique: vec![],
@@ -322,6 +401,7 @@ mod tests {
                 lower_enclosure: None,
                 upper_enclosure: Some([b as f64; 2]),
                 exact_integral: true,
+                decimal_scale: None,
                 exact_coefficients: true,
                 exact_coefficient_flags: vec![],
             }],
@@ -402,6 +482,7 @@ mod tests {
             row,
             proof: Proof {
                 mir: Some(MirProof {
+                    row_scale: 1,
                     upper_bounds: vec![],
                 }),
                 clique: vec![],

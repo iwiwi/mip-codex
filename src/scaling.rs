@@ -505,6 +505,7 @@ mod saved_validation_diagnostic {
                         coefficients: vec![],
                         exact_coefficients: true,
                         exact_integral: false,
+                        decimal_scale: None,
                         exact_coefficient_flags: vec![],
                     }
                 })

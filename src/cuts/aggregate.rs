@@ -74,6 +74,7 @@ pub(super) fn source(model: &Model, terms: &[RowWeight]) -> Option<Row> {
         lower_enclosure: None,
         upper_enclosure: Some([rhs as f64; 2]),
         exact_integral: true,
+        decimal_scale: None,
         exact_coefficients: true,
         exact_coefficient_flags: vec![],
     })

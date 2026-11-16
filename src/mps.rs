@@ -209,15 +209,125 @@ fn negate_token(s: &str) -> String {
     }
 }
 pub fn read(path: impl AsRef<Path>) -> Result<Model, String> {
-    let path = path.as_ref();
+    read_mode(path.as_ref(), false)
+}
+pub fn read_with_decimal_scaling(path: impl AsRef<Path>) -> Result<Model, String> {
+    read_mode(path.as_ref(), true)
+}
+fn read_mode(path: &Path, decimal_scaling: bool) -> Result<Model, String> {
     let file = File::open(path).map_err(|e| e.to_string())?;
     if path.extension().is_some_and(|e| e == "gz") {
-        parse(BufReader::new(GzDecoder::new(file)))
+        parse_mode(BufReader::new(GzDecoder::new(file)), decimal_scaling)
     } else {
-        parse(BufReader::new(file))
+        parse_mode(BufReader::new(file), decimal_scaling)
     }
 }
 pub fn parse(reader: impl BufRead) -> Result<Model, String> {
+    parse_mode(reader, false)
+}
+pub fn parse_with_decimal_scaling(reader: impl BufRead) -> Result<Model, String> {
+    parse_mode(reader, true)
+}
+fn scaled_decimal(value: f64, token: Option<&str>, power: u32) -> Option<i128> {
+    let bound = 1i128 << 52;
+    if token.is_none() {
+        if value.fract() != 0. || value.abs() > bound as f64 {
+            return None;
+        }
+        let n = (value as i128).checked_mul(10i128.checked_pow(power)?)?;
+        return (n.unsigned_abs() <= bound as u128).then_some(n);
+    }
+    let token = token?;
+    if token.len() > 128 {
+        return None;
+    }
+    let (mut n, e) = decimal_parts(token)?;
+    let shift = e.checked_add(power as i32)?;
+    if n == BigInt::from(0) {
+        return Some(0);
+    }
+    if !(-128..=128).contains(&shift) {
+        return None;
+    }
+    if shift >= 0 {
+        n *= BigInt::from(10u8).pow(shift as u32);
+    } else {
+        let d = BigInt::from(10u8).pow((-shift) as u32);
+        if &n % &d != BigInt::from(0) {
+            return None;
+        }
+        n /= d;
+    }
+    let n: i128 = n.try_into().ok()?;
+    (n.unsigned_abs() <= bound as u128).then_some(n)
+}
+fn certify_decimal_scale(
+    row: &Row,
+    entries: &[(usize, f64, Option<String>)],
+    rhs: (f64, Option<&str>),
+    range: Option<(f64, Option<&str>)>,
+    kind: &str,
+) -> Option<u64> {
+    'powers: for power in 1..=9 {
+        let scale = 10u64.pow(power);
+        let Some(b) = scaled_decimal(rhs.0, rhs.1, power) else {
+            continue;
+        };
+        let r = if let Some((r, t)) = range {
+            let Some(r) = scaled_decimal(r, t, power) else {
+                continue;
+            };
+            Some(r)
+        } else {
+            None
+        };
+        let mut first = 0;
+        while first < entries.len() {
+            let j = entries[first].0;
+            let mut end = first;
+            let mut sum = 0i128;
+            while end < entries.len() && entries[end].0 == j {
+                let Some(n) = scaled_decimal(entries[end].1, entries[end].2.as_deref(), power)
+                else {
+                    continue 'powers;
+                };
+                let Some(n) = sum.checked_add(n) else {
+                    continue 'powers;
+                };
+                sum = n;
+                end += 1;
+            }
+            let value = row
+                .coefficients
+                .binary_search_by_key(&j, |&(j, _)| j)
+                .ok()
+                .map_or(0., |k| row.coefficients[k].1);
+            if sum.abs() > 1i128 << 52 || (value * scale as f64).round() != sum as f64 {
+                continue 'powers;
+            }
+            first = end;
+        }
+        let (lower, upper) = match (kind, r) {
+            ("L", r) => (r.map(|r| b - r.abs()), Some(b)),
+            ("G", r) => (Some(b), r.map(|r| b + r.abs())),
+            ("E", Some(r)) if r < 0 => (Some(b + r), Some(b)),
+            ("E", Some(r)) => (Some(b), Some(b + r)),
+            ("E", None) => (Some(b), Some(b)),
+            _ => return None,
+        };
+        for (actual, expected) in [(row.lower, lower), (row.upper, upper)] {
+            match (actual, expected) {
+                (None, None) => {}
+                (Some(a), Some(n))
+                    if n.abs() <= 1i128 << 52 && (a * scale as f64).round() == n as f64 => {}
+                _ => continue 'powers,
+            }
+        }
+        return Some(scale);
+    }
+    None
+}
+fn parse_mode(reader: impl BufRead, decimal_scaling: bool) -> Result<Model, String> {
     let mut model = Model {
         original_decimal: true,
         offset_enclosure: Some([0., 0.]),
@@ -311,6 +421,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                     exact_coefficients: true,
                     exact_coefficient_flags: vec![],
                     exact_integral: true,
+                    decimal_scale: None,
                     name: t[1].into(),
                     lower: None,
                     upper: None,
@@ -621,6 +732,17 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             .any(|v| !v.is_finite())
         {
             return Err("range overflow".into());
+        }
+        if decimal_scaling && !row.exact_integral {
+            row.decimal_scale = certify_decimal_scale(
+                &row,
+                &entries,
+                (rhs[i], rhs_tokens[i].as_deref()),
+                ranges
+                    .get(&i)
+                    .map(|&r| (r, range_tokens.get(&i).and_then(|t| t.as_deref()))),
+                &kinds[i],
+            );
         }
         model.rows.push(row);
     }

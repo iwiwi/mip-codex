@@ -32,6 +32,7 @@ fn row(lower: Option<f64>, upper: Option<f64>, coefficients: Vec<(usize, f64)>) 
         exact_coefficients: false,
         exact_coefficient_flags: vec![],
         exact_integral: false,
+        decimal_scale: None,
         name: "row".into(),
         lower,
         upper,

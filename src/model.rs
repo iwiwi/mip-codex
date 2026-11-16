@@ -30,6 +30,9 @@ pub struct Row {
     /// 外部JSON/手作りModelは既定false。整数性の証明と係数区間の確定だけに使用する。
     #[serde(default)]
     pub exact_integral: bool,
+    /// Parser-certified integerization of the original decimal row, at most 10^9.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decimal_scale: Option<u64>,
     pub name: String,
     pub lower: Option<f64>,
     pub upper: Option<f64>,
@@ -384,6 +387,7 @@ mod activity_error_tests {
             let row = Row {
                 exact_coefficients: case % 7 == 0,
                 exact_integral: case % 11 == 0,
+                decimal_scale: None,
                 exact_coefficient_flags: flags,
                 lower_enclosure: None,
                 upper_enclosure: None,

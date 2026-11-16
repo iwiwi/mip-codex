@@ -8,6 +8,19 @@ import benchmark_case
 MODEL='NAME cover\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1 r 2\n y obj -1 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n'
 CUT=dict(proof=dict(source_row=0,source_name='r',upper_side=True,cover=[0,1]),row=dict(name='cut',exact_integral=True,lower=None,upper=1,coefficients=[[0,1],[1,1]]))
 class Covers(unittest.TestCase):
+    def test_decimal_scaled_mir_and_tampered_scale(self):
+        model='NAME mir\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 0.3\n t c 1 r -0.1\nRHS\n rhs r 0.2\nBOUNDS\n LI b x 0\nENDATA\n'
+        cut=dict(proof=dict(source_row=0,source_name='r',upper_side=True,cover=[],divisor=3,mir=dict(upper_bounds=[],row_scale=10)),row=dict(coefficients=[[0,1],[1,-1]],lower=None,upper=0,exact_integral=True))
+        with tempfile.TemporaryDirectory() as directory:
+            p=Path(directory)/'model.mps';p.write_text(model)
+            self.assertTrue(validate_cut_proofs(p,dict(cut_proofs=[cut]))['valid'])
+            for scale in [0,3,10000000000,True]:
+                bad=copy.deepcopy(cut);bad['proof']['mir']['row_scale']=scale
+                self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[bad]))['valid'])
+            for changed in [model.replace('r 0.3','r 0.3000000000000000001'),model.replace('rhs r 0.2','rhs r 0.2000000000000000001')]:
+                p.write_text(changed)
+                self.assertFalse(validate_cut_proofs(p,dict(cut_proofs=[cut]))['valid'])
+
     def test_mir_mixed_row_and_tampered_original_bounds(self):
         model='NAME mir\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 3\n t c 1 r -1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n'
         cut=dict(proof=dict(source_row=0,source_name='r',upper_side=True,cover=[],divisor=3,mir=dict(upper_bounds=[])),row=dict(coefficients=[[0,2],[1,-1]],lower=None,upper=0,exact_integral=True))
