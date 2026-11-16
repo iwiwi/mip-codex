@@ -1986,7 +1986,7 @@ fn solve_seeded_warm(
                             .as_secs_f64(),
                     );
                     let result = if node.warm.is_some() {
-                        solve_seeded_warm(lp_model, &probe_limits, None, node.warm.clone())
+                        solve_seeded_warm(lp_model, &probe_limits, None, None)
                     } else {
                         solve(model, &probe_limits)
                     };
