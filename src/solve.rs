@@ -75,7 +75,7 @@ impl Default for Limits {
             box_primal: true,
             root_seed_repair: true,
             root_objective_repair: true,
-            root_primal_descent: false,
+            root_primal_descent: true,
             binary_graph: true,
             parity_equalities: true,
             graph_local_search: true,
