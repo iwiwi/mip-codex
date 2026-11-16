@@ -180,3 +180,9 @@ mainはPR86費用付き根修復（FPca7c7bbcdf8ee25b）。次の価格portfolio
 次の研究はpriced-objective-root（別worktree、採用済みmain基点）。非負・非一様費用pure-binaryの一時目的上限制約で既存Repairを使い、元点保持と目的誤差区間guardを維持。FPfe519f9af5a3bbb1/238 Rust/200全列挙照合成功、SP97/SP98の10/60秒改善、選択/長時間/native全点証明有効。188対/独立監査を継続、まだ未採用。portfolioとの統合は両案の採用後に相互作用を再確認する。
 
 native全240×3はCPU8..15で継続し、設定やsnapshotを変えない。自作全240/3600秒の最終評価は未開始、11月19日UTC目安で開始し11月22日14:59 UTCまで改善を継続する。
+
+## 2026-11-16 18:44 UTC 更新
+
+mainはPR87価格portfolio（FP523fc50c7f8550bb）、primary4点4証明全有効、全240create-only snapshotを照合済み。次の一般費用目的cutは全188対で主解2改善0悪化、376証明/120点全有効。portfolio併合後FP a53556b6ad0b400aは239 Rust成功、最終5件10出力とN3/eil60秒4出力も点・証明全有効。PRへ固定して採用する。
+
+その次は改善を出した系列だけ残予算内で16 seedを超えて継続する仮説。失敗のみの系列の16 seed打切りは維持し、共通5%/2秒・総work100Mを増やさない。まだ未実装・未採用。全体優位・新記録は未達、nativeはCPU8..15で継続、自作全240最終は11月19日UTC目安の開始を維持。

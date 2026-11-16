@@ -1,0 +1,54 @@
+Reading problem data from '/home/ubuntu/mip-objective-repair/data/raw/benchmark/sp97ar.mps.gz'...
+Problem: sp97ar
+Objective: obj
+1762 rows, 14101 columns, 305069 non-zeros
+14101 integer variables, all of which are binary
+322701 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-objective-repair/artifacts/smoke-20261116-182413-68pn7iai/sp97ar.mps.gz/glpk/model.glp'...
+322696 lines were written
+GLPK Integer Optimizer 5.0
+1761 rows, 14101 columns, 290968 non-zeros
+14101 integer variables, all of which are binary
+Preprocessing...
+2 hidden packing inequaliti(es) were detected
+60 hidden covering inequaliti(es) were detected
+1739 rows, 14101 columns, 290946 non-zeros
+14101 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.100e+01  ratio =  2.100e+01
+GM: min|aij| =  3.418e-01  max|aij| =  2.926e+00  ratio =  8.559e+00
+EQ: min|aij| =  1.195e-01  max|aij| =  1.000e+00  ratio =  8.367e+00
+2N: min|aij| =  6.250e-02  max|aij| =  1.625e+00  ratio =  2.600e+01
+Constructing initial basis...
+Size of triangular part is 1739
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+1739 rows, 14101 columns, 290946 non-zeros
+      0: obj =   0.000000000e+00 inf =   4.129e+02 (549)
+    357: obj =   1.024105099e+09 inf =   5.829e-16 (0) 3
+*  1835: obj =   6.525603912e+08 inf =   9.046e-15 (0) 13
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 547
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 14079 + 2 = 14081 vertices
++  1835: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 1119772686.08
+Pass 1
+Warning: basis matrix is ill-conditioned (cond = 2.58e+15)
+Error: basis matrix is singular to working precision (cond = 1.26e+16)
+Warning: glp_simplex returned 5
++  2148: mip =   1.119772686e+09 >=   6.532622966e+08  41.7% (1; 0)
+Cuts on level 0: gmi = 9; mir = 13; cov = 6;
++  2401: mip =   1.119772686e+09 >=   6.533377315e+08  41.7% (2; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-objective-repair/artifacts/smoke-20261116-182413-68pn7iai/sp97ar.mps.gz/glpk/solution.raw'...
+15871 lines were written

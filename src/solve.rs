@@ -23,6 +23,7 @@ pub struct Limits {
     pub box_primal: bool,
     pub root_seed_repair: bool,
     pub root_priced_repair: bool,
+    pub root_priced_objective: bool,
     pub root_price_portfolio: bool,
     pub root_objective_repair: bool,
     pub root_primal_descent: bool,
@@ -77,6 +78,7 @@ impl Default for Limits {
             box_primal: true,
             root_seed_repair: true,
             root_priced_repair: true,
+            root_priced_objective: true,
             root_price_portfolio: true,
             root_objective_repair: true,
             root_primal_descent: true,
@@ -148,6 +150,8 @@ pub struct Result {
     pub root_priced_repair: Option<heuristic::BoxStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub root_priced_scale: Option<f64>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub root_priced_objective: Option<heuristic::BoxStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub root_objective_repair: Option<heuristic::BoxStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1481,6 +1485,7 @@ fn solve_seeded_warm(
     let mut root_seed_repair = None;
     let mut root_priced_repair = None;
     let mut root_priced_scale = None;
+    let mut root_priced_objective = None;
     let mut root_objective_repair = None;
     let mut root_primal_descent = None;
     if limits.box_primal && seed.is_none() && Instant::now() < deadline {
@@ -1551,6 +1556,16 @@ fn solve_seeded_warm(
             }
         }
 
+        if limits.root_priced_objective && root_priced_repair.is_some() && Instant::now()<deadline {
+            if let Some(point)=box_candidate.as_ref(){
+                let offset=start.elapsed().as_secs_f64();
+                let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(2.)));
+                if let Some((point,mut stats))=crate::priced_objective_repair::improve_priced(model,&repair,point,&root.lower,&root.upper,end){
+                    if let Some(t)=&mut stats.first_seconds{*t+=offset;}
+                    box_candidate=Some(point);root_priced_objective=Some(stats);
+                }
+            }
+        }
         if limits.root_primal_descent && root_seed_repair.as_ref().is_some_and(|s|s.candidates>0)
             && model.offset==0. && model.offset_enclosure==Some([0.,0.])
             && model.variables.iter().all(|v|v.integer&&v.lower==Some(0.)&&v.upper==Some(1.)&&v.objective==1.&&v.objective_enclosure==Some([1.,1.]))
@@ -2744,6 +2759,7 @@ fn solve_seeded_warm(
         root_seed_repair,
         root_priced_repair,
         root_priced_scale,
+        root_priced_objective,
         root_objective_repair,
         root_primal_descent,
         root_incumbent_conflict,
