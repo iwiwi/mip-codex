@@ -1,0 +1,46 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/neos-3004026-krka.mps.gz'...
+Problem: neos-3004026-krka
+Objective: R12546
+12546 rows, 17030 columns, 41860 non-zeros
+17030 integer variables, 16900 of which are binary
+83989 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-050917-cpz758bz/neos-3004026-krka.mps.gz/glpk/model.glp'...
+84114 lines were written
+GLPK Integer Optimizer 5.0
+12545 rows, 17030 columns, 41860 non-zeros
+17030 integer variables, 16900 of which are binary
+Preprocessing...
+12545 rows, 17030 columns, 41860 non-zeros
+17030 integer variables, 16900 of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.300e+01  ratio =  1.300e+01
+GM: min|aij| =  9.431e-01  max|aij| =  1.060e+00  ratio =  1.124e+00
+EQ: min|aij| =  9.041e-01  max|aij| =  1.000e+00  ratio =  1.106e+00
+2N: min|aij| =  5.000e-01  max|aij| =  1.000e+00  ratio =  2.000e+00
+Constructing initial basis...
+Size of triangular part is 12545
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+12545 rows, 17030 columns, 41860 non-zeros
+      0: obj =   0.000000000e+00 inf =   2.600e+02 (2080)
+    335: obj =   0.000000000e+00 inf =   0.000e+00 (0) 3
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 4225
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 16900 + 0 = 16900 vertices
++   335: mip =     not found yet >=              -inf        (1; 0)
+FPUMP heuristic cannot be applied due to general integer variables
+Cuts on level 0: gmi = 40; mir = 59;
++  1991: mip =     not found yet >=   0.000000000e+00        (20; 0)
++  3915: mip =     not found yet >=   0.000000000e+00        (42; 0)
++  3915: mip =     not found yet >=   0.000000000e+00        (42; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-050917-cpz758bz/neos-3004026-krka.mps.gz/glpk/solution.raw'...
+29584 lines were written

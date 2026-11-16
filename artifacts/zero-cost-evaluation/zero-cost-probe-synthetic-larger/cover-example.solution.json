@@ -1,0 +1,318 @@
+{
+  "binary_graph_enabled": true,
+  "graph_cover_local_enabled": true,
+  "aggregate_cuts_enabled": true,
+  "clique_cuts_enabled": true,
+  "mir_cuts_enabled": true,
+  "graph_fractional_cover_enabled": true,
+  "binary_graph": null,
+  "branching": "Pseudocost",
+  "child_order": "Down",
+  "search_strategy": "DepthFirst",
+  "search_pops": 39,
+  "search_best_pops": 0,
+  "search_transfers": 0,
+  "max_open_nodes": 8,
+  "pseudocost_updates": 36,
+  "pseudocost_selections": 18,
+  "primal_repair": true,
+  "box_primal_enabled": true,
+  "box_primal": {
+    "calls": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "moves": 0,
+    "work": 44,
+    "seconds": 5.9013e-05,
+    "first_seconds": null
+  },
+  "root_incumbent_conflict": false,
+  "lp_diving": true,
+  "primal_probe": true,
+  "cover_cuts_enabled": true,
+  "cover_round_limit": 4,
+  "rounding_cuts_enabled": false,
+  "strong_branching": true,
+  "strong_objective": true,
+  "strong_infeasible_hint": true,
+  "strong": {
+    "calls": 1,
+    "candidates": 4,
+    "lp_solves": 8,
+    "optimal": 7,
+    "infeasible": 1,
+    "limited": 0,
+    "numerical_errors": 0,
+    "branch_changes": 1,
+    "evaluated_variables": [
+      2,
+      7,
+      4,
+      3
+    ],
+    "selected_variable": 7,
+    "infeasible_hint_selections": 1,
+    "seconds": 0.000165935
+  },
+  "rins_enabled": true,
+  "rins": {
+    "at_node": 1,
+    "attempts": 1,
+    "calls": 1,
+    "fixed": 6,
+    "eligible": 11,
+    "nodes": 11,
+    "lp_solves": 11,
+    "candidates": 1,
+    "improvements": 0,
+    "limited": 0,
+    "status": "optimal",
+    "seconds": 0.000716639
+  },
+  "objective_rounding": true,
+  "objective_rounding_all": false,
+  "objective_grid": {
+    "min_domain": {
+      "base": -51,
+      "first_increment": 1
+    },
+    "max_domain": {
+      "base": -50,
+      "first_increment": 1
+    },
+    "offset": 0,
+    "step": 1,
+    "implied": []
+  },
+  "objective_bound_stats": {
+    "box_pruned": 0,
+    "rejected_candidates": 0,
+    "calls": 1,
+    "trials": 1,
+    "valid": 1,
+    "rounded": 1,
+    "seconds": 3.95e-06
+  },
+  "infeasibility_proof_calls": 0,
+  "infeasibility_proof_trials": 0,
+  "infeasibility_proof_failures": 0,
+  "infeasibility_proof_seconds": 0.0,
+  "cut_proofs": [
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          7.0,
+          7.0
+        ],
+        "exact_integral": true,
+        "name": "__mir_1",
+        "lower": null,
+        "upper": 7.0,
+        "coefficients": [
+          [
+            0,
+            1.0
+          ],
+          [
+            1,
+            2.0
+          ],
+          [
+            2,
+            1.0
+          ],
+          [
+            3,
+            2.0
+          ],
+          [
+            4,
+            1.0
+          ],
+          [
+            5,
+            1.0
+          ],
+          [
+            6,
+            -1.0
+          ],
+          [
+            7,
+            -1.0
+          ],
+          [
+            10,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "mir": {
+          "upper_bounds": [
+            0,
+            1,
+            2,
+            3,
+            5,
+            6
+          ]
+        },
+        "divisor": 2,
+        "source_row": 0,
+        "source_name": "r0",
+        "upper_side": true,
+        "cover": []
+      }
+    }
+  ],
+  "cut_stats": {
+    "mir_calls": 2,
+    "mir_lp_solves": 1,
+    "mir_rejected_cuts": 0,
+    "mir_trial_seconds": 3.7183e-05,
+    "mir_work": 6180,
+    "mir_added": 1,
+    "mir_seconds": 0.000230501,
+    "clique_calls": 1,
+    "clique_edges": 0,
+    "clique_work": 0,
+    "clique_added": 0,
+    "clique_seconds": 5.41e-07,
+    "aggregate_calls": 1,
+    "aggregate_pairs": 65,
+    "aggregate_work": 10311,
+    "aggregate_added": 0,
+    "aggregate_seconds": 0.000405647,
+    "rounding_calls": 0,
+    "rounding": 0,
+    "rounding_projected": 0,
+    "rounding_work": 0,
+    "calls": 1,
+    "eligible": 12,
+    "candidates": 0,
+    "added": 1,
+    "integer": 0,
+    "interval": 0,
+    "projected": 0,
+    "rejected": 0,
+    "work": 320
+  },
+  "cut_rounds": 2,
+  "cut_lp_solves": 2,
+  "cut_seconds": 0.000801067,
+  "cut_initial_lp_seconds": 9.3355e-05,
+  "root_lp_reused": true,
+  "probe": {
+    "calls": 1,
+    "nodes": 93,
+    "lp_solves": 93,
+    "max_open_nodes": 12,
+    "seconds": 0.002199446,
+    "status": "optimal",
+    "candidates": 1,
+    "improvements": 0
+  },
+  "diving": {
+    "calls": 1,
+    "lp_solves": 3,
+    "reversals": 1,
+    "infeasible": 2,
+    "numerical_errors": 0,
+    "limited": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "seconds": 5.5318e-05
+  },
+  "feasibility_pump_enabled": true,
+  "pump": {
+    "calls": 0,
+    "lp_solves": 0,
+    "perturbations": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "numerical_errors": 0,
+    "limited": 0,
+    "seconds": 0.0
+  },
+  "repair_calls": 1,
+  "repair_candidates": 1,
+  "repair_improvements": 1,
+  "repair_moves": 1,
+  "first_primal_seconds": 0.00091034,
+  "repair_lp_solves": 1,
+  "repair_lp_candidates": 0,
+  "repair_work": 259,
+  "lp_engine": "Revised",
+  "propagation": false,
+  "propagation_calls": 0,
+  "propagation_rows": 0,
+  "propagation_tightenings": 0,
+  "propagation_pruned": 0,
+  "propagation_budget_hits": 0,
+  "fixed_leaves": 0,
+  "lp_solves": 156,
+  "defer_infeasibility_enabled": true,
+  "joint_infeasibility_enabled": true,
+  "aggregate_infeasibility_enabled": true,
+  "deferred_infeasibilities": 0,
+  "deferred_infeasibilities_pending": 0,
+  "deferred_infeasibilities_pruned": 0,
+  "deferred_infeasibility_bound": null,
+  "deferred_infeasibility_unbounded": false,
+  "lp_search_termination": "active_search_complete",
+  "fixed_columns_enabled": true,
+  "lp_workspace_bytes": 536870912,
+  "root_fixed_columns": 0,
+  "lp_scaled_columns": 0,
+  "lp_scaled_rows": 0,
+  "lp_warm_start": true,
+  "lp_warm_attempts": 153,
+  "lp_warm_successes": 119,
+  "lp_warm_fallbacks": 34,
+  "lp_warm_rejections": 0,
+  "lp_warm_row_extensions": 1,
+  "lp_warm_cost_attempts": 0,
+  "lp_warm_cost_successes": 0,
+  "lp_multiplier_cache_hits": 308,
+  "lp_multiplier_cache_misses": 761,
+  "lp_certificate_repair_trials": 0,
+  "lp_certificate_repairs": 0,
+  "lp_restoration_attempts": 0,
+  "lp_restoration_successes": 0,
+  "lp_restoration_infeasible_candidates": 0,
+  "lp_restoration_pivots": 0,
+  "lp_refinement_attempts": 0,
+  "lp_refinement_steps": 0,
+  "lp_refinement_successes": 0,
+  "lp_dual_pivots": 272,
+  "lp_dual_flips": 5,
+  "lp_pivots": 679,
+  "lp_feasibility_pricing_calls": 0,
+  "lp_pricing_cutoffs": 0,
+  "lp_pricing_fallbacks": 0,
+  "lp_flips": 14,
+  "lp_refactors": 41,
+  "status": "optimal",
+  "objective": 11.0,
+  "dual_bound": 11.000000000000007,
+  "gap": 6.459479416000911e-16,
+  "nodes": 39,
+  "seconds": 0.004815875,
+  "values": {
+    "x0": 2.0,
+    "x1": 3.0,
+    "x10": -1.0,
+    "x2": 2.0,
+    "x3": 0.0,
+    "x4": 0.0,
+    "x5": 1.0,
+    "x6": 3.0,
+    "x7": 1.0,
+    "x8": 0.0,
+    "x9": 1.0
+  }
+}
