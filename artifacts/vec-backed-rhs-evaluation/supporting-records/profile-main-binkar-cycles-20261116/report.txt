@@ -1,0 +1,332 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 995  of event 'cycles:u'
+# Event count (approx.): 27130811791
+#
+# Overhead  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   IPC   [IPC Coverage]
+# ........  .......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................  ....................
+#
+    13.65%  [.] <mip_codex::revised::Simplex>::run_priced::<false>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---mip_codex::revised::cold_priced::{closure#0}
+               mip_codex::revised::cold_priced
+               |          
+                --13.12%--mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          |          
+                           --12.92%--mip_codex::solve::solve_seeded_warm
+
+     7.01%  [.] mip_codex::revised::warm_impl                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |
+            ---mip_codex::scaling::solve
+               |          
+                --6.70%--mip_codex::solve::solve_seeded_warm
+
+     6.41%  [.] faer::sparse::linalg::triangular_solve::solve_upper_triangular_transpose_in_place::<usize, f64>                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_transpose_in_place_with_conj
+               <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_transpose_in_place_with_conj
+               <mip_codex::revised::Basis>::backward
+               |          
+               |--5.49%--<mip_codex::revised::Simplex>::multipliers
+               |          |          
+               |          |--4.07%--<mip_codex::revised::Simplex>::run_priced::<false>
+               |          |          mip_codex::revised::cold_priced::{closure#0}
+               |          |          mip_codex::revised::cold_priced
+               |          |          mip_codex::revised::warm_impl
+               |          |          mip_codex::scaling::solve
+               |          |          |          
+               |          |           --3.87%--mip_codex::solve::solve_seeded_warm
+               |          |          
+               |           --1.42%--mip_codex::revised::warm_impl
+               |                     mip_codex::scaling::solve
+               |                     mip_codex::solve::solve_seeded_warm
+               |          
+                --0.92%--mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          |          
+                           --0.82%--mip_codex::solve::solve_seeded_warm
+
+     6.10%  [.] faer::sparse::linalg::colamd::order::<usize>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---faer::sparse::linalg::lu::factorize_symbolic_lu::<usize>
+               <faer::sparse::linalg::solvers::SymbolicLu<usize>>::try_new
+               <faer::sparse::csc::numeric::generic::SparseColMat<faer::sparse::csc::numeric::Own<usize, f64>>>::sp_lu
+               <mip_codex::revised::Simplex>::refactor
+               |          
+               |--3.86%--<mip_codex::revised::Simplex>::run_priced::<false>
+               |          |          
+               |           --3.76%--mip_codex::revised::cold_priced::{closure#0}
+               |                     mip_codex::revised::cold_priced
+               |                     mip_codex::revised::warm_impl
+               |                     mip_codex::scaling::solve
+               |                     mip_codex::solve::solve_seeded_warm
+               |          
+                --2.24%--mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          |          
+                           --2.13%--mip_codex::solve::solve_seeded_warm
+
+     5.75%  [.] faer::perm::permute_rows::implementation::<u64, f64>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---faer::perm::permute_rows_in_place::<usize, f64>
+               |          
+               |--2.91%--<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_transpose_in_place_with_conj
+               |          <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_transpose_in_place_with_conj
+               |          <mip_codex::revised::Basis>::backward
+               |          |          
+               |           --2.50%--<mip_codex::revised::Simplex>::multipliers
+               |                     |          
+               |                      --2.30%--<mip_codex::revised::Simplex>::run_priced::<false>
+               |                                mip_codex::revised::cold_priced::{closure#0}
+               |                                mip_codex::revised::cold_priced
+               |                                |          
+               |                                 --2.03%--mip_codex::revised::warm_impl
+               |                                           mip_codex::scaling::solve
+               |                                           mip_codex::solve::solve_seeded_warm
+               |          
+                --2.84%--<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_in_place_with_conj
+                          <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_in_place_with_conj
+                          <mip_codex::revised::Basis>::forward
+                          |          
+                           --2.24%--<mip_codex::revised::Simplex>::run_priced::<false>
+                                     mip_codex::revised::cold_priced::{closure#0}
+                                     mip_codex::revised::cold_priced
+                                     mip_codex::revised::warm_impl
+                                     mip_codex::scaling::solve
+                                     |          
+                                      --2.13%--mip_codex::solve::solve_seeded_warm
+
+     5.69%  [.] faer::sparse::linalg::triangular_solve::solve_unit_lower_triangular_transpose_in_place::<usize, f64>                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_transpose_in_place_with_conj
+               <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_transpose_in_place_with_conj
+               <mip_codex::revised::Basis>::backward
+               |          
+                --5.18%--<mip_codex::revised::Simplex>::multipliers
+                          |          
+                          |--3.55%--<mip_codex::revised::Simplex>::run_priced::<false>
+                          |          mip_codex::revised::cold_priced::{closure#0}
+                          |          mip_codex::revised::cold_priced
+                          |          |          
+                          |           --3.35%--mip_codex::revised::warm_impl
+                          |                     mip_codex::scaling::solve
+                          |                     |          
+                          |                      --3.15%--mip_codex::solve::solve_seeded_warm
+                          |          
+                           --1.63%--mip_codex::revised::warm_impl
+                                     mip_codex::scaling::solve
+                                     mip_codex::solve::solve_seeded_warm
+
+     5.18%  [.] faer::sparse::linalg::triangular_solve::solve_upper_triangular_in_place::<usize, f64>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_in_place_with_conj
+               <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_in_place_with_conj
+               <mip_codex::revised::Basis>::forward
+               |          
+               |--4.06%--<mip_codex::revised::Simplex>::run_priced::<false>
+               |          mip_codex::revised::cold_priced::{closure#0}
+               |          mip_codex::revised::cold_priced
+               |          mip_codex::revised::warm_impl
+               |          mip_codex::scaling::solve
+               |          mip_codex::solve::solve_seeded_warm
+               |          
+                --0.81%--mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          mip_codex::solve::solve_seeded_warm
+
+     4.27%  [.] <faer::mat::generic::Mat<_>>::copy_from::imp::<f64>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---faer::perm::permute_rows_in_place::<usize, f64>
+               |          
+               |--2.24%--<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_transpose_in_place_with_conj
+               |          <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_transpose_in_place_with_conj
+               |          <mip_codex::revised::Basis>::backward
+               |          |          
+               |           --2.03%--<mip_codex::revised::Simplex>::multipliers
+               |                     |          
+               |                      --1.83%--<mip_codex::revised::Simplex>::run_priced::<false>
+               |                                mip_codex::revised::cold_priced::{closure#0}
+               |                                mip_codex::revised::cold_priced
+               |                                mip_codex::revised::warm_impl
+               |                                mip_codex::scaling::solve
+               |                                mip_codex::solve::solve_seeded_warm
+               |          
+                --2.03%--<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_in_place_with_conj
+                          <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_in_place_with_conj
+                          <mip_codex::revised::Basis>::forward
+                          |          
+                           --1.32%--<mip_codex::revised::Simplex>::run_priced::<false>
+                                     mip_codex::revised::cold_priced::{closure#0}
+                                     mip_codex::revised::cold_priced
+                                     mip_codex::revised::warm_impl
+                                     mip_codex::scaling::solve
+                                     |          
+                                      --1.22%--mip_codex::solve::solve_seeded_warm
+
+     3.76%  [.] faer::sparse::linalg::triangular_solve::solve_unit_lower_triangular_in_place::<usize, f64>                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---<faer::sparse::linalg::lu::simplicial::SimplicialLu<usize, f64>>::solve_in_place_with_conj
+               <faer::sparse::linalg::lu::LuRef<usize, f64>>::solve_in_place_with_conj
+               <mip_codex::revised::Basis>::forward
+               |          
+               |--2.75%--<mip_codex::revised::Simplex>::run_priced::<false>
+               |          mip_codex::revised::cold_priced::{closure#0}
+               |          mip_codex::revised::cold_priced
+               |          |          
+               |           --2.64%--mip_codex::revised::warm_impl
+               |                     mip_codex::scaling::solve
+               |                     |          
+               |                      --2.44%--mip_codex::solve::solve_seeded_warm
+               |          
+                --0.81%--mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+
+     3.56%  [.] mip_codex::revised::primal_ratio_threshold                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---<mip_codex::revised::Simplex>::run_priced::<false>
+               mip_codex::revised::cold_priced::{closure#0}
+               mip_codex::revised::cold_priced
+               |          
+                --3.36%--mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          mip_codex::solve::solve_seeded_warm
+
+     1.93%  [.] faer::sparse::linalg::lu::simplicial::factorize_simplicial_numeric_lu::<usize, f64>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---<faer::sparse::linalg::lu::SymbolicLu<usize>>::factorize_numeric_lu::<f64>
+               <faer::sparse::linalg::solvers::Lu<usize, f64>>::try_new_with_symbolic
+               <faer::sparse::csc::numeric::generic::SparseColMat<faer::sparse::csc::numeric::Own<usize, f64>>>::sp_lu
+               <mip_codex::revised::Simplex>::refactor
+               |          
+                --1.42%--<mip_codex::revised::Simplex>::run_priced::<false>
+                          mip_codex::revised::cold_priced::{closure#0}
+                          mip_codex::revised::cold_priced
+                          mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          |          
+                           --1.32%--mip_codex::solve::solve_seeded_warm
+
+     1.83%  [.] <alloc::vec::Vec<f64> as alloc::vec::spec_from_iter::SpecFromIter<f64, core::iter::adapters::map::Map<core::slice::iter::Iter<usize>, <mip_codex::revised::Simplex>::multipliers::{closure#0}>>>::from_iter                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |
+            ---<mip_codex::revised::Simplex>::multipliers
+               |          
+                --1.22%--<mip_codex::revised::Simplex>::run_priced::<false>
+                          mip_codex::revised::cold_priced::{closure#0}
+                          mip_codex::revised::cold_priced
+                          |          
+                           --1.12%--mip_codex::revised::warm_impl
+                                     mip_codex::scaling::solve
+                                     mip_codex::solve::solve_seeded_warm
+
+     1.73%  [.] <faer::sparse::csc::numeric::generic::SparseColMat<faer::sparse::csc::numeric::Own<usize, f64>>>::try_new_from_triplets                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---<mip_codex::revised::Simplex>::refactor
+               |          
+                --1.42%--<mip_codex::revised::Simplex>::run_priced::<false>
+                          mip_codex::revised::cold_priced::{closure#0}
+                          mip_codex::revised::cold_priced
+                          |          
+                           --1.32%--mip_codex::revised::warm_impl
+                                     mip_codex::scaling::solve
+                                     |          
+                                      --1.22%--mip_codex::solve::solve_seeded_warm
+
+     1.63%  [.] cfree                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |          
+             --0.92%--core::ptr::drop_glue::<mip_codex::revised::Problem>
+                       core::ptr::drop_glue::<mip_codex::solve::Standard>
+                       mip_codex::solve::solve_seeded_warm
+
+     1.53%  [.] faer::sparse::linalg::qr::ghost_column_counts_aat::<usize>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---faer::sparse::linalg::lu::factorize_symbolic_lu::<usize>
+               <faer::sparse::linalg::solvers::SymbolicLu<usize>>::try_new
+               <faer::sparse::csc::numeric::generic::SparseColMat<faer::sparse::csc::numeric::Own<usize, f64>>>::sp_lu
+               <mip_codex::revised::Simplex>::refactor
+               |          
+                --1.02%--<mip_codex::revised::Simplex>::run_priced::<false>
+                          mip_codex::revised::cold_priced::{closure#0}
+                          mip_codex::revised::cold_priced
+                          mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          mip_codex::solve::solve_seeded_warm
+
+     1.53%  [.] <mip_codex::revised::Basis>::forward                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |          
+             --1.02%--<mip_codex::revised::Simplex>::run_priced::<false>
+                       mip_codex::revised::cold_priced::{closure#0}
+                       mip_codex::revised::cold_priced
+                       |          
+                        --0.82%--mip_codex::revised::warm_impl
+                                  mip_codex::scaling::solve
+
+     1.53%  [.] <alloc::vec::Vec<f64> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<f64, core::iter::adapters::map::Map<core::ops::range::Range<usize>, <mip_codex::revised::Basis>::backward::{closure#2}>>>::from_iter                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---<mip_codex::revised::Basis>::backward
+               |          
+                --0.92%--<mip_codex::revised::Simplex>::multipliers
+                          |          
+                           --0.81%--<mip_codex::revised::Simplex>::run_priced::<false>
+                                     mip_codex::revised::cold_priced::{closure#0}
+                                     mip_codex::revised::cold_priced
+                                     mip_codex::revised::warm_impl
+                                     mip_codex::scaling::solve
+                                     mip_codex::solve::solve_seeded_warm
+
+     1.52%  [.] mip_codex::solve::standard_sparse                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---mip_codex::solve::solve_seeded_warm
+
+     1.42%  [.] <alloc::vec::Vec<f64> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<f64, core::iter::adapters::map::Map<core::ops::range::Range<usize>, <mip_codex::revised::Basis>::forward::{closure#2}>>>::from_iter                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---<mip_codex::revised::Basis>::forward
+               |          
+                --0.91%--<mip_codex::revised::Simplex>::run_priced::<false>
+                          mip_codex::revised::cold_priced::{closure#0}
+                          mip_codex::revised::cold_priced
+                          mip_codex::revised::warm_impl
+                          mip_codex::scaling::solve
+                          mip_codex::solve::solve_seeded_warm
+
+     1.32%  [.] <mip_codex::revised::Basis>::backward                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |          
+             --0.92%--<mip_codex::revised::Simplex>::multipliers
+                       <mip_codex::revised::Simplex>::run_priced::<false>
+                       mip_codex::revised::cold_priced::{closure#0}
+                       mip_codex::revised::cold_priced
+                       |          
+                        --0.82%--mip_codex::revised::warm_impl
+                                  mip_codex::scaling::solve
+
+     1.02%  [.] <mip_codex::model::Model>::check                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |          
+             --0.92%--mip_codex::solve::solve_seeded_warm
+
+     1.02%  [.] <alloc::vec::Vec<(usize, f64)> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<(usize, f64), core::iter::adapters::map::Map<core::iter::adapters::filter::Filter<core::iter::adapters::enumerate::Enumerate<core::slice::iter::Iter<f64>>, <mip_codex::revised::Basis>::update::{closure#0}>, <mip_codex::revised::Basis>::update::{closure#1}>>>::from_iter                                                                                                                                                                                                -      -            
+            |
+            ---<mip_codex::revised::Basis>::update
+               |          
+                --0.81%--<mip_codex::revised::Simplex>::run_priced::<false>
+
+     1.02%  [.] <mip_codex::revised::Simplex>::recompute                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+     0.92%  [.] faer::sparse::linalg::lu::factorize_symbolic_lu::<usize>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---<faer::sparse::linalg::solvers::SymbolicLu<usize>>::try_new
+               <faer::sparse::csc::numeric::generic::SparseColMat<faer::sparse::csc::numeric::Own<usize, f64>>>::sp_lu
+               <mip_codex::revised::Simplex>::refactor
+
+     0.81%  [.] <mip_codex::revised::Simplex>::certificate                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---mip_codex::revised::warm_impl
+               mip_codex::scaling::solve
+               mip_codex::solve::solve_seeded_warm
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

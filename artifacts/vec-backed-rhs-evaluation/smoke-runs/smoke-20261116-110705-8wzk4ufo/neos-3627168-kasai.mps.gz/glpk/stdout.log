@@ -1,0 +1,57 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/neos-3627168-kasai.mps.gz'...
+Problem: neos-3627168-kasai
+Objective: R1656
+1656 rows, 1462 columns, 5161 non-zeros
+535 integer variables, all of which are binary
+8284 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-110705-8wzk4ufo/neos-3627168-kasai.mps.gz/glpk/model.glp'...
+10861 lines were written
+GLPK Integer Optimizer 5.0
+1655 rows, 1462 columns, 5158 non-zeros
+535 integer variables, all of which are binary
+Preprocessing...
+42 hidden covering inequaliti(es) were detected
+182 constraint coefficient(s) were reduced
+1652 rows, 1400 columns, 4158 non-zeros
+476 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.500e+04  ratio =  2.500e+04
+GM: min|aij| =  7.451e-01  max|aij| =  1.342e+00  ratio =  1.801e+00
+EQ: min|aij| =  5.942e-01  max|aij| =  1.000e+00  ratio =  1.683e+00
+2N: min|aij| =  5.000e-01  max|aij| =  1.099e+00  ratio =  2.197e+00
+Constructing initial basis...
+Size of triangular part is 1652
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+1652 rows, 1400 columns, 4158 non-zeros
+      0: obj =   9.461272800e+05 inf =   2.351e+05 (658)
+    476: obj =   9.808903844e+05 inf =   2.268e-12 (0) 2
+*  1024: obj =   9.543410267e+05 inf =   1.011e-11 (0) 5
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 70
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++  1024: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Solution found by heuristic: 1029059.04
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: mir = 100;
++ 12934: mip =   1.029059040e+06 >=   9.758814277e+05   5.2% (1639; 40)
++ 21648: mip =   1.029059040e+06 >=   9.761537759e+05   5.1% (3365; 85)
++ 21648: mip =   1.029059040e+06 >=   9.761537759e+05   5.1% (3365; 85)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-110705-8wzk4ufo/neos-3627168-kasai.mps.gz/glpk/solution.raw'...
+3126 lines were written

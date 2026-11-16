@@ -1,0 +1,97 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261116-110705-8wzk4ufo/neos-911970.mps.gz/highs/options.txt
+MIP neos-911970 has 107 rows; 888 cols; 3408 nonzeros; 840 integer variables (840 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+02]
+  Cost    [1e+00, 1e+00]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 8e+01]
+Presolving model
+107 rows, 888 cols, 3408 nonzeros 0s
+107 rows, 888 cols, 3408 nonzeros 0s
+Presolve reductions: rows 107(-0); columns 888(-0); nonzeros 3408(-0) - Not reduced
+
+Solving MIP model with:
+   107 rows
+   888 cols (840 binary, 0 integer, 24 implied int., 24 continuous, 0 domain fixed)
+   3408 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            227.23             Large        0      0      0         0     0.0s
+ R       0       0         0   0.00%   23.26           203.04            88.54%        0      0      0       159     0.0s
+ C       0       0         0   0.00%   23.26           171.87            86.47%      690    100      0       878     0.1s
+ L       0       0         0   0.00%   52.14931948     59.63             12.55%     3772    295      0      8690     0.7s
+ L       0       0         0   0.00%   52.15052364     57.84              9.84%     3741    303      0     10189     1.2s
+
+10.4% inactive integer columns, restarting
+Model after restart has 107 rows, 801 cols (753 bin., 0 int., 24 impl., 24 cont., 0 dom.fix.), and 3060 nonzeros
+
+         0       0         0   0.00%   52.15174913     57.84              9.83%      144      0      0     12327     1.2s
+         0       0         0   0.00%   52.15174913     57.84              9.83%      144    102      4     13440     1.3s
+ L       0       0         0   0.00%   52.30238303     56.57              7.54%     1285    211      4     14846     1.7s
+
+8.0% inactive integer columns, restarting
+Model after restart has 107 rows, 741 cols (693 bin., 0 int., 24 impl., 24 cont., 0 dom.fix.), and 2820 nonzeros
+
+         0       0         0   0.00%   52.31659002     56.57              7.52%      117      0      0     17931     2.1s
+         0       0         0   0.00%   52.31659002     56.57              7.52%      117     90      5     19144     2.1s
+ L       0       0         0   0.00%   52.38374882     55.87              6.24%      751    182      5     21312     3.0s
+
+Symmetry detection completed in 0.0s
+Found 12 generator(s)
+
+ B      14       0         1   0.01%   52.38495011     55.73              6.00%      799    113     48     24807     3.5s
+ B      14       0         1   0.01%   52.38495011     55.6               5.78%      813    113     65     24807     3.6s
+ B      18       0         2   0.01%   52.38495011     55.6               5.78%      861    113    254     25517     3.6s
+ T     103      14        43  50.02%   52.96073459     55.53              4.63%     1251    122   1420     33247     4.2s
+ B     306      24       132  52.63%   52.96073459     55.46              4.51%     1424    146   2858     41646     4.9s
+ T    1103      66       473  54.11%   52.96185011     55.39              4.38%     2323    131   8445     71061     6.7s
+ T    1163      51       494  64.04%   52.96185011     55.16              3.99%     2320    149   8704     72926     6.8s
+ T    1661      50       695  72.59%   52.96185011     54.83              3.41%     2896    138   9504     79671     7.4s
+ T    1680      50       702  72.62%   52.96185011     54.83              3.41%     2903    138   9627     79877     7.4s
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ T    1696      34       708  72.99%   52.96185011     54.76              3.28%     2909    138   9717     80188     7.4s
+ T    1721      34       720  73.03%   52.96185011     54.76              3.28%     2918    138   9956     80515     7.4s
+ T    2709      35      1141  90.37%   54.20206396     54.76              1.02%     2745    107   9063     97864     8.6s
+      2901       0      1242 100.00%   54.76           54.76              0.00%     2679    138   9981    102137     9.0s
+
+Solving report
+  Model             neos-911970
+  Status            Optimal
+  Primal bound      54.76
+  Dual bound        54.76
+  Gap               0%
+  P-D integral      0.99
+  Solution status   feasible
+                    54.76 (objective)
+                    1.07549995029e-13 (integrality violation)
+  Timing            8.95
+                    0.15 (Presolve)
+                        MIP    time [calls] = 0.01 [1]
+                        subMIP time [calls] = 0.15 [65]
+                    8.80 (Solve)
+                        MIP    time [calls] = 6.39 [1]
+                        subMIP time [calls] = 2.40 [65]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [65]
+  Max sub-MIP depth 10
+  Nodes             2901
+  Repair LPs        0
+  LP iterations     102137
+                    30610 (strong br.)
+                    16120 (separation)
+                    11677 (heuristics)

@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/vec-backed-rhs-long-paired-40/nu25-pr12.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/parity-equality-final-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/nu25-pr12.mps.gz",
+    "60"
+  ],
+  "input_sha256": "161c4c89b351d8671ae4e4d7af0fc222e1910e14564419053f22600460ef3236",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_PARITY_EQUALITIES": "1"
+  },
+  "cpu": 40,
+  "seconds": 60
+}
