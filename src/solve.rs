@@ -2137,6 +2137,8 @@ fn solve_seeded_warm(
                         probe_limits.branching = limits.branching;
                         probe_limits.child_order = limits.child_order;
                         probe_limits.strong_branching = limits.strong_branching;
+                        probe_limits.objective_rounding = limits.objective_rounding;
+                        probe_limits.objective_rounding_all = limits.objective_rounding_all;
                         solve_seeded_warm(&primal_model, &probe_limits, None, Some(warm))
                     } else if node.warm.is_some()
                         && prepared.initial_lp_seconds >= probe_limits.seconds
