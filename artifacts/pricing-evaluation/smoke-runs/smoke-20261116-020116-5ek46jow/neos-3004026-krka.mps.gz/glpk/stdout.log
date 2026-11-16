@@ -1,0 +1,56 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/neos-3004026-krka.mps.gz'...
+Problem: neos-3004026-krka
+Objective: R12546
+12546 rows, 17030 columns, 41860 non-zeros
+17030 integer variables, 16900 of which are binary
+83989 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-020116-5ek46jow/neos-3004026-krka.mps.gz/glpk/model.glp'...
+84114 lines were written
+GLPK Integer Optimizer 5.0
+12545 rows, 17030 columns, 41860 non-zeros
+17030 integer variables, 16900 of which are binary
+Preprocessing...
+12545 rows, 17030 columns, 41860 non-zeros
+17030 integer variables, 16900 of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.300e+01  ratio =  1.300e+01
+GM: min|aij| =  9.431e-01  max|aij| =  1.060e+00  ratio =  1.124e+00
+EQ: min|aij| =  9.041e-01  max|aij| =  1.000e+00  ratio =  1.106e+00
+2N: min|aij| =  5.000e-01  max|aij| =  1.000e+00  ratio =  2.000e+00
+Constructing initial basis...
+Size of triangular part is 12545
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+12545 rows, 17030 columns, 41860 non-zeros
+      0: obj =   0.000000000e+00 inf =   2.600e+02 (2080)
+    335: obj =   0.000000000e+00 inf =   0.000e+00 (0) 3
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 4225
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 16900 + 0 = 16900 vertices
++   335: mip =     not found yet >=              -inf        (1; 0)
+FPUMP heuristic cannot be applied due to general integer variables
+Cuts on level 0: gmi = 40; mir = 59;
++  2091: mip =     not found yet >=   0.000000000e+00        (21; 0)
++  3916: mip =     not found yet >=   0.000000000e+00        (43; 0)
++  4229: mip =     not found yet >=   0.000000000e+00        (63; 0)
++  5107: mip =     not found yet >=   0.000000000e+00        (87; 0)
++  6272: mip =     not found yet >=   0.000000000e+00        (112; 0)
++  7066: mip =     not found yet >=   0.000000000e+00        (141; 0)
++  8490: mip =     not found yet >=   0.000000000e+00        (175; 0)
++  9333: mip =     not found yet >=   0.000000000e+00        (210; 0)
++ 10341: mip =     not found yet >=   0.000000000e+00        (260; 0)
++ 11195: mip =     not found yet >=   0.000000000e+00        (341; 6)
++ 12649: mip =     not found yet >=   0.000000000e+00        (370; 102)
+Time used: 60.0 secs.  Memory used: 30.0 Mb.
++ 13805: mip =     not found yet >=   0.000000000e+00        (380; 214)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-020116-5ek46jow/neos-3004026-krka.mps.gz/glpk/solution.raw'...
+29584 lines were written
