@@ -1,0 +1,12 @@
+{
+  "base": "35f754bec",
+  "change": "Basis forward/backward: solve/solve_transpose temporary copy replaced by in-place solve on freshly owned Col",
+  "hypothesis": "remove redundant Col clone and stabilize LP copy overhead observed in frozen MIR initial binary",
+  "tests": "202 passed",
+  "next": [
+    "12 paired pure root LP bitwise comparisons",
+    "fixed development18 and GMP audits",
+    "2700 synthetic/oracles",
+    "MIR rebase only if accepted"
+  ]
+}
