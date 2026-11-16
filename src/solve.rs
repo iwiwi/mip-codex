@@ -1985,7 +1985,9 @@ fn solve_seeded_warm(
                             .saturating_duration_since(Instant::now())
                             .as_secs_f64(),
                     );
-                    let result = if node.warm.is_some() {
+                    let result = if node.warm.is_some()
+                        && prepared.initial_lp_seconds >= probe_limits.seconds
+                    {
                         solve_seeded_warm(lp_model, &probe_limits, None, node.warm.clone())
                     } else {
                         solve(model, &probe_limits)
