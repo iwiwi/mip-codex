@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-continue-development-screen/cases/mushroom-best.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-continue-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/mushroom-best.mps.gz",
+    "10"
+  ],
+  "input_sha256": "194e8294166d8a5583fb31aabd55ebdce885c36e589dfd9309bc772133a3c4c8",
+  "split": "development",
+  "cpu": 4,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_ROOT_PRICED_CONTINUE": "0",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

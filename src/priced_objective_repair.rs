@@ -12,6 +12,9 @@ pub fn improve_priced(
     upper: &[Option<f64>],
     deadline: Instant,
 ) -> Option<(Vec<f64>, BoxStats)> {
+    improve_priced_continued(model,original,point,lower,upper,deadline,false)
+}
+pub fn improve_priced_continued(model:&Model,original:&Repair<'_>,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,continue_success:bool)->Option<(Vec<f64>,BoxStats)>{
     let began = Instant::now();
     if began >= deadline
         || point.len() != model.variables.len()
@@ -55,7 +58,8 @@ pub fn improve_priced(
         lower_enclosure: None,
         upper_enclosure: None,
     });
-    for seed in 0..16 {
+    for seed in 0..if continue_success{64}else{16} {
+        if seed>=16 && stats.improvements==0 {break;}
         if Instant::now() >= deadline || stats.work>=100_000_000 {
             break;
         }
