@@ -1,0 +1,68 @@
+{
+  "source": "/home/ubuntu/mip-codex/artifacts/dual-relative-row-v1-long-paired-41/mad.mps.gz/after/result.json",
+  "sha256": "b8d85925941fa4eafeeea2f1953a3a09310329d86c0455fce68b5e978ae4fe6a",
+  "cut": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "point": {
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.10800000000000048,
+        "bound_violation": 0.0,
+        "row_violation": 7.906002241764298e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.10800000000000048,
+      "bound_violation": 0.0,
+      "row_violation": 8.16e-16,
+      "integer_violation": 0.0,
+      "objective_error": 1.03e-17,
+      "exact": {
+        "objective": "1080000000000004903/10000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "51/62500000000000000",
+        "integer_violation": "0",
+        "objective_error": "103/10000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "11080000000000004903/1000000000000000000000000000",
+        "absolute_error": "103/10000000000000000000",
+        "recomputed_exact": "1080000000000004903/10000000000000000000",
+        "reported_token": "0.10800000000000048"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/dual-relative-row-v1-long-audit/dual-relative-row-v1-long-paired-41/mad.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+}
