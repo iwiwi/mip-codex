@@ -575,3 +575,9 @@ PR76をmain4556e45d6/FP527へマージ済み。次のvec-backed-lp-rhs FP5a6ccff
 PR77をmain b0b4e946d/FP5a6へ採用済み。行削減・Phase I即時/遅延価格付けは独立検査を通るが60秒主解悪化が残るため不採用。phase-one-delayed-pricing branchに6700一次ファイル216,510,391bytes（ELF7本はローカルSHA参照）を保存済み。main/全240snapshotは変更していない。
 
 次のterminal-neighborhood branchでは数値停止後に限る主解専用の近傍探索を実装。v2 FP e0475a558f488f6e、Rust220/2700合成/500 LP出力/数値32が通過。Nidda 14054.95→13590.83、glass4 3466706233→2400021800を10/60秒対照で再現。10秒native比較でNidda主解のみ3者を超えたが下界は全3者より弱い。glass4は全3者より弱い。188対/全整数解監査とnative60秒比較を継続中。採用判断前に全結果を保存し、既存有効解の保持・大域状態不変を検査する。native全件は262/720・厳密最適114・error/無効解18、mas74 SCIPは公式相対有効だが絶対行違反0.087270506244でinvalid_solutionを保持。全240 Rust最終評価は未開始、11月19日UTC目安の開始と11月22日14:59UTC期限を維持。
+
+## 2026-11-16 12:55 UTC
+
+PR78をmain25048dd1e/FP134ef9e8e57efb90へ採用済み。全188対は主解3改善0悪化、下界同値79/比較不能109。全376証明/112整数点有効。primaryでもNidda13590.8271・glass4 2400021800・enlight37最適を再現、3整数点/3Rust証明が有効。terminal-neighborhood-final-20261116は全240/3600s/1thread/16GiB/CPU8–15 create-only、全SHA照合済み、本ジョブ未開始。
+
+component-primal-diagnosticは未統合。20小例は結合主解が全列挙最適値と一致しGMP絶対/公式検査とも有効。初回2回のfree MPSは公式parser不受理のログを保全し固定書式で成功。cygnet120秒は6成分全て根LP時間終了、各5935–10300 pivot、整数点・下界なし、結合解なし。総wall124.82s、watchdogなし。採用せず停止原因を診断する。native269/720・厳密最適118・error/無効解18で継続。11月19日UTC目安の自作全件開始/11月22日14:59UTC期限を維持。
