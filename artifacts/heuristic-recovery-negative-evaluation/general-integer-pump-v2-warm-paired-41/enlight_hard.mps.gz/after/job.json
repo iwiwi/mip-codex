@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/general-integer-pump-v2-warm-paired-41/enlight_hard.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/general-integer-pump-v2-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/enlight_hard.mps.gz",
+    "10"
+  ],
+  "input_sha256": "942168c2126a2a91ae3ec1ededea59bc1af0cad55f94223edf4c03d20e831f66",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_GENERAL_INTEGER_PUMP": "1",
+    "MIP_GENERAL_PUMP_WARM_EXTENSION": "1"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

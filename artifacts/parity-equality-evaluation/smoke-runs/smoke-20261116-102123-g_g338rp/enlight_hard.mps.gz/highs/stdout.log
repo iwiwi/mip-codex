@@ -1,0 +1,64 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261116-102123-g_g338rp/enlight_hard.mps.gz/highs/options.txt
+Number of LI entries in BOUNDS section is 100
+MIP enlight_hard has 100 rows; 200 cols; 560 nonzeros; 200 integer variables (100 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 1e+00]
+Presolving model
+100 rows, 200 cols, 560 nonzeros 0s
+100 rows, 200 cols, 560 nonzeros 0s
+Presolve reductions: rows 100(-0); columns 200(-0); nonzeros 560(-0) - Not reduced
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   100 rows
+   200 cols (102 binary, 98 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   560 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   0               inf                  inf        0      0      0         0     0.0s
+         0       0         0   0.00%   15.5            inf                  inf        0      0      5        20     0.0s
+
+Restarting search from the root node
+Model after restart has 100 rows, 200 cols (115 bin., 85 int., 0 impl., 0 cont., 0 dom.fix.), and 560 nonzeros
+
+      1112       0         0   0.00%   24.78632365     inf                  inf      294      0      0     49992     3.6s
+      1112       0         0   0.00%   24.99485748     inf                  inf      294     64      5     50258     3.6s
+      2201      60       359  26.01%   35.18176748     inf                  inf     3912    281   5445     84196     8.6s
+      2878      96       575  35.30%   35.18176748     inf                  inf     2425    248   7248     98317    10.0s
+
+Solving report
+  Model             enlight_hard
+  Status            Time limit reached
+  Primal bound      inf
+  Dual bound        36
+  Gap               inf
+  P-D integral      10.00
+  Solution status   -
+  Timing            10.00
+                    0.03 (Presolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.03 [8]
+                    9.97 (Solve)
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [8]
+  Max sub-MIP depth 2
+  Nodes             2878
+  Repair LPs        0
+  LP iterations     98317
+                    28552 (strong br.)
+                    14146 (separation)
+                    5654 (heuristics)

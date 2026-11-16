@@ -545,3 +545,15 @@ workspace512→2048MiBは6件でresource_limit→time_limitだが根LP点なし�
 数値停止93枝は比較HiGHSでLP実行可能。自作改訂/密表は単独でも停止、既存float伝播後の改訂LP点は元MPSのFraction検査成功。ただし旧伝播を新しい小数係数の証明に使わず、係数/RHS/境界を区間で囲む別試作を進行。単独区間回復では139ノードまで進むが解品質不変、100小数行の有理格子全列挙で実行可能点の保存と期限切れ無操作を確認。採用せず次の診断へ。
 
 nativeは09:53UTC 234/720、厳密最適108、エラー16。063-scip highschool1-aigioは3660.49秒watchdog終了、ログを今回保全。比較条件は変更しない。holdoutの入力を改善判断に使わない。
+
+## 2026-11-16 10:36 UTC 偶奇等式の一意解証明
+
+main PR75以降のparity-equality-solverで、私有±2整数補助を持つbinary等式をGF(2)で解き、full rankの場合だけ一意な元整数点を厳密復元する経路を作成。FP527633393c003557、MIP_PARITY_EQUALITIES=0/1、既定ON候補。元MPSのFraction＋独立streaming GF(2)消去を通常のstrict検査へ統合。正確な整数へ丸められただけの元係数/RHS/境界は受理しない。
+
+188開発同ELF/各10秒は主解1改善/0悪化/187同値、dual1改善/0悪化/78同値/109比較不能。enlight_hardを主解なし/dual16.4583→独立証明付きoptimal37。376出力/111整数点すべて有効。swathは同品質でtime_limit→numerical_errorの状態差が10.001秒付近にあり、原出力を残す。別0/1対照では両方time_limit。60秒7問でもenlight以外の品質不変、16出力/13点の監査成功。
+
+219 Rust（300全列挙含む）、CLI生成200（175最適点GMP/25不能列挙、90一意性証明/270改変拒否）、通常2700合成、LP300設定500出力、数値32（18点有効/14精度未解決）を通過。主workspaceでも再ビルド/同資源native10秒比較: Rust37最適0.000153秒、SCIP10.0.2は37最適0.003572秒、HiGHS1.16.0は主解なし/dual36、GLPK5.0は主解37/dual25。既知最適値の再現であり新記録ではない。主workspace binkar/niddaは従来品質、5点/23切断・格子証明も有効。最初のworktree GLPK起動失敗は原ログと再実行を保全。
+
+artifacts/parity-equality-evaluationに5917一次ファイル183,165,108bytes、ELF6本ローカル参照/生成GLPKモデル3省略。heuristic-recovery-negative-evaluationには未採用の区間回復/完全ピボット/一般整数pump 2557一次ファイル47,211,813bytes、ELF6本ローカル参照。全relocation-ledgerを照合。全240用parity-equality-final-20261116はcreate-onlyで全hash照合、最終自作全件は未開始。
+
+native凍結評価は10:26UTC 240/720、厳密最適108、エラー17。077-glpk map16715-04は3660.23秒watchdog、OOMなし、出力なしでraw errorを保全。holdout入力を改善判断には使っていない。次はeta更新後のdual分母不一致だけを新LUで再分解する仮説を別branchで検査する。11月19日UTC目安の全件開始と11月22日14:59UTC期限を守る。

@@ -1,0 +1,7 @@
+# LP推定作業領域の上限
+
+外部の比較制限は16GiBだが、RustはLP入力の推定領域（非零48byte/行2048byte/列128byte）を256MiBで止めていた。sorrell3/supportcase10の推定値は約350MiBで、根LP開始前にresource_limitとなる。基底の実際のfill-inを保証する上限ではないが、この内部guardを観測・設定できるようにする。
+
+MIP_LP_WORKSPACE_MIBで正のMiBを指定し、結果へlp_workspace_bytesを保存する。既定を512MiBにする候補を、同じbinaryの256/512設定で比較する。外部16GiB/RLIMIT/cgroup、スレッド数、入力、LP/BBの算法は変えない。整数overflow/0/負数を拒否する。
+
+既存Rust検査と数値回帰、固定開発18問、以前resource_limitだった開発問題での根LP進捗/主解/下界/ピークRSS/終了状態を確認する。time_limitへ変わることだけを解けた数の改善とはしない。OOMも結果として保存する。
