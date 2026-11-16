@@ -1,0 +1,434 @@
+[
+  {
+    "run": "smoke-20261116-013013-p3ecj_7m",
+    "name": "timtab1.mps.gz",
+    "solver": "glpk",
+    "solution_sha256": "6bb72dbfce4e7c5077586f3dc75296ebabc4379cc9a70c86eb5604bccbad1a39",
+    "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/glpk/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/four-rounds-native-audit/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/glpk"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1147266.0,
+        "bound_violation": 2.6645352591003757e-15,
+        "row_violation": 2.84217e-14,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1147266.0,
+      "bound_violation": 3e-15,
+      "row_violation": 2.84217e-14,
+      "integer_violation": 0.0,
+      "objective_error": 4.983858989420444e-12,
+      "exact": {
+        "objective": "114726600000000000498385898942044403/100000000000000000000000000000",
+        "bound_violation": "3/1000000000000000",
+        "row_violation": "284217/10000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "498385898942044403/100000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "114726700000000000498385898942044403/10000000000000000000000000000000000000",
+        "absolute_error": "498385898942044403/100000000000000000000000000000",
+        "recomputed_exact": "114726600000000000498385898942044403/100000000000000000000000000000",
+        "reported_token": "1147266"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+        "artifacts/four-rounds-native-audit/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/glpk/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261116-013013-p3ecj_7m",
+    "name": "timtab1.mps.gz",
+    "solver": "highs",
+    "solution_sha256": "0b5cd28506abd08fb56e7bba2ac89282e4d01b56ce9d2cb387271c2d0e001b9d",
+    "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/highs/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/four-rounds-native-audit/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/highs"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 764771.99999988,
+        "bound_violation": 2.695279896705381e-14,
+        "row_violation": 5.684341886080802e-14,
+        "integer_violation": 7.771561172376096e-15,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 764771.99999988,
+      "bound_violation": 2.695279896705381e-14,
+      "row_violation": 5.1e-14,
+      "integer_violation": 7.8e-15,
+      "objective_error": 5.6436128686385815e-11,
+      "exact": {
+        "objective": "764771999999879943563871313614185061/1000000000000000000000000000000",
+        "bound_violation": "2695279896705381/100000000000000000000000000000",
+        "row_violation": "51/1000000000000000",
+        "integer_violation": "39/5000000000000000",
+        "objective_error": "56436128686385814939/1000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "764772999999879943563871313614185061/100000000000000000000000000000000000000",
+        "absolute_error": "56436128686385814939/1000000000000000000000000000000",
+        "recomputed_exact": "764771999999879943563871313614185061/1000000000000000000000000000000",
+        "reported_token": "764771.99999988"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+        "artifacts/four-rounds-native-audit/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/highs/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261116-013013-p3ecj_7m",
+    "name": "timtab1.mps.gz",
+    "solver": "scip",
+    "solution_sha256": "fac497980c5fba2eee6b52278895640546a6a7c27a72fffc66e172d2a26f9883",
+    "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/scip/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/four-rounds-native-audit/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/scip"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 764771.9999998801,
+        "bound_violation": 1.4210854715202004e-14,
+        "row_violation": 2.84217e-14,
+        "integer_violation": 1.4210854715202004e-14,
+        "objective_error": 2.3283064365386963e-10,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 764771.9999998801,
+      "bound_violation": 1.4210854715202004e-14,
+      "row_violation": 2.84217e-14,
+      "integer_violation": 1.4210854715202004e-14,
+      "objective_error": 2.353693682063146e-10,
+      "exact": {
+        "objective": "19119299999997001615765794842134627990399833/25000000000000000000000000000000000000",
+        "bound_violation": "3552713678800501/250000000000000000000000000000",
+        "row_violation": "284217/10000000000000000000",
+        "integer_violation": "3552713678800501/250000000000000000000000000000",
+        "objective_error": "5884234205157865372009600167/25000000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "19119324999997001615765794842134627990399833/2500000000000000000000000000000000000000000000",
+        "absolute_error": "5884234205157865372009600167/25000000000000000000000000000000000000",
+        "recomputed_exact": "19119299999997001615765794842134627990399833/25000000000000000000000000000000000000",
+        "reported_token": "764771.9999998803"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+        "artifacts/four-rounds-native-audit/smoke-20261116-013013-p3ecj_7m/timtab1.mps.gz/scip/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261116-013015-g8s4gyll",
+    "name": "binkar10_1.mps.gz",
+    "solver": "glpk",
+    "solution_sha256": "74f76055c05555bf5ffba10b9532aa0fcbe71ad164d5229bc287fb60d24a639a",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/glpk/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/four-rounds-native-audit/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/glpk"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 6755.1500240027035,
+        "bound_violation": 2.0393129909923293e-15,
+        "row_violation": 2.0393129909923293e-15,
+        "integer_violation": 0.0,
+        "objective_error": 4.547473508864641e-12,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 6755.1500240027035,
+      "bound_violation": 2.0393129909923293e-15,
+      "row_violation": 2.0393129909923293e-15,
+      "integer_violation": 0.0,
+      "objective_error": 4.23690538561289e-12,
+      "exact": {
+        "objective": "6755150024002703763094614387110516948999/1000000000000000000000000000000000000",
+        "bound_violation": "20393129909923293/10000000000000000000000000000000",
+        "row_violation": "20393129909923293/10000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "4236905385612889483051001/1000000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "6756150024002703763094614387110516948999/100000000000000000000000000000000000000000000",
+        "absolute_error": "4236905385612889483051001/1000000000000000000000000000000000000",
+        "recomputed_exact": "6755150024002703763094614387110516948999/1000000000000000000000000000000000000",
+        "reported_token": "6755.150024002708"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/four-rounds-native-audit/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/glpk/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261116-013015-g8s4gyll",
+    "name": "binkar10_1.mps.gz",
+    "solver": "highs",
+    "solution_sha256": "2c3c324ac86a060817d858bf8a96409a7e9e855df7ccdc5f37d353754b9af44f",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/highs/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/four-rounds-native-audit/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/highs"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 6742.200023999994,
+        "bound_violation": 2.914513075324976e-11,
+        "row_violation": 1.2745360322696797e-13,
+        "integer_violation": 2.914513075324976e-11,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 6742.200023999994,
+      "bound_violation": 2.91451e-11,
+      "row_violation": 1.275e-13,
+      "integer_violation": 2.91451e-11,
+      "objective_error": 5.876676832943045e-13,
+      "exact": {
+        "objective": "6742200023999994587667683294304523802677/1000000000000000000000000000000000000",
+        "bound_violation": "291451/10000000000000000",
+        "row_violation": "51/400000000000000",
+        "integer_violation": "291451/10000000000000000",
+        "objective_error": "587667683294304523802677/1000000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "6743200023999994587667683294304523802677/100000000000000000000000000000000000000000000",
+        "absolute_error": "587667683294304523802677/1000000000000000000000000000000000000",
+        "recomputed_exact": "6742200023999994587667683294304523802677/1000000000000000000000000000000000000",
+        "reported_token": "6742.200023999994"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/four-rounds-native-audit/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/highs/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "smoke-20261116-013015-g8s4gyll",
+    "name": "binkar10_1.mps.gz",
+    "solver": "scip",
+    "solution_sha256": "bb424d25705ea39b39ec46ca33b55c68b85f5fb6b7269532058e5559773bee6a",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/scip/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/four-rounds-native-audit/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/scip"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 6742.200024,
+        "bound_violation": 1.7173762412169765e-14,
+        "row_violation": 1.1102230246251565e-16,
+        "integer_violation": 1.7173762412169765e-14,
+        "objective_error": 1.610715116839856e-09,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 6742.200024,
+      "bound_violation": 1.7173762412169765e-14,
+      "row_violation": 1.73762412169765e-16,
+      "integer_violation": 1.7173762412169765e-14,
+      "objective_error": 1.6111320813227112e-09,
+      "exact": {
+        "objective": "269688000960000005283252908450221482193/40000000000000000000000000000000000",
+        "bound_violation": "3434752482433953/200000000000000000000000000000",
+        "row_violation": "34752482433953/200000000000000000000000000000",
+        "integer_violation": "3434752482433953/200000000000000000000000000000",
+        "objective_error": "64445283252908450221482193/40000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "269728000960000005283252908450221482193/4000000000000000000000000000000000000000000",
+        "absolute_error": "64445283252908450221482193/40000000000000000000000000000000000",
+        "recomputed_exact": "269688000960000005283252908450221482193/40000000000000000000000000000000000",
+        "reported_token": "6742.200023998389"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/four-rounds-native-audit/smoke-20261116-013015-g8s4gyll/binkar10_1.mps.gz/scip/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+]

@@ -80,7 +80,7 @@ impl Default for Limits {
             feasibility_pump: true,
             primal_probe: true,
             cover_cuts: true,
-            cover_rounds: 2,
+            cover_rounds: 4,
             rounding_cuts: false,
             strong_branching: true,
             strong_objective: true,
