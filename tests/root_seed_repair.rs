@@ -33,6 +33,7 @@ fn limits() -> Limits {
         three_row_cuts: false,
         rounding_cuts: false,
         objective_rounding: false,
+        row_ray_report: false,
         ..Limits::default()
     }
 }
@@ -78,4 +79,12 @@ fn existing_box_point_disabled_flag_and_expired_budget_skip_the_extra_search() {
     assert!(r.root_seed_repair.is_none());
     assert!(r.values.is_none());
     assert_eq!(r.status, "time_limit");
+}
+
+#[test]
+fn reported_row_bound_does_not_upgrade_a_node_limited_seed(){
+ let m=model(true);
+ let r=solve(&m,&Limits{row_ray_report:true,..limits()});
+ assert_eq!(r.status,"node_limit");assert_eq!(r.lp_solves,0);assert_eq!(r.objective,Some(0.));
+ let bound=r.dual_bound.unwrap();assert!(bound<=0.&&bound>=-1e-12);assert!(r.row_ray_proof.is_some());
 }
