@@ -1,0 +1,66 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261116-005348-len_800f/eil33-2.mps.gz/highs/options.txt
+MIP eil33-2 has 32 rows; 4516 cols; 44243 nonzeros; 4516 integer variables (4516 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [7e+01, 4e+02]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 1e+00]
+Presolving model
+32 rows, 4516 cols, 44243 nonzeros 0s
+32 rows, 4516 cols, 44243 nonzeros 0s
+Presolve reductions: rows 32(-0); columns 4516(-0); nonzeros 44243(-0) - Not reduced
+
+Solving MIP model with:
+   32 rows
+   4516 cols (4516 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   44243 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            1921.316581        Large        0      0      0         0     1.9s
+         0       0         0   0.00%   811.2789961     1921.316581       57.77%        0      0      2       209     1.9s
+ L       0       0         0   0.00%   814.8851271     1004.117216       18.85%       21      7      3      2227     5.7s
+
+3.3% inactive integer columns, restarting
+Model after restart has 32 rows, 4048 cols (4048 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 39340 nonzeros
+
+         0       0         0   0.00%   815.2924716     1004.117216       18.81%        7      0      0      4475     7.8s
+         0       0         0   0.00%   815.2924716     1004.117216       18.81%        7      7      6      4531     7.8s
+         0       0         0   0.00%   816.9674324     1004.117216       18.64%       39     16      6      6287    10.0s
+
+Solving report
+  Model             eil33-2
+  Status            Time limit reached
+  Primal bound      1004.117216
+  Dual bound        816.967432423
+  Gap               18.64%
+  P-D integral      4.91
+  Solution status   feasible
+                    1004.117216 (objective)
+                    1.55431223448e-15 (integrality violation)
+  Timing            10.00
+                    5.13 (Presolve)
+                        MIP    time [calls] = 1.85 [1]
+                        subMIP time [calls] = 3.28 [33]
+                    4.87 (Solve)
+                        MIP    time [calls] = 3.00 [1]
+                        subMIP time [calls] = 1.87 [6]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [33]
+  Max sub-MIP depth 6
+  Nodes             0
+  Repair LPs        0
+  LP iterations     6287
+                    0 (strong br.)
+                    277 (separation)
+                    5743 (heuristics)
