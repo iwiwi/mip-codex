@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/decimal-row-mir-development-screen/cases/ns1760995.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/decimal-row-mir-final-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/ns1760995.mps.gz",
+    "10"
+  ],
+  "input_sha256": "126455c6e29c801b5cab0039e2696b60167f85450fe0c187352442cd0c529ddd",
+  "split": "development",
+  "cpu": 2,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_DECIMAL_ROW_MIR": "0",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

@@ -1,0 +1,15 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-refinement)
+error[E0308]: `?` operator has incompatible types
+  --> src/cuts/mir.rs:64:28
+   |
+64 |     derive_integer(model, &integer_source(source)?, upper, d, complements)
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^ expected `Row`, found `Cow<'_, Row>`
+   |
+   = note: `?` operator cannot convert from `Cow<'_, Row>` to `Row`
+   = note: expected struct `Row`
+                found enum `Cow<'_, Row>`
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `mip-codex` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `mip-codex` (lib test) due to 1 previous error

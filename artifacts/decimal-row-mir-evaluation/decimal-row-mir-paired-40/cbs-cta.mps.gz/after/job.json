@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/decimal-row-mir-paired-40/cbs-cta.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/decimal-row-mir-final-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/cbs-cta.mps.gz",
+    "10"
+  ],
+  "input_sha256": "4f688482bbf0702ff0176fc027ee13967c1a8dbf8f243f8b2cebbb35bef534fa",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_DECIMAL_ROW_MIR": "1"
+  },
+  "cpu": 40,
+  "seconds": 10
+}
