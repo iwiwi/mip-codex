@@ -9,6 +9,8 @@ use faer::{
 use std::{sync::Arc, time::Instant};
 const FEAS: f64 = 1e-8;
 const PIVOT: f64 = 1e-10;
+// Experimental static ranking only: 0=Dantzig, 1=L2, 2=L1.
+const PRICING_NORM: u8 = 1;
 #[derive(Clone, Debug)]
 pub struct Problem {
     pub columns: Vec<Vec<(usize, f64)>>,
@@ -707,6 +709,22 @@ impl Simplex {
         }
     }
     fn run(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        let weights: Vec<f64> = self
+            .columns
+            .iter()
+            .map(|column| {
+                let weight = match PRICING_NORM {
+                    1 => column.iter().fold(1.0f64, |n, &(_, a)| n.hypot(a)),
+                    2 => 1. + column.iter().map(|&(_, a)| a.abs()).sum::<f64>(),
+                    _ => 1.,
+                };
+                if weight.is_finite() && weight > 0. {
+                    weight
+                } else {
+                    1.
+                }
+            })
+            .collect();
         let minimum_cost = c
             .iter()
             .map(|v| v.abs())
@@ -740,8 +758,12 @@ impl Simplex {
                 let direction = if self.at_upper[j] { -1.0 } else { 1.0 };
                 let (raw, tolerance) = self.reduced_with_tolerance(c, &y, j);
                 let reduced = direction * raw;
-                if reduced < -tolerance.max(noise_floor) && reduced < most_negative {
-                    most_negative = reduced;
+                let score = reduced / weights[j];
+                if reduced < -tolerance.max(noise_floor)
+                    && (entering.is_none() || score < most_negative)
+                {
+                    // Keep the first eligible column even if division underflows.
+                    most_negative = score;
                     entering = Some((j, direction));
                     if degenerate > 25 {
                         break;
