@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/priced-portfolio-v1-long-paired-44/sp97ar.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/priced-portfolio-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/sp97ar.mps.gz",
+    "60"
+  ],
+  "input_sha256": "8b3632e0a37e2af18f77c4c078d075bf8007adc3b6a2e84b0c2c0c044d285e74",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_ROOT_PRICE_PORTFOLIO": "1"
+  },
+  "cpu": 44,
+  "seconds": 60
+}
