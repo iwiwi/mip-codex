@@ -13,3 +13,5 @@
 300小例を直接入口から元MPSの独立GMP絶対検査と全列挙に照合し全件有効。実行前にhelper ELFとbuild-info/全sourceを照合保存した。cygnetの元MPS単独監査も厳密・公式とも有効。全188×10秒のenv0/1対照と独立監査、cygnet60秒対照を開始した。
 
 PR84をmain129090b8b/FP9faaaa51331767bbへ採用。primaryのcygnet218/170、enlight37最適、Nidda13590.827113447798/−1216923.270104406が再現。全240設定root-objective-repair-final-20261116はcreate-onlyで全SHA照合済み、本ジョブ未開始。
+
+PR84のprimary再監査3点/3証明が全件有効。148一次ファイル2790685bytes（ELF4本はSHA参照）と全240のcreate-only設定を保存した。root-objective-repair-snapshot-20261116.jsonはprimaryでuntrackedのため次のpull前に退避する。
