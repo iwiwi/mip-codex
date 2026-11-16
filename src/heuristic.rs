@@ -83,6 +83,7 @@ impl<'a> Repair<'a> {
         self.stats.calls += 1;
         let mut rng = seed.wrapping_add(0x9e3779b97f4a7c15);
         let mut work = 0usize;
+        let screen = std::env::var("MIP_REPAIR_CHECK_SCREEN").is_ok_and(|v| v == "1");
         for attempt in 0..4 {
             if Instant::now() >= deadline || work >= budget {
                 break;
@@ -129,7 +130,14 @@ impl<'a> Repair<'a> {
                     break;
                 }
                 // 許容誤差の境界から少し内側で候補を受理し、独立検査も別途行う。
-                if self.candidate_check(&x) {
+                // 活動値は候補受理の証明には使わず、明白な違反時の全検査だけ省く。
+                // 丸め誤差による探索取り逃しを抑えるため、受理閾値より広い余裕を使う。
+                let plausible = !screen || activities.iter().enumerate().all(|(i, &a)| {
+                    let row = &self.model.rows[i];
+                    !a.is_finite() || (row.lower.is_none_or(|l| a >= l - 1e-6)
+                        && row.upper.is_none_or(|u| a <= u + 1e-6))
+                });
+                if plausible && self.candidate_check(&x) {
                     self.stats.candidates += 1;
                     self.stats.work += work;
                     return Some(x);

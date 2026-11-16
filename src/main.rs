@@ -199,6 +199,9 @@ fn run() -> Result<(), String> {
         if let Ok(v) = std::env::var("MIP_ROOT_PRIMAL_DESCENT") {
             limits.root_primal_descent=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROOT_PRIMAL_DESCENT must be 0 or 1".into())};
         }
+        if let Ok(v) = std::env::var("MIP_REPAIR_CHECK_SCREEN") {
+            if v != "0" && v != "1" { return Err("MIP_REPAIR_CHECK_SCREEN must be 0 or 1".into()); }
+        }
         if let Ok(v) = std::env::var("MIP_COMPONENT_WORK_SHARE") {
             limits.component_work_share=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_COMPONENT_WORK_SHARE must be 0 or 1".into())};
         }
