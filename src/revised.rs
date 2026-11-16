@@ -680,6 +680,9 @@ impl Simplex {
             let denom = -t * d[r] * direction;
             let remaining = t * (target - self.x[leaving]);
             if !denom.is_finite() || denom <= PIVOT || remaining < -1e-7 {
+                if std::env::var_os("MIP_LP_TRACE").is_some() {
+                    eprintln!("dual ratio failure restoration={RESTORATION} denom={denom:e} remaining={remaining:e} t={t} direction={direction} row={r} entering={j} flips={} updates={}", flips.len(), self.factor.updates.len());
+                }
                 return Err(numerical());
             }
             let theta = remaining.max(0.0) / denom;
