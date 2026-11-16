@@ -1,0 +1,52 @@
+Reading problem data from '/home/ubuntu/mip-priced-repair/data/raw/benchmark/sp98ar.mps.gz'...
+Problem: sp98ar
+Objective: obj
+1436 rows, 15085 columns, 441233 non-zeros
+15085 integer variables, all of which are binary
+459197 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-194900-bfwzv_84/sp98ar.mps.gz/glpk/model.glp'...
+459192 lines were written
+GLPK Integer Optimizer 5.0
+1435 rows, 15085 columns, 426148 non-zeros
+15085 integer variables, all of which are binary
+Preprocessing...
+87 hidden covering inequaliti(es) were detected
+1430 rows, 15085 columns, 426143 non-zeros
+15085 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.800e+01  ratio =  2.800e+01
+GM: min|aij| =  2.969e-01  max|aij| =  3.369e+00  ratio =  1.135e+01
+EQ: min|aij| =  9.215e-02  max|aij| =  1.000e+00  ratio =  1.085e+01
+2N: min|aij| =  6.250e-02  max|aij| =  1.750e+00  ratio =  2.800e+01
+Constructing initial basis...
+Size of triangular part is 1430
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+1430 rows, 15085 columns, 426143 non-zeros
+      0: obj =   0.000000000e+00 inf =   3.754e+02 (522)
+    347: obj =   8.038059628e+08 inf =   1.780e-14 (0) 2
+*  1423: obj =   5.244012966e+08 inf =   7.542e-14 (0) 10
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 522
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 15080 + 0 = 15080 vertices
++  1423: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Solution found by heuristic: 9979463169.44
+Pass 1
+Error: basis matrix is singular to working precision (cond = 8.22e+15)
+Warning: glp_simplex returned 5
++  1889: mip =   9.979463169e+09 >=   5.258150153e+08  94.7% (1; 0)
++  2157: mip =   9.979463169e+09 >=   5.260678604e+08  94.7% (1; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-194900-bfwzv_84/sp98ar.mps.gz/glpk/solution.raw'...
+16529 lines were written

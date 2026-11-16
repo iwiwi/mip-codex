@@ -1,0 +1,55 @@
+NAME oracle
+ROWS
+ N obj
+ G r0
+ G r1
+ G r2
+ G r3
+ L cap
+COLUMNS
+ x0 obj 0.25
+ x0 r1 1
+ x0 r3 1
+ x0 cap 1
+ x1 obj 7.00
+ x1 cap 1
+ x2 obj 6.50
+ x2 r0 1
+ x2 r1 1
+ x2 cap 1
+ x3 obj 8.00
+ x3 r0 1
+ x3 cap 1
+ x4 obj 1.50
+ x4 cap 1
+ x5 obj 7.25
+ x5 r1 1
+ x5 r2 1
+ x5 cap 1
+ x6 obj 6.25
+ x6 r0 1
+ x6 r3 1
+ x6 cap 1
+ x7 obj 3.50
+ x7 cap 1
+ x8 obj 1.50
+ x8 r2 1
+ x8 cap 1
+RHS
+ rhs r0 1
+ rhs r1 1
+ rhs r2 1
+ rhs r3 1
+ rhs cap 8
+ rhs obj -1.00
+BOUNDS
+ UI b x0 2
+ BV b x1
+ BV b x2
+ BV b x3
+ BV b x4
+ BV b x5
+ BV b x6
+ BV b x7
+ BV b x8
+ENDATA
