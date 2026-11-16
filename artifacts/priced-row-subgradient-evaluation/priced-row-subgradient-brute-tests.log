@@ -1,0 +1,10 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-priced-repair)
+error[E0433]: cannot find type `Repair` in this scope
+  --> tests/row_subgradient.rs:14:68
+   |
+14 |   let m=mps::parse(std::io::Cursor::new(text)).unwrap();let repair=Repair::new(&m);let seed=vec![1.;n];let lower=vec![Some(0.);n];le...
+   |                                                                    ^^^^^^ use of undeclared type `Repair`
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `mip-codex` (test "row_subgradient") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

@@ -40,3 +40,5 @@ pub mod row_packing;
 pub mod objective_repair;
 
 pub mod priced_objective_repair;
+
+pub mod row_subgradient;

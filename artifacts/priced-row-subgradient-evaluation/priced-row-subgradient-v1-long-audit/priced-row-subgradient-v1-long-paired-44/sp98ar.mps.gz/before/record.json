@@ -1,0 +1,71 @@
+{
+  "source": "/home/ubuntu/mip-codex/artifacts/priced-row-subgradient-v1-long-paired-44/sp98ar.mps.gz/before/result.json",
+  "sha256": "a6131d104bf4c07ac25b1229f76cb9fa65bba1b971a3cfa67ff1165c0270509c",
+  "cut": {
+    "valid": true,
+    "checked": 10,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040",
+    "row_ray_valid": true,
+    "aggregate_checked": 6,
+    "input_sha256": "593aa5cd3fefdd4bbc16f05349f27636d0512a5ca9f8a0a4e35d025c73e44399"
+  },
+  "point": {
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 658266817.76,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 658266817.76,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "16456670444/25",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "16456670469/2500000000",
+        "absolute_error": "0",
+        "recomputed_exact": "16456670444/25",
+        "reported_token": "658266817.76"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/sp98ar.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/priced-row-subgradient-v1-long-audit/priced-row-subgradient-v1-long-paired-44/sp98ar.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+}
