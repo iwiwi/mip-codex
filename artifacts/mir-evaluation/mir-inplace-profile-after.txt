@@ -1,0 +1,59 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 140  of event 'cycles:u'
+# Event count (approx.): 311158326
+#
+# Overhead  Command    Shared Object          Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+# ........  .........  .....................  .....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    23.21%  mip-codex  mip-codex              [.] <faer::col::generic::Col<_>>::copy_from::imp::<f64>
+    18.00%  mip-codex  mip-codex              [.] <mip_codex::revised::Simplex>::run
+     8.50%  mip-codex  mip-codex              [.] faer::sparse::linalg::colamd::order::<usize>
+     8.33%  mip-codex  mip-codex              [.] faer::sparse::linalg::triangular_solve::solve_upper_triangular_transpose_in_place::<usize, f64>
+     6.95%  mip-codex  mip-codex              [.] faer::perm::permute_rows::implementation::<u64, f64>
+     4.36%  mip-codex  mip-codex              [.] <mip_codex::revised::Basis>::forward
+     4.35%  mip-codex  mip-codex              [.] <mip_codex::revised::Basis>::backward
+     3.48%  mip-codex  mip-codex              [.] faer::sparse::linalg::triangular_solve::solve_upper_triangular_in_place::<usize, f64>
+     3.44%  mip-codex  mip-codex              [.] <faer::mat::generic::Mat<_>>::copy_from::imp::<f64>
+     2.60%  mip-codex  mip-codex              [.] mip_codex::revised::primal_ratio_threshold
+     1.75%  mip-codex  mip-codex              [.] <alloc::vec::Vec<(usize, f64)> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<(usize, f64), core::iter::adapters::map::Map<core::iter::adapters::filter::Filter<core::iter::adapters::enumerate::Enumerate<core::slice::iter::Iter<f64>>, <mip_codex::revised::Basis>::update::{closure#0}>, <mip_codex::revised::Basis>::update::{closure#1}>>>::from_iter
+     1.74%  mip-codex  mip-codex              [.] <alloc::vec::Vec<f64> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<f64, core::iter::adapters::map::Map<core::ops::range::Range<usize>, <mip_codex::revised::Basis>::backward::{closure#2}>>>::from_iter
+     1.74%  mip-codex  mip-codex              [.] faer::sparse::linalg::triangular_solve::solve_unit_lower_triangular_in_place::<usize, f64>
+     1.65%  mip-codex  mip-codex              [.] <alloc::vec::Vec<f64> as alloc::vec::spec_from_iter_nested::SpecFromIterNested<f64, core::iter::adapters::map::Map<core::ops::range::Range<usize>, <mip_codex::revised::Basis>::forward::{closure#2}>>>::from_iter
+     0.87%  mip-codex  mip-codex              [.] faer::sparse::linalg::qr::ghost_column_counts_aat::<usize>
+     0.87%  mip-codex  mip-codex              [.] faer::sparse::linalg::lu::factorize_symbolic_lu::<usize>
+     0.87%  mip-codex  mip-codex              [.] core::slice::sort::shared::smallsort::insertion_sort_shift_left::<usize, <[usize]>::sort_unstable_by_key<(usize, usize), <faer::sparse::csc::symbolic::generic::SymbolicSparseColMat<faer::sparse::csc::symbolic::Own<usize>>>::try_new_from_indices_impl<<faer::sparse::csc::numeric::generic::SparseColMat<faer::sparse::csc::numeric::Own<usize, f64>>>::try_new_from_triplets::{closure#0}, <faer::sparse::csc::numeric::generic::SparseColMat<faer::sparse::csc::numeric::Own<usize, f64>>>::try_new_from_triplets::{closure#1}>::{closure#0}>::{closure#0}>
+     0.87%  mip-codex  mip-codex              [.] faer::sparse::linalg::lu::simplicial::factorize_simplicial_numeric_lu::<usize, f64>
+     0.87%  mip-codex  mip-codex              [.] faer::sparse::linalg::triangular_solve::solve_unit_lower_triangular_transpose_in_place::<usize, f64>
+     0.87%  mip-codex  libc.so.6              [.] 0x0000000000094070
+     0.87%  mip-codex  libc.so.6              [.] 0x00000000000952cc
+     0.87%  mip-codex  libc.so.6              [.] 0x00000000000928b4
+     0.86%  mip-codex  mip-codex              [.] <core::str::iter::SplitWhitespace as core::iter::traits::iterator::Iterator>::next
+     0.68%  mip-codex  mip-codex              [.] mip_codex::mps::parse::<alloc::io::buffered::bufreader::BufReader<flate2::gz::read::GzDecoder<std::fs::File>>>
+     0.62%  mip-codex  mip-codex              [.] mip_codex::mps::decimal_parts
+     0.46%  mip-codex  mip-codex              [.] miniz_oxide::inflate::core::decompress_fast
+     0.12%  mip-codex  mip-codex              [.] <hashbrown::raw::RawTable<(alloc::string::String, usize)>>::reserve_rehash::<hashbrown::map::make_hasher<alloc::string::String, usize, std::hash::random::RandomState>::{closure#0}>
+     0.08%  mip-codex  libc.so.6              [.] 0x0000000000094ee8
+     0.07%  env        libc.so.6              [.] putenv
+     0.04%  mip-codex  ld-linux-aarch64.so.1  [.] 0x0000000000008d20
+     0.03%  mip-codex  ld-linux-aarch64.so.1  [.] 0x00000000000094d0
+     0.01%  env        ld-linux-aarch64.so.1  [.] 0x00000000000111e4
+     0.00%  mip-codex  ld-linux-aarch64.so.1  [.] 0x0000000000010d94
+     0.00%  env        ld-linux-aarch64.so.1  [.] 0x0000000000010d54
+     0.00%  taskset    taskset                [.] 0x0000000000003584
+     0.00%  env        ld-linux-aarch64.so.1  [.] 0x0000000000016664
+     0.00%  taskset    taskset                [.] 0x00000000000035c0
+     0.00%  env        ld-linux-aarch64.so.1  [.] 0x000000000001661c
+     0.00%  env        [unknown]              [k] 0xffffa7d5f5c61554
+     0.00%  taskset    libc.so.6              [.] sched_setaffinity
+     0.00%  env        ld-linux-aarch64.so.1  [.] 0x00000000000165e0
+     0.00%  env        ld-linux-aarch64.so.1  [.] 0x000000000001aa40
+     0.00%  env        [unknown]              [k] 0xffffa7d5f5c61dd0
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

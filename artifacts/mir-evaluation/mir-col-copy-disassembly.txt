@@ -1,0 +1,135 @@
+
+target/release/mip-codex:     file format elf64-littleaarch64
+
+
+Disassembly of section .text:
+
+00000000000fe040 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex>:
+   fe040:	a940b008 	ldp	x8, x12, [x0, #8]
+   fe044:	f9400009 	ldr	x9, [x0]
+   fe048:	f940002a 	ldr	x10, [x1]
+   fe04c:	f940082b 	ldr	x11, [x1, #16]
+   fe050:	f100051f 	cmp	x8, #0x1
+   fe054:	ba418980 	ccmn	x12, #0x1, #0x0, hi	// hi = pmore
+   fe058:	1a9f17ed 	cset	w13, eq	// eq = none
+   fe05c:	340001c2 	cbz	w2, fe094 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x54>
+   fe060:	3400034d 	cbz	w13, fe0c8 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x88>
+   fe064:	f940042d 	ldr	x13, [x1, #8]
+   fe068:	f10005ac 	subs	x12, x13, #0x1
+   fe06c:	9a8c33ee 	csel	x14, xzr, x12, cc	// cc = lo, ul, last
+   fe070:	5280002c 	mov	w12, #0x1                   	// #1
+   fe074:	9b0b7dcf 	mul	x15, x14, x11
+   fe078:	eb0d01df 	cmp	x14, x13
+   fe07c:	cb08018d 	sub	x13, x12, x8
+   fe080:	8b0d0d29 	add	x9, x9, x13, lsl #3
+   fe084:	cb0b03eb 	neg	x11, x11
+   fe088:	9a9f31ee 	csel	x14, x15, xzr, cc	// cc = lo, ul, last
+   fe08c:	8b0e0d4a 	add	x10, x10, x14, lsl #3
+   fe090:	1400000f 	b	fe0cc <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x8c>
+   fe094:	340002cd 	cbz	w13, fe0ec <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xac>
+   fe098:	f940042d 	ldr	x13, [x1, #8]
+   fe09c:	f10005ac 	subs	x12, x13, #0x1
+   fe0a0:	9a8c33ee 	csel	x14, xzr, x12, cc	// cc = lo, ul, last
+   fe0a4:	5280002c 	mov	w12, #0x1                   	// #1
+   fe0a8:	9b0b7dcf 	mul	x15, x14, x11
+   fe0ac:	eb0d01df 	cmp	x14, x13
+   fe0b0:	cb08018d 	sub	x13, x12, x8
+   fe0b4:	8b0d0d29 	add	x9, x9, x13, lsl #3
+   fe0b8:	cb0b03eb 	neg	x11, x11
+   fe0bc:	9a9f31ee 	csel	x14, x15, xzr, cc	// cc = lo, ul, last
+   fe0c0:	8b0e0d4a 	add	x10, x10, x14, lsl #3
+   fe0c4:	1400000b 	b	fe0f0 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xb0>
+   fe0c8:	b4000668 	cbz	x8, fe194 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x154>
+   fe0cc:	f100057f 	cmp	x11, #0x1
+   fe0d0:	fa410980 	ccmp	x12, #0x1, #0x0, eq	// eq = none
+   fe0d4:	540001e1 	b.ne	fe110 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xd0>  // b.any
+   fe0d8:	fc408540 	ldr	d0, [x10], #8
+   fe0dc:	f1000508 	subs	x8, x8, #0x1
+   fe0e0:	fc008520 	str	d0, [x9], #8
+   fe0e4:	54ffffa1 	b.ne	fe0d8 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x98>  // b.any
+   fe0e8:	1400002b 	b	fe194 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x154>
+   fe0ec:	b4000548 	cbz	x8, fe194 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x154>
+   fe0f0:	f100057f 	cmp	x11, #0x1
+   fe0f4:	fa410980 	ccmp	x12, #0x1, #0x0, eq	// eq = none
+   fe0f8:	540002e1 	b.ne	fe154 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x114>  // b.any
+   fe0fc:	fc408540 	ldr	d0, [x10], #8
+   fe100:	f1000508 	subs	x8, x8, #0x1
+   fe104:	fc008520 	str	d0, [x9], #8
+   fe108:	54ffffa1 	b.ne	fe0fc <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xbc>  // b.any
+   fe10c:	14000022 	b	fe194 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x154>
+   fe110:	f100291f 	cmp	x8, #0xa
+   fe114:	54000422 	b.cs	fe198 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x158>  // b.hs, b.nlast
+   fe118:	aa1f03ed 	mov	x13, xzr
+   fe11c:	9b0b7dae 	mul	x14, x13, x11
+   fe120:	d37df16b 	lsl	x11, x11, #3
+   fe124:	cb0d0108 	sub	x8, x8, x13
+   fe128:	9b0c7daf 	mul	x15, x13, x12
+   fe12c:	d37df18c 	lsl	x12, x12, #3
+   fe130:	8b0e0d4a 	add	x10, x10, x14, lsl #3
+   fe134:	8b0f0d29 	add	x9, x9, x15, lsl #3
+   fe138:	fd400140 	ldr	d0, [x10]
+   fe13c:	f1000508 	subs	x8, x8, #0x1
+   fe140:	8b0b014a 	add	x10, x10, x11
+   fe144:	fd000120 	str	d0, [x9]
+   fe148:	8b0c0129 	add	x9, x9, x12
+   fe14c:	54ffff61 	b.ne	fe138 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xf8>  // b.any
+   fe150:	14000011 	b	fe194 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x154>
+   fe154:	f100291f 	cmp	x8, #0xa
+   fe158:	540004a2 	b.cs	fe1ec <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x1ac>  // b.hs, b.nlast
+   fe15c:	aa1f03ed 	mov	x13, xzr
+   fe160:	9b0b7dae 	mul	x14, x13, x11
+   fe164:	d37df16b 	lsl	x11, x11, #3
+   fe168:	cb0d0108 	sub	x8, x8, x13
+   fe16c:	9b0c7daf 	mul	x15, x13, x12
+   fe170:	d37df18c 	lsl	x12, x12, #3
+   fe174:	8b0e0d4a 	add	x10, x10, x14, lsl #3
+   fe178:	8b0f0d29 	add	x9, x9, x15, lsl #3
+   fe17c:	fd400140 	ldr	d0, [x10]
+   fe180:	f1000508 	subs	x8, x8, #0x1
+   fe184:	8b0b014a 	add	x10, x10, x11
+   fe188:	fd000120 	str	d0, [x9]
+   fe18c:	8b0c0129 	add	x9, x9, x12
+   fe190:	54ffff61 	b.ne	fe17c <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x13c>  // b.any
+   fe194:	d65f03c0 	ret
+   fe198:	f100059f 	cmp	x12, #0x1
+   fe19c:	aa1f03ed 	mov	x13, xzr
+   fe1a0:	54fffbe1 	b.ne	fe11c <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xdc>  // b.any
+   fe1a4:	f100057f 	cmp	x11, #0x1
+   fe1a8:	54fffba1 	b.ne	fe11c <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xdc>  // b.any
+   fe1ac:	cb09014e 	sub	x14, x10, x9
+   fe1b0:	b10081df 	cmn	x14, #0x20
+   fe1b4:	54fffb48 	b.hi	fe11c <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xdc>  // b.pmore
+   fe1b8:	927ef50d 	and	x13, x8, #0xfffffffffffffffc
+   fe1bc:	9100414e 	add	x14, x10, #0x10
+   fe1c0:	9100412f 	add	x15, x9, #0x10
+   fe1c4:	927ef510 	and	x16, x8, #0xfffffffffffffffc
+   fe1c8:	ad7f85c0 	ldp	q0, q1, [x14, #-16]
+   fe1cc:	f1001210 	subs	x16, x16, #0x4
+   fe1d0:	910081ce 	add	x14, x14, #0x20
+   fe1d4:	ad3f85e0 	stp	q0, q1, [x15, #-16]
+   fe1d8:	910081ef 	add	x15, x15, #0x20
+   fe1dc:	54ffff61 	b.ne	fe1c8 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x188>  // b.any
+   fe1e0:	eb0d011f 	cmp	x8, x13
+   fe1e4:	54fff9c1 	b.ne	fe11c <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0xdc>  // b.any
+   fe1e8:	17ffffeb 	b	fe194 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x154>
+   fe1ec:	f100059f 	cmp	x12, #0x1
+   fe1f0:	aa1f03ed 	mov	x13, xzr
+   fe1f4:	54fffb61 	b.ne	fe160 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x120>  // b.any
+   fe1f8:	f100057f 	cmp	x11, #0x1
+   fe1fc:	54fffb21 	b.ne	fe160 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x120>  // b.any
+   fe200:	cb09014e 	sub	x14, x10, x9
+   fe204:	b10081df 	cmn	x14, #0x20
+   fe208:	54fffac8 	b.hi	fe160 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x120>  // b.pmore
+   fe20c:	927ef50d 	and	x13, x8, #0xfffffffffffffffc
+   fe210:	9100414e 	add	x14, x10, #0x10
+   fe214:	9100412f 	add	x15, x9, #0x10
+   fe218:	927ef510 	and	x16, x8, #0xfffffffffffffffc
+   fe21c:	ad7f85c0 	ldp	q0, q1, [x14, #-16]
+   fe220:	f1001210 	subs	x16, x16, #0x4
+   fe224:	910081ce 	add	x14, x14, #0x20
+   fe228:	ad3f85e0 	stp	q0, q1, [x15, #-16]
+   fe22c:	910081ef 	add	x15, x15, #0x20
+   fe230:	54ffff61 	b.ne	fe21c <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x1dc>  // b.any
+   fe234:	eb0d011f 	cmp	x8, x13
+   fe238:	54fff941 	b.ne	fe160 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x120>  // b.any
+   fe23c:	17ffffd6 	b	fe194 <_RINvNvMs5_NtNtCsyXTrip7zP2_4faer3col6colmutINtNtBa_7generic3ColpE9copy_from3impdECseBqAWHlWY3A_9mip_codex+0x154>

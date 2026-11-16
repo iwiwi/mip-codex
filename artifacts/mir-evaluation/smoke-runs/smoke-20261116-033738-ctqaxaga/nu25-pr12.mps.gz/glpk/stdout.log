@@ -1,0 +1,53 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/nu25-pr12.mps.gz'...
+Problem: nu25-pr12
+Objective: R2314
+2314 rows, 5868 columns, 23580 non-zeros
+5868 integer variables, 5832 of which are binary
+31974 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-033738-ctqaxaga/nu25-pr12.mps.gz/glpk/model.glp'...
+32089 lines were written
+GLPK Integer Optimizer 5.0
+2313 rows, 5868 columns, 17712 non-zeros
+5868 integer variables, 5832 of which are binary
+Preprocessing...
+2276 rows, 5834 columns, 17569 non-zeros
+5834 integer variables, 5798 of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  3.000e+01  ratio =  3.000e+01
+GM: min|aij| =  9.724e-01  max|aij| =  1.028e+00  ratio =  1.058e+00
+EQ: min|aij| =  9.455e-01  max|aij| =  1.000e+00  ratio =  1.058e+00
+2N: min|aij| =  6.250e-01  max|aij| =  1.000e+00  ratio =  1.600e+00
+Constructing initial basis...
+Size of triangular part is 2114
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+2276 rows, 5834 columns, 17569 non-zeros
+      0: obj =   2.070000000e+03 inf =   6.486e+02 (318)
+    561: obj =   6.035000000e+04 inf =   5.329e-15 (0) 3
+*   963: obj =   5.275750000e+04 inf =   8.308e-15 (0) 2
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 3494
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 906 + 906 = 1812 vertices
++   963: mip =     not found yet >=              -inf        (1; 0)
+FPUMP heuristic cannot be applied due to general integer variables
+Cuts on level 0: gmi = 23;
+Solution found by heuristic: 55915
+Cuts on level 45: gmi = 27;
++  2651: >>>>>   5.591000000e+04 >=   5.356500000e+04   4.2% (81; 2)
+Solution found by heuristic: 55045
+Solution found by heuristic: 55040
++ 13376: mip =   5.504000000e+04 >=   5.368500000e+04   2.5% (409; 220)
+Solution found by heuristic: 53940
+Solution found by heuristic: 53925
++ 20599: mip =   5.392500000e+04 >=   5.370000000e+04   0.4% (478; 793)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-033738-ctqaxaga/nu25-pr12.mps.gz/glpk/solution.raw'...
+8190 lines were written
