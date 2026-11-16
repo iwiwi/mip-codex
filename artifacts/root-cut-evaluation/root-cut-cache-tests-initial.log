@@ -1,0 +1,23 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-codex)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.10s
+     Running tests/root_cut_cache.rs (target/debug/build/mip-codex/3c11904f8e5e251b/out/root_cut_cache-3c11904f8e5e251b)
+
+running 5 tests
+test cached_infeasibility_still_uses_original_row_certification ... ok
+test zero_limits_and_cached_pivot_limit_preserve_status ... ok
+
+thread 'root_without_new_cuts_is_solved_once_even_without_warm_start' (1111772) panicked at tests/root_cut_cache.rs:37:9:
+assertion failed: r.root_lp_reused
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test root_without_new_cuts_is_solved_once_even_without_warm_start ... FAILED
+test last_cut_result_is_reused_only_when_no_later_row_is_added ... ok
+test propagation_and_disabled_cuts_do_not_reuse_an_old_root ... ok
+
+failures:
+
+failures:
+    root_without_new_cuts_is_solved_once_even_without_warm_start
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test root_cut_cache`

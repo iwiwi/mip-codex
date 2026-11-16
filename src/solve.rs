@@ -136,6 +136,8 @@ pub struct Result {
     pub cut_rounds: usize,
     pub cut_lp_solves: usize,
     pub cut_seconds: f64,
+    pub cut_initial_lp_seconds: f64,
+    pub root_lp_reused: bool,
     pub probe: ProbeStats,
     pub diving: DivingStats,
     pub feasibility_pump_enabled: bool,
@@ -859,8 +861,14 @@ pub struct ProbeStats {
     pub candidates: usize,
     pub improvements: usize,
 }
+struct CachedRoot {
+    standard: Standard,
+    answer: revised::Answer,
+}
 #[derive(Default)]
 struct CutPreparation {
+    cached: Option<CachedRoot>,
+    initial_lp_seconds: f64,
     model: Option<Model>,
     cuts: Vec<cuts::Cut>,
     stats: cuts::Stats,
@@ -880,38 +888,62 @@ fn prepare_cuts(
         || !((limits.cover_cuts && cuts::applicable(model))
             || (limits.rounding_cuts && cuts::rounding_applicable(model))
             || (limits.aggregate_cuts && cuts::aggregate_applicable(model)))
+        || limits.nodes == 0
         || Instant::now() >= deadline
     {
         return prepared;
     }
     let started = Instant::now();
-    let cut_deadline = deadline
-        .min(started + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)));
+    let cut_budget = std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25));
+    let mut cut_deadline = deadline.min(started + cut_budget);
+    // Propagation can change the root bounds before the main solve. Keep its
+    // original short preparation path rather than caching a different problem.
+    let global_first = !limits.propagation;
     let mut work = model.clone();
     let mut pool = cuts::Pool::default();
-    for _ in 0..limits.cover_rounds {
-        if Instant::now() >= cut_deadline {
+    for round in 0..limits.cover_rounds {
+        let solve_deadline = if round == 0 && global_first {
+            deadline
+        } else {
+            cut_deadline
+        };
+        if Instant::now() >= solve_deadline {
             break;
         }
-        let Relaxation::Ready(q) =
-            standard_sparse(&work, root, limits.dense_bytes, false, limits.fixed_columns)
-        else {
+        let Relaxation::Ready(q) = standard_sparse(
+            &work,
+            root,
+            limits.dense_bytes,
+            global_first,
+            limits.fixed_columns,
+        ) else {
             break;
         };
+        let lp_started = Instant::now();
         let answer = revised::minimize_warm(
             q.sparse.as_ref().unwrap(),
             limits.pivots,
-            Some(cut_deadline),
+            Some(solve_deadline),
             if limits.warm_start {
                 root.warm.as_deref()
             } else {
                 None
             },
         );
+        if round == 0 && global_first {
+            prepared.initial_lp_seconds = lp_started.elapsed().as_secs_f64();
+            cut_deadline = deadline.min(Instant::now() + cut_budget);
+        }
         prepared.lp_solves += 1;
         prepared.rounds += 1;
         lp_stats.add(&answer.stats);
-        let lp::Outcome::Optimal { x, .. } = answer.outcome else {
+        let lp::Outcome::Optimal { x, .. } = &answer.outcome else {
+            if round == 0 && global_first {
+                prepared.cached = Some(CachedRoot {
+                    standard: q,
+                    answer,
+                });
+            }
             break;
         };
         let point: Vec<_> = q
@@ -921,10 +953,16 @@ fn prepare_cuts(
             .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
             .collect();
         if work.check(&point, false, 1e-6).is_err() {
+            if global_first {
+                prepared.cached = Some(CachedRoot {
+                    standard: q,
+                    answer,
+                });
+            }
             break;
         }
         if limits.warm_start {
-            root.warm = answer.warm;
+            root.warm = answer.warm.clone();
         }
         let mut generated = if limits.rounding_cuts {
             pool.separate_rounding(model, &point, 32, cut_deadline)
@@ -943,6 +981,12 @@ fn prepare_cuts(
             generated.extend(pool.separate(model, &point, 32 - generated.len(), cut_deadline));
         }
         if generated.is_empty() {
+            if global_first {
+                prepared.cached = Some(CachedRoot {
+                    standard: q,
+                    answer,
+                });
+            }
             break;
         }
         work.rows
@@ -1080,7 +1124,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         early_repair = Some(repair);
     }
     let mut lp_stats = revised::Stats::default();
-    let prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
+    let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
+    let mut cached_root = prepared.cached.take();
+    let root_lp_reused = cached_root.is_some();
     let lp_model = prepared.model.as_ref().unwrap_or(model);
     let objective_grid = if limits.objective_rounding
         && !limits.propagation
@@ -1168,7 +1214,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 continue;
             }
         }
-        let interrupt = if Instant::now() >= deadline {
+        // An already computed root result still needs the normal point/proof
+        // checks. This permits no new LP solve after the global deadline.
+        let interrupt = if Instant::now() >= deadline && !(nodes == 0 && cached_root.is_some()) {
             Some("time_limit")
         } else if nodes >= limits.nodes {
             Some("node_limit")
@@ -1221,17 +1269,25 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                 }
             }
         }
-        let relaxation = match limits.engine {
-            Engine::Dense => {
-                standard_dense(lp_model, &node, limits.dense_bytes, limits.fixed_columns)
-            }
-            Engine::Revised => standard_sparse(
-                lp_model,
-                &node,
-                limits.dense_bytes,
-                objective_certifier.is_some() || check_original_infeasibility,
-                limits.fixed_columns,
-            ),
+        let cached = if nodes == 1 { cached_root.take() } else { None };
+        let (relaxation, cached_answer) = if let Some(cached) = cached {
+            (Relaxation::Ready(cached.standard), Some(cached.answer))
+        } else {
+            (
+                match limits.engine {
+                    Engine::Dense => {
+                        standard_dense(lp_model, &node, limits.dense_bytes, limits.fixed_columns)
+                    }
+                    Engine::Revised => standard_sparse(
+                        lp_model,
+                        &node,
+                        limits.dense_bytes,
+                        objective_certifier.is_some() || check_original_infeasibility,
+                        limits.fixed_columns,
+                    ),
+                },
+                None,
+            )
         };
         let p = match relaxation {
             Relaxation::Infeasible => {
@@ -1250,15 +1306,25 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             }
             Relaxation::Ready(p) => p,
         };
-        lp_solves += 1;
+        let reused_root = cached_answer.is_some();
+        lp_solves += usize::from(!reused_root);
         let mut next_warm = None;
         let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
-            let answer = if limits.warm_start {
-                revised::minimize_warm(sparse, limits.pivots, Some(deadline), node.warm.as_deref())
-            } else {
-                revised::minimize(sparse, limits.pivots, Some(deadline))
-            };
-            lp_stats.add(&answer.stats);
+            let answer = cached_answer.unwrap_or_else(|| {
+                if limits.warm_start {
+                    revised::minimize_warm(
+                        sparse,
+                        limits.pivots,
+                        Some(deadline),
+                        node.warm.as_deref(),
+                    )
+                } else {
+                    revised::minimize(sparse, limits.pivots, Some(deadline))
+                }
+            });
+            if !reused_root {
+                lp_stats.add(&answer.stats);
+            }
             if limits.warm_start {
                 next_warm = answer.warm;
             }
@@ -2094,6 +2160,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         cut_rounds: prepared.rounds,
         cut_lp_solves: prepared.lp_solves,
         cut_seconds: prepared.seconds,
+        cut_initial_lp_seconds: prepared.initial_lp_seconds,
+        root_lp_reused,
         probe,
         diving,
         feasibility_pump_enabled: limits.feasibility_pump,
