@@ -1,0 +1,73 @@
+{
+  "name": "tbfp-network.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "80269ad17c17581db84385c5a1f3d91cf7a48f3df8c614ecc21d4ad6a83106c4",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "cb044fc2098ffc2e515febf0fd819232f3717c11b42afa11b26de34ff11746a6",
+    "row_ray_valid": true,
+    "input_sha256": "80269ad17c17581db84385c5a1f3d91cf7a48f3df8c614ecc21d4ad6a83106c4"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 109.5486111118,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 109.5486111118,
+    "bound_violation": 0.0,
+    "row_violation": 0.0,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "547743055559/5000000000",
+      "bound_violation": "0",
+      "row_violation": "0",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "552743055559/500000000000000000",
+      "absolute_error": "0",
+      "recomputed_exact": "547743055559/5000000000",
+      "reported_token": "109.5486111118"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/tbfp-network.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/root-primal-descent-development-audit/tbfp-network.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "e7a468f2b07d8dd2aa2b86827b1e398573efb40442d092f6595b6ba4329150e7",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 1.8187767149938736
+}
