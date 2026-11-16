@@ -16,6 +16,10 @@ try:
     strict = validate(model, value)
 except Exception as error:
     strict = dict(valid=None, error=str(error))
+if value.get('parity_proof') is not None:
+    from verify_parity import validate_parity_proof
+    strict['parity_proof']=validate_parity_proof(Path(model),value)
+    if strict['parity_proof']['valid'] is not True:strict['valid']=False
 atomic_json(directory/'strict-validation.json', strict)
 sol = directory/'solution.sol'
 with sol.open('w') as stream:

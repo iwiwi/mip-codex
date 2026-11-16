@@ -22,6 +22,7 @@ pub struct Limits {
     pub primal_repair: bool,
     pub box_primal: bool,
     pub binary_graph: bool,
+    pub parity_equalities: bool,
     pub graph_local_search: bool,
     pub graph_root_coloring: bool,
     pub graph_root_prefix: bool,
@@ -66,6 +67,7 @@ impl Default for Limits {
             primal_repair: true,
             box_primal: true,
             binary_graph: true,
+            parity_equalities: true,
             graph_local_search: true,
             graph_root_coloring: true,
             graph_root_prefix: true,
@@ -100,6 +102,8 @@ impl Default for Limits {
 }
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parity_proof: Option<crate::parity::Proof>,
     pub binary_graph_enabled: bool,
     pub graph_cover_local_enabled: bool,
     pub aggregate_cuts_enabled: bool,
@@ -1286,6 +1290,39 @@ fn solve_seeded_warm(
     root_warm: Option<Arc<revised::WarmStart>>,
 ) -> Result {
     let start = Instant::now();
+    if seed.is_none() && limits.nodes > 0 && limits.seconds > 0. && limits.parity_equalities {
+        let deadline = start + std::time::Duration::from_secs_f64(limits.seconds.min(0.05));
+        if let Some(answer) = crate::parity::solve(model, deadline) {
+            let sign = if model.maximize { -1. } else { 1. };
+            let objective = model.objective(&answer.point);
+            let fixed: Vec<_> = answer.point.iter().map(|&x| Some(x)).collect();
+            if let Some(bound) = Certifier::new(model)
+                .and_then(|c| c.bound(&fixed, &fixed, &vec![0.; model.rows.len()]))
+                .filter(|_| objective.is_finite())
+            {
+                let dual = sign * bound;
+                return Result {
+                    parity_proof: Some(answer.proof),
+                    status: "optimal".into(),
+                    objective: Some(objective),
+                    dual_bound: Some(dual),
+                    gap: Some((objective - dual).abs() / objective.abs().max(1.)),
+                    values: Some(
+                        model
+                            .variables
+                            .iter()
+                            .zip(answer.point)
+                            .map(|(v, x)| (v.name.clone(), x))
+                            .collect(),
+                    ),
+                    seconds: start.elapsed().as_secs_f64(),
+                    first_primal_seconds: Some(start.elapsed().as_secs_f64()),
+                    lp_search_termination: Some("parity_unique".into()),
+                    ..Result::default()
+                };
+            }
+        }
+    }
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
@@ -2414,6 +2451,7 @@ fn solve_seeded_warm(
     let propagation_stats = propagator.map_or_else(propagate::Stats::default, |p| p.stats);
     let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
+        parity_proof: None,
         binary_graph_enabled: limits.binary_graph,
         graph_cover_local_enabled: limits.graph_cover_local,
         aggregate_cuts_enabled: limits.aggregate_cuts,

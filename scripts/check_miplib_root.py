@@ -10,7 +10,7 @@ from validate_solution import original_lp
 
 os.environ['MIP_PRIMAL_REPAIR'] = '0'  # isolate LP engine work
 os.environ['MIP_PROPAGATION'] = '0'  # compare original continuous LP relaxations
-for flag in ['MIP_MIR_CUTS','MIP_CLIQUE_CUTS','MIP_AGGREGATE_CUTS','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_BINARY_GRAPH','MIP_OBJECTIVE_ROUNDING','MIP_BOX_PRIMAL','MIP_STRONG_BRANCHING','MIP_LP_DIVING','MIP_PRIMAL_PROBE','MIP_RINS','MIP_FEASIBILITY_PUMP']:
+for flag in ['MIP_PARITY_EQUALITIES','MIP_THREE_ROW_CUTS','MIP_MIR_CUTS','MIP_CLIQUE_CUTS','MIP_AGGREGATE_CUTS','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_BINARY_GRAPH','MIP_OBJECTIVE_ROUNDING','MIP_BOX_PRIMAL','MIP_STRONG_BRANCHING','MIP_LP_DIVING','MIP_PRIMAL_PROBE','MIP_RINS','MIP_FEASIBILITY_PUMP']:
     os.environ[flag]='0'
 root=Path(__file__).resolve().parents[1]
 manifest={r['name']:r for r in json.load(open(root/'data/manifest.json'))['instances']}
