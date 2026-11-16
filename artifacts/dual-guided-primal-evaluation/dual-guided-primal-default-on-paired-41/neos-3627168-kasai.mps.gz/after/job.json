@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/dual-guided-primal-default-on-paired-41/neos-3627168-kasai.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/dual-guided-primal-default-on-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3627168-kasai.mps.gz",
+    "10"
+  ],
+  "input_sha256": "adf4a013825ad2932531128132c387eab68470ca087e23ea5cca4d2930954d7e",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_DUAL_GUIDED_PRIMAL": "1"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/dual-guided-primal-development-screen/cases/uccase12.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/dual-guided-primal-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/uccase12.mps.gz",
+    "10"
+  ],
+  "input_sha256": "94f619019da67f3180bf5eaf2444ef6f80d25f08a76fb7b6f00f2ae3706ffb0a",
+  "split": "development",
+  "cpu": 7,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_DUAL_GUIDED_PRIMAL": "0",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}
