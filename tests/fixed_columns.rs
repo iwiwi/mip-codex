@@ -9,6 +9,7 @@ fn limits(engine: Engine, enabled: bool) -> Limits {
         engine,
         fixed_columns: enabled,
         cover_cuts: false,
+        clique_cuts: false,
         rounding_cuts: false,
         primal_repair: false,
         feasibility_pump: false,

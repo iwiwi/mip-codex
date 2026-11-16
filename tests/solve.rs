@@ -51,6 +51,7 @@ fn limits_do_not_claim_infeasibility() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                clique_cuts: false,
                 seconds: 0.,
                 ..Limits::default()
             },
@@ -61,6 +62,7 @@ fn limits_do_not_claim_infeasibility() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                clique_cuts: false,
                 nodes: 0,
                 ..Limits::default()
             },
@@ -71,6 +73,7 @@ fn limits_do_not_claim_infeasibility() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                clique_cuts: false,
                 dense_bytes: 0,
                 ..Limits::default()
             },
@@ -95,6 +98,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
             rins: false,
             strong_branching: false,
             cover_cuts: false,
+            clique_cuts: false,
             propagation: false,
             primal_repair: false,
             feasibility_pump: false,
@@ -111,6 +115,7 @@ fn propagation_preserves_optimum_and_saves_lp_calls() {
             rins: false,
             strong_branching: false,
             cover_cuts: false,
+            clique_cuts: false,
             propagation: true,
             primal_repair: false,
             feasibility_pump: false,
@@ -144,6 +149,7 @@ fn dense_reference_handles_row_and_objective_scales() {
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
+                clique_cuts: false,
                 engine: mip_codex::solve::Engine::Dense,
                 primal_repair: false,
                 feasibility_pump: false,

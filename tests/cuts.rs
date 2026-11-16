@@ -143,6 +143,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
         rins: false,
         strong_branching: false,
         cover_cuts: false,
+        clique_cuts: false,
         nodes: 1,
         primal_repair: false,
         feasibility_pump: false,

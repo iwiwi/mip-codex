@@ -13,7 +13,7 @@ instances=[r for r in config['instances']if r['split']=='development'];assert le
 selected=[r for i,r in enumerate(instances)if i%args.partitions==args.partition]
 args.directory.mkdir(parents=True,exist_ok=True);os.sched_setaffinity(0,set(range(33,42)))
 env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MIP_LP_ENGINE='revised',MIP_ABSOLUTE_CHECKER=str(snapshot/'snapshot/bin/solchecker-absolute'))
-for flag in ['MIP_AGGREGATE_CUTS','MIP_BINARY_GRAPH','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_LP_DIVING','MIP_PRIMAL_REPAIR','MIP_PRIMAL_PROBE','MIP_RINS','MIP_FEASIBILITY_PUMP','MIP_STRONG_BRANCHING','MIP_OBJECTIVE_ROUNDING','MIP_PROPAGATION','MIP_BOX_PRIMAL']:env[flag]='0'
+for flag in ['MIP_CLIQUE_CUTS','MIP_AGGREGATE_CUTS','MIP_BINARY_GRAPH','MIP_COVER_CUTS','MIP_ROUNDING_CUTS','MIP_LP_DIVING','MIP_PRIMAL_REPAIR','MIP_PRIMAL_PROBE','MIP_RINS','MIP_FEASIBILITY_PUMP','MIP_STRONG_BRANCHING','MIP_OBJECTIVE_ROUNDING','MIP_PROPAGATION','MIP_BOX_PRIMAL']:env[flag]='0'
 def restrict():
  os.sched_setaffinity(0,{args.cpu});resource.setrlimit(resource.RLIMIT_AS,(16*1024**3,16*1024**3))
 records=[]
