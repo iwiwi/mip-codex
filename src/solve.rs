@@ -1574,7 +1574,7 @@ fn solve_seeded_warm(
                 None,
             )
         };
-        let p = match relaxation {
+        let mut p = match relaxation {
             Relaxation::Infeasible => {
                 if nodes == 1 && best.is_some() {
                     root_incumbent_conflict = true;
@@ -1594,33 +1594,110 @@ fn solve_seeded_warm(
         let reused_root = cached_answer.is_some();
         lp_solves += usize::from(!reused_root);
         let mut next_warm = None;
-        let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
-            let answer = cached_answer.unwrap_or_else(|| {
-                if limits.warm_start {
-                    revised::minimize_warm(
-                        sparse,
-                        limits.pivots,
-                        Some(deadline),
-                        node.warm.as_deref(),
-                    )
-                } else {
-                    revised::minimize(sparse, limits.pivots, Some(deadline))
+        let work_before = lp_stats.pivots + lp_stats.flips;
+        let (mut answer, mut relaxation_dual, mut relaxation_witness) =
+            if let Some(sparse) = &p.sparse {
+                let answer = cached_answer.unwrap_or_else(|| {
+                    if limits.warm_start {
+                        revised::minimize_warm(
+                            sparse,
+                            limits.pivots,
+                            Some(deadline),
+                            node.warm.as_deref(),
+                        )
+                    } else {
+                        revised::minimize(sparse, limits.pivots, Some(deadline))
+                    }
+                });
+                if !reused_root {
+                    lp_stats.add(&answer.stats);
                 }
-            });
-            if !reused_root {
-                lp_stats.add(&answer.stats);
+                if limits.warm_start {
+                    next_warm = answer.warm;
+                }
+                (Ok(answer.outcome), answer.dual, answer.witness)
+            } else {
+                (
+                    lp::minimize_until(&p.a, &p.b, &p.c, limits.pivots, Some(deadline)),
+                    None,
+                    None,
+                )
+            };
+        if matches!(answer, Ok(lp::Outcome::NumericalError))
+            && std::env::var("MIP_NUMERICAL_INTERVAL_RECOVERY").is_ok_and(|v| v == "1")
+            && matches!(limits.engine, Engine::Revised)
+            && Instant::now() < deadline
+            && lp_model
+                .rows
+                .iter()
+                .map(|r| r.coefficients.len())
+                .sum::<usize>()
+                <= 100_000
+        {
+            if let Some(certifier) = Certifier::new(lp_model) {
+                let mut lower = node.lower.clone();
+                let mut upper = node.upper.clone();
+                let mut supported = true;
+                for (j, v) in lp_model.variables.iter().enumerate() {
+                    if lower[j] == v.lower && v.lower.is_some() {
+                        if let Some(b) = v.lower_enclosure {
+                            lower[j] = Some(b[0]);
+                        } else {
+                            supported = false;
+                        }
+                    }
+                    if upper[j] == v.upper && v.upper.is_some() {
+                        if let Some(b) = v.upper_enclosure {
+                            upper[j] = Some(b[1]);
+                        } else {
+                            supported = false;
+                        }
+                    }
+                }
+                if supported
+                    && certifier.tighten_node_box(&mut lower, &mut upper, Some(deadline)) > 0
+                    && Instant::now() < deadline
+                {
+                    let mut retry_node = node.clone();
+                    retry_node.lower = lower;
+                    retry_node.upper = upper;
+                    retry_node.warm = None;
+                    if let Relaxation::Ready(retry) = standard_sparse(
+                        lp_model,
+                        &retry_node,
+                        limits.dense_bytes,
+                        objective_certifier.is_some() || check_original_infeasibility,
+                        limits.fixed_columns,
+                    ) {
+                        if let Some(sparse) = &retry.sparse {
+                            let spent =
+                                (lp_stats.pivots + lp_stats.flips).saturating_sub(work_before);
+                            let remaining = limits.pivots.saturating_sub(spent);
+                            if remaining > 0 {
+                                let retry_answer =
+                                    revised::minimize(sparse, remaining, Some(deadline));
+                                lp_stats.add(&retry_answer.stats);
+                                lp_solves += 1;
+                                if std::env::var_os("MIP_LP_TRACE").is_some() {
+                                    eprintln!(
+                                        "interval recovery node={nodes} outcome={:?}",
+                                        retry_answer.outcome
+                                    );
+                                }
+                                if !matches!(retry_answer.outcome, lp::Outcome::NumericalError) {
+                                    node = retry_node;
+                                    p = retry;
+                                    answer = Ok(retry_answer.outcome);
+                                    relaxation_dual = retry_answer.dual;
+                                    relaxation_witness = retry_answer.witness;
+                                    next_warm = retry_answer.warm;
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            if limits.warm_start {
-                next_warm = answer.warm;
-            }
-            (Ok(answer.outcome), answer.dual, answer.witness)
-        } else {
-            (
-                lp::minimize_until(&p.a, &p.b, &p.c, limits.pivots, Some(deadline)),
-                None,
-                None,
-            )
-        };
+        }
         match answer {
             Ok(lp::Outcome::Infeasible) => {
                 if nodes == 1 && best.is_some() {

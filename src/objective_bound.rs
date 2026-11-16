@@ -572,6 +572,101 @@ impl Certifier {
         }
         (lower, upper)
     }
+    /// Tighten a node box using outward original-decimal row intervals.
+    /// No infeasibility declaration is made here; inconsistent proposals are ignored.
+    pub(crate) fn tighten_node_box(
+        &self,
+        lower: &mut [Option<f64>],
+        upper: &mut [Option<f64>],
+        deadline: Option<std::time::Instant>,
+    ) -> usize {
+        if lower.len() != self.columns.len() || upper.len() != lower.len() {
+            return 0;
+        }
+        let mut rows = vec![Vec::new(); self.rows.len()];
+        for (j, col) in self.columns.iter().enumerate() {
+            for &(i, a) in col {
+                rows[i].push((j, a));
+            }
+        }
+        let mut updates = 0;
+        for _ in 0..4 {
+            let before = updates;
+            for (i, row) in rows.iter().enumerate() {
+                if deadline.is_some_and(|d| std::time::Instant::now() >= d) {
+                    return updates;
+                }
+                for (sign, side) in [(1., 1), (-1., 0)] {
+                    let Some(rhs) = self.rows[i][side].map(|b| if sign > 0. { b } else { b.neg() })
+                    else {
+                        continue;
+                    };
+                    let mut terms = Vec::with_capacity(row.len());
+                    let mut total = Some(I::point(0.).unwrap());
+                    let mut unknown = 0;
+                    for &(j, a) in row {
+                        let a = if sign > 0. { a } else { a.neg() };
+                        let domain = match (lower[j], upper[j]) {
+                            (Some(l), Some(u)) => I::new(l, u),
+                            (Some(l), None) if a.lo >= 0. => I::point(l),
+                            (None, Some(u)) if a.hi <= 0. => I::point(u),
+                            _ => None,
+                        };
+                        let minimum = if a.zero() {
+                            Some(0.)
+                        } else {
+                            domain.and_then(|b| a.mul(b)).map(|b| b.lo)
+                        };
+                        if let Some(v) = minimum {
+                            total = total.and_then(|t| t.add(I::point(v)?));
+                        } else {
+                            unknown += 1;
+                        }
+                        terms.push((j, a, minimum));
+                    }
+                    let Some(total) = total else { continue };
+                    for (j, a, minimum) in terms {
+                        if !(a.lo > 0. || a.hi < 0.) {
+                            continue;
+                        }
+                        let others = match (unknown, minimum) {
+                            (0, Some(v)) => total.sub(I::point(v).unwrap()).map(|b| b.lo),
+                            (1, None) => Some(total.lo),
+                            _ => None,
+                        };
+                        let Some(numerator) =
+                            others.and_then(|v| rhs.sub(I::point(v)?)).map(|b| b.hi)
+                        else {
+                            continue;
+                        };
+                        if a.lo > 0. {
+                            let value = (numerator / a.lo).max(numerator / a.hi).next_up();
+                            if value.is_finite()
+                                && lower[j].is_none_or(|l| value >= l)
+                                && upper[j].is_none_or(|u| value < u - 1e-10 * (1. + u.abs()))
+                            {
+                                upper[j] = Some(value);
+                                updates += 1;
+                            }
+                        } else {
+                            let value = (numerator / a.lo).min(numerator / a.hi).next_down();
+                            if value.is_finite()
+                                && upper[j].is_none_or(|u| value <= u)
+                                && lower[j].is_none_or(|l| value > l + 1e-10 * (1. + l.abs()))
+                            {
+                                lower[j] = Some(value);
+                                updates += 1;
+                            }
+                        }
+                    }
+                }
+            }
+            if updates == before {
+                break;
+            }
+        }
+        updates
+    }
     /// Propose joint perturbations; only `bound` can accept a certificate.
     pub(crate) fn joint_positive_bound(
         &self,
@@ -707,6 +802,55 @@ impl Certifier {
 #[cfg(test)]
 mod implied_box_tests {
     use super::*;
+    #[test]
+    fn interval_tightening_keeps_every_exact_fractional_feasible_point() {
+        let mut seed = 2026111609u64;
+        for _ in 0..100 {
+            let mut next = || {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                seed
+            };
+            let a: Vec<i64> = (0..3).map(|_| (next() % 21) as i64 - 10).collect();
+            let rhs = (next() % 31) as i64 - 15;
+            let mut text = String::from("NAME tight\nROWS\n N c\n L r\nCOLUMNS\n");
+            for (j, c) in a.iter().enumerate() {
+                text += &format!(" x{j} c 0 r {}\n", *c as f64 / 10.);
+            }
+            text += &format!("RHS\n b r {}\nBOUNDS\n", rhs as f64 / 10.);
+            for j in 0..3 {
+                text += &format!(" LO b x{j} -2\n UP b x{j} 3\n");
+            }
+            text += "ENDATA\n";
+            let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+            let cert = Certifier::new(&model).unwrap();
+            let mut lower = vec![Some(-2.); 3];
+            let mut upper = vec![Some(3.); 3];
+            cert.tighten_node_box(&mut lower, &mut upper, None);
+            for x in -8..=12 {
+                for y in -8..=12 {
+                    for z in -8..=12 {
+                        let p = [x, y, z];
+                        if a.iter().zip(p).map(|(a, x)| a * x).sum::<i64>() > rhs * 4 {
+                            continue;
+                        }
+                        for j in 0..3 {
+                            let value = p[j] as f64 / 4.;
+                            assert!(lower[j].unwrap() <= value, "lost lower {a:?} {rhs} {p:?}");
+                            assert!(upper[j].unwrap() >= value, "lost upper {a:?} {rhs} {p:?}");
+                        }
+                    }
+                }
+            }
+            let mut lower = vec![Some(-2.); 3];
+            let mut upper = vec![Some(3.); 3];
+            assert_eq!(
+                cert.tighten_node_box(&mut lower, &mut upper, Some(std::time::Instant::now())),
+                0
+            );
+            assert_eq!(lower, vec![Some(-2.); 3]);
+            assert_eq!(upper, vec![Some(3.); 3]);
+        }
+    }
     #[test]
     fn decimal_interval_bounds_preserve_every_enumerated_feasible_point() {
         let mut seed = 98173u64;
