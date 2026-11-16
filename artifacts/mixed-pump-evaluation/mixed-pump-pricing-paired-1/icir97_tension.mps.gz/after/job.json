@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/mixed-pump-pricing-paired-1/icir97_tension.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/target-mixed-pump/release/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/icir97_tension.mps.gz",
+    "10"
+  ],
+  "input_sha256": "b900d1eacbb02a57253f4bac839e0c1f3464a18a4686f8a621610d5d735e92ff",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "cpu": 1,
+  "seconds": 10
+}
