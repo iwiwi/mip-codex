@@ -26,8 +26,13 @@ pub fn applicable(model: &Model) -> bool {
         == 2
 }
 pub(super) fn source(model: &Model, terms: &[RowWeight]) -> Option<Row> {
-    if terms.len() != 2 || terms[0].source_row == terms[1].source_row {
-        return None;
+    match terms {
+        [a, b] if a.source_row != b.source_row => {}
+        [a, b, c]
+            if a.source_row != b.source_row
+                && a.source_row != c.source_row
+                && b.source_row != c.source_row => {}
+        _ => return None,
     }
     let mut coefficients = BTreeMap::<usize, i128>::new();
     let mut rhs = 0i128;
@@ -353,6 +358,79 @@ mod tests {
                     .separate_aggregate(&decimal, &x, 32, Instant::now() + Duration::from_secs(1))
                     .is_empty()
             );
+        }
+    }
+    #[test]
+    fn three_rows_cancel_two_free_variables_and_validate_original_sides() {
+        for lower in [false, true] {
+            let sign = if lower { -1 } else { 1 };
+            let kind = if lower { "G" } else { "L" };
+            let text = format!(
+                "NAME aggregate3\nROWS\n N obj\n L a\n {kind} b\n L c\nCOLUMNS\n x obj -1 a 3\n z obj -1 c 3\n t a 2 b {}\n u b {} c -6\nRHS\n rhs a 3 b 0\n rhs c 1\nBOUNDS\n BV bd x\n BV bd z\n FR bd t\n FR bd u\nENDATA\n",
+                -sign,
+                3 * sign
+            );
+            let model = crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+            let terms: Vec<_> = [(0, true, 1), (1, !lower, 2), (2, true, 1)]
+                .into_iter()
+                .map(|(i, upper_side, weight)| RowWeight {
+                    source_row: i,
+                    source_name: model.rows[i].name.clone(),
+                    upper_side,
+                    weight,
+                })
+                .collect();
+            let point = [1., 1. / 3., 0., 0.];
+            assert!(model.check(&point, false, 1e-12).is_ok());
+            for indices in [[0, 1], [0, 2], [1, 2]] {
+                let pair = [terms[indices[0]].clone(), terms[indices[1]].clone()];
+                let combined = source(&model, &pair).unwrap();
+                assert!(rounding_row(&model, &combined, true, 3).is_none());
+            }
+            let combined = source(&model, &terms).unwrap();
+            let row = rounding_row(&model, &combined, true, 3).unwrap();
+            assert_eq!(row.coefficients, vec![(0, 1.), (1, 1.)]);
+            assert_eq!(row.upper, Some(1.));
+            let cut = Cut {
+                row,
+                proof: Proof {
+                    mir: None,
+                    clique: vec![],
+                    aggregation: terms,
+                    divisor: Some(3),
+                    source_row: 0,
+                    source_name: "a".into(),
+                    upper_side: true,
+                    cover: vec![],
+                },
+            };
+            assert!(verify(&model, &cut));
+            for x in 0..=1 {
+                for z in 0..=1 {
+                    for t in -8..=8 {
+                        for u in -8..=8 {
+                            let point = [x as f64, z as f64, t as f64 / 4., u as f64 / 4.];
+                            if model.check(&point, true, 1e-12).is_ok() {
+                                assert!(point[0] + point[1] <= cut.row.upper.unwrap());
+                            }
+                        }
+                    }
+                }
+            }
+            for mode in 0..6 {
+                let mut bad = cut.clone();
+                match mode {
+                    0 => bad.proof.aggregation[2].weight = 0,
+                    1 => bad.proof.aggregation[2].source_row = 0,
+                    2 => bad.proof.aggregation[2].source_name.push('!'),
+                    3 => bad.proof.aggregation.push(bad.proof.aggregation[0].clone()),
+                    4 => bad.row.upper = Some(0.),
+                    _ => {
+                        bad.proof.aggregation.pop();
+                    }
+                }
+                assert!(!verify(&model, &bad));
+            }
         }
     }
     #[test]
