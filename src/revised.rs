@@ -27,6 +27,8 @@ pub struct Stats {
     pub feasibility_pricing_calls: usize,
     pub pricing_cutoffs: usize,
     pub pricing_fallbacks: usize,
+    pub partial_pricing_calls: usize,
+    pub partial_pricing_columns: usize,
     pub flips: usize,
     pub refactors: usize,
     pub warm_attempts: usize,
@@ -761,6 +763,12 @@ impl Simplex {
         self.run_priced::<false>(c)
     }
     fn run_priced<const NORMALIZED: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        self.run_mode::<NORMALIZED, false>(c)
+    }
+    fn run_mode<const NORMALIZED: bool, const PARTIAL: bool>(
+        &mut self,
+        c: &[f64],
+    ) -> Result<(f64, f64), Outcome> {
         let weights: Vec<f64> = if NORMALIZED {
             self.columns
                 .iter()
@@ -790,6 +798,7 @@ impl Simplex {
         let normalized_active = NORMALIZED && self.stats.pivots + self.stats.flips < pricing_budget;
         let mut degenerate = 0usize;
         let mut verified = false;
+        let mut pricing_block = 0usize;
         let mut restoration_epoch = self.stats.restoration_attempts;
         let mut restoration_objective = f64::INFINITY;
         'iterations: loop {
@@ -810,30 +819,54 @@ impl Simplex {
             }
             let mut entering = None;
             let mut most_negative = 0.0;
-            for j in 0..c.len() {
-                if self.basic[j] || self.upper[j] == 0.0 {
-                    continue;
-                }
-                let direction = if self.at_upper[j] { -1.0 } else { 1.0 };
-                let (raw, tolerance) = self.reduced_with_tolerance(c, &y, j);
-                let reduced = direction * raw;
-                let score = if normalized_active {
-                    reduced / weights[j]
+            let blockwise = PARTIAL && degenerate <= 25;
+            let blocks = if blockwise { c.len().div_ceil(1024) } else { 1 };
+            for offset in 0..blocks {
+                let block = if blockwise {
+                    (pricing_block + offset) % blocks
                 } else {
-                    reduced
+                    0
                 };
-                let better = if NORMALIZED {
-                    entering.is_none() || score < most_negative
+                let start = if blockwise { block * 1024 } else { 0 };
+                let end = if blockwise {
+                    (start + 1024).min(c.len())
                 } else {
-                    reduced < most_negative
+                    c.len()
                 };
-                if reduced < -tolerance.max(noise_floor) && better {
-                    // Keep the first eligible column even if division underflows.
-                    most_negative = score;
-                    entering = Some((j, direction));
-                    if degenerate > 25 {
-                        break;
+                for j in start..end {
+                    if PARTIAL {
+                        self.stats.partial_pricing_columns += 1;
                     }
+                    if self.basic[j] || self.upper[j] == 0.0 {
+                        continue;
+                    }
+                    let direction = if self.at_upper[j] { -1.0 } else { 1.0 };
+                    let (raw, tolerance) = self.reduced_with_tolerance(c, &y, j);
+                    let reduced = direction * raw;
+                    let score = if normalized_active {
+                        reduced / weights[j]
+                    } else {
+                        reduced
+                    };
+                    let better = if NORMALIZED {
+                        entering.is_none() || score < most_negative
+                    } else {
+                        reduced < most_negative
+                    };
+                    if reduced < -tolerance.max(noise_floor) && better {
+                        // Keep the first eligible column even if division underflows.
+                        most_negative = score;
+                        entering = Some((j, direction));
+                        if degenerate > 25 {
+                            break;
+                        }
+                    }
+                }
+                if entering.is_some() {
+                    if blockwise {
+                        pricing_block = block;
+                    }
+                    break;
                 }
             }
             let Some((j, direction)) = entering else {
@@ -1099,6 +1132,8 @@ impl Stats {
         self.feasibility_pricing_calls += other.feasibility_pricing_calls;
         self.pricing_cutoffs += other.pricing_cutoffs;
         self.pricing_fallbacks += other.pricing_fallbacks;
+        self.partial_pricing_calls += other.partial_pricing_calls;
+        self.partial_pricing_columns += other.partial_pricing_columns;
         self.flips += other.flips;
         self.refactors += other.refactors;
         self.warm_attempts += other.warm_attempts;
@@ -1243,6 +1278,12 @@ fn cold_priced(
             }
             let (value, dual) = if normalized {
                 s.run_priced::<true>(&c)?
+            } else if s.columns.len() >= 4096
+                && p.costs.iter().any(|&v| v != 0.)
+                && std::env::var("MIP_LP_PARTIAL_PRICING").is_ok_and(|v| v == "1")
+            {
+                s.stats.partial_pricing_calls += 1;
+                s.run_mode::<false, true>(&c)?
             } else {
                 s.run_priced::<false>(&c)?
             };
@@ -1888,5 +1929,49 @@ mod pricing_budget_tests {
         assert_eq!(a.stats.feasibility_pricing_calls, 0);
         assert_eq!(a.stats.pricing_cutoffs, 0);
         assert_eq!(a.stats.pricing_fallbacks, 0);
+    }
+}
+
+#[cfg(test)]
+mod partial_pricing_tests {
+    use super::*;
+    #[test]
+    fn a_negative_column_in_the_last_block_is_found_before_certifying() {
+        let n = 4100;
+        let mut columns = vec![Vec::new(); n + 1];
+        columns[n - 1] = vec![(0, 1.)];
+        columns[n] = vec![(0, 1.)];
+        let mut basic = vec![false; n + 1];
+        basic[n] = true;
+        let mut x = vec![0.; n + 1];
+        x[n] = 1.;
+        let mut c = vec![0.; n + 1];
+        c[n] = 1.;
+        let mut s = Simplex {
+            columns: Arc::new(columns),
+            rhs: vec![1.],
+            upper: vec![1.; n + 1],
+            basis: vec![n],
+            basic,
+            at_upper: vec![false; n + 1],
+            x,
+            factor: Basis {
+                factor: Arc::new(Factor::Diagonal(vec![1.])),
+                updates: vec![],
+                multiplier_cache: None,
+            },
+            stats: Stats::default(),
+            limit: 100,
+            deadline: None,
+            artificial: vec![n],
+            original: n,
+            witness: None,
+            witness_point: None,
+        };
+        let (value, dual) = s.run_mode::<false, true>(&c).unwrap();
+        assert_eq!((value, dual), (0., 0.));
+        assert_eq!(s.x[n - 1], 1.);
+        assert_eq!(s.stats.pivots, 1);
+        assert!(s.stats.partial_pricing_columns >= n);
     }
 }

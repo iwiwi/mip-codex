@@ -207,6 +207,8 @@ pub struct Result {
     pub lp_feasibility_pricing_calls: Option<usize>,
     pub lp_pricing_cutoffs: Option<usize>,
     pub lp_pricing_fallbacks: Option<usize>,
+    pub lp_partial_pricing_calls: Option<usize>,
+    pub lp_partial_pricing_columns: Option<usize>,
     pub lp_flips: Option<usize>,
     pub lp_refactors: Option<usize>,
     pub status: String,
@@ -2394,6 +2396,10 @@ fn solve_seeded_warm(
             .then_some(lp_stats.pricing_cutoffs),
         lp_pricing_fallbacks: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.pricing_fallbacks),
+        lp_partial_pricing_calls: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.partial_pricing_calls),
+        lp_partial_pricing_columns: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.partial_pricing_columns),
         lp_flips: matches!(limits.engine, Engine::Revised).then_some(lp_stats.flips),
         lp_refactors: matches!(limits.engine, Engine::Revised).then_some(lp_stats.refactors),
         status,
@@ -2591,6 +2597,8 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         feasibility_pricing_calls: result.lp_feasibility_pricing_calls.unwrap_or(0),
         pricing_cutoffs: result.lp_pricing_cutoffs.unwrap_or(0),
         pricing_fallbacks: result.lp_pricing_fallbacks.unwrap_or(0),
+        partial_pricing_calls: result.lp_partial_pricing_calls.unwrap_or(0),
+        partial_pricing_columns: result.lp_partial_pricing_columns.unwrap_or(0),
         flips: result.lp_flips.unwrap_or(0),
         refactors: result.lp_refactors.unwrap_or(0),
         warm_attempts: result.lp_warm_attempts.unwrap_or(0),
