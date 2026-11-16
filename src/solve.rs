@@ -73,7 +73,7 @@ impl Default for Limits {
             primal_repair: true,
             box_primal: true,
             root_seed_repair: true,
-            root_objective_repair: false,
+            root_objective_repair: true,
             binary_graph: true,
             parity_equalities: true,
             graph_local_search: true,
