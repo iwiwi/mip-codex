@@ -533,3 +533,15 @@ PR73をmain c54dfda2d/FP8bへmerge。188対の主解1改善/dual1悪化を両方
 十進MIRは188対10秒主解0改善/1悪化・dual1改善、376証明/110点有効。binkar60秒も主解悪化。未採用としてdecimal-row-mir branchに4996 files/170316448 bytesをSHA台帳付き保存。疎LP内部workspace512→2048MiBは6例10/60秒で点なしのため未採用。制約追加と連続実行可能性のRust診断も4例で新規主解なし（supportcase12の全0点は既存box候補と同じと確認）、未採用。partial-phase1-pricingは212 Rust/最後block検査を通過し生成LP6例で約8%短いがgermanrr LP17.9秒→60秒点なしへ悪化し未採用。原出力と検査を各branchに保持。
 
 native全件は09:03 UTC 224/720、厳密最適103、error15。新070-glpk k1mushroomは3660秒PG watchdog、OOMなし・出力なし。凍結条件を変えずraw errorのまま報告する。最終Rust全240評価は未開始、期限11月22日14:59 UTC。
+
+## 2026-11-16 09:57 UTC 未採用LP実験の再開可能な保存
+
+PR74をdf80ef0fdへマージ済み。既定FP337114ffc2f9a6b7、全240用aggregate-three-final-20261116は作成/ハッシュ照合のみ。最終自作全件は未開始。
+
+内部LP workspace拡大、制約追加/連続実行可能性、partial Phase I pricing、停滞時の証明候補回復をartifacts/lp-numerical-negative-evaluationへ集約。2209ファイル97,389,550bytes、ELF4本はローカルに残しSHA/凍結ソースで参照する。元出力とのSHA relocation-ledgerを作成し、誤った設定名・CPU競合で破棄した測定・失敗ログも残した。詳細は対応HYPOTHESIS/NUMERICAL_CERTIFICATE_RECOVERY文書。
+
+workspace512→2048MiBは6件でresource_limit→time_limitだが根LP点なし。制約追加で得たsupportcase12全0点は既存box候補と同じ。partial pricingは生成LP6例約8.3%短縮に対してgermanrr LP17.9→60秒点なしの悪化があり棄却。証明候補回復はnidda70→93ノード、新受理14証明を元MPSでFraction独立確認したが主解/下界不変。V1/V2の8出力の証明と4整数点は検査成功。全体速度/解品質の改善として数えない。
+
+数値停止93枝は比較HiGHSでLP実行可能。自作改訂/密表は単独でも停止、既存float伝播後の改訂LP点は元MPSのFraction検査成功。ただし旧伝播を新しい小数係数の証明に使わず、係数/RHS/境界を区間で囲む別試作を進行。単独区間回復では139ノードまで進むが解品質不変、100小数行の有理格子全列挙で実行可能点の保存と期限切れ無操作を確認。採用せず次の診断へ。
+
+nativeは09:53UTC 234/720、厳密最適108、エラー16。063-scip highschool1-aigioは3660.49秒watchdog終了、ログを今回保全。比較条件は変更しない。holdoutの入力を改善判断に使わない。
