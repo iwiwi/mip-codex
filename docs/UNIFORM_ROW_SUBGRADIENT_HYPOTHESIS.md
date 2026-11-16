@@ -13,3 +13,5 @@ main PR91/FPeb58f7ae33131dafを基点に別branch uniform-row-subgradientで試�
 選択10秒6/6・60秒4/4の元MPS証明/主解は全有効。188件途中のneos-3024952-loueは22959→22966だが両側ともrow_subgradient_proof=Noneであり、本機能の因果的改善とは扱わない。実行時間制限内の探索差を含め、全結果を残す。PR92採用後のprimary再監査5主解/5証明は全有効、3600秒240件FPdfaスナップショットのcreate-only記録を同branchへ保存済み。
 
 10秒外部比較はseymour1/glass-scの8出力を完了した後、誤指定cygnet.mps.gzでdriver exit1。部分run/失敗JSON/生logを保持し、正しいneos-5052403-cygnet.mps.gzだけ別runへ訂正した。既存smoke共通driverにも全名称・development所属の事前検査を追加し、誤指定が出力directory/solver実行より前にexit1となることを確認した。完了8主解・2証明の独立監査は全有効。
+
+外部10秒のseymour1はRust460/386.9652661149541、HiGHS413.9006249343651/405.7280619094241、SCIP423.2322111666241/407.1796461131864、GLPK413.08146032042265/406.02530467701223。glass-scはRust28/11.118797276413423、HiGHS23/15、SCIP23/14.531637537030962、GLPK23/15。いずれも両品質で外部3種に及ばない。訂正cygnet別runはRust218/170、HiGHS203/0、SCIP290/0、GLPK解/下界なし。Rust下界は外部より強いが主解はHiGHSより弱く、全体優位を主張しない。
