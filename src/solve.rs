@@ -50,6 +50,7 @@ pub struct Limits {
     pub rins: bool,
     pub terminal_neighborhood: bool,
     pub objective_rounding: bool,
+    pub objective_domain_report: bool,
     pub objective_rounding_all: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
@@ -97,6 +98,7 @@ impl Default for Limits {
             rins: true,
             terminal_neighborhood: true,
             objective_rounding: true,
+            objective_domain_report: false,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
@@ -147,6 +149,11 @@ pub struct Result {
     pub objective_rounding: bool,
     pub objective_rounding_all: bool,
     pub objective_grid: Option<Grid>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "crate::model::serialize_optional_solution_number"
+    )]
+    pub objective_domain_bound: Option<f64>,
     pub objective_bound_stats: ObjectiveBoundStats,
     pub infeasibility_proof_calls: usize,
     pub infeasibility_proof_trials: usize,
@@ -2569,7 +2576,25 @@ fn solve_seeded_warm(
         terminal.seconds += started.elapsed().as_secs_f64();
         terminal_neighborhood = Some(terminal);
     }
+    // 既存の原目的箱の証明を結果表示にだけ使う。探索・終了状態は変えない。
+    let domain_lower = limits
+        .objective_domain_report
+        .then(|| {
+            objective_grid
+                .as_ref()
+                .and_then(|grid| {
+                    if model.maximize {
+                        grid.max_domain.as_ref()
+                    } else {
+                        grid.min_domain.as_ref()
+                    }
+                })
+                .map(|domain| domain.base as f64)
+        })
+        .flatten();
+    let objective_domain_bound = domain_lower.map(|bound| sign * bound);
     let internal_dual = stack.min_bound(terminal_bound.min(incumbent).min(deferred.minimum));
+    let internal_dual = domain_lower.map_or(internal_dual, |bound| internal_dual.max(bound));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
     }
@@ -2638,6 +2663,7 @@ fn solve_seeded_warm(
         objective_rounding: limits.objective_rounding,
         objective_rounding_all: limits.objective_rounding_all,
         objective_grid,
+        objective_domain_bound,
         objective_bound_stats,
         infeasibility_proof_calls,
         infeasibility_proof_trials,
