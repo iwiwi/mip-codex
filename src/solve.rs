@@ -98,7 +98,7 @@ impl Default for Limits {
             rins: true,
             terminal_neighborhood: true,
             objective_rounding: true,
-            objective_domain_report: false,
+            objective_domain_report: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
@@ -2996,7 +2996,20 @@ mod seed_tests {
         let result = solve_seeded(&m, &limits, Some(&[1.]));
         assert_eq!(result.status, "time_limit");
         assert_eq!(result.objective, Some(1.));
-        assert_eq!(result.dual_bound, None);
+        assert_eq!(result.dual_bound, Some(0.));
+        assert_eq!(result.objective_domain_bound, Some(0.));
+        assert_eq!(result.lp_solves, 0);
+        let disabled = solve_seeded(
+            &m,
+            &Limits {
+                objective_domain_report: false,
+                ..limits.clone()
+            },
+            Some(&[1.]),
+        );
+        assert_eq!(disabled.status, "time_limit");
+        assert_eq!(disabled.objective, Some(1.));
+        assert_eq!(disabled.dual_bound, None);
         let invalid = solve_seeded(&m, &limits, Some(&[2.]));
         assert_eq!(invalid.objective, None);
         let fractional = solve_seeded(&m, &limits, Some(&[0.5]));
