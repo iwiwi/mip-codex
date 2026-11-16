@@ -1,0 +1,45 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 320404 variables (319686 bin, 718 int, 0 cont) and 92568 constraints
+presolving:
+(round 1, fast)       10274 del vars, 9013 del conss, 185 add conss, 4217 chg bounds, 348 chg sides, 348 chg coeffs, 0 upgd conss, 0 impls, 44602 clqs, 0 implints
+(round 2, fast)       21446 del vars, 13389 del conss, 185 add conss, 14235 chg bounds, 348 chg sides, 1088 chg coeffs, 0 upgd conss, 0 impls, 44544 clqs, 0 implints
+(round 3, fast)       21824 del vars, 13431 del conss, 185 add conss, 14613 chg bounds, 348 chg sides, 1088 chg coeffs, 0 upgd conss, 0 impls, 44544 clqs, 0 implints
+(round 4, exhaustive) 21854 del vars, 15095 del conss, 185 add conss, 14787 chg bounds, 348 chg sides, 1088 chg coeffs, 0 upgd conss, 0 impls, 44504 clqs, 0 implints
+(round 5, exhaustive) 21864 del vars, 15115 del conss, 185 add conss, 14787 chg bounds, 348 chg sides, 1134 chg coeffs, 52462 upgd conss, 0 impls, 44514 clqs, 0 implints
+(round 6, medium)     29393 del vars, 15115 del conss, 185 add conss, 14787 chg bounds, 7877 chg sides, 8663 chg coeffs, 52462 upgd conss, 0 impls, 37170 clqs, 0 implints
+(round 7, fast)       29393 del vars, 22459 del conss, 185 add conss, 14787 chg bounds, 7877 chg sides, 8663 chg coeffs, 52462 upgd conss, 0 impls, 37170 clqs, 0 implints
+(round 8, exhaustive) 30143 del vars, 22459 del conss, 185 add conss, 14787 chg bounds, 7877 chg sides, 8663 chg coeffs, 52462 upgd conss, 0 impls, 37170 clqs, 0 implints
+   (5.3s) sparsify aborted: 13440/1144048 (1.2%) nonzeros canceled - in total 13440 canceled nonzeros, 13440 changed coefficients, 0 added nonzeros
+   (6.4s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (26.0s) symmetry computation finished: 327 generators found (max: 1500, log10 of symmetry group size: 189.96) (symcode time: 19.47)
+dynamic symmetry handling statistics:
+   orbitopal reduction:        1 components: 13x8
+   orbital reduction:         no components
+   lexicographic reduction:    1 permutations with support sizes 34
+handled 3 out of 3 symmetry components
+(round 9, exhaustive) 30442 del vars, 22459 del conss, 518 add conss, 14787 chg bounds, 7877 chg sides, 22103 chg coeffs, 52462 upgd conss, 0 impls, 37503 clqs, 0 implints
+(round 10, fast)       34111 del vars, 22797 del conss, 519 add conss, 18456 chg bounds, 7887 chg sides, 25432 chg coeffs, 52462 upgd conss, 0 impls, 37525 clqs, 0 implints
+(round 11, exhaustive) 35137 del vars, 22861 del conss, 519 add conss, 19420 chg bounds, 7887 chg sides, 25432 chg coeffs, 52462 upgd conss, 0 impls, 37525 clqs, 0 implints
+(round 12, exhaustive) 35373 del vars, 22875 del conss, 519 add conss, 19642 chg bounds, 7887 chg sides, 26306 chg coeffs, 52462 upgd conss, 0 impls, 37525 clqs, 0 implints
+presolving (13 rounds: 13 fast, 8 medium, 7 exhaustive):
+ 35545 deleted vars, 23033 deleted constraints, 519 added constraints, 19642 tightened bounds, 0 added holes, 7887 changed sides, 26507 changed coefficients
+ 0 implications, 131001 cliques, 0 implied integral variables (0 bin, 0 int, 0 cont)
+presolved problem has 285765 variables (285591 bin, 174 int, 0 cont) and 69893 constraints
+    174 constraints of type <knapsack>
+  36969 constraints of type <setppc>
+  24654 constraints of type <linear>
+    333 constraints of type <orbitope_pp>
+   7763 constraints of type <logicor>
+transformed objective value is always integral (scale: 1)
+Presolving Time: 35.55
+

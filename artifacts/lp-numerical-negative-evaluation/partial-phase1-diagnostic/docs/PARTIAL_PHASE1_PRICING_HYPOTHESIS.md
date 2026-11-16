@@ -1,0 +1,5 @@
+# 大きいPhase Iでの部分価格付け
+
+大規模LPは毎pivotで全列のreduced costを走査する費用が大きい。非零の元目的を持ち、列数4096以上のcold Phase Iだけ、1024列のblock内で候補を探す案を試す。候補が無いblockは次へ進み、全列を調べるまで最適としない。退化が続く場合は既存の全列Bland順へ戻す。Phase IIと元目的0の適応価格付けは保つ。許容差・最終certificate・総pivot/flip/deadlineは変えない。
+
+まず実験用flagの同一binary on/offで純LPを比較し、neos860300/germanrrなどの元MPS点をFraction照合する。速さだけでなくpivots/列走査数と原問題妥当性を測る。小規模oracleに加え、実際に4096列以上で発動する生成LPをHiGHS比較する。主解・証明の改善が無ければ既定採用しない。holdoutは使わない。3行集約の統合188比較/60秒対照は別凍結FP337114ffc2f9a6b7で継続中。
