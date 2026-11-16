@@ -149,6 +149,7 @@ fn run() -> Result<(), String> {
                 .and_then(|mib| mib.checked_mul(1024 * 1024))
                 .ok_or("MIP_LP_WORKSPACE_MIB must be a positive, representable MiB value")?;
         }
+        if let Ok(v)=std::env::var("MIP_LP_BOUND_POINT_REPAIR") {if v!="0"&&v!="1"{return Err("MIP_LP_BOUND_POINT_REPAIR must be 0 or 1".into());}}
         if let Ok(engine) = std::env::var("MIP_LP_ENGINE") {
             limits.engine = match engine.as_str() {
                 "dense" => mip_codex::solve::Engine::Dense,

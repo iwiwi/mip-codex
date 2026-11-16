@@ -228,6 +228,13 @@ fn point_valid(p: &Problem, x: &[f64]) -> bool {
     }
     true
 }
+fn projected_bound_point(p:&Problem,x:&[f64],y:&[f64])->Option<(Vec<f64>,f64,f64)>{
+    if x.len()!=p.upper.len()||x.iter().any(|v|!v.is_finite()){return None;}
+    let projected:Vec<_>=x.iter().zip(&p.upper).map(|(&v,&upper)|v.max(0.).min(upper)).collect();
+    if projected==x{return None;}
+    let (objective,dual)=primal_dual(p,&projected,y)?;
+    Some((projected,objective,dual))
+}
 fn primal_dual(p: &Problem, x: &[f64], y: &[f64]) -> Option<(f64, f64)> {
     if !point_valid(p, x) || y.len() != p.rhs.len() || y.iter().any(|v| !v.is_finite()) {
         return None;
@@ -354,6 +361,11 @@ pub(crate) fn solve(
                 *objective = obj;
                 answer.dual = Some(dual);
                 true
+            } else if std::env::var("MIP_LP_BOUND_POINT_REPAIR").map_or(true,|v|v=="1") && x.len()==p.upper.len() && x.iter().all(|v|v.is_finite()) {
+                answer.stats.bound_point_trials+=1;
+                if let Some((projected,obj,dual))=answer.witness.as_deref().and_then(|y|projected_bound_point(p,x,y)){
+                    *x=projected;*objective=obj;answer.dual=Some(dual);answer.stats.bound_point_repairs+=1;true
+                }else{false}
             } else {
                 false
             }
@@ -432,6 +444,15 @@ pub(crate) fn solve(
 #[cfg(test)]
 mod saved_validation_diagnostic {
     use super::*;
+    #[test]
+    fn scaled_bound_projection_still_requires_original_rows_and_dual_gap(){
+        let upper=1073741824f64;let coefficient=1./upper;
+        let mut p=Problem{columns:vec![vec![(0,coefficient)]],rhs:vec![1.],costs:vec![coefficient],upper:vec![upper],equality:vec![true],slack_upper:vec![f64::INFINITY]};
+        let outside=[upper.next_up()];assert!(!point_valid(&p,&outside));let(x,value,dual)=projected_bound_point(&p,&outside,&[1.]).unwrap();assert_eq!(x,[upper]);assert_eq!(value,1.);assert_eq!(dual,1.);
+        assert!(projected_bound_point(&p,&outside,&[0.]).is_none());
+        p.rhs[0]=1.000002;assert!(projected_bound_point(&p,&outside,&[1.]).is_none());
+        assert!(projected_bound_point(&p,&[f64::NAN],&[1.]).is_none());assert!(projected_bound_point(&p,&[],&[1.]).is_none());
+    }
     #[test]
     fn integer_candidate_cancels_an_unbounded_flow_column_and_rejects_feasible_rhs() {
         let mut p = Problem {

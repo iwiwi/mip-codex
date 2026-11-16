@@ -274,6 +274,8 @@ pub struct Result {
     pub lp_dual_pivots: Option<usize>,
     pub lp_dual_flips: Option<usize>,
     pub lp_pivots: Option<usize>,
+    pub lp_bound_point_trials: usize,
+    pub lp_bound_point_repairs: usize,
     pub lp_feasibility_pricing_calls: Option<usize>,
     pub lp_pricing_cutoffs: Option<usize>,
     pub lp_pricing_fallbacks: Option<usize>,
@@ -2925,6 +2927,8 @@ fn solve_seeded_warm(
         lp_dual_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.dual_pivots),
         lp_dual_flips: matches!(limits.engine, Engine::Revised).then_some(lp_stats.dual_flips),
         lp_pivots: matches!(limits.engine, Engine::Revised).then_some(lp_stats.pivots),
+        lp_bound_point_trials: lp_stats.bound_point_trials,
+        lp_bound_point_repairs: lp_stats.bound_point_repairs,
         lp_feasibility_pricing_calls: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.feasibility_pricing_calls),
         lp_pricing_cutoffs: matches!(limits.engine, Engine::Revised)
@@ -3147,6 +3151,8 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         restoration_successes: result.lp_restoration_successes.unwrap_or(0),
         restoration_infeasible_candidates: result.lp_restoration_infeasible_candidates.unwrap_or(0),
         restoration_pivots: result.lp_restoration_pivots.unwrap_or(0),
+        bound_point_trials: result.lp_bound_point_trials,
+        bound_point_repairs: result.lp_bound_point_repairs,
         refinement_attempts: result.lp_refinement_attempts.unwrap_or(0),
         refinement_steps: result.lp_refinement_steps.unwrap_or(0),
         refinement_successes: result.lp_refinement_successes.unwrap_or(0),

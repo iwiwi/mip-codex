@@ -50,6 +50,8 @@ pub struct Stats {
     pub restoration_successes: usize,
     pub restoration_infeasible_candidates: usize,
     pub restoration_pivots: usize,
+    pub bound_point_trials: usize,
+    pub bound_point_repairs: usize,
     pub refinement_attempts: usize,
     pub refinement_steps: usize,
     pub refinement_successes: usize,
@@ -1125,6 +1127,8 @@ impl Stats {
         self.restoration_successes += other.restoration_successes;
         self.restoration_infeasible_candidates += other.restoration_infeasible_candidates;
         self.restoration_pivots += other.restoration_pivots;
+        self.bound_point_trials += other.bound_point_trials;
+        self.bound_point_repairs += other.bound_point_repairs;
         self.refinement_attempts += other.refinement_attempts;
         self.refinement_steps += other.refinement_steps;
         self.refinement_successes += other.refinement_successes;

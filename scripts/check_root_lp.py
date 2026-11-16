@@ -80,6 +80,11 @@ with tempfile.TemporaryDirectory() as directory:
             integers=[False]*n
         text=mps_text(rows,bounds,costs,integers)
         path.write_text(text)
+        case_dir=outdir/f'root-{profile}-{case}'
+        case_dir.mkdir(exist_ok=False)
+        (case_dir/'model.mps').write_text(text)
+        (case_dir/'reference.mps').write_bytes(reference_path.read_bytes())
+        (case_dir/'input.json').write_text(json.dumps(dict(input_sha256=sha256(path),reference_sha256=sha256(reference_path),profile=profile,cost_scale=cost_scale))+'\n')
         try:
             h=highspy.Highs();h.setOptionValue('output_flag',False);h.setOptionValue('threads',1);h.readModel(str(reference_path))
             lp=h.getLp();lp.integrality_=[]
@@ -91,7 +96,9 @@ with tempfile.TemporaryDirectory() as directory:
             results={}
             for engine in engines:
                 env=os.environ.copy();env['MIP_LP_ENGINE']=engine
+                env['MIP_ROOT_LP_DUMP']=str((case_dir/(engine+'-root-lp.json')).resolve())
                 result=json.loads(subprocess.check_output([str(root/'target/release/mip-codex'),'solve',str(path),'10','1'],env=env,timeout=15))
+                (case_dir/(engine+'-result.json')).write_text(json.dumps(result)+'\n')
                 assert result['status'] in ('optimal','node_limit'),result
                 actual=result['dual_bound'];assert actual is not None,result
                 assert abs(actual-expected)/cost_scale<=1e-6*(1+abs(expected/cost_scale)),(expected,result)
@@ -99,7 +106,9 @@ with tempfile.TemporaryDirectory() as directory:
                     from validate_solution import validate
                     assert validate(path,result)['valid'], 'original-MPS LP point invalid'
                 results[engine]=dict(bound=actual,seconds=result['seconds'],pivots=result['lp_pivots'],refactors=result['lp_refactors'],scaled_columns=result.get('lp_scaled_columns'),scaled_rows=result.get('lp_scaled_rows'))
-            print(json.dumps(dict(case=case,status='pass',profile=profile,cost_scale=cost_scale,highs=expected,results=results)),flush=True)
+            record=dict(case=case,status='pass',profile=profile,cost_scale=cost_scale,highs=expected,results=results)
+            (case_dir/'comparison.json').write_text(json.dumps(record)+'\n')
+            print(json.dumps(record),flush=True)
         except Exception as error:
             failed+=1
             (outdir/f'root-{profile}-failure-{case}.mps').write_text(text)
