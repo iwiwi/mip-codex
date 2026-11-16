@@ -22,6 +22,7 @@ pub struct Limits {
     pub primal_repair: bool,
     pub box_primal: bool,
     pub root_seed_repair: bool,
+    pub root_objective_repair: bool,
     pub binary_graph: bool,
     pub parity_equalities: bool,
     pub graph_local_search: bool,
@@ -72,6 +73,7 @@ impl Default for Limits {
             primal_repair: true,
             box_primal: true,
             root_seed_repair: true,
+            root_objective_repair: true,
             binary_graph: true,
             parity_equalities: true,
             graph_local_search: true,
@@ -136,6 +138,8 @@ pub struct Result {
     pub box_primal: heuristic::BoxStats,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub root_seed_repair: Option<heuristic::BoxStats>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub root_objective_repair: Option<heuristic::BoxStats>,
     pub root_incumbent_conflict: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
@@ -1463,6 +1467,7 @@ fn solve_seeded_warm(
     let mut box_candidate = None;
     let mut early_repair = None;
     let mut root_seed_repair = None;
+    let mut root_objective_repair = None;
     if limits.box_primal && seed.is_none() && Instant::now() < deadline {
         let started = Instant::now();
         let box_deadline = deadline
@@ -1498,6 +1503,16 @@ fn solve_seeded_warm(
                 first_seconds: found.then(||start.elapsed().as_secs_f64()),
             });
             box_candidate = candidate;
+        }
+        if limits.root_objective_repair && root_seed_repair.as_ref().is_some_and(|s|s.candidates>0) && Instant::now()<deadline {
+            if let Some(point)=box_candidate.as_ref(){
+                let offset=start.elapsed().as_secs_f64();
+                let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.5)));
+                if let Some((point,mut stats))=crate::objective_repair::improve(model,&repair,point,&root.lower,&root.upper,end){
+                    if let Some(t)=&mut stats.first_seconds{*t+=offset;}
+                    box_candidate=Some(point);root_objective_repair=Some(stats);
+                }
+            }
         }
         early_repair = Some(repair);
     }
@@ -2665,6 +2680,7 @@ fn solve_seeded_warm(
         box_primal_enabled: limits.box_primal,
         box_primal,
         root_seed_repair,
+        root_objective_repair,
         root_incumbent_conflict,
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,
