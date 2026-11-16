@@ -1,0 +1,15 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+error[E0599]: no method named `feasible` found for struct `model::Model` in the current scope
+  --> src/row_ray.rs:45:261
+   |
+45 | ...3).map(|j|((bits>>j)&1)as f64).collect();m.feasible(&x,1e-8).then(||sign*m.objective(&x))}).fold(f64::INFINITY,f64::min);assert!(...
+   |                                               ^^^^^^^^ method not found in `model::Model`
+   |
+  ::: src/model.rs:39:1
+   |
+39 | pub struct Model {
+   | ---------------- method `feasible` not found for this struct
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `mip-codex` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/row-ray-bound-v2-development-screen/cases/neos-5188808-nattai.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/row-ray-bound-v2-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-5188808-nattai.mps.gz",
+    "10"
+  ],
+  "input_sha256": "363f32c6457f87d21c624e44ab536e4bd9fc1d543176922c542cc3ae919f5028",
+  "split": "development",
+  "cpu": 5,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

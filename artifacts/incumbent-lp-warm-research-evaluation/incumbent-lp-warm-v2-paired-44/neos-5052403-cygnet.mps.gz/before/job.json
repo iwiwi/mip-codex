@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/incumbent-lp-warm-v2-paired-44/neos-5052403-cygnet.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/incumbent-lp-warm-v2-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-5052403-cygnet.mps.gz",
+    "60"
+  ],
+  "input_sha256": "eb42f79d34b6420b518e513734ebcb8ebcc67f6e0a54d1aee7f390e3b4eed554",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_INCUMBENT_LP_WARM": "0"
+  },
+  "cpu": 44,
+  "seconds": 60
+}

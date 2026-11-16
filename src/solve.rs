@@ -101,7 +101,7 @@ impl Default for Limits {
             terminal_neighborhood: true,
             objective_rounding: true,
             objective_domain_report: true,
-            row_ray_report: false,
+            row_ray_report: true,
             row_packing_report: false,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,

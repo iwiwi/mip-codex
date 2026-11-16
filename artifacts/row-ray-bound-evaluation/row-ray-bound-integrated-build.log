@@ -1,0 +1,26 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+error[E0425]: cannot find function `serialize_solution_number` in module `crate::model`
+   --> src/row_ray.rs:9:25
+    |
+  9 |  #[serde(serialize_with="crate::model::serialize_solution_number")]
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not found in `crate::model`
+    |
+note: similarly named function `serialize_solution_values` defined here
+   --> src/model.rs:133:1
+    |
+133 | / pub(crate) fn serialize_solution_values<S: serde::Serializer>(
+134 | |     values: &Option<std::collections::BTreeMap<String, f64>>,
+135 | |     serializer: S,
+136 | | ) -> Result<S::Ok, S::Error> {
+...   |
+147 | |     map.end()
+148 | | }
+    | |_^
+help: a function with a similar name exists
+    |
+  9 -  #[serde(serialize_with="crate::model::serialize_solution_number")]
+  9 +  #[serde(serialize_with=serialize_solution_values)]
+    |
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `mip-codex` (lib) due to 1 previous error
