@@ -29,6 +29,7 @@ pub struct Limits {
     pub graph_adaptive_local: bool,
     pub graph_cover_local: bool,
     pub aggregate_cuts: bool,
+    pub clique_cuts: bool,
     pub graph_fractional_cover: bool,
     pub defer_infeasibility: bool,
     pub joint_infeasibility: bool,
@@ -70,6 +71,7 @@ impl Default for Limits {
             graph_adaptive_local: true,
             graph_cover_local: true,
             aggregate_cuts: true,
+            clique_cuts: true,
             graph_fractional_cover: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
@@ -97,6 +99,7 @@ pub struct Result {
     pub binary_graph_enabled: bool,
     pub graph_cover_local_enabled: bool,
     pub aggregate_cuts_enabled: bool,
+    pub clique_cuts_enabled: bool,
     pub graph_fractional_cover_enabled: bool,
     pub binary_graph: Option<crate::binary_graph::Stats>,
     pub branching: String,
@@ -887,7 +890,8 @@ fn prepare_cuts(
     if !matches!(limits.engine, Engine::Revised)
         || !((limits.cover_cuts && cuts::applicable(model))
             || (limits.rounding_cuts && cuts::rounding_applicable(model))
-            || (limits.aggregate_cuts && cuts::aggregate_applicable(model)))
+            || (limits.aggregate_cuts && cuts::aggregate_applicable(model))
+            || (limits.clique_cuts && cuts::applicable(model)))
         || limits.nodes == 0
         || Instant::now() >= deadline
     {
@@ -964,11 +968,19 @@ fn prepare_cuts(
         if limits.warm_start {
             root.warm = answer.warm.clone();
         }
-        let mut generated = if limits.rounding_cuts {
-            pool.separate_rounding(model, &point, 32, cut_deadline)
+        let mut generated = if limits.clique_cuts {
+            pool.separate_clique(model, &point, 32, cut_deadline)
         } else {
             vec![]
         };
+        if limits.rounding_cuts && generated.len() < 32 {
+            generated.extend(pool.separate_rounding(
+                model,
+                &point,
+                32 - generated.len(),
+                cut_deadline,
+            ));
+        }
         if limits.aggregate_cuts && generated.len() < 32 {
             generated.extend(pool.separate_aggregate(
                 model,
@@ -1043,6 +1055,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     binary_graph_enabled: true,
                     graph_cover_local_enabled: limits.graph_cover_local,
                     aggregate_cuts_enabled: limits.aggregate_cuts,
+                    clique_cuts_enabled: limits.clique_cuts,
                     graph_fractional_cover_enabled: limits.graph_fractional_cover,
                     nodes: answer.stats.nodes,
                     first_primal_seconds: answer.stats.first_seconds,
@@ -2109,6 +2122,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         binary_graph_enabled: limits.binary_graph,
         graph_cover_local_enabled: limits.graph_cover_local,
         aggregate_cuts_enabled: limits.aggregate_cuts,
+        clique_cuts_enabled: limits.clique_cuts,
         graph_fractional_cover_enabled: limits.graph_fractional_cover,
         defer_infeasibility_enabled: limits.defer_infeasibility,
         joint_infeasibility_enabled: limits.joint_infeasibility,

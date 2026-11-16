@@ -1,0 +1,555 @@
+[
+  {
+    "path": "artifacts/clique-cut-repeat60/0/after/eil33-2/result.json",
+    "objective": 1116.990809,
+    "dual_bound": 812.9526764460156,
+    "nodes": 1323,
+    "clique_added": 8,
+    "proof": {
+      "valid": true,
+      "checked": 8,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb",
+      "clique_checked": 8,
+      "clique_pairs_checked": 813,
+      "input_sha256": "2d349f8ba12aaf170c9f8bf85327d6592cc0f4d89d300dfb77197acd34a7ffb1"
+    },
+    "checks": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 1116.990809,
+          "bound_violation": 0.0,
+          "row_violation": 0.0,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 1116.990809,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "exact": {
+          "objective": "1116990809/1000000",
+          "bound_violation": "0",
+          "row_violation": "0",
+          "integer_violation": "0",
+          "objective_error": "0"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "1117990809/100000000000000",
+          "absolute_error": "0",
+          "recomputed_exact": "1116990809/1000000",
+          "reported_token": "1116.990809"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/eil33-2.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/clique-cut-repeat60/0/after/eil33-2/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/0/after/germanrr/result.json",
+    "objective": null,
+    "dual_bound": 45980135.41639878,
+    "nodes": 119,
+    "clique_added": 0,
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb"
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/0/after/neos-860300/result.json",
+    "objective": 3965.9999999999995,
+    "dual_bound": 2031.0,
+    "nodes": 101,
+    "clique_added": 0,
+    "proof": {
+      "valid": true,
+      "checked": 32,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb",
+      "objective_grid_valid": true,
+      "objective_step": 1,
+      "implied_integer_variables": 1,
+      "objective_domains": 1,
+      "aggregate_checked": 32,
+      "input_sha256": "d1b2a0a0500834ef6e3a97a6dbfc17c48226c6619056edfedf990e4d83c01504"
+    },
+    "checks": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 3965.9999999999995,
+          "bound_violation": 0.0,
+          "row_violation": 3.552713678800501e-15,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 3965.9999999999995,
+        "bound_violation": 0.0,
+        "row_violation": 4e-15,
+        "integer_violation": 0.0,
+        "objective_error": 1e-13,
+        "exact": {
+          "objective": "9914999999999999/2500000000000",
+          "bound_violation": "0",
+          "row_violation": "1/250000000000000",
+          "integer_violation": "0",
+          "objective_error": "1/10000000000000"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "9917499999999999/250000000000000000000",
+          "absolute_error": "1/10000000000000",
+          "recomputed_exact": "9914999999999999/2500000000000",
+          "reported_token": "3965.9999999999995"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/neos-860300.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/clique-cut-repeat60/0/after/neos-860300/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/0/after/nw04/result.json",
+    "objective": 19882.0,
+    "dual_bound": 16312.0,
+    "nodes": 526,
+    "clique_added": 1,
+    "proof": {
+      "valid": true,
+      "checked": 1,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb",
+      "objective_grid_valid": true,
+      "objective_step": 2,
+      "implied_integer_variables": 0,
+      "objective_domains": 2,
+      "clique_checked": 1,
+      "clique_pairs_checked": 6,
+      "input_sha256": "c5ffad5996c481756028013399e052793e3ff3ec70e9f5f15c6bc471abe5389a"
+    },
+    "checks": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 19882.0,
+          "bound_violation": 0.0,
+          "row_violation": 0.0,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 19882.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "exact": {
+          "objective": "19882",
+          "bound_violation": "0",
+          "row_violation": "0",
+          "integer_violation": "0",
+          "objective_error": "0"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "19883/100000000",
+          "absolute_error": "0",
+          "recomputed_exact": "19882",
+          "reported_token": "19882.0"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/nw04.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/clique-cut-repeat60/0/after/nw04/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/0/before/eil33-2/result.json",
+    "objective": 1139.2686899999999,
+    "dual_bound": 811.2789961228062,
+    "nodes": 1339,
+    "clique_added": 0,
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb"
+    },
+    "checks": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 1139.2686899999999,
+          "bound_violation": 0.0,
+          "row_violation": 0.0,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 1139.26869,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 1e-13,
+        "exact": {
+          "objective": "113926869/100000",
+          "bound_violation": "0",
+          "row_violation": "0",
+          "integer_violation": "0",
+          "objective_error": "1/10000000000000"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "114026869/10000000000000",
+          "absolute_error": "1/10000000000000",
+          "recomputed_exact": "113926869/100000",
+          "reported_token": "1139.2686899999999"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/eil33-2.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/clique-cut-repeat60/0/before/eil33-2/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/0/before/germanrr/result.json",
+    "objective": null,
+    "dual_bound": 45980135.41639878,
+    "nodes": 119,
+    "clique_added": 0,
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb"
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/0/before/neos-860300/result.json",
+    "objective": 3965.9999999999995,
+    "dual_bound": 2031.0,
+    "nodes": 101,
+    "clique_added": 0,
+    "proof": {
+      "valid": true,
+      "checked": 32,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb",
+      "objective_grid_valid": true,
+      "objective_step": 1,
+      "implied_integer_variables": 1,
+      "objective_domains": 1,
+      "aggregate_checked": 32,
+      "input_sha256": "d1b2a0a0500834ef6e3a97a6dbfc17c48226c6619056edfedf990e4d83c01504"
+    },
+    "checks": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 3965.9999999999995,
+          "bound_violation": 0.0,
+          "row_violation": 3.552713678800501e-15,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 3965.9999999999995,
+        "bound_violation": 0.0,
+        "row_violation": 4e-15,
+        "integer_violation": 0.0,
+        "objective_error": 1e-13,
+        "exact": {
+          "objective": "9914999999999999/2500000000000",
+          "bound_violation": "0",
+          "row_violation": "1/250000000000000",
+          "integer_violation": "0",
+          "objective_error": "1/10000000000000"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "9917499999999999/250000000000000000000",
+          "absolute_error": "1/10000000000000",
+          "recomputed_exact": "9914999999999999/2500000000000",
+          "reported_token": "3965.9999999999995"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/neos-860300.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/clique-cut-repeat60/0/before/neos-860300/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/0/before/nw04/result.json",
+    "objective": 19882.0,
+    "dual_bound": 16312.0,
+    "nodes": 463,
+    "clique_added": 0,
+    "proof": {
+      "valid": true,
+      "checked": 0,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb",
+      "objective_grid_valid": true,
+      "objective_step": 2,
+      "implied_integer_variables": 0,
+      "objective_domains": 2,
+      "input_sha256": "c5ffad5996c481756028013399e052793e3ff3ec70e9f5f15c6bc471abe5389a"
+    },
+    "checks": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 19882.0,
+          "bound_violation": 0.0,
+          "row_violation": 0.0,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 19882.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "exact": {
+          "objective": "19882",
+          "bound_violation": "0",
+          "row_violation": "0",
+          "integer_violation": "0",
+          "objective_error": "0"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "19883/100000000",
+          "absolute_error": "0",
+          "recomputed_exact": "19882",
+          "reported_token": "19882.0"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/nw04.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/clique-cut-repeat60/0/before/nw04/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  },
+  {
+    "path": "artifacts/clique-cut-repeat60/1/after/eil33-2/result.json",
+    "objective": 1116.990809,
+    "dual_bound": 812.9526764460156,
+    "nodes": 1323,
+    "clique_added": 8,
+    "proof": {
+      "valid": true,
+      "checked": 8,
+      "arithmetic": "Python Fraction from original MPS tokens",
+      "checker_sha256": "c7846405bc075856d230fdb9b27dc0392f8f6be7f1409280a834660e6bd967cb",
+      "clique_checked": 8,
+      "clique_pairs_checked": 813,
+      "input_sha256": "2d349f8ba12aaf170c9f8bf85327d6592cc0f4d89d300dfb77197acd34a7ffb1"
+    },
+    "checks": {
+      "strict": {
+        "valid": true,
+        "float_diagnostics": {
+          "valid": true,
+          "objective": 1116.990809,
+          "bound_violation": 0.0,
+          "row_violation": 0.0,
+          "integer_violation": 0.0,
+          "objective_error": 0.0,
+          "feasibility_tolerance": 1e-06,
+          "integrality_tolerance": 1e-06,
+          "reader": "HiGHS 1.16.0"
+        },
+        "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+        "objective": 1116.990809,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "exact": {
+          "objective": "1116990809/1000000",
+          "bound_violation": "0",
+          "row_violation": "0",
+          "integer_violation": "0",
+          "objective_error": "0"
+        },
+        "objective_evaluation": {
+          "criterion": "relative",
+          "relative_tolerance": "1/100000000",
+          "absolute_tolerance_at_point": "1117990809/100000000000000",
+          "absolute_error": "0",
+          "recomputed_exact": "1116990809/1000000",
+          "reported_token": "1116.990809"
+        }
+      },
+      "official": {
+        "valid": true,
+        "exit_code": 0,
+        "command": [
+          "third_party/miplib-checker/bin/solchecker",
+          "/home/ubuntu/mip-codex/data/raw/benchmark/eil33-2.mps.gz",
+          "/home/ubuntu/mip-codex/artifacts/clique-cut-repeat60/1/after/eil33-2/solution.sol",
+          "1e-6",
+          "1e-6"
+        ],
+        "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+        "linear_tolerance": 1e-06,
+        "integer_tolerance": 1e-06,
+        "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+        "integrality": true,
+        "constraints": true,
+        "objective": true
+      }
+    }
+  }
+]

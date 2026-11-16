@@ -13,6 +13,7 @@ fn run(text: &str, enabled: bool, nodes: usize) -> mip_codex::solve::Result {
             rins: false,
             strong_branching: false,
             cover_cuts: false,
+            clique_cuts: false,
             lp_diving: enabled,
             feasibility_pump: false,
             primal_repair: false,
@@ -72,6 +73,7 @@ fn expired_global_deadline_skips_all_local_solves() {
             rins: false,
             strong_branching: false,
             cover_cuts: false,
+            clique_cuts: false,
             seconds: 0.,
             lp_diving: true,
             ..Limits::default()

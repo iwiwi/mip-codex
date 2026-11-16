@@ -1,0 +1,57 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/eil33-2.mps.gz'...
+Problem: eil33-2
+Objective: obj
+33 rows, 4516 columns, 48759 non-zeros
+4516 integer variables, all of which are binary
+25660 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-005348-len_800f/eil33-2.mps.gz/glpk/model.glp'...
+53343 lines were written
+GLPK Integer Optimizer 5.0
+32 rows, 4516 columns, 44243 non-zeros
+4516 integer variables, all of which are binary
+Preprocessing...
+32 rows, 4516 columns, 44243 non-zeros
+4516 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 32
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+32 rows, 4516 columns, 44243 non-zeros
+*     0: obj =   5.050240144e+03 inf =   0.000e+00 (4484)
+*   161: obj =   8.112789961e+02 inf =   2.214e-16 (0) 1
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 32
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 4516 + 0 = 4516 vertices
++   161: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Solution found by heuristic: 2230.54863
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 3; clq = 10;
+Cuts on level 16: gmi = 3; clq = 10;
++   858: >>>>>   1.582374956e+03 >=   8.512625423e+02  46.2% (17; 0)
++  2331: mip =   1.582374956e+03 >=   8.527446646e+02  46.1% (43; 4)
+Cuts on level 7: gmi = 15; clq = 18;
++  2705: >>>>>   1.461085601e+03 >=   8.527972985e+02  41.6% (49; 5)
++  3505: mip =   1.461085601e+03 >=   8.528400899e+02  41.6% (48; 6)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-005348-len_800f/eil33-2.mps.gz/glpk/solution.raw'...
+4557 lines were written

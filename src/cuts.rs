@@ -4,11 +4,15 @@
 //! 外部実装のコード移植は行わず、単純な貪欲選択と独立の整数証明検査を実装。
 use crate::model::{Model, Row};
 mod aggregate;
+mod clique;
 pub use aggregate::applicable as aggregate_applicable;
+pub use clique::Pair as CliquePair;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, time::Instant};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Proof {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub clique: Vec<CliquePair>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub aggregation: Vec<RowWeight>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -32,6 +36,11 @@ pub struct Cut {
 }
 #[derive(Default, Debug, Serialize)]
 pub struct Stats {
+    pub clique_calls: usize,
+    pub clique_edges: usize,
+    pub clique_work: usize,
+    pub clique_added: usize,
+    pub clique_seconds: f64,
     pub aggregate_calls: usize,
     pub aggregate_pairs: usize,
     pub aggregate_work: usize,
@@ -192,6 +201,9 @@ fn lower_product(a: [f64; 2], b: [f64; 2]) -> Option<f64> {
 /// 選択された二値変数を強制した元行の最小活動量を、原境界から検査する。
 /// i128で正確に扱える行は整数、それ以外は外向き区間。選択用の近似容量は使わない。
 fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
+    if !cut.proof.clique.is_empty() {
+        return clique::verify(model, cut).then_some(ProofKind::Clique);
+    }
     if cut.proof.divisor.is_some() {
         return rounding_verify(model, cut).then_some(ProofKind::Rounding);
     }
@@ -279,6 +291,7 @@ fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
 }
 #[derive(Clone, Copy)]
 enum ProofKind {
+    Clique,
     Integer,
     Interval,
     Rounding,
@@ -398,6 +411,7 @@ impl Pool {
                             coefficients,
                         },
                         proof: Proof {
+                            clique: vec![],
                             aggregation: vec![],
                             divisor: None,
                             source_row: i,
@@ -423,6 +437,7 @@ impl Pool {
                         match kind {
                             ProofKind::Integer => self.stats.integer += 1,
                             ProofKind::Interval => self.stats.interval += 1,
+                            ProofKind::Clique => unreachable!(),
                             ProofKind::Rounding => unreachable!(),
                         }
                         if row
@@ -626,6 +641,7 @@ impl Pool {
                     let cut = Cut {
                         row,
                         proof: Proof {
+                            clique: vec![],
                             aggregation: vec![],
                             divisor: Some(d),
                             source_row: i,

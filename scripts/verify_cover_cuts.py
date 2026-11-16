@@ -134,6 +134,51 @@ def verify_objective_grid(names,variables,rows,objective,offset,proof):
     return dict(objective_grid_valid=True,objective_step=step,implied_integer_variables=len(implications),objective_domains=domains)
 
 
+def verify_clique_exact(names,variables,rows,cut):
+    proof=cut['proof'];pairs=proof['clique'];row=cut['row']
+    if proof.get('aggregation',[]) or proof.get('divisor') is not None:raise AssertionError('clique cannot combine other proof kinds')
+    coefficients=row['coefficients'];k=len(coefficients)
+    if not 3<=k<=32 or len(pairs)!=k*(k-1)//2:raise AssertionError('clique size/pair count')
+    if any(type(j)is not int or not 0<=j<len(names)or Fraction(a)not in [-1,1]for j,a in coefficients):raise AssertionError('clique coefficient')
+    if [j for j,a in coefficients]!=sorted(set(j for j,a in coefficients))or proof['cover']!=[j for j,a in coefficients]:raise AssertionError('clique variable order')
+    coeff={j:Fraction(a)for j,a in coefficients}
+    def binary(v):return v['integer']and v['lower']is not None and v['upper']is not None and math.ceil(v['lower'])>=0 and math.floor(v['upper'])<=1
+    if any(not binary(variables[names[j]])for j in coeff):raise AssertionError('clique requires binary variables')
+    if row['lower']is not None or Fraction(row['upper'])!=1-sum(a<0 for a in coeff.values())or row.get('exact_integral')is not True:raise AssertionError('clique inequality')
+    first=pairs[0]
+    if any(proof[key]!=first[key]for key in ['source_row','source_name','upper_side']):raise AssertionError('clique first source mismatch')
+    seen=set();cache={}
+    for pair in pairs:
+        indices=pair['variables']
+        if not isinstance(indices,list)or len(indices)!=2 or any(type(j)is not int or j not in coeff for j in indices)or indices[0]>=indices[1]or tuple(indices)in seen:raise AssertionError('clique pair variables')
+        seen.add(tuple(indices));ri=pair['source_row'];upper=pair['upper_side']
+        if type(ri)is not int or not 0<=ri<len(rows)or type(upper)is not bool:raise AssertionError('clique source index/side')
+        source=rows[ri]
+        if pair['source_name']!=source['name']:raise AssertionError('clique source name')
+        key=(ri,upper)
+        if key not in cache:
+            sign=1 if upper else-1;bound=source['upper'if upper else'lower']
+            if bound is None:raise AssertionError('clique source side missing')
+            minimum=Fraction(0);oriented={}
+            for name,a in source['coefficients'].items():
+                a*=sign
+                if not a:continue
+                oriented[name]=a;v=variables[name]
+                if binary(v):minimum+=min(a,0)
+                else:
+                    b=v['lower'if a>0 else'upper']
+                    if b is None:raise AssertionError('clique unbounded projection')
+                    minimum+=a*b
+            cache[key]=(minimum,sign*bound,oriented)
+        minimum,bound,oriented=cache[key]
+        for j in indices:
+            a=oriented.get(names[j],Fraction(0))
+            if a==0 or (a>0)!=(coeff[j]>0):raise AssertionError('clique literal does not match source sign')
+            minimum+=abs(a)
+        if minimum<=bound:raise AssertionError('clique pair has no strict contradiction')
+    return len(pairs)
+
+
 def validate_cut_proofs(model_path,result):
     cuts=result.get('cut_proofs',[])
     grid=result.get('objective_grid')
@@ -161,6 +206,14 @@ def validate_cut_proofs(model_path,result):
             selected={names[j] for j in cover};sign=1 if side else -1
             bound=source['upper' if side else 'lower']
             if bound is None:raise AssertionError('source side missing')
+            clique=proof.get('clique',[])
+            if not isinstance(clique,list):raise AssertionError('bad clique pairs')
+            if clique:
+                count=verify_clique_exact(names,variables,rows,cut)
+                metadata['checked']+=1
+                metadata['clique_checked']=metadata.get('clique_checked',0)+1
+                metadata['clique_pairs_checked']=metadata.get('clique_pairs_checked',0)+count
+                continue
             divisor=proof.get('divisor')
             aggregation=proof.get('aggregation',[])
             if not isinstance(aggregation,list):raise AssertionError('bad aggregation terms')

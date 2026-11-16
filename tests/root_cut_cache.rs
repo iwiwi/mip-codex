@@ -67,6 +67,7 @@ fn propagation_and_disabled_cuts_do_not_reuse_an_old_root() {
         },
         Limits {
             cover_cuts: false,
+            clique_cuts: false,
             ..limits()
         },
     ] {

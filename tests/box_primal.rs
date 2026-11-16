@@ -10,6 +10,7 @@ fn limits() -> Limits {
         primal_repair: false,
         feasibility_pump: false,
         cover_cuts: false,
+        clique_cuts: false,
         lp_diving: false,
         primal_probe: false,
         rins: false,
