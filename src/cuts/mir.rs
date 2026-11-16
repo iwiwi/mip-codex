@@ -158,7 +158,12 @@ impl Pool {
             return vec![];
         }
         'rows: for (i, source) in model.rows.iter().enumerate() {
-            if !source.exact_integral || source.coefficients.len() > 4096 {
+            // A unit-coefficient row intersected with integer box bounds has
+            // integral vertices; MIR cannot separate a feasible point from it.
+            if !source.exact_integral
+                || source.coefficients.len() > 4096
+                || source.coefficients.iter().all(|&(_, a)| a.abs() <= 1.)
+            {
                 continue;
             }
             let mut ds = vec![2, 3, 4, 5, 10];
