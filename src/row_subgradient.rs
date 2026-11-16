@@ -1,15 +1,19 @@
-//! 非一様費用の単位箱への非負被覆乗数。終端下界の表示専用。
+//! 非負費用の単位箱への被覆乗数。元入力で検証した下界を表示する。
 use crate::{model::Model,objective_bound::Certifier,row_ray};
 use serde::{Deserialize,Serialize};
 use std::time::Instant;
 #[derive(Clone,Debug,Serialize,Deserialize)]
 pub struct Proof{pub multipliers:Vec<(usize,String)>,pub normalized_bound:f64,pub iterations:usize,pub seconds:f64}
 pub fn compute(m:&Model,target:f64,initial:Option<&row_ray::Proof>,deadline:Instant)->Option<Proof>{
+ compute_with_uniform(m,target,initial,deadline,false)
+}
+pub fn compute_with_uniform(m:&Model,target:f64,initial:Option<&row_ray::Proof>,deadline:Instant,allow_uniform:bool)->Option<Proof>{
  let began=Instant::now();
  if began>=deadline||m.maximize||!target.is_finite()||!m.offset.is_finite()||m.variables.is_empty()||m.variables.len()>100_000||m.rows.len()>100_000||m.rows.iter().map(|r|r.coefficients.len()).sum::<usize>()>10_000_000{return None;}
- if !m.variables.iter().all(|v|v.lower==Some(0.)&&v.upper==Some(1.)&&v.lower_enclosure==Some([0.,0.])&&v.upper_enclosure==Some([1.,1.])&&v.objective.is_finite()&&v.objective>=0.)||m.variables.iter().all(|v|v.objective==m.variables[0].objective){return None;}
+ if !m.variables.iter().all(|v|v.lower==Some(0.)&&v.upper==Some(1.)&&v.lower_enclosure==Some([0.,0.])&&v.upper_enclosure==Some([1.,1.])&&v.objective.is_finite()&&v.objective>=0.)||(!allow_uniform&&m.variables.iter().all(|v|v.objective==m.variables[0].objective)){return None;}
  let owned=if initial.is_none(){row_ray::compute(m,deadline)}else{None};
  let initial=initial.or(owned.as_ref())?;
+ if allow_uniform&&target<=initial.normalized_bound+4e-8*(1.+target.abs().max(initial.normalized_bound.abs())){return None;}
  let alpha=f64::from_bits(u64::from_str_radix(&initial.multiplier_bits,16).ok()?);if !alpha.is_finite()||alpha<0.{return None;}
  let rows:Vec<_>=m.rows.iter().enumerate().filter(|(_,r)|r.exact_integral&&r.lower.is_some_and(|v|v>0.)&&r.coefficients.iter().all(|&(_,a)|a>=0.)).map(|(i,_)|i).collect();if rows.is_empty(){return None;}
  let mut y=vec![0.;m.rows.len()];for &i in &initial.rows{if i>=y.len()||rows.binary_search(&i).is_err(){return None;}y[i]=alpha;}

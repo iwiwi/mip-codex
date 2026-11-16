@@ -60,6 +60,7 @@ pub struct Limits {
     pub objective_domain_report: bool,
     pub row_ray_report: bool,
     pub row_subgradient_report: bool,
+    pub row_subgradient_uniform: bool,
     pub dual_guided_primal: bool,
     pub row_packing_report: bool,
     pub objective_rounding_all: bool,
@@ -119,6 +120,7 @@ impl Default for Limits {
             objective_domain_report: true,
             row_ray_report: true,
             row_subgradient_report: true,
+            row_subgradient_uniform: true,
             dual_guided_primal: true,
             row_packing_report: true,
             objective_rounding_all: false,
@@ -1609,7 +1611,7 @@ fn solve_seeded_warm(
     let row_subgradient_proof=if limits.row_subgradient_report && Instant::now()<deadline {
         box_candidate.as_ref().and_then(|point|{
             let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.1)));
-            crate::row_subgradient::compute(model,model.objective(point),row_ray_proof.as_ref(),end)
+            crate::row_subgradient::compute_with_uniform(model,model.objective(point),row_ray_proof.as_ref(),end,limits.row_subgradient_uniform)
         })
     }else{None};
     let mut dual_guided_primal=None;

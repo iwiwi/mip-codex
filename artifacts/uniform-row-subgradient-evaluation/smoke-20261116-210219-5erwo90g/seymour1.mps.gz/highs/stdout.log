@@ -1,0 +1,64 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-210219-5erwo90g/seymour1.mps.gz/highs/options.txt
+MIP seymour1 has 4944 rows; 1372 cols; 33549 nonzeros; 451 integer variables (451 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [1e+00, 1e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 1e+00]
+Presolving model
+4944 rows, 1372 cols, 33549 nonzeros 0s
+4542 rows, 887 cols, 29800 nonzeros 0s
+Presolve reductions: rows 4542(-402); columns 887(-485); nonzeros 29800(-3749) 
+
+Solving MIP model with:
+   4542 rows
+   887 cols (181 binary, 0 integer, 0 implied int., 706 continuous, 0 domain fixed)
+   29800 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            426                Large        0      0      0         0     0.2s
+         0       0         0   0.00%   404.3515276     426                5.08%        0      0      0      2972     0.8s
+ L       0       0         0   0.00%   405.7280619     413.9006249        1.97%       58     18      0      3792     6.8s
+
+Symmetry detection completed in 0.0s
+Found 1 generator(s)
+
+         2       2         1   0.00%   405.7280619     413.9006249        1.97%       58     15      0     34789    10.0s
+
+Solving report
+  Model             seymour1
+  Status            Time limit reached
+  Primal bound      413.900624934
+  Dual bound        405.728061909
+  Gap               1.97%
+  P-D integral      0.73
+  Solution status   feasible
+                    413.900624934 (objective)
+  Timing            10.00
+                    0.07 (Presolve)
+                        MIP    time [calls] = 0.04 [1]
+                        subMIP time [calls] = 0.03 [1]
+                    9.93 (Solve)
+                        MIP    time [calls] = 4.88 [1]
+                        subMIP time [calls] = 5.05 [1]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [1]
+  Max sub-MIP depth 2
+  Nodes             2
+  Repair LPs        0
+  LP iterations     34789
+                    11062 (strong br.)
+                    820 (separation)
+                    19935 (heuristics)

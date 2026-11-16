@@ -1,0 +1,54 @@
+{
+  "seconds": 10,
+  "names": [
+    "seymour1.mps.gz",
+    "glass-sc.mps.gz",
+    "cygnet.mps.gz"
+  ],
+  "cpu": 42,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "environment": {
+    "MIP_ROW_SUBGRADIENT_UNIFORM": "1",
+    "MIP_ABSOLUTE_CHECKER": "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker-absolute",
+    "MIP_GLPK_DRIVER": "/home/ubuntu/mip-codex/target/glpk-benchmark"
+  },
+  "binary_sha256": "dc9886f7c759f2d93f18f1be73271a3869a74d21c05bd65c6117ac952da2c53a",
+  "source_fingerprint": "25ed2389c349655e",
+  "note": "smoke environment fixed-key list omits new flag; explicit request records inherited setting",
+  "partial_failure": {
+    "completed": [
+      "seymour1.mps.gz",
+      "glass-sc.mps.gz"
+    ],
+    "invalid_requested": "cygnet.mps.gz",
+    "exit_code": 1
+  },
+  "corrected_retry": {
+    "names": [
+      "neos-5052403-cygnet.mps.gz"
+    ],
+    "seconds": 10,
+    "cpu": 42,
+    "environment": {
+      "MIP_ROW_SUBGRADIENT_UNIFORM": "1",
+      "MIP_ABSOLUTE_CHECKER": "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker-absolute",
+      "MIP_GLPK_DRIVER": "/home/ubuntu/mip-codex/target/glpk-benchmark"
+    },
+    "same_binary_sha256": "dc9886f7c759f2d93f18f1be73271a3869a74d21c05bd65c6117ac952da2c53a"
+  },
+  "final_glass": {
+    "seconds": 10,
+    "cpu": 42,
+    "names": [
+      "glass-sc.mps.gz"
+    ],
+    "source_fingerprint": "f9d8bd2f8329cac0",
+    "binary_sha256": "349bd6640e2f78ca77ec6f6d2ffe7dc48a5d1cb891e3adcf0140a94f5efa1820",
+    "environment": {
+      "MIP_ROW_SUBGRADIENT_UNIFORM": "1",
+      "MIP_ABSOLUTE_CHECKER": "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker-absolute",
+      "MIP_GLPK_DRIVER": "/home/ubuntu/mip-codex/target/glpk-benchmark"
+    }
+  }
+}
