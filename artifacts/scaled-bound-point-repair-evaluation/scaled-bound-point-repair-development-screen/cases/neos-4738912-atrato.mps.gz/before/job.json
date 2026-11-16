@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/scaled-bound-point-repair-development-screen/cases/neos-4738912-atrato.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/scaled-bound-point-repair-default-on-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-4738912-atrato.mps.gz",
+    "10"
+  ],
+  "input_sha256": "bd85cacd7a28e99106d75d411d09e73005c818cf36b9a53e3ed01f00c09ff422",
+  "split": "development",
+  "cpu": 5,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_LP_BOUND_POINT_REPAIR": "0",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}
