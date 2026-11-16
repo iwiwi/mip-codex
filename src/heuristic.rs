@@ -83,7 +83,7 @@ impl<'a> Repair<'a> {
         self.stats.calls += 1;
         let mut rng = seed.wrapping_add(0x9e3779b97f4a7c15);
         let mut work = 0usize;
-        let screen = std::env::var("MIP_REPAIR_CHECK_SCREEN").is_ok_and(|v| v == "1");
+        let screen = std::env::var("MIP_REPAIR_CHECK_SCREEN").map_or(true, |v| v == "1");
         for attempt in 0..4 {
             if Instant::now() >= deadline || work >= budget {
                 break;
