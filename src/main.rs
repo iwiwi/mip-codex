@@ -189,6 +189,9 @@ fn run() -> Result<(), String> {
         if let Ok(v) = std::env::var("MIP_ROOT_OBJECTIVE_REPAIR") {
             limits.root_objective_repair=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROOT_OBJECTIVE_REPAIR must be 0 or 1".into())};
         }
+        if let Ok(v) = std::env::var("MIP_ROOT_PRICED_OBJECTIVE") {
+            limits.root_priced_objective=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROOT_PRICED_OBJECTIVE must be 0 or 1".into())};
+        }
         if let Ok(v) = std::env::var("MIP_ROOT_PRICED_REPAIR") {
             limits.root_priced_repair=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROOT_PRICED_REPAIR must be 0 or 1".into())};
         }

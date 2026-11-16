@@ -38,3 +38,5 @@ pub mod row_ray;
 pub mod row_packing;
 
 pub mod objective_repair;
+
+pub mod priced_objective_repair;
