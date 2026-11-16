@@ -214,9 +214,10 @@ def validate_cut_proofs(model_path,result):
     cuts=result.get('cut_proofs',[])
     grid=result.get('objective_grid')
     graph=result.get('binary_graph')
+    domain_bound=result.get('objective_domain_bound')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts and grid is None and graph is None:return dict(metadata,valid=True)
+    if not cuts and grid is None and graph is None and domain_bound is None:return dict(metadata,valid=True)
     try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
@@ -227,6 +228,18 @@ def validate_cut_proofs(model_path,result):
         if grid is not None:
             metadata['objective_grid_valid']=False
             metadata.update(verify_objective_grid(names,variables,rows,objective,offset,grid))
+        if domain_bound is not None:
+            if grid is None:raise AssertionError('objective domain report requires its grid proof')
+            from verify_binary_graph import maximize_sense
+            sign=-1 if maximize_sense(model_path) else 1
+            domain=grid.get('max_domain' if sign<0 else 'min_domain')
+            if domain is None:raise AssertionError('objective domain side missing')
+            claimed=Fraction(str(domain_bound))
+            if claimed!=sign*domain['base']:raise AssertionError('objective domain report mismatch')
+            dual=result.get('dual_bound')
+            if dual is not None and sign*Fraction(str(dual))<sign*claimed:
+                raise AssertionError('reported dual is weaker than its objective domain')
+            metadata['objective_domain_report_valid']=True
         for cut in cuts:
             proof=cut['proof'];i=proof['source_row'];cover=proof['cover'];side=proof['upper_side']
             if type(i)!=int or i<0 or i>=len(rows):raise AssertionError('bad source index')

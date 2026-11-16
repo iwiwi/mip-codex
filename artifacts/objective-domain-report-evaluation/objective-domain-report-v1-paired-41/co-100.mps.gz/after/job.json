@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/objective-domain-report-v1-paired-41/co-100.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/objective-domain-report-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/co-100.mps.gz",
+    "10"
+  ],
+  "input_sha256": "9a0c08c189afb9c2d66ac43bf20f911f60830053b353e25f5635dbcaf392e594",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_OBJECTIVE_DOMAIN_REPORT": "1"
+  },
+  "cpu": 41,
+  "seconds": 10
+}
