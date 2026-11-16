@@ -1954,6 +1954,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
+                    probe_limits.mir_cuts = false;
                     probe_limits.box_primal = false;
                     probe_limits.rounding_cuts = false;
                     probe_limits.strong_branching = false;
@@ -2044,6 +2045,9 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             local.feasibility_pump = false;
                             local.strong_branching = false;
                             local.cover_cuts = false;
+                            // This neighborhood search seeks a quick incumbent;
+                            // root MIR trials must not redirect its limited tree.
+                            local.mir_cuts = false;
                             local.box_primal = false;
                             local.rounding_cuts = false;
                             local.propagation = false;

@@ -27,3 +27,19 @@ PR68の1列行列化を継承した正式MIR版Fc57ba49edcd98288でも、LP12組
 正式Mat継承版でもpk1 primal17→20、pg5 primal−14069.744179→−14008.121371と悪化し、単に全MIR候補を残す既定方式は採用しない。既存の切断ループをMIR offと同じ順に完了し、解き終えたroot cacheがある場合に限りMIRを別試行する。各回8本、最大cover_rounds回、元の総cut時間枠を共有する。試行LPが期限内にoptimalとなり、元目的のmin方向でmax(1,|旧LP目的|)の0.1%以上改善するか、元問題の整数実行可能点が得られた場合のみ切断を保持する。閾値は上記の開発用負結果を受けた一般的な選択規則であり、holdoutには触れていない。
 
 効果不足/時間切れ/数値失敗/infeasible等の試行は、追加行を除去して元LP cacheと不変warm basisをそのままmainへ渡す。試行infeasibleだけで最終infeasibleを宣言しない。統計に試行LP数・時間・棄却切断数を分離する。構造上元root cacheがない場合やpropagation有効時は試行しない。新しいrollbackと零目的整数点のテストを含む207 Rustテストを通過。生版は既存記録に重ねずmir-gate-*へ保存する。
+
+試行方式の固定18問は17問のprimal/dualを維持し、timtabはprimalなし/120576から検証済み1089832/148854.4318423484へ改善。32 MIRと既存56切断の全88行を比較専用HiGHS LPへ加えると148854.43184234842で一致した。10秒nativeはHiGHS795870/652311.58、SCIP834362/594137.09、GLPK primalなし/374243.12で、HiGHS/SCIPはなお優る。自作timtab点は絶対GMPのrow1.4e−14/integrality0、公式検査も合格。固定36出力の496切断と27保存MIP点は独立検査を通過。
+
+開発188問をold main Mat(F8cdf27a6d731a72b)と試行方式F33904f1ac1df3d84で各10秒/1thread/16GiB比較中。5 worker CPU3..7、各問題で旧新版の順を交互にし、70秒外部watchdogは/usr/bin/timeだけでなくプロセス群全体を停止する。全resultと異常終了を保持し、保存点の独立検査前にはvalid incumbentへ数えない。データはmir-gate-development-screenとmir-gate-development-audit。holdoutは読み込まない。全240問の自作fullは開始していない。
+
+main全体のRINSではLimitsの許可フラグを継承し、ローカル入力モデルの境界に対するMIRが試されることもある。この証明をグローバル切断へ転用せず、ローカル探索からは元問題で検査した整数点だけを戻す。トップレベルで公開するMIR証明は元入力の行・境界だけを使う。ローカルのinfeasible/dualをグローバル証明にしない。
+
+## ローカル探索での負結果と範囲限定
+
+188問の初回比較途中でneos-911970 primal111.84→167.51を発見。同一F33904バイナリのMIR offは111.84に戻り、旧版も111.84だった。グローバルMIRは8候補を棄却して0本、RINS内部では追加LPが2回あり、固定1024節点の局所探索が変わった。neos-3024952-loueの小さいdual差はMIR offでも残り、基本cut集合も異なったためMIRの効果とは断定しない。
+
+短時間で実行可能点を探すRINS/probeにグローバル下界用MIR試行を継承しないよう、両方のローカルLimitsでmir_cuts=falseとする一般的な範囲限定を追加する。特定問題名はソルバーへ入れない。初回188問はF33904のまま最後まで継続して生結果を保存し、この変更の結果で上書きしない。新しい版は別比較とする。
+
+初回188問×2の全376実行・独立検査が完了。両版ともtime_limit168/numerical_error9/resource_limit11で、10秒のoptimal宣言は0。primal改善2/悪化1、dual改善5/悪化1、driver error0。保存105 MIP点が絶対GMP/公式、全376結果の切断/補助証明がFraction検査を通過。これは全探索の独立証明ではない。neos-911970負例を含む全結果を保持する。
+
+ローカルMIRを禁止したF4cb8762cbbd4adcaは、同CPUの旧版/new/MIRoff比較でneos-911970が全て111.84へ戻った。nu25-pr12は旧/MIRoff55375・52760に対し新54875・52975、timtabは旧/MIRoff primalなし・120576に対し新1089832・148854.431842で改善を維持。207 Rustテスト通過。別版として188問全体を再比較する。
