@@ -127,12 +127,23 @@ fn released_neighborhoods_keep_the_seed_and_preserve_every_unfixed_domain() {
         let n = neighborhood_released(&m, &seed, &seed, 50, salt).unwrap();
         assert_eq!(n.fixed, 2);
         assert!(n.model.check(&seed, true, 0.).is_ok());
-        for (old, new) in m.variables.iter().zip(&n.model.variables) {
-            assert!(
-                new.lower == old.lower
-                    || new.lower
-                        == Some(seed[m.variables.iter().position(|v| v.name == old.name).unwrap()])
-            );
+        for mask in 0..16 {
+            let x: Vec<_> = (0..4).map(|j| ((mask >> j) & 1) as f64).collect();
+            if n.model.check(&x, true, 0.).is_ok() {
+                assert!(m.check(&x, true, 0.).is_ok());
+            }
+        }
+        for (j, (old, new)) in m.variables.iter().zip(&n.model.variables).enumerate() {
+            if new.lower == new.upper {
+                assert_eq!(new.lower, Some(seed[j]));
+                assert_eq!(new.lower_enclosure, Some([seed[j]; 2]));
+                assert_eq!(new.upper_enclosure, Some([seed[j]; 2]));
+            } else {
+                assert_eq!(new.lower, old.lower);
+                assert_eq!(new.upper, old.upper);
+                assert_eq!(new.lower_enclosure, old.lower_enclosure);
+                assert_eq!(new.upper_enclosure, old.upper_enclosure);
+            }
         }
         let repeated = neighborhood_released(&m, &seed, &seed, 50, salt).unwrap();
         assert_eq!(
