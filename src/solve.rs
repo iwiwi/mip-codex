@@ -21,6 +21,7 @@ pub struct Limits {
     pub propagation: bool,
     pub primal_repair: bool,
     pub box_primal: bool,
+    pub root_seed_repair: bool,
     pub binary_graph: bool,
     pub parity_equalities: bool,
     pub graph_local_search: bool,
@@ -67,6 +68,7 @@ impl Default for Limits {
             propagation: false,
             primal_repair: true,
             box_primal: true,
+            root_seed_repair: false,
             binary_graph: true,
             parity_equalities: true,
             graph_local_search: true,
@@ -126,6 +128,8 @@ pub struct Result {
     pub primal_repair: bool,
     pub box_primal_enabled: bool,
     pub box_primal: heuristic::BoxStats,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub root_seed_repair: Option<heuristic::BoxStats>,
     pub root_incumbent_conflict: bool,
     pub lp_diving: bool,
     pub primal_probe: bool,
@@ -1435,17 +1439,43 @@ fn solve_seeded_warm(
     let mut box_primal = heuristic::BoxStats::default();
     let mut box_candidate = None;
     let mut early_repair = None;
+    let mut root_seed_repair = None;
     if limits.box_primal && seed.is_none() && Instant::now() < deadline {
         let started = Instant::now();
         let box_deadline = deadline
             .min(started + std::time::Duration::from_secs_f64((limits.seconds * 0.05).min(0.25)));
-        let repair = heuristic::Repair::new(model);
+        let mut repair = heuristic::Repair::new(model);
         let offset = start.elapsed().as_secs_f64();
         (box_candidate, box_primal) = repair.box_search(box_deadline);
         if let Some(t) = &mut box_primal.first_seconds {
             *t += offset;
         }
         box_primal.seconds = started.elapsed().as_secs_f64();
+        if box_candidate.is_none()
+            && limits.root_seed_repair && limits.primal_repair
+            && matches!(limits.engine, Engine::Revised)
+            && (4096..=100_000).contains(&model.variables.len())
+            && model.variables.iter().all(|v| v.integer
+                && matches!((v.lower,v.upper),(Some(l),Some(u)) if (l==0. || l==1.) && (u==0. || u==1.)))
+            && model.rows.iter().map(|r|r.coefficients.len()).sum::<usize>() <= 10_000_000
+            && Instant::now() < deadline
+        {
+            let began = Instant::now();
+            let local_deadline = deadline.min(began + std::time::Duration::from_secs_f64((limits.seconds*0.1).min(0.5)));
+            let point: Vec<_> = root.lower.iter().zip(&root.upper).map(|(l,u)|0f64.max(l.unwrap_or(f64::NEG_INFINITY)).min(u.unwrap_or(f64::INFINITY))).collect();
+            let before = repair.stats.clone();
+            let candidate = repair.search(&point,&root.lower,&root.upper,local_deadline,50_000_000,0)
+                .filter(|x|model.objective(x).is_finite());
+            let found = candidate.is_some();
+            root_seed_repair = Some(heuristic::BoxStats {
+                calls: repair.stats.calls-before.calls,
+                candidates: usize::from(found), improvements: usize::from(found),
+                moves: repair.stats.moves-before.moves, work: repair.stats.work-before.work,
+                seconds: began.elapsed().as_secs_f64(),
+                first_seconds: found.then(||start.elapsed().as_secs_f64()),
+            });
+            box_candidate = candidate;
+        }
         early_repair = Some(repair);
     }
     let mut lp_stats = revised::Stats::default();
@@ -1511,7 +1541,9 @@ fn solve_seeded_warm(
     let mut root_incumbent_conflict = false;
     if let Some(x) = box_candidate {
         incumbent = sign * model.objective(&x);
-        first_primal_seconds = box_primal.first_seconds;
+        first_primal_seconds = box_primal
+            .first_seconds
+            .or_else(|| root_seed_repair.as_ref().and_then(|s| s.first_seconds));
         best = Some(x);
     }
     if let Some(x) = seed {
@@ -2589,6 +2621,7 @@ fn solve_seeded_warm(
         primal_repair: limits.primal_repair,
         box_primal_enabled: limits.box_primal,
         box_primal,
+        root_seed_repair,
         root_incumbent_conflict,
         lp_diving: limits.lp_diving,
         primal_probe: limits.primal_probe,

@@ -146,7 +146,58 @@ fn main() {
             seconds: budget,
             ..Limits::default()
         };
-        let result = solve::solve(&sub, &limits);
+        let repaired = if args.get(4).is_some_and(|v| v == "repair") {
+            let lower: Vec<_> = sub.variables.iter().map(|v| v.lower).collect();
+            let upper: Vec<_> = sub.variables.iter().map(|v| v.upper).collect();
+            let point: Vec<_> = sub
+                .variables
+                .iter()
+                .map(|v| {
+                    0f64.max(v.lower.unwrap_or(f64::NEG_INFINITY))
+                        .min(v.upper.unwrap_or(f64::INFINITY))
+                })
+                .collect();
+            let mut repair = heuristic::Repair::new(&sub);
+            repair.search(
+                &point,
+                &lower,
+                &upper,
+                deadline.min(
+                    Instant::now() + std::time::Duration::from_secs_f64((budget * 0.1).min(0.2)),
+                ),
+                50_000_000,
+                0,
+            )
+        } else {
+            None
+        };
+        let result = if let Some(point) = repaired {
+            Result {
+                status: "feasible_repair_component".into(),
+                objective: Some(sub.objective(&point)),
+                values: Some(
+                    sub.variables
+                        .iter()
+                        .zip(point)
+                        .map(|(v, x)| (v.name.clone(), x))
+                        .collect(),
+                ),
+                ..Result::default()
+            }
+        } else {
+            solve::solve(
+                &sub,
+                &Limits {
+                    seconds: limits.seconds.min(
+                        deadline
+                            .saturating_duration_since(Instant::now())
+                            .as_secs_f64(),
+                    ),
+                    ..limits
+                },
+            )
+        };
+
         let valid = result
             .values
             .as_ref()
