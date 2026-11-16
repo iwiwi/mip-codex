@@ -216,9 +216,10 @@ def validate_cut_proofs(model_path,result):
     graph=result.get('binary_graph')
     domain_bound=result.get('objective_domain_bound')
     ray=result.get('row_ray_proof')
+    packing=result.get('row_packing_proof')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts and grid is None and graph is None and domain_bound is None and ray is None:return dict(metadata,valid=True)
+    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None:return dict(metadata,valid=True)
     try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
@@ -241,6 +242,23 @@ def validate_cut_proofs(model_path,result):
             if dual is not None and sign*Fraction(str(dual))<sign*claimed:
                 raise AssertionError('reported dual is weaker than its objective domain')
             metadata['objective_domain_report_valid']=True
+        if packing is not None:
+            from verify_binary_graph import maximize_sense
+            sign=-1 if maximize_sense(model_path) else 1
+            if not isinstance(packing,dict):raise AssertionError('packing proof schema')
+            selected=packing['rows']
+            if not isinstance(selected,list) or any(type(i)is not int or not 0<=i<len(rows) for i in selected) or selected!=sorted(set(selected)):raise AssertionError('packing row indices')
+            if any(v['lower']!=0 or sign*objective.get(name,Fraction(0))!=1 for name,v in variables.items()):raise AssertionError('packing original cost and box')
+            seen=set()
+            for i in selected:
+                row=rows[i]
+                if row['lower']!=1 or any(a!=1 for a in row['coefficients'].values()) or not seen.isdisjoint(row['coefficients']):raise AssertionError('packing rows overlap or are not unit covers')
+                seen.update(row['coefficients'])
+            bound=packing['normalized_bound']
+            if type(bound)is not int or bound!=sign*offset+len(selected):raise AssertionError('packing exact bound mismatch')
+            dual=result.get('dual_bound')
+            if dual is not None and sign*Fraction(str(dual))<bound:raise AssertionError('reported dual weaker than packing')
+            metadata['row_packing_valid']=True
         if ray is not None:
             import struct
             from verify_binary_graph import maximize_sense

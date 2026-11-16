@@ -34,3 +34,5 @@ pub(crate) mod certificate;
 pub mod parity;
 
 pub mod row_ray;
+
+pub mod row_packing;

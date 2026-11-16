@@ -177,6 +177,9 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_OBJECTIVE_DOMAIN_REPORT must be 0 or 1".into()),
             };
         }
+        if let Ok(v) = std::env::var("MIP_ROW_PACKING_REPORT") {
+            limits.row_packing_report=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROW_PACKING_REPORT must be 0 or 1".into())};
+        }
         if let Ok(v) = std::env::var("MIP_ROW_RAY_REPORT") {
             limits.row_ray_report = match v.as_str() {"0"=>false,"1"=>true,_=>return Err("MIP_ROW_RAY_REPORT must be 0 or 1".into())};
         }
