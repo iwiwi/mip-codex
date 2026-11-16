@@ -42,3 +42,5 @@ pub mod objective_repair;
 pub mod priced_objective_repair;
 
 pub mod row_subgradient;
+
+pub mod dual_guided_primal;

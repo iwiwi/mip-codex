@@ -1,0 +1,10 @@
+NAME bound
+ROWS
+ N c
+COLUMNS
+ x c 0
+RHS
+ rhs c 0
+BOUNDS
+ FX b x 10000000000000001
+ENDATA

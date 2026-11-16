@@ -60,6 +60,7 @@ pub struct Limits {
     pub objective_domain_report: bool,
     pub row_ray_report: bool,
     pub row_subgradient_report: bool,
+    pub dual_guided_primal: bool,
     pub row_packing_report: bool,
     pub objective_rounding_all: bool,
     pub branching: branching::Rule,
@@ -118,6 +119,7 @@ impl Default for Limits {
             objective_domain_report: true,
             row_ray_report: true,
             row_subgradient_report: true,
+            dual_guided_primal: true,
             row_packing_report: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
@@ -188,6 +190,8 @@ pub struct Result {
     pub row_ray_proof: Option<crate::row_ray::Proof>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub row_subgradient_proof: Option<crate::row_subgradient::Proof>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub dual_guided_primal: Option<heuristic::BoxStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub row_packing_proof: Option<crate::row_packing::Proof>,
     pub objective_bound_stats: ObjectiveBoundStats,
@@ -1608,6 +1612,15 @@ fn solve_seeded_warm(
             crate::row_subgradient::compute(model,model.objective(point),row_ray_proof.as_ref(),end)
         })
     }else{None};
+    let mut dual_guided_primal=None;
+    if limits.dual_guided_primal && Instant::now()<deadline {
+        if let(Some(proof),Some(point),Some(repair))=(row_subgradient_proof.as_ref(),box_candidate.as_ref(),early_repair.as_mut()){
+            let offset=start.elapsed().as_secs_f64();let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.1)));
+            if let Some((point,mut stats))=crate::dual_guided_primal::improve(model,repair,point,&root.lower,&root.upper,proof,end){
+                if let Some(t)=&mut stats.first_seconds{*t+=offset;}box_candidate=Some(point);dual_guided_primal=Some(stats);
+            }
+        }
+    }
     let mut lp_stats = revised::Stats::default();
     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
@@ -2798,6 +2811,7 @@ fn solve_seeded_warm(
         objective_domain_bound,
         row_ray_proof,
         row_subgradient_proof,
+        dual_guided_primal,
         row_packing_proof,
         objective_bound_stats,
         infeasibility_proof_calls,
