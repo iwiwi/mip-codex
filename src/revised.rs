@@ -691,11 +691,7 @@ impl Simplex {
             let target = if t > 0.0 { 0.0 } else { self.upper[leaving] };
             let mut unit = vec![0.0; self.rhs.len()];
             unit[r] = 1.0;
-            let w = if STABLE {
-                self.refined_basis_solve(&unit, true)
-            } else {
-                self.factor.backward(&unit)
-            };
+            let w = self.factor.backward(&unit);
             if w.iter().any(|v| !v.is_finite()) {
                 return Err(numerical());
             }
@@ -769,11 +765,7 @@ impl Simplex {
             for &(i, a) in &self.columns[j] {
                 column[i] += a;
             }
-            let d = if STABLE {
-                self.refined_basis_solve(&column, false)
-            } else {
-                self.factor.forward(&column)
-            };
+            let d = self.factor.forward(&column);
             let denom = -t * d[r] * direction;
             let remaining = t * (target - self.x[leaving]);
             if !denom.is_finite() || denom <= PIVOT || remaining < -1e-7 {
@@ -912,7 +904,7 @@ impl Simplex {
             for &(i, a) in &self.columns[j] {
                 column[i] += a;
             }
-            let d = self.factor.forward(&column);
+            let mut d = self.factor.forward(&column);
             if d.iter().any(|v| !v.is_finite()) {
                 return Err(numerical());
             }
@@ -930,8 +922,23 @@ impl Simplex {
                         if let Some(step) = self.refine_ratio(&d, direction, j) {
                             step
                         } else {
-                            self.restore_primal()?;
-                            continue 'iterations;
+                            d = self.refined_basis_solve(&column, false);
+                            if let Ok(step) = primal_ratio(
+                                &self.basis,
+                                &self.x,
+                                &self.upper,
+                                &d,
+                                direction,
+                                self.upper[j],
+                            ) {
+                                if std::env::var_os("MIP_LP_TRACE").is_some() {
+                                    eprintln!("primal direction refinement recovered entering={j}");
+                                }
+                                step
+                            } else {
+                                self.restore_primal()?;
+                                continue 'iterations;
+                            }
                         }
                     } else {
                         self.refactor()?;
