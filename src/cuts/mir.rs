@@ -217,6 +217,9 @@ impl Pool {
             return vec![];
         }
         'rows: for (i, original) in model.rows.iter().enumerate() {
+            if original.coefficients.len() > 4096 {
+                continue;
+            }
             let row_scale = if original.exact_integral {
                 1
             } else {

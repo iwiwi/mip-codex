@@ -733,7 +733,7 @@ fn parse_mode(reader: impl BufRead, decimal_scaling: bool) -> Result<Model, Stri
         {
             return Err("range overflow".into());
         }
-        if decimal_scaling && !row.exact_integral {
+        if decimal_scaling && !row.exact_integral && row.coefficients.len() <= 4096 {
             row.decimal_scale = certify_decimal_scale(
                 &row,
                 &entries,
