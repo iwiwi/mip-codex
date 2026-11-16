@@ -7,3 +7,7 @@
 有効な単独10秒診断はbuildingenergy/ns1760995/square41/supportcase12/map10/temukaの6件。512はresource_limit、2048は全てLP計算へ進むがtime_limitで点・境界なし。ピークRSSは確認済み例370〜918MiB。終了状態変化だけを性能改善と数えない。同一凍結FP8b、CPU41、1thread、AS16GiB、元MPS SHA確認、全件development、root1nodeでheuristics/cuts無効。artifacts/sparse-budget-isolated-diagnosticに保存。
 
 60秒でも同じ6件の512/2048診断を実行中（sparse-budget60-diagnostic）。点が得られれば元MPS Fractionで行/境界/目的値を検査し、整数点とは区別する。大きい行列を許可しただけでdefaultを変えず、メモリ使用/誤答/未解決状態と実際の点取得を確認して判断する。実装するならdenseとsparseのworkspaceを分け、denseの安全上限を意図せず広げない。
+
+60秒の6件も2048ではLP点/境界なしだった（time_limit、一部約61秒）。512は全てresource_limit。単なる上限拡大は既定採用しない。sourceはmain FP8bの既存設定だけを変えた。
+
+次の独立Rust example screen_rowsは、全変数を連続へ緩和し、少数制約のLPを自作coreでcoldに解く。得た点が元全制約を満たすまで違反行を追加する。部分問題のunbounded/numerical/infeasibleは元問題の宣言へ昇格しない。最終点だけ元Model.check(false)を通して出し、さらに原MPSのFractionで独立検査する。最終LP目的は元MILPの整数解とは扱わない。全体deadline内で行を追加し、subset未完了なら点なしを返す。small LP toyは2行のうち1行で連続最適値−5/3を取得。まだmain未統合。
