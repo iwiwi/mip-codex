@@ -6,6 +6,7 @@ use mip_codex::{
 fn three_original_rows_improve_the_root_with_a_verified_integer_point() {
     let model = mps::parse(std::io::Cursor::new("NAME three\nROWS\n N obj\n L a\n L b\n L c\nCOLUMNS\n x obj -1 a 3\n z obj -1 c 3\n t a 2 b -1\n u b 3 c -6\nRHS\n rhs a 3 b 0\n rhs c 1\nBOUNDS\n BV bd x\n BV bd z\n FR bd t\n FR bd u\nENDATA\n")).unwrap();
     let mut limits = Limits {
+        three_row_cuts: false,
         binary_graph: false,
         box_primal: false,
         primal_repair: false,

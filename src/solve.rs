@@ -75,7 +75,7 @@ impl Default for Limits {
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
-            three_row_cuts: false,
+            three_row_cuts: true,
             graph_fractional_cover: true,
             defer_infeasibility: true,
             joint_infeasibility: true,
