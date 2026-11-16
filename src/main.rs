@@ -170,6 +170,13 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_FIXED_COLUMNS must be 0 or 1".into()),
             };
         }
+        if let Ok(v) = std::env::var("MIP_TERMINAL_NEIGHBORHOOD") {
+            limits.terminal_neighborhood = match v.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_TERMINAL_NEIGHBORHOOD must be 0 or 1".into()),
+            };
+        }
         if let Ok(v) = std::env::var("MIP_PARITY_EQUALITIES") {
             limits.parity_equalities = match v.as_str() {
                 "0" => false,

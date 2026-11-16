@@ -47,6 +47,7 @@ pub struct Limits {
     pub strong_objective: bool,
     pub strong_infeasible_hint: bool,
     pub rins: bool,
+    pub terminal_neighborhood: bool,
     pub objective_rounding: bool,
     pub objective_rounding_all: bool,
     pub branching: branching::Rule,
@@ -92,6 +93,7 @@ impl Default for Limits {
             strong_objective: true,
             strong_infeasible_hint: true,
             rins: true,
+            terminal_neighborhood: true,
             objective_rounding: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
@@ -2439,7 +2441,7 @@ fn solve_seeded_warm(
     if status == "numerical_error"
         && limits.rins
         && matches!(limits.engine, Engine::Revised)
-        && std::env::var("MIP_TERMINAL_NEIGHBORHOOD").as_deref() == Ok("1")
+        && limits.terminal_neighborhood
         && best.is_some()
         && model.variables.len() <= 50_000
         && model.rows.len() <= 50_000
