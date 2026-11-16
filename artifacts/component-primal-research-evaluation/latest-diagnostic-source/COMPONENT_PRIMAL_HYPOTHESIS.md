@@ -1,0 +1,13 @@
+# 独立成分からの主解結合の診断
+
+2026-11-16、main25048dd1e/FP134ef9e8e57efb90からcomponent-primal-diagnostic branch。全188のRust構造分類で、cygnetは固定変数0、6つの約4600変数の制約成分と5226孤立変数に分かれた。全体の10秒根LPは点を返さない。分割すれば制約行列が小さくなり、同じ自作ソルバーでも全成分の整数点を見つけられる可能性がある。
+
+examples/component_primal.rsは全変数（固定変数も含む）を元制約の非零係数で連結する保守的な分割を作る。成分に属する元変数/行をコピーし、係数の変数番号だけを写像する。孤立変数は目的に沿う境界側の点を選ぶ。残り成分数で残り時間を分配して自作Rustソルバーを呼ぶ。全成分の点を得た場合だけ元問題で全点を検査し、結合主解を保存する。成分の大域下界・最適性・不能は合成しない。診断のstatusはfeasible_component_diagnosticまたはunresolved_component_diagnosticであり、最適性宣言ではない。成分のmodel/result/元変数行の写像を保存する。
+
+初めにcygnetを120秒・1 thread・16GiB・watchdog180秒で実施する。元モデルの独立したGMP/Fraction検査に通る点が得られるまでは採用候補にしない。制約数や孤立変数数などの条件は構造から自動検出し、問題名別の答えや設定をソルバーへ埋め込まない。mainへはまだ統合していない。
+
+## 2026-11-16 12:55 UTC
+
+PR78をmain25048dd1e/FP134ef9e8e57efb90へ採用済み。全188対は主解3改善0悪化、下界同値79/比較不能109。全376証明/112整数点有効。primaryでもNidda13590.8271・glass4 2400021800・enlight37最適を再現、3整数点/3Rust証明が有効。terminal-neighborhood-final-20261116は全240/3600s/1thread/16GiB/CPU8–15 create-only、全SHA照合済み、本ジョブ未開始。
+
+component-primal-diagnosticは未統合。20小例は結合主解が全列挙最適値と一致しGMP絶対/公式検査とも有効。初回2回のfree MPSは公式parser不受理のログを保全し固定書式で成功。cygnet120秒は6成分全て根LP時間終了、各5935–10300 pivot、整数点・下界なし、結合解なし。総wall124.82s、watchdogなし。採用せず停止原因を診断する。native269/720・厳密最適118・error/無効解18で継続。11月19日UTC目安の自作全件開始/11月22日14:59UTC期限を維持。
