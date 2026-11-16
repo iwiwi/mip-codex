@@ -1875,7 +1875,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                     let started = Instant::now();
                     let pump_deadline = deadline.min(
                         started
-                            + std::time::Duration::from_secs_f64((limits.seconds * 0.1).min(1.)),
+                            + std::time::Duration::from_secs_f64((limits.seconds * 0.1).min(5.)),
                     );
                     let old_solves = pump.lp_solves;
                     if let Some(x) = binary_pump(
