@@ -11,3 +11,5 @@ MIR証明に行倍率を追加し、Rustはparserの厳密メタデータと一�
 8問題10秒の同一凍結binary（FP2cc784d3a22ea2f3）on/offは、binkarの主解6888.550001→6994.550023・dual6646.313678834→6669.285306101、他7問題は主解/dual同値。16出力のcut証明と10保存整数点は元MPSで有効。binkar60秒も主解6865.969997→6894.340023と悪化し、dualは同じ改善。2出力/2点も有効。まだ採用せず全188対10秒をCPU0..2で実行し、原MPSのFraction/GMP/公式監査を並行する。根境界だけの改善を主解改善と呼ばない。
 
 main PR73（c54dfda2d/FP8b）のmerge後へrebaseし、source FP2ccが不変であることを確認した。凍結測定binaryは変更していない。初期77点分離exampleはcargo testで上書きされたが、当時のsource FP1087918ecba260aeを再構成し、同じ元directoryで再buildすると元のELF SHA18cb9ccb8c59aeb0dc0e6037954b11ad7e13dacc113fff5b42febb29f9453bddと完全一致した。source/ELFを保存。採用候補MIP用FP2ccのELF/sourceは測定前に凍結済み。
+
+全188対10秒と監査が完了。主解0改善/1悪化/187同値、dual1改善/0悪化/78同値/109比較不能。前171 time_limit/11 resource_limit/6 numerical_error、後172/11/5。376証明/110保存整数点は全件有効。最適宣言0件、未解決10秒ペナルティSGMは前後10秒。binkarの10秒/60秒主解悪化を解消する他の主解改善がなく、現在の十進MIR版は未採用とする。parser/証明形式と原データをbranchへ保存し、mainのsourceは変えない。将来の主解探索や分離順序改善後に再評価できる状態を残す。
