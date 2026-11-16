@@ -1,0 +1,71 @@
+{
+  "name": "cost266-UUE.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "a6048c81daa7c992ff5c3f6b954e2fd4d77048c9b9c3e49b76380a3c3e73fa7d",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "cb044fc2098ffc2e515febf0fd819232f3717c11b42afa11b26de34ff11746a6"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 30821086.28,
+      "bound_violation": 0.0,
+      "row_violation": 9.094947017729282e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 30821086.28,
+    "bound_violation": 0.0,
+    "row_violation": 1e-12,
+    "integer_violation": 0.0,
+    "objective_error": 2.0847e-11,
+    "exact": {
+      "objective": "30821086280000000020847/1000000000000000",
+      "bound_violation": "0",
+      "row_violation": "1/1000000000000",
+      "integer_violation": "0",
+      "objective_error": "20847/1000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "30821087280000000020847/100000000000000000000000",
+      "absolute_error": "20847/1000000000000000",
+      "recomputed_exact": "30821086280000000020847/1000000000000000",
+      "reported_token": "30821086.28"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/cost266-UUE.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/priced-root-repair-development-audit/cost266-UUE.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "dfeff4bf836166d85b023d31387f5c18ce61b5ebd547c1a15b8ad1b9fcdc292f",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.36576229499769397
+}

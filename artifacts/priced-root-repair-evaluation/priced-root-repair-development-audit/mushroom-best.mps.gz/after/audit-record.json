@@ -1,0 +1,71 @@
+{
+  "name": "mushroom-best.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "194e8294166d8a5583fb31aabd55ebdce885c36e589dfd9309bc772133a3c4c8",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "cb044fc2098ffc2e515febf0fd819232f3717c11b42afa11b26de34ff11746a6"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 8124.895731707317,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 8124.895731707317,
+    "bound_violation": 0.0,
+    "row_violation": 0.0,
+    "integer_violation": 0.0,
+    "objective_error": 7.28174e-14,
+    "exact": {
+      "objective": "40624478658536585364087/5000000000000000000",
+      "bound_violation": "0",
+      "row_violation": "0",
+      "integer_violation": "0",
+      "objective_error": "364087/5000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "40629478658536585364087/500000000000000000000000000",
+      "absolute_error": "364087/5000000000000000000",
+      "recomputed_exact": "40624478658536585364087/5000000000000000000",
+      "reported_token": "8124.895731707317"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mushroom-best.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/priced-root-repair-development-audit/mushroom-best.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "faccd436f740351f73a398b32ebd31ee935d367bd9c6aa6d880651d8b7189b3e",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 1.067029010009719
+}
