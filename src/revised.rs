@@ -73,6 +73,7 @@ struct Eta {
 enum Factor {
     Diagonal(Vec<f64>),
     Sparse(Lu<usize, f64>),
+    Dense(faer::linalg::solvers::FullPivLu<f64>),
 }
 #[derive(Debug)]
 struct MultiplierCache {
@@ -113,6 +114,11 @@ impl Basis {
     fn forward(&self, v: &[f64]) -> Vec<f64> {
         let mut x = match self.factor.as_ref() {
             Factor::Diagonal(d) => v.iter().zip(d).map(|(v, d)| v / d).collect(),
+            Factor::Dense(lu) => {
+                let mut x = Mat::from_fn(v.len(), 1, |i, _| v[i]);
+                lu.solve_in_place(x.as_mut());
+                (0..v.len()).map(|i| x[(i, 0)]).collect()
+            }
             Factor::Sparse(lu) => {
                 // Preserve a nonzero column stride for faer row permutations.
                 // A Col view has stride zero and may copy one element per row.
@@ -145,6 +151,11 @@ impl Basis {
         }
         match self.factor.as_ref() {
             Factor::Diagonal(d) => x.iter().zip(d).map(|(v, d)| v / d).collect(),
+            Factor::Dense(lu) => {
+                let mut y = Mat::from_fn(v.len(), 1, |i, _| x[i]);
+                lu.solve_transpose_in_place(y.as_mut());
+                (0..v.len()).map(|i| y[(i, 0)]).collect()
+            }
             Factor::Sparse(lu) => {
                 let mut x = Mat::from_fn(v.len(), 1, |i, _| x[i]);
                 lu.solve_transpose_in_place(x.as_mut());
@@ -314,7 +325,30 @@ impl Simplex {
             multiplier_cache: None,
         };
         self.stats.refactors += 1;
-        self.recompute()
+        let result = self.recompute();
+        if matches!(result, Err(Outcome::NumericalError))
+            && self.rhs.len() <= 512
+            && std::env::var("MIP_FULL_PIVOT_FALLBACK").is_ok_and(|v| v == "1")
+            && self.deadline.is_none_or(|d| Instant::now() < d)
+        {
+            let mut matrix = Mat::<f64>::zeros(self.rhs.len(), self.rhs.len());
+            for (k, &j) in self.basis.iter().enumerate() {
+                for &(i, a) in &self.columns[j] {
+                    matrix[(i, k)] += a;
+                }
+            }
+            self.factor = Basis {
+                factor: Arc::new(Factor::Dense(matrix.full_piv_lu())),
+                updates: vec![],
+                multiplier_cache: None,
+            };
+            self.stats.refactors += 1;
+            if std::env::var_os("MIP_LP_TRACE").is_some() {
+                eprintln!("dense full pivot basis fallback rows={}", self.rhs.len());
+            }
+            return self.recompute();
+        }
+        result
     }
     fn restore_primal(&mut self, since: usize) -> Result<(), Outcome> {
         if self.stats.restoration_attempts.saturating_sub(since) >= 4 {
