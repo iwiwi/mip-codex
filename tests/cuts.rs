@@ -370,25 +370,29 @@ fn ranges_are_combined_as_original_decimal_values_before_rounding() {
 fn root_cut_incumbent_does_not_replace_the_fractional_global_bound() {
     use mip_codex::solve::{Limits, solve};
     let model=mps::parse(std::io::Cursor::new("NAME triangle\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 2\n y c -1 r 2\n z c -1 r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\n BV b z\nENDATA\n")).unwrap();
-    let result = solve(
-        &model,
-        &Limits {
-            box_primal: false,
-            binary_graph: false,
-            objective_rounding: false,
-            rins: false,
-            strong_branching: false,
-            nodes: 1,
-            cover_cuts: true,
-            primal_probe: false,
-            primal_repair: false,
-            feasibility_pump: false,
-            lp_diving: true,
-            ..Limits::default()
-        },
-    );
-    assert_eq!(result.status, "node_limit");
-    assert_eq!(result.objective, Some(-1.));
-    assert_eq!(result.dual_bound, Some(-1.5));
-    assert!(!result.cut_proofs.is_empty());
+    for (rounds, status, bound) in [(2, "node_limit", -1.5), (4, "optimal", -1.)] {
+        let result = solve(
+            &model,
+            &Limits {
+                box_primal: false,
+                binary_graph: false,
+                objective_rounding: false,
+                rins: false,
+                strong_branching: false,
+                nodes: 1,
+                cover_cuts: true,
+                cover_rounds: rounds,
+                primal_probe: false,
+                primal_repair: false,
+                feasibility_pump: false,
+                lp_diving: true,
+                ..Limits::default()
+            },
+        );
+        assert_eq!(result.status, status);
+        assert_eq!(result.objective, Some(-1.));
+        assert_eq!(result.dual_bound, Some(bound));
+        assert!(!result.cut_proofs.is_empty());
+        assert!(result.cut_proofs.iter().all(|c| verify(&model, c)));
+    }
 }
