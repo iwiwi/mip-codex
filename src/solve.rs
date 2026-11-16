@@ -25,6 +25,7 @@ pub struct Limits {
     pub root_priced_repair: bool,
     pub root_priced_objective: bool,
     pub root_priced_continue: bool,
+    pub root_priced_budget: bool,
     pub root_price_portfolio: bool,
     pub root_objective_repair: bool,
     pub root_primal_descent: bool,
@@ -82,6 +83,7 @@ impl Default for Limits {
             root_priced_repair: true,
             root_priced_objective: true,
             root_priced_continue: true,
+            root_priced_budget: true,
             root_price_portfolio: true,
             root_objective_repair: true,
             root_primal_descent: true,
@@ -1565,8 +1567,10 @@ fn solve_seeded_warm(
         if limits.root_priced_objective && root_priced_repair.is_some() && Instant::now()<deadline {
             if let Some(point)=box_candidate.as_ref(){
                 let offset=start.elapsed().as_secs_f64();
-                let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(2.)));
-                if let Some((point,mut stats))=crate::priced_objective_repair::improve_priced_continued(model,&repair,point,&root.lower,&root.upper,end,limits.root_priced_continue){
+                let began=Instant::now();
+                let end=deadline.min(began+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(2.)));
+                let extension=(limits.root_priced_budget&&limits.root_priced_continue).then(||deadline.min(began+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(30.)))).filter(|&v|v>end);
+                if let Some((point,mut stats))=crate::priced_objective_repair::improve_priced_budgeted(model,&repair,point,&root.lower,&root.upper,end,limits.root_priced_continue,extension){
                     if let Some(t)=&mut stats.first_seconds{*t+=offset;}
                     box_candidate=Some(point);root_priced_objective=Some(stats);
                 }
