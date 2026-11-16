@@ -1,0 +1,64 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261116-050917-cpz758bz/neos-3004026-krka.mps.gz/highs/options.txt
+MIP neos-3004026-krka has 12545 rows; 17030 cols; 41860 nonzeros; 17030 integer variables (16900 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+01]
+  Cost    [0e+00, 0e+00]
+  Bound   [1e+00, 1e+01]
+  RHS     [1e+00, 1e+01]
+Presolving model
+12545 rows, 17030 cols, 41860 nonzeros 0s
+10400 rows, 8450 cols, 33280 nonzeros 0s
+10400 rows, 8450 cols, 33280 nonzeros 0s
+Presolve reductions: rows 10400(-2145); columns 8450(-8580); nonzeros 33280(-8580) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   10400 rows
+   8450 cols (8320 binary, 130 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   33280 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   0               inf                  inf        0      0      0         0     0.4s
+         0       0         0   0.00%   0               inf                  inf        0      0      9      4117     0.4s
+
+Symmetry detection completed in 1.1s
+Found 64 generator(s)
+
+         0       1         0   0.00%   0               inf                  inf     9031    451    603     18837     5.9s
+       292     250        12   0.00%   0               inf                  inf    10087    627    960     46200    10.0s
+
+Solving report
+  Model             neos-3004026-krka
+  Status            Time limit reached
+  Primal bound      inf
+  Dual bound        0
+  Gap               inf
+  P-D integral      10.01
+  Solution status   -
+  Timing            10.01
+                    0.41 (Presolve)
+                        MIP    time [calls] = 0.08 [1]
+                        subMIP time [calls] = 0.33 [2]
+                    9.60 (Solve)
+                        MIP    time [calls] = 9.31 [1]
+                        subMIP time [calls] = 0.29 [1]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [2]
+  Max sub-MIP depth 2
+  Nodes             292
+  Repair LPs        0
+  LP iterations     46200
+                    0 (strong br.)
+                    3154 (separation)
+                    28927 (heuristics)
