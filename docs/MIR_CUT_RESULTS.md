@@ -21,3 +21,9 @@ CPU4 timtabは旧120576、新152468.343936、MIR off120576。比較専用HiGHS�
 faer0.24.4のColRef::as_matは列間stride0のMatRefを返し、permute_rowsはrow_stride<col_strideでなければ各行copy_fromを呼ぶ。1列のColではこの経路が1要素コピーを行数分呼び、インライン化で速度が変わりうる。この入力レイアウトを避ける一般的なMat一列RHSを、再びmainから独立変更として評価する。ソースはインストール済みfaerのcol/colref.rs、perm/mod.rsを参照。外部実装のコード移植は行わない。
 
 PR68の1列行列化を継承した正式MIR版Fc57ba49edcd98288でも、LP12組は約.077秒で退行なし。新しいneos開発根点では20ms枠/972396項で候補0本。0/±1係数と整数境界の単一行boxは頂点が整数のため、こうした行を候補走査から省く。省略前版をmir-matrix-before-unit-skipへ固定保存し、別版として検証する。
+
+## 採用前LP試行方式へ変更
+
+正式Mat継承版でもpk1 primal17→20、pg5 primal−14069.744179→−14008.121371と悪化し、単に全MIR候補を残す既定方式は採用しない。既存の切断ループをMIR offと同じ順に完了し、解き終えたroot cacheがある場合に限りMIRを別試行する。各回8本、最大cover_rounds回、元の総cut時間枠を共有する。試行LPが期限内にoptimalとなり、元目的のmin方向でmax(1,|旧LP目的|)の0.1%以上改善するか、元問題の整数実行可能点が得られた場合のみ切断を保持する。閾値は上記の開発用負結果を受けた一般的な選択規則であり、holdoutには触れていない。
+
+効果不足/時間切れ/数値失敗/infeasible等の試行は、追加行を除去して元LP cacheと不変warm basisをそのままmainへ渡す。試行infeasibleだけで最終infeasibleを宣言しない。統計に試行LP数・時間・棄却切断数を分離する。構造上元root cacheがない場合やpropagation有効時は試行しない。新しいrollbackと零目的整数点のテストを含む207 Rustテストを通過。生版は既存記録に重ねずmir-gate-*へ保存する。

@@ -436,3 +436,74 @@ fn mir_alone_strengthens_a_mixed_integer_root_and_has_an_original_row_proof() {
     assert!(after.cut_proofs.iter().any(|c| c.proof.mir.is_some()));
     assert!(after.cut_proofs.iter().all(|c| verify(&model, c)));
 }
+
+fn mir_only_limits() -> mip_codex::solve::Limits {
+    use mip_codex::solve::Limits;
+    Limits {
+        cover_cuts: false,
+        clique_cuts: false,
+        aggregate_cuts: false,
+        rounding_cuts: false,
+        mir_cuts: true,
+        box_primal: false,
+        binary_graph: false,
+        objective_rounding: false,
+        rins: false,
+        strong_branching: false,
+        primal_repair: false,
+        feasibility_pump: false,
+        lp_diving: false,
+        primal_probe: false,
+        nodes: 1,
+        ..Limits::default()
+    }
+}
+#[test]
+fn mir_trial_can_finish_zero_objective_feasibility() {
+    use mip_codex::solve::{Limits, solve};
+    let m=mps::parse(std::io::Cursor::new("NAME feasibility\nROWS\n N c\n E r\nCOLUMNS\n x r 3\n t r 1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n")).unwrap();
+    let limits = mir_only_limits();
+    let before = solve(
+        &m,
+        &Limits {
+            mir_cuts: false,
+            ..limits.clone()
+        },
+    );
+    assert_eq!(before.status, "node_limit");
+    assert_eq!(before.objective, None);
+    let after = solve(&m, &limits);
+    assert_eq!(after.status, "optimal");
+    assert_eq!(after.objective, Some(0.));
+    assert_eq!(after.dual_bound, Some(0.));
+    assert!(after.cut_stats.mir_added > 0);
+    assert!(after.cut_proofs.iter().all(|c| verify(&m, c)));
+}
+#[test]
+fn rejected_mir_trials_preserve_the_original_root_bound_and_status() {
+    use mip_codex::solve::{Limits, solve};
+    for (coefficient, rhs) in [("1", "0.5"), ("2", "1")] {
+        let text = format!(
+            "NAME rollback\nROWS\n N c\n E r\n E s\nCOLUMNS\n x r 3\n t r 1\n z s {coefficient}\nRHS\n rhs r 1 s {rhs}\nBOUNDS\n LI b x 0\n BV b z\nENDATA\n"
+        );
+        let m = mps::parse(std::io::Cursor::new(text)).unwrap();
+        let limits = mir_only_limits();
+        let before = solve(
+            &m,
+            &Limits {
+                mir_cuts: false,
+                ..limits.clone()
+            },
+        );
+        let after = solve(&m, &limits);
+        assert_eq!(before.status, "node_limit");
+        assert_eq!(after.status, before.status);
+        assert_eq!(after.objective, before.objective);
+        assert_eq!(after.dual_bound, before.dual_bound);
+        assert!(after.cut_proofs.is_empty());
+        assert_eq!(after.cut_stats.mir_added, 0);
+        assert!(after.cut_stats.mir_lp_solves > 0);
+        assert!(after.cut_stats.mir_rejected_cuts > 0);
+        assert!(after.root_lp_reused);
+    }
+}
