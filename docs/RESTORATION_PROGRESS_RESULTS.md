@@ -11,3 +11,11 @@ main45257f737/FP3365のrestore_primalは、LP全体のstats.restoration_attempts
 初版の根診断保存点はnidda新点+ran/app1前後の5点がFraction有効。初版source FPc4f3e18411e5f157を保存した。後のcargo testが通常release binaryも更新したため、初版ELFは上書きされた。初版sourceは後から追加した統計/テストだけを除いて再構成し、測定時FPとの完全一致を確認した。以後は正式測定前にELFとsourceをまとめて凍結する。
 
 累積4回を超える新規処理数をlp_restoration_extended_attemptsで分離した。新テストは、進捗基点を進めても既消費pivotとdeadlineが残ることを確認する。最初はlimit=8で7消費済・1pivot後に直ちに証明を返すと誤って期待しIterationLimitで失敗した。実装が次の反復前に予算を確認する挙動を保ち、成功例をlimit=9へ修正した。失敗ログは保持する。
+
+統計/予算テスト追加後のcore703e3b717、FP8b1969fa725c8ce2をrestoration-progress-final-diagnostic-20261116へ凍結した。211 Rust/2700合成/根300設定500 engine出力/数値32件（18有効点・14精度未解決）が通過。数値32件の全点が有効になったとは述べない。
+
+現行版のnidda10秒MIPは14054.945596895の主解を約0.036秒で得たが、約1.56秒・70nodeでnumerical_errorとなった。従来は根で数値停止し点なし。現行版も完走/最適証明ではない。同CPU40/10秒nativeの実run smoke-20261116-072956-4yi5ftokはHS14092.353218828/−966442.21472557、SCIP13848.451257457/−585853.86821694、GLPK13926.554167189/−528527.06098571。自作の根境界は−1216923.270104406で全nativeより弱く、主解のみHSより良い。nidda新点、ran前後2点、native3点の合計6整数点が元MPSのGMP絶対許容差/公式checkerとも有効。
+
+kumeu60秒は約48.46秒・39372 pivotsで数値停止し点なし。uccase9も約60秒・14169 pivotsで点なしの時間制限。この2件を性能改善として数えない。neos860300/germanrrの60秒MIP回帰と188開発問題10秒の比較/独立監査は継続中。188比較はmainFP3365と本凍結版をCPU0..2の3 shard、1thread/16GiB ASで交互順に実行する。3行集約は両方無効。原結果はartifacts/restoration-progress-development-*へ保存。
+
+棄却した双対逆積補正・primal方向補正・数値失敗後PhaseI再始動の実データはartifacts/lp-recovery-negative-evaluation（680 files/4,307,049 bytes）へSHA relocation ledger付きで保存した。3 ELFはlocalに保持しhashを記録。各凍結版のsrc/Cargo/build fingerprintはELFのbuild metadataと一致する。初版進捗案のELFだけは後続cargo testに上書きされたが、測定時FP一致のsourceを再構成保存し、その制限を明記した。
