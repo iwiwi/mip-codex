@@ -1,0 +1,8 @@
+use mip_codex::{mps,row_ray,row_subgradient,solve::Result};
+use std::time::{Instant,Duration};
+fn main(){
+ let a:Vec<_>=std::env::args().collect();
+ if a.get(1).is_some_and(|v|v=="build-info"){println!("{}",serde_json::json!({"source_directory":env!("CARGO_MANIFEST_DIR"),"source_fingerprint":mip_codex::BUILD_SOURCE_FINGERPRINT,"library_source_directory":mip_codex::BUILD_SOURCE_DIRECTORY,"library_source_fingerprint":mip_codex::BUILD_SOURCE_FINGERPRINT}));return;}
+ let m=mps::read(&a[1]).unwrap();let seed:serde_json::Value=serde_json::from_slice(&std::fs::read(&a[2]).unwrap()).unwrap();let values=seed["values"].as_object().unwrap();let point:Vec<_>=m.variables.iter().map(|v|values.get(&v.name).and_then(|v|v.as_f64()).unwrap_or(0.)).collect();m.check(&point,true,1e-6).unwrap();let target=m.objective(&point);assert!(target.is_finite());let seconds:f64=a[3].parse().unwrap();assert!(seconds>0.&&seconds<=30.);
+ let began=Instant::now();let initial=row_ray::compute(&m,Instant::now()+Duration::from_secs(2)).unwrap();let setup=began.elapsed().as_secs_f64();let proof=row_subgradient::compute_with_uniform(&m,target,Some(&initial),Instant::now()+Duration::from_secs_f64(seconds),true);let bound=proof.as_ref().map_or(initial.normalized_bound,|p|p.normalized_bound.max(initial.normalized_bound));let result=Result{status:"diagnostic_bounds_only".into(),dual_bound:Some(bound),row_ray_proof:Some(initial),row_subgradient_proof:proof,..Result::default()};println!("{}",serde_json::json!({"target":target,"setup_seconds":setup,"requested_update_seconds":seconds,"wall_seconds":began.elapsed().as_secs_f64(),"result":result}));
+}

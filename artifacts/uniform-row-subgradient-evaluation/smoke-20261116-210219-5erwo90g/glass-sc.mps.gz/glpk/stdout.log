@@ -1,0 +1,55 @@
+Reading problem data from '/home/ubuntu/mip-priced-repair/data/raw/benchmark/glass-sc.mps.gz'...
+Problem: glass-sc
+Objective: obj
+6120 rows, 214 columns, 64132 non-zeros
+214 integer variables, all of which are binary
+76594 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-210219-5erwo90g/glass-sc.mps.gz/glpk/model.glp'...
+76588 lines were written
+GLPK Integer Optimizer 5.0
+6119 rows, 214 columns, 63918 non-zeros
+214 integer variables, all of which are binary
+Preprocessing...
+6119 rows, 214 columns, 63918 non-zeros
+214 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 6119
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+6119 rows, 214 columns, 63918 non-zeros
+      0: obj =   0.000000000e+00 inf =   6.119e+03 (6119)
+     26: obj =   2.600000000e+01 inf =   0.000e+00 (0)
+*   478: obj =   1.408029586e+01 inf =   1.665e-16 (0) 4
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 6119
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++   478: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 24
+Pass 1
+Pass 2
+Pass 3
+Solution found by heuristic: 23
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 7;
++  6265: mip =   2.300000000e+01 >=   1.500000000e+01  34.8% (82; 2)
++ 16646: mip =   2.300000000e+01 >=   1.600000000e+01  30.4% (225; 6)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-210219-5erwo90g/glass-sc.mps.gz/glpk/solution.raw'...
+6342 lines were written

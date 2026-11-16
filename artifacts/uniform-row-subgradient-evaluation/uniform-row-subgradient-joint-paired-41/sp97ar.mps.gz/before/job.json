@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/uniform-row-subgradient-joint-paired-41/sp97ar.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/uniform-row-subgradient-joint-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/sp97ar.mps.gz",
+    "10"
+  ],
+  "input_sha256": "8b3632e0a37e2af18f77c4c078d075bf8007adc3b6a2e84b0c2c0c044d285e74",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_ROW_SUBGRADIENT_UNIFORM": "0"
+  },
+  "cpu": 41,
+  "seconds": 10
+}

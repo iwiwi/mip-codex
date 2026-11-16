@@ -1,0 +1,58 @@
+Reading problem data from '/home/ubuntu/mip-priced-repair/data/raw/benchmark/seymour1.mps.gz'...
+Problem: seymour1
+Objective: obj
+4945 rows, 1372 columns, 34921 non-zeros
+451 integer variables, all of which are binary
+26583 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-210219-5erwo90g/seymour1.mps.gz/glpk/model.glp'...
+47106 lines were written
+GLPK Integer Optimizer 5.0
+4944 rows, 1372 columns, 33549 non-zeros
+451 integer variables, all of which are binary
+Preprocessing...
+164 hidden packing inequaliti(es) were detected
+4827 rows, 1255 columns, 33432 non-zeros
+372 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 4827
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+4827 rows, 1255 columns, 33432 non-zeros
+      0: obj =   1.170000000e+02 inf =   4.827e+03 (4827)
+    335: obj =   4.520000000e+02 inf =   0.000e+00 (0)
+Perturbing LP to avoid stalling [534]...
+Removing LP perturbation [2245]...
+*  2245: obj =   4.038464741e+02 inf =   1.139e-15 (0) 15
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 408
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 0 + 186 = 186 vertices
++  2245: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 433.925323888
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: gmi = 11; mir = 2; clq = 1;
++  7021: mip =   4.339253239e+02 >=   4.053037414e+02   6.6% (27; 0)
+Cuts on level 38: gmi = 11; mir = 2; clq = 1;
++  8464: >>>>>   4.144723385e+02 >=   4.053037414e+02   2.2% (39; 0)
+Cuts on level 39: gmi = 13; mir = 2; clq = 1;
++ 13274: >>>>>   4.130814603e+02 >=   4.054023996e+02   1.9% (75; 3)
++ 24166: mip =   4.130814603e+02 >=   4.060253047e+02   1.7% (129; 12)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-priced-repair/artifacts/smoke-20261116-210219-5erwo90g/seymour1.mps.gz/glpk/solution.raw'...
+6325 lines were written
