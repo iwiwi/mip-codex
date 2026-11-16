@@ -1,0 +1,20 @@
+{
+  "branch": "probe-root-warm",
+  "worktree": "/home/ubuntu/mip-probe-warm",
+  "base": "d7f606a28 PR70",
+  "hypothesis": "root primal probe unnecessarily resolves a cold LP even though the parent has a compatible feasible root basis",
+  "change": "private solve entry accepts immutable root warm basis; probe receives cut-augmented lp_model and parent warm Arc",
+  "safety": "probe bounds and proof never promoted; only candidate rechecked against outer original model; existing warm structural checks remain",
+  "next": [
+    "archive all variants and real smoke dirs",
+    "PR with benchmark and fresh AI usage",
+    "merge if final independent validations remain clean",
+    "continue separate dual-restoration fallback experiment"
+  ],
+  "current": "cost-gated188 complete: 2 primal better/0 worse; 107 points strict+official valid;376 proofs valid; primary nu/eil smoke confirmed",
+  "ungated_fingerprint": "79067e94251fb417",
+  "worktree_branch": "probe-root-warm-cost-gate",
+  "gate": "prepared.initial_lp_seconds >= probe_limits.seconds; otherwise old original-model cold probe",
+  "current_branch": "probe-root-warm-cost-gate",
+  "current_fingerprint": "f478f554a43b2bea"
+}

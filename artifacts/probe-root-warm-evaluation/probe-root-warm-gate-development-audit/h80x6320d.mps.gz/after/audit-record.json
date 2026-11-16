@@ -1,0 +1,71 @@
+{
+  "name": "h80x6320d.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "da72f2491ab4c7c058074b71a140e12af3c2e87e52e68161f88b2aca8a5f9a23",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "7e57e919ad84f455cc82081ff8d0fe6fb998787c459ddffda53d347fc58f572b"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 9171.597943,
+      "bound_violation": 1.4210854715202004e-14,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 9171.597943,
+    "bound_violation": 1.4210854715202004e-14,
+    "row_violation": 2.10854715202004e-16,
+    "integer_violation": 0.0,
+    "objective_error": 4.395830907167299e-14,
+    "exact": {
+      "objective": "1146449742875000005494788633959123554887/125000000000000000000000000000000000",
+      "bound_violation": "3552713678800501/250000000000000000000000000000",
+      "row_violation": "52713678800501/250000000000000000000000000000",
+      "integer_violation": "0",
+      "objective_error": "5494788633959123554887/125000000000000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "1146574742875000005494788633959123554887/12500000000000000000000000000000000000000000",
+      "absolute_error": "5494788633959123554887/125000000000000000000000000000000000",
+      "recomputed_exact": "1146449742875000005494788633959123554887/125000000000000000000000000000000000",
+      "reported_token": "9171.597943"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/h80x6320d.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/probe-root-warm-gate-development-audit/h80x6320d.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "982e87cb25497f19d68aff7ade42b00603beb4363a44d804d02619fe7b9c8785",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.5171517090057023
+}

@@ -1,0 +1,40 @@
+Diff in /home/ubuntu/mip-codex/src/solve.rs:2695:
+     fn local_probe_reuses_root_warm_without_changing_parent_or_bound() {
+         let (m, node, p, _) = prepare(FRACTIONAL);
+         let limits = Limits {
+[31m-            binary_graph: false, box_primal: false, cover_cuts: false,
+(B[m[31m-            aggregate_cuts: false, clique_cuts: false, mir_cuts: false,
+(B[m[31m-            rounding_cuts: false, objective_rounding: false,
+(B[m[31m-            strong_branching: false, rins: false, primal_repair: false,
+(B[m[31m-            lp_diving: false, feasibility_pump: false, nodes: 1,
+(B[m[32m+            binary_graph: false,
+(B[m[32m+            box_primal: false,
+(B[m[32m+            cover_cuts: false,
+(B[m[32m+            aggregate_cuts: false,
+(B[m[32m+            clique_cuts: false,
+(B[m[32m+            mir_cuts: false,
+(B[m[32m+            rounding_cuts: false,
+(B[m[32m+            objective_rounding: false,
+(B[m[32m+            strong_branching: false,
+(B[m[32m+            rins: false,
+(B[m[32m+            primal_repair: false,
+(B[m[32m+            lp_diving: false,
+(B[m[32m+            feasibility_pump: false,
+(B[m[32m+            nodes: 1,
+(B[m             ..Limits::default()
+         };
+         let result = solve_seeded_warm(&m, &limits, None, node.warm.clone());
+Diff in /home/ubuntu/mip-codex/src/solve.rs:2709:
+         assert_eq!(result.probe.calls, 1);
+         assert_eq!(result.probe.improvements, 1);
+         assert!(result.lp_warm_successes.unwrap() >= 2);
+[31m-        let parent = revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
+(B[m[31m-        assert!(matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9));
+(B[m[32m+        let parent =
+(B[m[32m+            revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
+(B[m[32m+        assert!(
+(B[m[32m+            matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9)
+(B[m[32m+        );
+(B[m     }
+     #[test]
+     fn pump_projects_and_perturbs_without_changing_parent_lp() {

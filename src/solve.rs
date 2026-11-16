@@ -1134,6 +1134,14 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     solve_seeded(model, limits, None)
 }
 fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result {
+    solve_seeded_warm(model, limits, seed, None)
+}
+fn solve_seeded_warm(
+    model: &Model,
+    limits: &Limits,
+    seed: Option<&[f64]>,
+    root_warm: Option<Arc<revised::WarmStart>>,
+) -> Result {
     let start = Instant::now();
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
@@ -1235,7 +1243,7 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
         lower,
         upper,
         bound: f64::NEG_INFINITY,
-        warm: None,
+        warm: root_warm,
         changed: None,
         edge: None,
     };
@@ -1977,7 +1985,13 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
                             .saturating_duration_since(Instant::now())
                             .as_secs_f64(),
                     );
-                    let result = solve(model, &probe_limits);
+                    let result = if node.warm.is_some()
+                        && prepared.initial_lp_seconds >= probe_limits.seconds
+                    {
+                        solve_seeded_warm(lp_model, &probe_limits, None, node.warm.clone())
+                    } else {
+                        solve(model, &probe_limits)
+                    };
                     probe.calls += 1;
                     probe.nodes += result.nodes;
                     probe.lp_solves += result.lp_solves;
@@ -2677,6 +2691,39 @@ mod pump_tests {
         (m, node, p, point)
     }
     const FRACTIONAL: &str = "NAME pump\nOBJSENSE\n MAX\nROWS\n N obj\n L r\nCOLUMNS\n x obj 1 r 1\n y obj 1 r 1\nRHS\n rhs r 1.5\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
+    #[test]
+    fn local_probe_reuses_root_warm_without_changing_parent_or_bound() {
+        let (m, node, p, _) = prepare(FRACTIONAL);
+        let limits = Limits {
+            binary_graph: false,
+            box_primal: false,
+            cover_cuts: false,
+            aggregate_cuts: false,
+            clique_cuts: false,
+            mir_cuts: false,
+            rounding_cuts: false,
+            objective_rounding: false,
+            strong_branching: false,
+            rins: false,
+            primal_repair: false,
+            lp_diving: false,
+            feasibility_pump: false,
+            nodes: 1,
+            ..Limits::default()
+        };
+        let result = solve_seeded_warm(&m, &limits, None, node.warm.clone());
+        assert_eq!(result.status, "node_limit");
+        assert_eq!(result.objective, Some(1.));
+        assert!((result.dual_bound.unwrap() - 1.5).abs() < 1e-9);
+        assert_eq!(result.probe.calls, 1);
+        assert_eq!(result.probe.improvements, 1);
+        assert!(result.lp_warm_successes.unwrap() >= 2);
+        let parent =
+            revised::minimize_warm(p.sparse.as_ref().unwrap(), 1000, None, node.warm.as_deref());
+        assert!(
+            matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9)
+        );
+    }
     #[test]
     fn pump_projects_and_perturbs_without_changing_parent_lp() {
         let (m, node, p, point) = prepare(FRACTIONAL);
