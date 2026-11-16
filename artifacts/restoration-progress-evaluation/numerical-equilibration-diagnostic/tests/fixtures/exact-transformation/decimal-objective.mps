@@ -1,0 +1,12 @@
+NAME test
+ROWS
+ N c
+COLUMNS
+ x c 0.1
+ z c -100000000000
+RHS
+ rhs c 0
+BOUNDS
+ FX b x 1000000000000
+ FX b z 1
+ENDATA

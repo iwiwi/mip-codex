@@ -1,0 +1,27 @@
+# 整数値shiftの係数誤差計算を同値に簡約
+
+standard変換でshift全成分のpoint_error=0を既に確認した場合だけ、Row::activity_error_exact_pointを使う。元の三項のうちdxを掛ける二項はゼロであり、x=0なら残るda*abs(x)もゼロなので係数の誤差計算を省ける。非零shiftの係数誤差daは引き続き計上し、同じ順序のadd_errorで外向き丸めする。元の誤差閾値・LP不能証明・元十進係数の取り扱いは変えない。既存のexact_coefficients行の即時ゼロ経路も維持した。
+
+## 固定作業の比較
+
+不変snapshot513c479bのconfig・ソースFP・実行ファイルSHA・ライブラリSHAを確認し、新版は現在のソースFPを確認した。同じCPU7・1thread・16GiB・60秒・40000節点上限で新旧を交互に3回測定した。
+
+| 反復 | 旧秒 | 新秒 |
+|---|---:|---:|
+| 1 | 3.160513556 | 2.997987051 |
+| 2 | 3.152610069 | 2.992785490 |
+| 3 | 3.166385697 | 2.998732550 |
+
+中央値3.160513556→2.997987051秒、約5.14%短縮。全回gen-ip002は同じ37993節点・LP求解/ピボット/再分解数、同じ全変数値・primal-4729.7692539/dual-4840.54196130089・numerical_errorだった。再帰的に時間項を除いた全結果フィールドも新旧で完全一致した。未証明のLP不能を検出した終了であり、解けた問題数や最適性証明の改善ではない。
+
+## 正しさと回帰
+
+163Rustテスト成功。追加の5000行は符号、0/-0、大整数、subnormal係数、exact flags、overflowを含み、旧式と新式の誤差がbit単位で一致した。2700合成MILP（small1000/larger200/mixed500/binary1000）、300根LP（ordinary200/scaled100）、32数値回帰に失敗0。変換証明ができない14例は未解決のまま保持する。同じモデルの反復を独立問題数へ加算しない。
+
+固定開発18問は主解/下界/終了状態一致。各CPU/秒/メモリが同じPR43の保存結果との比較であり、速度評価には用いない。保存26点・134cut/36証明記録は全有効。固定作業6点と新版profile1点も元MPSのGMP絶対・公式検査に合格し、計33保存点。根/カット等の43検査記録も成功。探索木の完全な外部再生とは区別する。
+
+旧profile313sample/new297sample、lost0で、旧activity_error17.25%が仮説の出発点だった。新は旧method8.75%、新helper3.70%、coefficient_error3.03%等に分かれるので、個々の割合だけから速度比は推定しない。固定作業の実測を根拠にする。旧profileの原記録はgraph-adaptive-evaluation/revised-profile-next、新は今回archiveに保存する。
+
+初期試作も検査に合格したが、整数係数行の旧即時ゼロ経路を明示的に維持する修正を加えてから正式比較した。check_synthetic.pyへ--helpを渡してint変換で失敗した呼び出しも保存する（測定や最適化の失敗ではない）。Rust本体の最適化を外部ソルバーへ委譲していない。
+
+採用コアbe70fe46、FP2c42a3f960782f20、binary SHA7005091cee0169e725b41068deab1580d7597466617e61801660752e49b31d42。snapshotのgit SHAは結果文書追加後のe3e81bc4で、Rustコードは同一。experiments/exact-point-snapshot-20261115.jsonはcreate-onlyであり、全件Rust最終測定は未開始。全生データと移動SHA台帳はartifacts/exact-point-evaluation。

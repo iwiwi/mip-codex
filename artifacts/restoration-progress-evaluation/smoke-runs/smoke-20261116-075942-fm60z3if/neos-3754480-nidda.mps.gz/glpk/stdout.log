@@ -1,0 +1,61 @@
+Reading problem data from '/home/ubuntu/mip-codex/data/raw/benchmark/neos-3754480-nidda.mps.gz'...
+Problem: neos-3754480-nidda
+Objective: R0403
+403 rows, 253 columns, 1741 non-zeros
+50 integer variables, all of which are binary
+2403 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-075942-fm60z3if/neos-3754480-nidda.mps.gz/glpk/model.glp'...
+3005 lines were written
+GLPK Integer Optimizer 5.0
+402 rows, 253 columns, 1488 non-zeros
+50 integer variables, all of which are binary
+Preprocessing...
+402 rows, 253 columns, 1488 non-zeros
+50 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  3.083e-01  max|aij| =  1.000e+04  ratio =  3.243e+04
+GM: min|aij| =  1.408e-01  max|aij| =  7.101e+00  ratio =  5.042e+01
+EQ: min|aij| =  1.983e-02  max|aij| =  1.000e+00  ratio =  5.042e+01
+2N: min|aij| =  1.562e-02  max|aij| =  1.641e+00  ratio =  1.050e+02
+Constructing initial basis...
+Size of triangular part is 402
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+402 rows, 253 columns, 1488 non-zeros
+      0: obj =   0.000000000e+00 inf =   2.232e+02 (51)
+    242: obj =   1.688527673e+04 inf =   1.247e-09 (0) 2
+*   454: obj =  -1.216923270e+06 inf =   2.558e-13 (0) 1
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 2
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++   454: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Solution found by heuristic: 16992.3895233
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
++   746: >>>>>   1.676352273e+04 >=  -1.148207511e+06        (44; 0)
++  1376: >>>>>   1.654110259e+04 >=  -1.029988437e+06        (125; 3)
++  1643: >>>>>   1.634984721e+04 >=  -1.003101778e+06        (157; 18)
++  1964: >>>>>   1.571733237e+04 >=  -9.754885849e+05        (189; 30)
++  2243: >>>>>   1.492461824e+04 >=  -9.725849789e+05        (203; 78)
++  4591: >>>>>   1.489869974e+04 >=  -8.603768978e+05        (517; 101)
++ 15177: >>>>>   1.447989662e+04 >=  -7.283471570e+05        (1937; 163)
++ 23778: >>>>>   1.414323506e+04 >=  -6.721357892e+05        (3078; 304)
++ 83368: mip =   1.414323506e+04 >=  -5.505285754e+05        (11282; 806)
++ 99614: >>>>>   1.392655417e+04 >=  -5.355731206e+05        (13476; 923)
++116786: mip =   1.392655417e+04 >=  -5.191608603e+05        (15733; 1286)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-codex/artifacts/smoke-20261116-075942-fm60z3if/neos-3754480-nidda.mps.gz/glpk/solution.raw'...
+664 lines were written

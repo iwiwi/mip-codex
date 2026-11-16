@@ -1,0 +1,13 @@
+# 進捗があるPhase Iの実行可能性復元
+
+main45257f737/FP3365のrestore_primalは、LP全体のstats.restoration_attemptsが4以上なら常に数値失敗とする。niddaでは各回復の間にPhase I目的値が2705→2383→1568→1189→481→…と減少していた。単に回数を8へ増やす旧案は足りず、失敗時の線形方程式残差補正・Phase I価格付け再始動も点を得なかった。
+
+本試行では各primal run内で、前の回復時点より目的値が1e-7*(1+abs(previous))以上減少した場合だけ連続回復回数の基点を現在の総回数へ進める。進展しない回復は4回まで。Phase I/IIは別の費用を持つため基点も別。statsの総回数、総pivot/flip、deadlineは返さない。元の許容差・最適/実行不能証明と原問題検査は維持する。問題名や既知値を条件にしない。
+
+初版10秒純LP診断ではniddaが79 pivotsの数値失敗から431 pivots/約0.023秒でLP点を得た。13回の復元を使った。元MPSのFractionでbounds/rows/目的値を照合し有効。行違反約2.88e-11、目的値差約4.92e-11。自作LP bound−1216923.270104406に対し同CPU0 HiGHS LPは−1216923.2701044157（約9.8e-9差）。整数解ではない。ranは3476 pivots/3444.42106643829を維持。app1の根も4065 pivots/−22.824355359110097を維持。kumeu/uccase9は10秒時点で点なしのまま数値終了→時間制限に変化するので改善と数えない。neos860300は10秒で両方根未完了。
+
+採用は未定。総予算を返さないテスト、既存unit/2700合成/根LP oracle/数値回帰、元MPSの全出力点検査、development188の10秒比較、長時間のneos860300/germanrr等の回帰、kumeu/uccase9の60秒診断とniddaの実MIP・native比較を実施して判断する。別branchの3行集約はまだ未採用であり本試行へ混ぜない。
+
+初版の根診断保存点はnidda新点+ran/app1前後の5点がFraction有効。初版source FPc4f3e18411e5f157を保存した。後のcargo testが通常release binaryも更新したため、初版ELFは上書きされた。初版sourceは後から追加した統計/テストだけを除いて再構成し、測定時FPとの完全一致を確認した。以後は正式測定前にELFとsourceをまとめて凍結する。
+
+累積4回を超える新規処理数をlp_restoration_extended_attemptsで分離した。新テストは、進捗基点を進めても既消費pivotとdeadlineが残ることを確認する。最初はlimit=8で7消費済・1pivot後に直ちに証明を返すと誤って期待しIterationLimitで失敗した。実装が次の反復前に予算を確認する挙動を保ち、成功例をlimit=9へ修正した。失敗ログは保持する。

@@ -1,0 +1,88 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261116-072956-4yi5ftok/neos-3754480-nidda.mps.gz/highs/options.txt
+MIP neos-3754480-nidda has 402 rows; 253 cols; 1488 nonzeros; 50 integer variables (50 binary)
+Coefficient ranges:
+  Matrix  [3e-01, 1e+04]
+  Cost    [1e+00, 2e+03]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [2e+01, 1e+04]
+Presolving model
+402 rows, 253 cols, 1488 nonzeros 0s
+402 rows, 253 cols, 1488 nonzeros 0s
+Presolve reductions: rows 402(-0); columns 253(-0); nonzeros 1488(-0) 
+
+Solving MIP model with:
+   402 rows
+   253 cols (50 binary, 0 integer, 0 implied int., 203 continuous, 0 domain fixed)
+   1488 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            22809.377287       Large        0      0      0         0     0.0s
+ R       0       0         0   0.00%   -1216923.270104 18724.02861     6599.26%        0      0      0       212     0.0s
+ C       0       0         0   0.00%   -1216923.270104 16992.389523    7261.58%        0      0      0       212     0.0s
+ L       0       0         0   0.00%   -1216923.270104 15214.863431    8098.25%        0      0      0       212     0.1s
+ L       0       0         0   0.00%   -1216923.270104 15157.876053    8128.32%        0      0      0      2557     0.2s
+ T     156      12        67   0.51%   -1170622.01908  15146.640413    7828.59%      134      0    460     15813     1.0s
+ T     549      59       228   0.82%   -1058838.320325 14815.410785    7246.87%      154      0    973     40529     1.6s
+ T     564      59       235   0.82%   -1058838.320325 14800.779099    7253.94%      159      0    995     40843     1.6s
+ T     621      70       255   0.85%   -1014575.663423 14672.26505     7014.92%      119      0   1090     41895     1.6s
+ T     624      69       256   0.85%   -1014575.663423 14626.534161    7036.54%      119      0   1090     41998     1.6s
+ T     626      69       257   0.85%   -1014575.663423 14586.049039    7055.79%      119      0   1090     42011     1.6s
+ T     656      68       269   0.86%   -1014575.663423 14445.507659    7123.47%      126      0   1138     42670     1.7s
+ T     670      68       277   0.86%   -1014575.663423 14092.353219    7299.48%      131      0   1168     43138     1.7s
+
+Restarting search from the root node
+Model after restart has 402 rows, 253 cols (50 bin., 0 int., 0 impl., 203 cont., 0 dom.fix.), and 1488 nonzeros
+
+      1613       0         0   0.00%   -1014575.663423 14092.353219    7299.48%        0      0      0     97453     4.0s
+      1613       0         0   0.00%   -1014575.663423 14092.353219    7299.48%        0      0      0     97453     4.0s
+
+Restarting search from the root node
+Model after restart has 402 rows, 253 cols (50 bin., 0 int., 0 impl., 203 cont., 0 dom.fix.), and 1488 nonzeros
+
+      3124       0         0   0.00%   -1014575.663423 14092.353219    7299.48%        0      0      0    122571     4.9s
+      3124       0         0   0.00%   -1014575.663423 14092.353219    7299.48%        0      0      0    122571     4.9s
+
+Restarting search from the root node
+Model after restart has 402 rows, 253 cols (50 bin., 0 int., 0 impl., 203 cont., 0 dom.fix.), and 1488 nonzeros
+
+      5647       0         0   0.00%   -966442.214726  14092.353219    6957.92%        0      0      0    195580     7.9s
+      5647       0         0   0.00%   -966442.214726  14092.353219    6957.92%        0      0      0    195580     7.9s
+      9044     361      1479   1.65%   -966442.214726  14092.353219    6957.92%      194      0   4821    254161    10.0s
+
+Solving report
+  Model             neos-3754480-nidda
+  Status            Time limit reached
+  Primal bound      14092.3532188
+  Dual bound        -966442.214726
+  Gap               6957.92%
+  P-D integral      10.00
+  Solution status   feasible
+                    14092.3532188 (objective)
+  Timing            10.00
+                    0.12 (Presolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.12 [78]
+                    9.88 (Solve)
+                        MIP    time [calls] = 6.01 [1]
+                        subMIP time [calls] = 3.87 [78]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [78]
+  Max sub-MIP depth 10
+  Nodes             9044
+  Repair LPs        0
+  LP iterations     254161
+                    9494 (strong br.)
+                    0 (separation)
+                    89200 (heuristics)

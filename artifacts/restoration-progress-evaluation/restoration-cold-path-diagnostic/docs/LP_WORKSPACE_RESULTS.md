@@ -1,0 +1,11 @@
+# LP推定作業領域を512MiBへ
+
+MIP_LP_WORKSPACE_MIBで内部の推定作業領域上限を指定でき、lp_workspace_bytesで実際の設定を出力する。既定は256→512MiB。外部16GiB制限/RLIMIT/cgroupと1threadは変更しない。これは入力行列等の保守的な推定値のguardであり、実RSSやLU fill-inを512MiBで制限するものではない。
+
+同じbinaryを256/512で比較した固定18問はprimal/dual/status全同一。sorrell3/supportcase10は旧256ではLP0pivotsでresource_limit、新512では15秒でそれぞれ1150/900pivots、23/18refactorsまで進みtime_limit。両側とも主解/下界は未取得で、解けた問題数が増えたとはしない。
+
+2問のピークRSSは旧127288/136048KiB、新264468/264192KiB。OOM/クラッシュはなし。必要なLPの処理を許す限定的な改善として512MiBを採用する。
+
+Rust152テスト、桁落ち22・大整数10が成功。CLIは0/負数/整数overflowを拒否し、1/256/512MiBを結果に正しく保存した。26保存解と134cuts/40証明記録はGMP絶対/公式/Fraction検査で全件有効。入力・native版や時間制限は変更していない。全生データと移動hash台帳はartifacts/workspace-evaluation。
+
+次はLPが終わる前でも、箱境界の候補を検査して主解を保存できるようにする。証明や既知解へ依存しない汎用の候補生成だけを扱う。

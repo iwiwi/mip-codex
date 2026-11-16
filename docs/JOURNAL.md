@@ -511,3 +511,15 @@ PR70は零目的LPを従来法で1秒先行し、長引く場合だけPhase Iを
 現在は従来dual回復がNumericalErrorになった場合だけ保存状態から安定pivotで再試行する。失敗側の仕事を総予算に残す。PR71へrebaseしたcore968487c72/FP3365eb6d5aedf8c8を固定し、mainFP839と188開発問題・10秒・1thread・16GiB ASで比較中。統合前の209 Rust/2700合成/500 LP出力/32数値と、統合後210 Rustが通過。統合後2700合成と全保存点検査を実行中。統合後neos60は3966/2031、germanrr60はなし/45980135.4164を維持。採用未定。
 
 最終全240の比較、native全体優位、世界記録は未達成。期限は11月22日14:59 UTC。最終Rust全件実行を11月19日UTC目安まで遅らせず、holdout52を調整に使わない。全失敗もraw statusで残す。
+
+### 2026-11-16 08:03 UTC PR72採用後と進捗に基づく復元
+
+PR72をmergeしmain45257f737/FP3365へ更新した。失敗したdual回復だけ安定pivotで再試行し、統合188対はranの主解1改善/0悪化、107点/376証明有効、neos860300/germanrr60秒維持。詳細はDUAL_RESTORATION_RESULTS。全件snapshotはcreate-only。
+
+次の復元案FP8b1969fa725c8ce2は、Phase I目的値が明確に進んだ場合だけ連続復元4回の基点を進め、総pivot/flip/deadlineは返さない。nidda根LPを79pivot数値失敗→431pivot・有効LPへ回復し、MIP10秒で有効主解14054.95を得たが70nodeで数値停止する。188対は主解1改善/0悪化/187同値、dual1悪化loue22966→22953、376証明/109整数点有効。211 Rust/2700合成/500 LP出力/数値32（18有効点+14精度未解決）を通過。非発動loueの根cut予算は上限0.25秒で、strong off/60秒でもcut本数差が残る。状態管理を通常経路から分離する対照版でも差を解消しなかった。小幅のdual悪化も明記して元案をPR準備中。
+
+双対逆積/失敗時primal方向の残差補正、数値停止後PhaseI再始動、PhaseI停滞時box矛盾候補、数値停止後の強い平衡化再試行はいずれも追加の有効点/解品質改善がなく未採用。専用branch/原出力/検査/凍結sourceを保存する。初版復元ELFはcargo testに上書きされ、source FPを再構成一致させたがrebuild ELFのbyte SHAは元と異なった。この初期診断の制限を保持する。採用候補FP8bと全件snapshotのELF/source/hashは測定前に凍結済み。
+
+3行集約は別branchで既定false。10秒188対は主解0改善/1悪化（timtab1）・dual3改善、376証明/108点有効。timtab60秒では1089832→1072270と改善するため、全188対の60秒on/offをCPU3..7で継続中。さらに十進行の厳密整数倍MIRは別branchで明示flagのみ。元MPS Fractionを使った77点154分離出力で十進由来66cut/11問題の証明がすべて有効。213 Rust/10 Python検査通過、8問10秒trialの16出力/10点も有効。ただしbinkar10秒主解6888.55→6994.55が悪化しdual6646.31→6669.29は改善、60秒対照中。両案ともまだmainへ混ぜない。
+
+native全240×3は凍結条件で継続し、08:02 UTCは209/720。新error055-glpk（validation split、gfd...）は3660秒PG watchdog・OOMなし・出力なし。holdoutのモデル内容は調べずログ/資源/実行状態だけを記録した。全失敗をrawのまま残す。最終Rust全240評価はまだ未開始。
