@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/dual-stable-pivot-mip-paired-6/rd-rplusc-21.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/dual-stable-pivot-diagnostic-20261116/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/rd-rplusc-21.mps.gz",
+    "10"
+  ],
+  "input_sha256": "5454cb822605ba76a350da6b4df52352f887a0bb6428f7752b510a0fdb497853",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "cpu": 6,
+  "seconds": 10
+}

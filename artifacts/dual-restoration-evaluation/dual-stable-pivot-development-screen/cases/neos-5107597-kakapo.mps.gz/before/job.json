@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/dual-stable-pivot-development-screen/cases/neos-5107597-kakapo.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/runs/zero-cost-pricing-final-20261116/snapshot/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-5107597-kakapo.mps.gz",
+    "10"
+  ],
+  "input_sha256": "53441c15ede747db5fb98670d82633e261054fc36c046b8184e552855e2f5023",
+  "split": "development",
+  "cpu": 1,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}
