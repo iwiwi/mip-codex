@@ -9,7 +9,9 @@ use std::{
 fn saved_development_points() {
     let output = std::env::var("MIP_MIR_DIAGNOSTIC_DIR").unwrap();
     std::fs::create_dir_all(&output).unwrap();
-    for entry in std::fs::read_dir("artifacts/mir-diagnostic").unwrap() {
+    let input = std::env::var("MIP_MIR_DIAGNOSTIC_INPUT_DIR")
+        .unwrap_or_else(|_| "artifacts/mir-diagnostic".into());
+    for entry in std::fs::read_dir(input).unwrap() {
         let path = entry.unwrap().path();
         if path.extension().and_then(|s| s.to_str()) != Some("json") {
             continue;
