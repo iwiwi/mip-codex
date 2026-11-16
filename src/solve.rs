@@ -102,7 +102,7 @@ impl Default for Limits {
             objective_rounding: true,
             objective_domain_report: true,
             row_ray_report: true,
-            row_packing_report: false,
+            row_packing_report: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
