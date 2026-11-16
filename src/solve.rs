@@ -51,6 +51,7 @@ pub struct Limits {
     pub terminal_neighborhood: bool,
     pub objective_rounding: bool,
     pub objective_domain_report: bool,
+    pub row_ray_report: bool,
     pub objective_rounding_all: bool,
     pub branching: branching::Rule,
     pub child_order: branching::Order,
@@ -99,6 +100,7 @@ impl Default for Limits {
             terminal_neighborhood: true,
             objective_rounding: true,
             objective_domain_report: true,
+            row_ray_report: false,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
             child_order: branching::Order::Down,
@@ -154,6 +156,8 @@ pub struct Result {
         serialize_with = "crate::model::serialize_optional_solution_number"
     )]
     pub objective_domain_bound: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub row_ray_proof: Option<crate::row_ray::Proof>,
     pub objective_bound_stats: ObjectiveBoundStats,
     pub infeasibility_proof_calls: usize,
     pub infeasibility_proof_trials: usize,
@@ -1426,6 +1430,10 @@ fn solve_seeded_warm(
     let limits = &effective_limits;
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
     let sign = if model.maximize { -1.0 } else { 1.0 };
+    let row_ray_proof = limits.row_ray_report.then(|| {
+        let end = deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.25).max(0.)));
+        crate::row_ray::compute(model,end)
+    }).flatten();
     let mut lower: Vec<_> = model.variables.iter().map(|v| v.lower).collect();
     let mut upper: Vec<_> = model.variables.iter().map(|v| v.upper).collect();
     for (j, v) in model.variables.iter().enumerate() {
@@ -2595,6 +2603,7 @@ fn solve_seeded_warm(
     let objective_domain_bound = domain_lower.map(|bound| sign * bound);
     let internal_dual = stack.min_bound(terminal_bound.min(incumbent).min(deferred.minimum));
     let internal_dual = domain_lower.map_or(internal_dual, |bound| internal_dual.max(bound));
+    let internal_dual = row_ray_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
     }
@@ -2664,6 +2673,7 @@ fn solve_seeded_warm(
         objective_rounding_all: limits.objective_rounding_all,
         objective_grid,
         objective_domain_bound,
+        row_ray_proof,
         objective_bound_stats,
         infeasibility_proof_calls,
         infeasibility_proof_trials,

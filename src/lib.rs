@@ -32,3 +32,5 @@ pub mod binary_graph;
 pub(crate) mod certificate;
 
 pub mod parity;
+
+pub mod row_ray;
