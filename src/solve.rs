@@ -77,7 +77,7 @@ impl Default for Limits {
             box_primal: true,
             root_seed_repair: true,
             root_priced_repair: true,
-            root_price_portfolio: false,
+            root_price_portfolio: true,
             root_objective_repair: true,
             root_primal_descent: true,
             binary_graph: true,
