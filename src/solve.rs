@@ -23,6 +23,7 @@ pub struct Limits {
     pub box_primal: bool,
     pub binary_graph: bool,
     pub parity_equalities: bool,
+    pub exact_row_dominance: bool,
     pub graph_local_search: bool,
     pub graph_root_coloring: bool,
     pub graph_root_prefix: bool,
@@ -68,6 +69,7 @@ impl Default for Limits {
             box_primal: true,
             binary_graph: true,
             parity_equalities: true,
+            exact_row_dominance: false,
             graph_local_search: true,
             graph_root_coloring: true,
             graph_root_prefix: true,
@@ -102,6 +104,10 @@ impl Default for Limits {
 }
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub row_dominance_proofs: Vec<crate::row_dominance::Proof>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub row_dominance: Option<crate::row_dominance::Stats>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parity_proof: Option<crate::parity::Proof>,
     pub binary_graph_enabled: bool,
@@ -1444,12 +1450,33 @@ fn solve_seeded_warm(
         box_primal.seconds = started.elapsed().as_secs_f64();
         early_repair = Some(repair);
     }
+    let mut row_proofs = Vec::new();
+    let mut row_stats = None;
+    let mut presolved = None;
+    if limits.exact_row_dominance && Instant::now() < deadline {
+        let budget = deadline.min(
+            Instant::now() + std::time::Duration::from_secs_f64((limits.seconds * 0.01).min(0.1)),
+        );
+        let (proofs, mut stats) = crate::row_dominance::detect(model, budget);
+        if !proofs.is_empty() && Instant::now() < deadline {
+            let started = Instant::now();
+            presolved = crate::row_dominance::apply(model, &proofs);
+            stats.apply_seconds = started.elapsed().as_secs_f64();
+            if presolved.is_some() {
+                row_proofs = proofs;
+            } else {
+                stats.removed = 0;
+            }
+        }
+        row_stats = Some(stats);
+    }
+    let base_model = presolved.as_ref().unwrap_or(model);
     let mut lp_stats = revised::Stats::default();
-    let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
+    let mut prepared = prepare_cuts(base_model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
     let mut primal_root = prepared.primal_root.take();
     let root_lp_reused = cached_root.is_some();
-    let lp_model = prepared.model.as_ref().unwrap_or(model);
+    let lp_model = prepared.model.as_ref().unwrap_or(base_model);
     let objective_grid = if limits.objective_rounding
         && !limits.propagation
         && matches!(limits.engine, Engine::Revised)
@@ -2451,6 +2478,8 @@ fn solve_seeded_warm(
     let propagation_stats = propagator.map_or_else(propagate::Stats::default, |p| p.stats);
     let repair_stats = repair.map_or_else(heuristic::Stats::default, |h| h.stats);
     Result {
+        row_dominance_proofs: row_proofs,
+        row_dominance: row_stats,
         parity_proof: None,
         binary_graph_enabled: limits.binary_graph,
         graph_cover_local_enabled: limits.graph_cover_local,

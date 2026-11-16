@@ -20,6 +20,10 @@ if value.get('parity_proof') is not None:
     from verify_parity import validate_parity_proof
     strict['parity_proof']=validate_parity_proof(Path(model),value)
     if strict['parity_proof']['valid'] is not True:strict['valid']=False
+if value.get('row_dominance_proofs'):
+    from verify_row_dominance import validate_row_dominance
+    strict['row_dominance']=validate_row_dominance(Path(model),value)
+    if strict['row_dominance']['valid'] is not True:strict['valid']=False
 atomic_json(directory/'strict-validation.json', strict)
 sol = directory/'solution.sol'
 with sol.open('w') as stream:

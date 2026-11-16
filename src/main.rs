@@ -177,6 +177,18 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_PARITY_EQUALITIES must be 0 or 1".into()),
             };
         }
+        if let Ok(v) = std::env::var("MIP_EXACT_ROW_DOMINANCE") {
+            limits.exact_row_dominance = match v.as_str() {
+                "0" => false,
+                "1" => true,
+                _ => return Err("MIP_EXACT_ROW_DOMINANCE must be 0 or 1".into()),
+            };
+        }
+        if let Ok(v) = std::env::var("MIP_PHASE1_DANTZIG") {
+            if v != "0" && v != "1" {
+                return Err("MIP_PHASE1_DANTZIG must be 0 or 1".into());
+            }
+        }
         if let Ok(propagation) = std::env::var("MIP_PROPAGATION") {
             limits.propagation = match propagation.as_str() {
                 "0" => false,

@@ -791,6 +791,8 @@ impl Simplex {
         };
         let pricing_budget = self.rhs.len().saturating_mul(8).max(100);
         let normalized_active = NORMALIZED && self.stats.pivots + self.stats.flips < pricing_budget;
+        let phase_one_dantzig = std::env::var("MIP_PHASE1_DANTZIG").is_ok_and(|v| v == "1")
+            && self.artificial.iter().any(|&j| c[j] > 0.);
         let mut degenerate = 0usize;
         let mut verified = false;
         let mut restoration_epoch = self.stats.restoration_attempts;
@@ -834,7 +836,7 @@ impl Simplex {
                     // Keep the first eligible column even if division underflows.
                     most_negative = score;
                     entering = Some((j, direction));
-                    if degenerate > 25 {
+                    if degenerate > 25 && !phase_one_dantzig {
                         break;
                     }
                 }
