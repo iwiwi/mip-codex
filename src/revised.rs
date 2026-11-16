@@ -1102,13 +1102,24 @@ impl Stats {
     }
 }
 fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> Answer {
-    cold_with_probe(
+    let first = cold_with_probe(
         p,
         limit,
         deadline,
         retain,
         std::time::Duration::from_secs(1),
-    )
+    );
+    if matches!(first.outcome, Outcome::NumericalError)
+        && deadline.is_none_or(|d| Instant::now() < d)
+    {
+        let remaining = limit.saturating_sub(first.stats.pivots + first.stats.flips);
+        if remaining > 0 {
+            let mut retry = cold_priced(p, remaining, deadline, retain, true);
+            retry.stats.add(&first.stats);
+            return retry;
+        }
+    }
+    first
 }
 fn cold_with_probe(
     p: &Problem,
