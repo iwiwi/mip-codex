@@ -215,6 +215,36 @@ pub struct BoxStats {
     pub first_seconds: Option<f64>,
 }
 impl Repair<'_> {
+    fn objective_reliable(&self, point: &[f64], value: f64) -> bool {
+        if !value.is_finite(){return false;}
+        let mut error=crate::model::scalar_error(self.model.offset,self.model.offset_enclosure);
+        for (v,&x) in self.model.variables.iter().zip(point) {
+            let cost_error=crate::model::scalar_error(v.objective,v.objective_enclosure);
+            let point_error=crate::model::point_error(x);
+            if x!=0. {crate::model::add_error(&mut error,(x.abs()*cost_error).next_up());}
+            if point_error!=0. {crate::model::add_error(&mut error,((v.objective.abs()+cost_error).next_up()*point_error).next_up());}
+        }
+        crate::model::add_error(&mut error,(value.next_up()-value).abs().max((value-value.next_down()).abs()));
+        error.is_finite() && error<=(1e-8*(1.+value.abs())).next_down()
+    }
+    /// 既存の実行可能点から目的を改善する。元点を保持し、元問題の検査後だけ受理する。
+    pub fn descend(&self, seed: &[f64], deadline: Instant) -> Option<(Vec<f64>,BoxStats)> {
+        let started=Instant::now();
+        if started>=deadline || !self.candidate_check(seed){return None;}
+        let sign=if self.model.maximize{-1.}else{1.};
+        let value=sign*self.model.objective(seed);if !value.is_finite(){return None;}
+        let mut point=seed.to_vec();let mut stats=BoxStats{calls:1,..BoxStats::default()};
+        let mut activities:Vec<_>=self.model.rows.iter().map(|r|crate::exact::dot(r.coefficients.iter().map(|&(j,a)|(a,point[j]))).unwrap_or(f64::NAN)).collect();
+        let mut order=Vec::new();
+        for(j,v)in self.model.variables.iter().enumerate(){
+            let target=if sign*v.objective>0.{v.lower.map(|l|if v.integer{l.ceil()}else{l})}else if sign*v.objective<0.{v.upper.map(|u|if v.integer{u.floor()}else{u})}else{None};
+            if let Some(target)=target.filter(|v|v.is_finite()) {let gain=-sign*v.objective*(target-point[j]);if gain.is_finite()&&gain>1e-12{order.push((j,target,gain/(1+self.incidence[j].len())as f64));}}
+        }
+        order.sort_unstable_by(|a,b|b.2.total_cmp(&a.2).then(a.0.cmp(&b.0)));
+        for(j,target,_)in order{if Instant::now()>=deadline{break;}let delta=target-point[j];if !delta.is_finite(){continue;}stats.work+=self.incidence[j].len();let allowed=self.incidence[j].iter().all(|&(i,a)|{let next=crate::exact::dot([(activities[i],1.),(a,delta)].into_iter()).unwrap_or(f64::NAN);let r=&self.model.rows[i];next.is_finite()&&r.lower.is_none_or(|l|l-next<=1e-8)&&r.upper.is_none_or(|u|next-u<=1e-8)});if !allowed{continue;}point[j]=target;for &(i,a)in &self.incidence[j]{activities[i]=crate::exact::dot([(activities[i],1.),(a,delta)].into_iter()).unwrap_or(f64::NAN);}stats.moves+=1;}
+        if self.candidate_check(&point) && self.objective_reliable(&point,self.model.objective(&point)) && sign*self.model.objective(&point)<=value {stats.candidates=1;let improved=sign*self.model.objective(&point)<value;if improved{stats.improvements=1;stats.first_seconds=Some(started.elapsed().as_secs_f64());}}else{point=seed.to_vec();}
+        stats.seconds=started.elapsed().as_secs_f64();Some((point,stats))
+    }
     /// Feasible box endpoints and objective descent; no bound or infeasibility claims.
     pub fn box_search(&self, deadline: Instant) -> (Option<Vec<f64>>, BoxStats) {
         let started = Instant::now();
