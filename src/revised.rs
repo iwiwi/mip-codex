@@ -314,7 +314,7 @@ impl Simplex {
         self.recompute()
     }
     fn restore_primal(&mut self) -> Result<(), Outcome> {
-        if self.stats.restoration_attempts >= 4 {
+        if self.stats.restoration_attempts >= 8 {
             return Err(numerical());
         }
         if self.deadline.is_some_and(|d| Instant::now() >= d) {
