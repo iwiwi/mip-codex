@@ -1712,6 +1712,52 @@ fn solve_seeded_warm(
                                 return Some(());
                             }
                         }
+                        if std::env::var("MIP_STALLED_CERTIFICATE_RECOVERY").is_ok_and(|v| v == "1")
+                        {
+                            for cap in [16, 32, 256, 4096, 65536] {
+                                if Instant::now() >= deadline {
+                                    break;
+                                }
+                                for proposed in [
+                                    crate::certificate::integer_weights(&multipliers, cap),
+                                    crate::certificate::clipped_integer_weights(&multipliers, cap),
+                                ]
+                                .into_iter()
+                                .flatten()
+                                {
+                                    for sign in [1., -1.] {
+                                        let weights: Vec<_> =
+                                            proposed.iter().map(|v| sign * v).collect();
+                                        infeasibility_proof_trials += 1;
+                                        if certifier
+                                            .bound(&lower, &upper, &weights)
+                                            .is_some_and(|b| b > 0.)
+                                        {
+                                            if let Some(mut path) =
+                                                std::env::var_os("MIP_VERIFIED_FARKAS_DUMP")
+                                            {
+                                                path.push(format!(
+                                                    ".{}.{}.json",
+                                                    std::process::id(),
+                                                    nodes
+                                                ));
+                                                if let Ok(file) = std::fs::OpenOptions::new()
+                                                    .write(true)
+                                                    .create_new(true)
+                                                    .open(path)
+                                                {
+                                                    let _ = serde_json::to_writer(
+                                                        file,
+                                                        &serde_json::json!({"node":nodes,"names":lp_model.variables.iter().map(|v|&v.name).collect::<Vec<_>>(),"row_names":lp_model.rows.iter().map(|r|&r.name).collect::<Vec<_>>(),"lower":node.lower,"upper":node.upper,"weights":weights,"cap":cap,"purpose":"accepted by original-model outward certificate; independently replay this witness"}),
+                                                    );
+                                                }
+                                            }
+                                            return Some(());
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         None
                     })();
                     infeasibility_proof_seconds += proof_started.elapsed().as_secs_f64();

@@ -165,7 +165,7 @@ fn dot_bounds(terms: impl Iterator<Item = (f64, f64)>) -> (f64, f64) {
     }
     (lo, hi)
 }
-fn contradiction(p: &Problem, y: &[f64]) -> bool {
+pub(crate) fn contradiction(p: &Problem, y: &[f64]) -> bool {
     if y.len() != p.rhs.len() || y.iter().any(|v| !v.is_finite()) {
         return false;
     }

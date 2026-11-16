@@ -90,9 +90,36 @@ pub(crate) fn integer_weights(weights: &[f64], max_den: u128) -> Option<Vec<f64>
         })
         .collect()
 }
+/// Drops small components only to propose a different rational certificate.
+/// The caller must still verify every inequality in the original Problem.
+pub(crate) fn clipped_integer_weights(weights: &[f64], max_den: u128) -> Option<Vec<f64>> {
+    if max_den == 0 || weights.iter().any(|v| !v.is_finite()) {
+        return None;
+    }
+    let largest = weights.iter().map(|v| v.abs()).fold(0., f64::max);
+    if largest == 0. {
+        return None;
+    }
+    let threshold = largest / (2. * max_den as f64);
+    let clipped: Vec<_> = weights
+        .iter()
+        .map(|&v| if v.abs() < threshold { 0. } else { v })
+        .collect();
+    integer_weights(&clipped, max_den)
+}
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn clipped_candidates_remove_small_opposite_sign_noise() {
+        assert_eq!(
+            clipped_integer_weights(&[1. / 27., 1., -1e-13], 32),
+            Some(vec![1., 27., 0.])
+        );
+        assert!(clipped_integer_weights(&[0., 0.], 32).is_none());
+        assert!(clipped_integer_weights(&[1., f64::NAN], 32).is_none());
+        assert!(clipped_integer_weights(&[1.], 0).is_none());
+    }
     #[test]
     fn ratios_clear_roundoff_without_trusting_the_candidate() {
         assert_eq!(
