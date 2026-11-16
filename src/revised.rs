@@ -315,6 +315,65 @@ impl Simplex {
         self.stats.refactors += 1;
         self.recompute()
     }
+    fn refined_basis_solve(&self, rhs: &[f64], transpose: bool) -> Vec<f64> {
+        let solve = |v: &[f64]| {
+            if transpose {
+                self.factor.backward(v)
+            } else {
+                self.factor.forward(v)
+            }
+        };
+        let mut rows = vec![Vec::new(); self.basis.len()];
+        for (k, &j) in self.basis.iter().enumerate() {
+            for &(i, a) in &self.columns[j] {
+                if transpose {
+                    rows[k].push((i, a));
+                } else {
+                    rows[i].push((k, a));
+                }
+            }
+        }
+        let residual = |x: &[f64]| -> Option<(Vec<f64>, f64)> {
+            let mut r = Vec::with_capacity(rhs.len());
+            let mut score = 0f64;
+            for (i, row) in rows.iter().enumerate() {
+                let value = crate::exact::dot(
+                    std::iter::once((rhs[i], 1.)).chain(row.iter().map(|&(j, a)| (-a, x[j]))),
+                )?;
+                let scale = crate::exact::dot(
+                    std::iter::once((rhs[i].abs(), 1.))
+                        .chain(row.iter().map(|&(j, a)| (a.abs(), x[j].abs()))),
+                )?;
+                score = score.max(value.abs() / (1. + scale));
+                r.push(value);
+            }
+            Some((r, score))
+        };
+        let mut x = solve(rhs);
+        let Some((mut r, mut score)) = residual(&x) else {
+            return x;
+        };
+        for _ in 0..3 {
+            if score == 0. || self.deadline.is_some_and(|d| Instant::now() >= d) {
+                break;
+            }
+            let correction = solve(&r);
+            let trial: Vec<_> = x.iter().zip(correction).map(|(&x, d)| x + d).collect();
+            let Some((next, improved)) = residual(&trial) else {
+                break;
+            };
+            if improved >= score {
+                break;
+            }
+            if std::env::var_os("MIP_LP_TRACE").is_some() {
+                eprintln!("dual refined transpose={transpose} residual={score:e}->{improved:e}");
+            }
+            x = trial;
+            r = next;
+            score = improved;
+        }
+        x
+    }
     fn restore_primal(&mut self) -> Result<(), Outcome> {
         if self.stats.restoration_attempts >= 4 {
             return Err(numerical());
@@ -632,7 +691,11 @@ impl Simplex {
             let target = if t > 0.0 { 0.0 } else { self.upper[leaving] };
             let mut unit = vec![0.0; self.rhs.len()];
             unit[r] = 1.0;
-            let w = self.factor.backward(&unit);
+            let w = if STABLE {
+                self.refined_basis_solve(&unit, true)
+            } else {
+                self.factor.backward(&unit)
+            };
             if w.iter().any(|v| !v.is_finite()) {
                 return Err(numerical());
             }
@@ -706,7 +769,11 @@ impl Simplex {
             for &(i, a) in &self.columns[j] {
                 column[i] += a;
             }
-            let d = self.factor.forward(&column);
+            let d = if STABLE {
+                self.refined_basis_solve(&column, false)
+            } else {
+                self.factor.forward(&column)
+            };
             let denom = -t * d[r] * direction;
             let remaining = t * (target - self.x[leaving]);
             if !denom.is_finite() || denom <= PIVOT || remaining < -1e-7 {
