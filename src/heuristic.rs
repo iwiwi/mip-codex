@@ -72,6 +72,14 @@ impl<'a> Repair<'a> {
         budget: usize,
         seed: u64,
     ) -> Option<Vec<f64>> {
+        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.)
+    }
+    /// 費用を正規化した修復順位を診断する。実行可能性判定は元のguardを使う。
+    pub fn search_priced(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64)->Option<Vec<f64>> {
+        if !weight.is_finite()||weight<0.||!scale.is_finite()||scale<=0.{return None;}
+        self.search_impl(point,lower,upper,deadline,budget,seed,weight,scale)
+    }
+    fn search_impl(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64)->Option<Vec<f64>> {
         self.stats.calls += 1;
         let mut rng = seed.wrapping_add(0x9e3779b97f4a7c15);
         let mut work = 0usize;
@@ -176,12 +184,13 @@ impl<'a> Repair<'a> {
                         let cost = (if self.model.maximize { -1. } else { 1. })
                             * self.model.variables[j].objective
                             * delta;
-                        if gain > 1e-12
+                        let score=if weight==0.{gain}else{gain/(1.+weight*(cost.max(0.)/scale))};
+                        if gain > 1e-12 && (weight==0. || score.is_finite())
                             && best.is_none_or(|(_, _, g, c)| {
-                                gain > g + 1e-12 || ((gain - g).abs() <= 1e-12 && cost < c)
+                                score > g + 1e-12 || ((score - g).abs() <= 1e-12 && cost < c)
                             })
                         {
-                            best = Some((j, value, gain, cost));
+                            best = Some((j, value, score, cost));
                         }
                     }
                     if work >= budget || Instant::now() >= deadline {
@@ -215,7 +224,9 @@ pub struct BoxStats {
     pub first_seconds: Option<f64>,
 }
 impl Repair<'_> {
-    fn objective_reliable(&self, point: &[f64], value: f64) -> bool {
+
+    /// 元入力区間とJSON点誤差から報告目的の精度を確認する。
+    pub(crate) fn objective_reliable(&self, point: &[f64], value: f64) -> bool {
         if !value.is_finite(){return false;}
         let mut error=crate::model::scalar_error(self.model.offset,self.model.offset_enclosure);
         for (v,&x) in self.model.variables.iter().zip(point) {
@@ -244,6 +255,7 @@ impl Repair<'_> {
         for(j,target,_)in order{if Instant::now()>=deadline{break;}let delta=target-point[j];if !delta.is_finite(){continue;}stats.work+=self.incidence[j].len();let allowed=self.incidence[j].iter().all(|&(i,a)|{let next=crate::exact::dot([(activities[i],1.),(a,delta)].into_iter()).unwrap_or(f64::NAN);let r=&self.model.rows[i];next.is_finite()&&r.lower.is_none_or(|l|l-next<=1e-8)&&r.upper.is_none_or(|u|next-u<=1e-8)});if !allowed{continue;}point[j]=target;for &(i,a)in &self.incidence[j]{activities[i]=crate::exact::dot([(activities[i],1.),(a,delta)].into_iter()).unwrap_or(f64::NAN);}stats.moves+=1;}
         if self.candidate_check(&point) && self.objective_reliable(&point,self.model.objective(&point)) && sign*self.model.objective(&point)<=value {stats.candidates=1;let improved=sign*self.model.objective(&point)<value;if improved{stats.improvements=1;stats.first_seconds=Some(started.elapsed().as_secs_f64());}}else{point=seed.to_vec();}
         stats.seconds=started.elapsed().as_secs_f64();Some((point,stats))
+
     }
     /// Feasible box endpoints and objective descent; no bound or infeasibility claims.
     pub fn box_search(&self, deadline: Instant) -> (Option<Vec<f64>>, BoxStats) {
