@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-root-default-on-long-paired-44/eil33-2.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/priced-objective-root-default-on-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/eil33-2.mps.gz",
+    "60"
+  ],
+  "input_sha256": "2d349f8ba12aaf170c9f8bf85327d6592cc0f4d89d300dfb77197acd34a7ffb1",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_ROOT_PRICED_OBJECTIVE": "0"
+  },
+  "cpu": 44,
+  "seconds": 60
+}
