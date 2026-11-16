@@ -536,6 +536,9 @@ impl Simplex {
     }
     /// 任意の行乗数と全box境界で矛盾を確認する。確証が弱ければcoldへ戻す。
     fn impossible_row(&self, w: &[f64]) -> bool {
+        self.impossible_row_bounds(w, &self.upper)
+    }
+    fn impossible_row_bounds(&self, w: &[f64], bounds: &[f64]) -> bool {
         let rhs: f64 = w.iter().zip(&self.rhs).map(|(w, b)| w * b).sum();
         if !rhs.is_finite() {
             return false;
@@ -547,8 +550,8 @@ impl Simplex {
             if !a.is_finite() {
                 return false;
             }
-            if self.upper[j].is_finite() {
-                let value = a * self.upper[j];
+            if bounds[j].is_finite() {
+                let value = a * bounds[j];
                 if !value.is_finite() {
                     return false;
                 }
@@ -868,6 +871,22 @@ impl Simplex {
                         if let Some(step) = self.refine_ratio(&d, direction, j) {
                             step
                         } else {
+                            if self.artificial.iter().any(|&j| self.upper[j] > 0.) {
+                                let pricing = self.multipliers(c);
+                                let mut original_bounds = self.upper.clone();
+                                for &j in &self.artificial {
+                                    original_bounds[j] = 0.;
+                                }
+                                if self.impossible_row_bounds(&pricing.values, &original_bounds) {
+                                    if std::env::var_os("MIP_LP_TRACE").is_some() {
+                                        eprintln!(
+                                            "phase I stalled with original-box contradiction"
+                                        );
+                                    }
+                                    self.witness = Some(pricing.values.clone());
+                                    return Err(Outcome::Infeasible);
+                                }
+                            }
                             let objective =
                                 crate::exact::dot(c.iter().copied().zip(self.x.iter().copied()))
                                     .ok_or_else(numerical)?;
