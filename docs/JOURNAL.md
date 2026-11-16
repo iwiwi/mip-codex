@@ -679,3 +679,9 @@ PR86はmain f814b53aeへ採用、primary FPca7c7bbcdf8ee25bの4点4証明が絶�
 採用済みportfolioを併合し、両方既定有効の最終FP a53556b6ad0b400aを実行前固定。239 Rust（4 ignored）成功。適用5件の10秒最終対照とN3/eil33-2の60秒相互作用確認を開始。追加探索の最大5%/2秒、16 seed、合計100M workと既存良点保持を維持し、目的制約の失敗を大域不能に使わない。全体優位・新記録は未達。
 
 PR87はmain b4f36aa4a/FP523fc50c7f8550bbへ採用。primary N3=134600/116000、SP98=664376405.28/211240207.2069437、cygnet=218/170、enlight37 optimalを再現し4点4証明全有効。priced-portfolio-final-20261116は全240/3600秒/1 thread/16GiB create-onlyで全SHA確認、本ジョブ未開始。166一次ファイル7128390bytesを保存。native全件は継続、11月19日UTC目安の自作全件開始と11月22日14:59UTC期限を維持。
+
+## 2026-11-16 18:50 UTC 改善系列への探索継続
+
+PR88をmain be31401ba/FP a53556b6ad0b400aへ採用。primary N3=134600/116000、SP97=884197292.16/253899438.07998765、SP98=662760404.64/211240207.2069437、enlight37 optimalを再現、4点4証明が全件元MPSのGMP絶対・公式検査有効。priced-objective-root-final-20261116は全240/3600秒/1 thread/16GiB create-onlyで全SHA照合、本ジョブ未開始。167一次ファイル6176108bytesを保存。
+
+次のpriced-objective-continuation branchは16 seedで改善が出た系列だけ最大64へ継続し、改善0の系列は16回で停止する。元公開APIと原点保持/共通5%・2秒/総100M work/証明guardを維持。実験既定false、測定FP6aa6bb56ffcb27e3を実行前固定。既存239 Rustと追加の継続条件・200全列挙照合を含む2試験が成功。小規模で成功系列64回/失敗のみ16回を確認。10秒選択比較は現時点で同値、60秒/全188対/独立監査を継続中。まだ未採用、全体優位・新記録は未達。
