@@ -865,6 +865,7 @@ fn dive(
 /// 別の分枝順による短い自作探索。主解以外の情報は主探索へ渡さない。
 #[derive(Default, Debug, Serialize)]
 pub struct ProbeStats {
+    pub precut_roots: usize,
     pub calls: usize,
     pub nodes: usize,
     pub lp_solves: usize,
@@ -881,6 +882,7 @@ struct CachedRoot {
 #[derive(Default)]
 struct CutPreparation {
     cached: Option<CachedRoot>,
+    primal_root: Option<(Model, Arc<revised::WarmStart>)>,
     initial_lp_seconds: f64,
     model: Option<Model>,
     cuts: Vec<cuts::Cut>,
@@ -1030,6 +1032,13 @@ fn prepare_cuts(
         );
     }
     if limits.three_row_cuts && global_first {
+        let old_rows = work.rows.len();
+        let old_cuts = prepared.cuts.len();
+        let old_warm = if limits.primal_probe && limits.warm_start {
+            prepared.cached.as_ref().and_then(|c| c.answer.warm.clone())
+        } else {
+            None
+        };
         let mut three_pool = cuts::Pool::default();
         improve_with_three(
             model,
@@ -1041,6 +1050,13 @@ fn prepare_cuts(
             &mut three_pool,
             &mut prepared,
         );
+        if prepared.cuts.len() > old_cuts
+            && let Some(warm) = old_warm
+        {
+            let mut primal_model = work.clone();
+            primal_model.rows.truncate(old_rows);
+            prepared.primal_root = Some((primal_model, warm));
+        }
         pool.stats.three_calls += three_pool.stats.aggregate_calls;
         pool.stats.three_work += three_pool.stats.aggregate_work;
         pool.stats.three_added += three_pool.stats.aggregate_added;
@@ -1392,6 +1408,7 @@ fn solve_seeded_warm(
     let mut lp_stats = revised::Stats::default();
     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
+    let mut primal_root = prepared.primal_root.take();
     let root_lp_reused = cached_root.is_some();
     let lp_model = prepared.model.as_ref().unwrap_or(model);
     let objective_grid = if limits.objective_rounding
@@ -2112,7 +2129,16 @@ fn solve_seeded_warm(
                             .saturating_duration_since(Instant::now())
                             .as_secs_f64(),
                     );
-                    let result = if node.warm.is_some()
+                    let result = if let Some((primal_model, warm)) = primal_root.take() {
+                        probe.precut_roots += 1;
+                        probe_limits.binary_graph = false;
+                        probe_limits.aggregate_cuts = false;
+                        probe_limits.clique_cuts = false;
+                        probe_limits.branching = limits.branching;
+                        probe_limits.child_order = limits.child_order;
+                        probe_limits.strong_branching = limits.strong_branching;
+                        solve_seeded_warm(&primal_model, &probe_limits, None, Some(warm))
+                    } else if node.warm.is_some()
                         && prepared.initial_lp_seconds >= probe_limits.seconds
                     {
                         solve_seeded_warm(lp_model, &probe_limits, None, node.warm.clone())
