@@ -550,6 +550,7 @@ impl Simplex {
     /// 有界変数のdual simplex。有限幅を使い切る候補をまとめてflipする。
     fn dual_run<const RESTORATION: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
         let mut degenerate = 0usize;
+        let mut ratio_refactors = 0usize;
         loop {
             if self.deadline.is_some_and(|d| Instant::now() >= d) {
                 return Err(Outcome::TimeLimit);
@@ -682,6 +683,14 @@ impl Simplex {
             if !denom.is_finite() || denom <= PIVOT || remaining < -1e-7 {
                 if std::env::var_os("MIP_LP_TRACE").is_some() {
                     eprintln!("dual ratio failure restoration={RESTORATION} denom={denom:e} remaining={remaining:e} t={t} direction={direction} row={r} entering={j} flips={} updates={}", flips.len(), self.factor.updates.len());
+                }
+                // For the zero-cost feasibility restoration, bound flips keep
+                // dual feasibility. Rebuild an updated basis before rejecting
+                // a ratio whose forward and transpose solves disagree.
+                if RESTORATION && !self.factor.updates.is_empty() && ratio_refactors < 3 {
+                    ratio_refactors += 1;
+                    self.refactor()?;
+                    continue;
                 }
                 return Err(numerical());
             }
