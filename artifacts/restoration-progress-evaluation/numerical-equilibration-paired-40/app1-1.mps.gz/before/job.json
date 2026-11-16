@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/numerical-equilibration-paired-40/app1-1.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/restoration-progress-final-diagnostic-20261116/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/app1-1.mps.gz",
+    "10"
+  ],
+  "input_sha256": "b99272cb3d91f16362ff03459422a1490018f7d10689900d5359a71f761e34bb",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_THREE_ROW_CUTS": "0"
+  },
+  "cpu": 40,
+  "seconds": 10
+}

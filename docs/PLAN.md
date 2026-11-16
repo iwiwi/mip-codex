@@ -58,3 +58,7 @@ PR19で目的下界の根限定、PR20で費用変更warmを採用。PR21の根p
 最新の採用済み基準はmain8f70b1e45/FP839469b484e9f3e4（PR71）。上の過去の仮説はJOURNAL末尾と個別RESULTS文書で採否を確認する。全240用snapshotは作成のみで、最終Rustキャンペーンは未開始。
 
 稼働中はdual-restoration-fallback worktreeのcore968487c72/FP3365eb6d5aedf8c8とmainを比較する188開発screen、GMP/公式/Fraction監査、統合合成回帰。artifacts/dual-restoration-plan.jsonと対応workerログ/exit.jsonから再開する。一律安定pivotはneos60秒で悪化したため採用しない。失敗時だけのfallbackも、188と60秒検査の終了前には採用しない。次の独立仮説は原問題の厳密整数3行集約であり、まだ実装・採用していない。
+
+## 2026-11-16 08:03 UTC 現在
+
+PR72まで採用済み。進捗に応じたPhase I復元FP8bの188対と独立監査は完了し、主解1改善/0悪化・小幅dual1悪化を両方示してPR準備中。全240/3600秒snapshotはrestoration-progress-final-20261116をcreate-onlyで照合。3行集約の188対60秒、十進行MIRの選択問題60秒は別凍結版で進行中。採用判断にholdoutを使わず、通常ループからの状態分離など改善のない複雑化は戻す。11月19日UTC目安の最終Rust全件開始を遅らせない。

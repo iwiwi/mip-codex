@@ -46,6 +46,7 @@ pub struct Stats {
     pub certificate_repairs: usize,
     pub restoration_attempts: usize,
     pub restoration_restarts: usize,
+    pub restoration_extended_attempts: usize,
     pub restoration_successes: usize,
     pub restoration_infeasible_candidates: usize,
     pub restoration_pivots: usize,
@@ -315,13 +316,15 @@ impl Simplex {
         self.stats.refactors += 1;
         self.recompute()
     }
-    fn restore_primal(&mut self) -> Result<(), Outcome> {
-        if self.stats.restoration_attempts >= 4 {
+    fn restore_primal(&mut self, since: usize) -> Result<(), Outcome> {
+        if self.stats.restoration_attempts.saturating_sub(since) >= 4 {
             return Err(numerical());
         }
         if self.deadline.is_some_and(|d| Instant::now() >= d) {
             return Err(Outcome::TimeLimit);
         }
+        self.stats.restoration_extended_attempts +=
+            usize::from(self.stats.restoration_attempts >= 4);
         self.stats.restoration_attempts += 1;
         // Zero costs make every basis dual feasible. Existing bounded dual
         // simplex can then repair the basis without changing the LP bounds.
@@ -787,6 +790,8 @@ impl Simplex {
         let normalized_active = NORMALIZED && self.stats.pivots + self.stats.flips < pricing_budget;
         let mut degenerate = 0usize;
         let mut verified = false;
+        let mut restoration_epoch = self.stats.restoration_attempts;
+        let mut restoration_objective = f64::INFINITY;
         'iterations: loop {
             if self.deadline.is_some_and(|d| Instant::now() >= d) {
                 return Err(Outcome::TimeLimit);
@@ -863,7 +868,27 @@ impl Simplex {
                         if let Some(step) = self.refine_ratio(&d, direction, j) {
                             step
                         } else {
-                            self.restore_primal()?;
+                            let objective =
+                                crate::exact::dot(c.iter().copied().zip(self.x.iter().copied()))
+                                    .ok_or_else(numerical)?;
+                            if !objective.is_finite() {
+                                return Err(numerical());
+                            }
+                            if !restoration_objective.is_finite()
+                                || objective
+                                    < restoration_objective
+                                        - 1e-7 * (1. + restoration_objective.abs())
+                            {
+                                restoration_epoch = self.stats.restoration_attempts;
+                                restoration_objective = objective;
+                            }
+                            if std::env::var_os("MIP_LP_TRACE").is_some() {
+                                eprintln!(
+                                    "restoration progress objective={objective:e} best={restoration_objective:e} epoch={restoration_epoch} attempts={}",
+                                    self.stats.restoration_attempts
+                                );
+                            }
+                            self.restore_primal(restoration_epoch)?;
                             continue 'iterations;
                         }
                     } else {
@@ -1093,6 +1118,7 @@ impl Stats {
         self.certificate_repairs += other.certificate_repairs;
         self.restoration_attempts += other.restoration_attempts;
         self.restoration_restarts += other.restoration_restarts;
+        self.restoration_extended_attempts += other.restoration_extended_attempts;
         self.restoration_successes += other.restoration_successes;
         self.restoration_infeasible_candidates += other.restoration_infeasible_candidates;
         self.restoration_pivots += other.restoration_pivots;
@@ -1590,9 +1616,35 @@ mod restoration_tests {
         assert!(s.stats.restoration_pivots > 0);
     }
     #[test]
+    fn progress_epoch_preserves_all_spent_iterations_and_deadline() {
+        let mut s = example(false);
+        s.stats.restoration_attempts = 4;
+        s.stats.pivots = 7;
+        // The final certificate requires entering another budget-checked loop.
+        s.limit = 9;
+        assert!(matches!(s.restore_primal(0), Err(Outcome::NumericalError)));
+        s.restore_primal(4).unwrap();
+        assert_eq!(s.stats.restoration_attempts, 5);
+        assert_eq!(s.stats.restoration_extended_attempts, 1);
+        assert_eq!(s.stats.pivots, 8);
+        let mut s = example(false);
+        s.stats.restoration_attempts = 4;
+        s.stats.pivots = 7;
+        s.limit = 7;
+        assert!(matches!(s.restore_primal(4), Err(Outcome::IterationLimit)));
+        assert_eq!(s.stats.pivots, 7);
+        let mut s = example(false);
+        s.stats.restoration_attempts = 4;
+        s.deadline = Some(Instant::now());
+        let point = s.x.clone();
+        assert!(matches!(s.restore_primal(4), Err(Outcome::TimeLimit)));
+        assert_eq!(s.stats.restoration_attempts, 4);
+        assert_eq!(s.x, point);
+    }
+    #[test]
     fn infeasible_candidate_has_a_real_contradiction_and_expiry_preserves_point() {
         let mut s = example(true);
-        assert!(matches!(s.restore_primal(), Err(Outcome::Infeasible)));
+        assert!(matches!(s.restore_primal(0), Err(Outcome::Infeasible)));
         let witness = s.witness.as_ref().unwrap();
         assert!([1., -1.].into_iter().any(|sign| {
             let y = sign * witness[0];
@@ -1607,7 +1659,7 @@ mod restoration_tests {
         let mut s = example(false);
         s.deadline = Some(Instant::now());
         let point = s.x.clone();
-        assert!(matches!(s.restore_primal(), Err(Outcome::TimeLimit)));
+        assert!(matches!(s.restore_primal(0), Err(Outcome::TimeLimit)));
         assert_eq!(s.x, point);
     }
 }
@@ -1642,7 +1694,7 @@ mod long_restoration_test {
             witness: None,
             witness_point: None,
         };
-        s.restore_primal().unwrap();
+        s.restore_primal(0).unwrap();
         assert_eq!(s.stats.restoration_successes, 1);
         assert_eq!(s.stats.restoration_pivots, n);
         for i in 0..n {
