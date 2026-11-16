@@ -58,6 +58,7 @@ pub struct Limits {
     pub objective_rounding: bool,
     pub objective_domain_report: bool,
     pub row_ray_report: bool,
+    pub row_subgradient_report: bool,
     pub row_packing_report: bool,
     pub objective_rounding_all: bool,
     pub branching: branching::Rule,
@@ -114,6 +115,7 @@ impl Default for Limits {
             objective_rounding: true,
             objective_domain_report: true,
             row_ray_report: true,
+            row_subgradient_report: false,
             row_packing_report: true,
             objective_rounding_all: false,
             branching: branching::Rule::Pseudocost,
@@ -182,6 +184,8 @@ pub struct Result {
     pub objective_domain_bound: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub row_ray_proof: Option<crate::row_ray::Proof>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub row_subgradient_proof: Option<crate::row_subgradient::Proof>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub row_packing_proof: Option<crate::row_packing::Proof>,
     pub objective_bound_stats: ObjectiveBoundStats,
@@ -1594,6 +1598,12 @@ fn solve_seeded_warm(
         }
         early_repair = Some(repair);
     }
+    let row_subgradient_proof=if limits.row_subgradient_report && Instant::now()<deadline {
+        box_candidate.as_ref().and_then(|point|{
+            let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.1)));
+            crate::row_subgradient::compute(model,model.objective(point),row_ray_proof.as_ref(),end)
+        })
+    }else{None};
     let mut lp_stats = revised::Stats::default();
     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
@@ -2707,6 +2717,7 @@ fn solve_seeded_warm(
     let internal_dual = domain_lower.map_or(internal_dual, |bound| internal_dual.max(bound));
     let internal_dual = row_ray_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
     let internal_dual = row_packing_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound as f64));
+    let internal_dual = row_subgradient_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
     }
@@ -2782,6 +2793,7 @@ fn solve_seeded_warm(
         objective_grid,
         objective_domain_bound,
         row_ray_proof,
+        row_subgradient_proof,
         row_packing_proof,
         objective_bound_stats,
         infeasibility_proof_calls,

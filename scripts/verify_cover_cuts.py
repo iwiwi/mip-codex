@@ -217,9 +217,10 @@ def validate_cut_proofs(model_path,result):
     domain_bound=result.get('objective_domain_bound')
     ray=result.get('row_ray_proof')
     packing=result.get('row_packing_proof')
+    subgradient=result.get('row_subgradient_proof')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None:return dict(metadata,valid=True)
+    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None:return dict(metadata,valid=True)
     try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
@@ -284,6 +285,33 @@ def validate_cut_proofs(model_path,result):
             dual=result.get('dual_bound')
             if dual is not None and sign*Fraction(str(dual))<bound:raise AssertionError('reported dual weaker than ray')
             metadata['row_ray_valid']=True
+        if subgradient is not None:
+            import struct
+            from verify_binary_graph import maximize_sense
+            sign=-1 if maximize_sense(model_path) else 1
+            if not isinstance(subgradient,dict):raise AssertionError('subgradient proof schema')
+            entries=subgradient['multipliers']
+            if not isinstance(entries,list):raise AssertionError('subgradient entries')
+            if any(v['lower']!=0 or v['upper']!=1 for v in variables.values()):raise AssertionError('subgradient requires original unit box')
+            columns={name:Fraction(0)for name in names};rhs=Fraction(0);previous=-1
+            for entry in entries:
+                if not isinstance(entry,list)or len(entry)!=2:raise AssertionError('subgradient entry schema')
+                i,bits=entry
+                if type(i)is not int or not previous<i<len(rows):raise AssertionError('subgradient row order/index')
+                previous=i
+                if not isinstance(bits,str)or len(bits)!=16:raise AssertionError('subgradient multiplier encoding')
+                value=struct.unpack('>d',bytes.fromhex(bits))[0]
+                if not math.isfinite(value)or value<=0:raise AssertionError('subgradient multiplier sign')
+                y=Fraction.from_float(value);row=rows[i]
+                if row['lower']is None or row['lower']<=0 or any(a<0 for a in row['coefficients'].values()):raise AssertionError('subgradient positive cover')
+                rhs+=y*row['lower']
+                for name,a in row['coefficients'].items():columns[name]+=y*a
+            exact=sign*offset+rhs+sum(min(Fraction(0),sign*objective.get(name,Fraction(0))-columns[name])for name in names)
+            bound=Fraction(str(subgradient['normalized_bound']))
+            if bound>exact:raise AssertionError('subgradient bound exceeds exact Lagrangian')
+            dual=result.get('dual_bound')
+            if dual is not None and sign*Fraction(str(dual))<bound:raise AssertionError('reported dual weaker than subgradient')
+            metadata['row_subgradient_valid']=True
         for cut in cuts:
             proof=cut['proof'];i=proof['source_row'];cover=proof['cover'];side=proof['upper_side']
             if type(i)!=int or i<0 or i>=len(rows):raise AssertionError('bad source index')
