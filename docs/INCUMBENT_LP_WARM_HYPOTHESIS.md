@@ -31,3 +31,5 @@ Kernel oracleの測定時SourceFP aac6247c43fa8cc5は、後でMIP接続コード
 mainはPR80/5792ef5ac/FPa11。primaryでcygnet220/下界0、bnatt500点なし/下界0、enlight37最適、Nidda13590.8271/−1216923.2701を再現し、3整数点/4証明出力が有効。全240用objective-domain-report-final-20261116はcreate-only、全SHAを照合、本ジョブ未開始。receiptをexperimentsへ保存。
 
 14:42 UTC: V3 FPd1c4f425b6679560。再LP oracle300件600点が全件成功、4ガード試験も成功。10秒sp97ar/sp98arの改善と下界を維持。tbfpはpilot終了後にcoldへ戻り（fallback1）、主解109.5486111118を保持。60秒下界回復を確認中。coldへ戻る際は消費済みpivot+flipを差し引き、同じ全体deadlineを使い、予算を返していない。mainはまだFPa11のまま。
+
+最終判断: V3は全188主解2改善/2悪化、下界1悪化。V4のcold-firstで速い2問題の品質は回復したがsp98ar60秒は悪化し、V3の300秒でも持続。mainへは不採用。詳細はINCUMBENT_LP_WARM_RESULTS。選択/長期の追加監査が終わってから証跡をまとめる。

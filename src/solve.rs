@@ -935,6 +935,33 @@ struct CutPreparation {
     lp_solves: usize,
     seconds: f64,
 }
+fn initial_lp_from_point(
+    problem: &revised::Problem,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+) -> revised::Answer {
+    // 速いcold解を維持し、最初の短い試行が未完了のときだけ端点基底を使う。
+    let probe_deadline = deadline.min(Instant::now() + std::time::Duration::from_secs(1));
+    let probe = revised::minimize_warm(problem, limits.pivots, Some(probe_deadline), None);
+    let used = probe.stats.pivots + probe.stats.flips;
+    if !matches!(
+        probe.outcome,
+        lp::Outcome::TimeLimit | lp::Outcome::IterationLimit | lp::Outcome::NumericalError
+    ) || used >= limits.pivots
+        || Instant::now() >= deadline
+    {
+        return probe;
+    }
+    let mut answer = revised::minimize_from_point(
+        problem,
+        limits.pivots.saturating_sub(used),
+        Some(deadline),
+        point,
+    );
+    answer.stats.add(&probe.stats);
+    answer
+}
 fn prepare_cuts(
     model: &Model,
     root: &mut Node,
@@ -989,12 +1016,7 @@ fn prepare_cuts(
             None
         };
         let answer = if let Some(point) = seed_point {
-            revised::minimize_from_point(
-                q.sparse.as_ref().unwrap(),
-                limits.pivots,
-                Some(solve_deadline),
-                &point,
-            )
+            initial_lp_from_point(q.sparse.as_ref().unwrap(), &point, limits, solve_deadline)
         } else {
             revised::minimize_warm(
                 q.sparse.as_ref().unwrap(),
@@ -1734,7 +1756,7 @@ fn solve_seeded_warm(
                     None
                 };
                 if let Some(point) = seed_point {
-                    revised::minimize_from_point(sparse, limits.pivots, Some(deadline), &point)
+                    initial_lp_from_point(sparse, &point, limits, deadline)
                 } else if limits.warm_start {
                     revised::minimize_warm(
                         sparse,
