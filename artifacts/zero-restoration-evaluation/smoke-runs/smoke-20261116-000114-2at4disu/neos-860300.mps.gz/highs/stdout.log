@@ -1,0 +1,108 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-codex/artifacts/smoke-20261116-000114-2at4disu/neos-860300.mps.gz/highs/options.txt
+MIP neos-860300 has 850 rows; 1385 cols; 384329 nonzeros; 1384 integer variables (1384 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+01]
+  Cost    [2e+01, 4e+03]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 2e+00]
+Presolving model
+850 rows, 1385 cols, 384329 nonzeros 0s
+568 rows, 1232 cols, 180758 nonzeros 0s
+568 rows, 1219 cols, 178143 nonzeros 3s
+Presolve reductions: rows 568(-282); columns 1219(-166); nonzeros 178143(-206186) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   568 rows
+   1219 cols (1219 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   178143 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            6118               Large        0      0      0         0     3.6s
+         0       0         0   0.00%   2091.903421     6118              65.81%        0      0      5       411     3.7s
+ L       0       0         0   0.00%   3043.05923      3201               4.93%       91     63      7      4230     8.2s
+
+54.1% inactive integer columns, restarting
+Model after restart has 439 rows, 539 cols (539 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 40670 nonzeros
+
+         0       0         0   0.00%   3047.153236     3201               4.81%       56      0      0      8809     9.9s
+         0       0         0   0.00%   3048.338437     3201               4.77%       56     54      8      9610     9.9s
+
+10.2% inactive integer columns, restarting
+Model after restart has 397 rows, 444 cols (444 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 32564 nonzeros
+
+         0       0         0   0.00%   3062.495978     3201               4.33%       52      0      0     10393    11.1s
+         0       0         0   0.00%   3067.686443     3201               4.16%       52     49      2     10921    11.1s
+
+13.7% inactive integer columns, restarting
+Model after restart has 378 rows, 375 cols (375 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 26621 nonzeros
+
+         0       0         0   0.00%   3074.198305     3201               3.96%       44      0      0     11104    11.9s
+         0       0         0   0.00%   3077.226368     3201               3.87%       44     44      2     11558    12.0s
+
+21.3% inactive integer columns, restarting
+Model after restart has 313 rows, 259 cols (259 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 17509 nonzeros
+
+         0       0         0   0.00%   3085.83071      3201               3.60%       38      0      0     11705    12.6s
+
+11.6% inactive integer columns, restarting
+Model after restart has 294 rows, 227 cols (227 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 14072 nonzeros
+
+         0       0         0   0.00%   3090.264691     3201               3.46%       31      0      0     12055    12.8s
+         0       0         0   0.00%   3090.861079     3201               3.44%       31     31      8     12319    12.8s
+
+21.6% inactive integer columns, restarting
+Model after restart has 234 rows, 167 cols (167 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 8543 nonzeros
+
+         0       0         0   0.00%   3116.028047     3201               2.65%       29      0      0     13202    13.1s
+         0       0         0   0.00%   3124.261371     3201               2.40%       29     26      9     13432    13.1s
+
+16.2% inactive integer columns, restarting
+Model after restart has 212 rows, 127 cols (127 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 5302 nonzeros
+
+         0       0         0   0.00%   3149.46161      3201               1.61%       27      0      0     13877    13.3s
+
+10.2% inactive integer columns, restarting
+Model after restart has 103 rows, 47 cols (47 bin., 0 int., 0 impl., 0 cont., 0 dom.fix.), and 629 nonzeros
+
+         0       0         0   0.00%   3156.011358     3201               1.41%       21      0      0     14088    13.4s
+         1       0         1 100.00%   3201            3201               0.00%       21      0      0     14111    13.4s
+
+Solving report
+  Model             neos-860300
+  Status            Optimal
+  Primal bound      3201
+  Dual bound        3201
+  Gap               0%
+  P-D integral      6.30
+  Solution status   feasible
+                    3201 (objective)
+                    6.43929354283e-15 (integrality violation)
+  Timing            13.36
+                    4.81 (Presolve)
+                        MIP    time [calls] = 3.37 [1]
+                        subMIP time [calls] = 1.44 [16]
+                    8.54 (Solve)
+                        MIP    time [calls] = 6.70 [1]
+                        subMIP time [calls] = 1.84 [11]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [16]
+  Max sub-MIP depth 4
+  Nodes             1
+  Repair LPs        0
+  LP iterations     14111
+                    0 (strong br.)
+                    4749 (separation)
+                    6054 (heuristics)
