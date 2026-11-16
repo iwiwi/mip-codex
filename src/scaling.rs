@@ -83,13 +83,13 @@ pub(crate) fn power(value: f64) -> f64 {
         f64::from_bits(1u64 << (63 - bits.leading_zeros()))
     }
 }
-fn scale(p: &Problem) -> Result<Option<(Problem, Vec<f64>, Vec<f64>)>, ()> {
+fn scale(p: &Problem, aggressive: bool) -> Result<Option<(Problem, Vec<f64>, Vec<f64>)>, ()> {
     let factors: Vec<_> = p
         .columns
         .iter()
         .map(|c| {
             let largest = c.iter().map(|(_, a)| a.abs()).fold(0., f64::max);
-            if largest > 0. && !(1e-4..=1e4).contains(&largest) {
+            if largest > 0. && (aggressive || !(1e-4..=1e4).contains(&largest)) {
                 power(largest)
             } else {
                 1.
@@ -105,7 +105,7 @@ fn scale(p: &Problem) -> Result<Option<(Problem, Vec<f64>, Vec<f64>)>, ()> {
     let rows: Vec<_> = row_max
         .into_iter()
         .map(|a| {
-            if a > 0. && !(1e-4..=1e4).contains(&a) {
+            if a > 0. && (aggressive || !(1e-4..=1e4).contains(&a)) {
                 power(a)
             } else {
                 1.
@@ -301,10 +301,35 @@ pub(crate) fn solve(
     warm: Option<&WarmStart>,
     retain: bool,
 ) -> Answer {
+    let first = solve_mode(p, limit, deadline, warm, retain, false);
+    if matches!(first.outcome, Outcome::NumericalError)
+        && revised::valid(p)
+        && deadline.is_none_or(|d| Instant::now() < d)
+    {
+        let remaining = limit.saturating_sub(first.stats.pivots + first.stats.flips);
+        if remaining > 0 && matches!(scale(p, true), Ok(Some(_))) {
+            if std::env::var_os("MIP_LP_TRACE").is_some() {
+                eprintln!("numerical LP retry with aggressive equilibration");
+            }
+            let mut retry = solve_mode(p, remaining, deadline, None, retain, true);
+            retry.stats.add(&first.stats);
+            return retry;
+        }
+    }
+    first
+}
+fn solve_mode(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+    retain: bool,
+    aggressive: bool,
+) -> Answer {
     if !revised::valid(p) {
         return error();
     }
-    let normalized = match scale(p) {
+    let normalized = match scale(p, aggressive) {
         Ok(q) => q,
         Err(()) => return error(),
     };
