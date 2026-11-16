@@ -37,6 +37,10 @@ pub struct Stats {
     pub multiplier_cache_misses: usize,
     pub certificate_repair_trials: usize,
     pub certificate_repairs: usize,
+    pub restoration_attempts: usize,
+    pub restoration_successes: usize,
+    pub restoration_infeasible_candidates: usize,
+    pub restoration_pivots: usize,
     pub refinement_attempts: usize,
     pub refinement_steps: usize,
     pub refinement_successes: usize,
@@ -239,6 +243,41 @@ impl Simplex {
         self.stats.refactors += 1;
         self.recompute()
     }
+    fn restore_primal(&mut self) -> Result<(), Outcome> {
+        if self.stats.restoration_attempts >= 4 {
+            return Err(numerical());
+        }
+        if self.deadline.is_some_and(|d| Instant::now() >= d) {
+            return Err(Outcome::TimeLimit);
+        }
+        self.stats.restoration_attempts += 1;
+        // Zero costs make every basis dual feasible. Existing bounded dual
+        // simplex can then repair the basis without changing the LP bounds.
+        let zero = vec![0.; self.columns.len()];
+        let before = self.stats.dual_pivots;
+        let result = self.dual_run::<true>(&zero);
+        self.stats.restoration_pivots += self.stats.dual_pivots - before;
+        match result {
+            Ok(_)
+                if self
+                    .x
+                    .iter()
+                    .zip(&self.upper)
+                    .all(|(&x, &u)| x.is_finite() && x >= -FEAS && x <= u + FEAS) =>
+            {
+                self.stats.restoration_successes += 1;
+                Ok(())
+            }
+            Err(Outcome::Infeasible) if self.artificial.iter().all(|&j| self.upper[j] == 0.) => {
+                // This is only a candidate: the ordinary original-Problem and
+                // original-MPS contradiction checks must still accept it.
+                self.stats.restoration_infeasible_candidates += 1;
+                Err(Outcome::Infeasible)
+            }
+            Err(e @ (Outcome::TimeLimit | Outcome::IterationLimit)) => Err(e),
+            _ => Err(numerical()),
+        }
+    }
     fn refine_ratio(
         &mut self,
         d: &[f64],
@@ -439,7 +478,7 @@ impl Simplex {
             || (upper.is_finite() && rhs > upper + 1e-7 * (1.0 + rhs.abs() + upper.abs()))
     }
     /// 有界変数のdual simplex。有限幅を使い切る候補をまとめてflipする。
-    fn dual_run(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+    fn dual_run<const RESTORATION: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
         let mut degenerate = 0usize;
         loop {
             if self.deadline.is_some_and(|d| Instant::now() >= d) {
@@ -595,7 +634,9 @@ impl Simplex {
             } else {
                 degenerate = 0;
             }
-            if self.stats.dual_pivots > 64.max(4 * self.rhs.len()) || degenerate > 500 {
+            if self.stats.dual_pivots > 64.max(4 * self.rhs.len())
+                || (!RESTORATION && degenerate > 500)
+            {
                 return Err(numerical());
             }
             if self.factor.updates.len() >= 50 {
@@ -674,7 +715,12 @@ impl Simplex {
                 Ok(step) => step,
                 Err(()) => {
                     if self.factor.updates.is_empty() {
-                        self.refine_ratio(&d, direction, j).ok_or_else(numerical)?
+                        if let Some(step) = self.refine_ratio(&d, direction, j) {
+                            step
+                        } else {
+                            self.restore_primal()?;
+                            continue 'iterations;
+                        }
                     } else {
                         self.refactor()?;
                         continue 'iterations;
@@ -818,7 +864,7 @@ fn warm_impl(
             }
             s.run(&c)
         } else {
-            s.dual_run(&c)
+            s.dual_run::<false>(&c)
         }
     });
     match outcome {
@@ -888,6 +934,10 @@ impl Stats {
         self.multiplier_cache_misses += other.multiplier_cache_misses;
         self.certificate_repair_trials += other.certificate_repair_trials;
         self.certificate_repairs += other.certificate_repairs;
+        self.restoration_attempts += other.restoration_attempts;
+        self.restoration_successes += other.restoration_successes;
+        self.restoration_infeasible_candidates += other.restoration_infeasible_candidates;
+        self.restoration_pivots += other.restoration_pivots;
         self.refinement_attempts += other.refinement_attempts;
         self.refinement_steps += other.refinement_steps;
         self.refinement_successes += other.refinement_successes;
@@ -1282,5 +1332,108 @@ mod refinement_tests {
         assert!(s.refine_ratio(&[1., 0.], 1., 2).is_none());
         assert_eq!(s.x, point);
         assert_eq!(s.stats.refinement_steps, 0);
+    }
+}
+
+#[cfg(test)]
+mod restoration_tests {
+    use super::*;
+    fn example(infeasible: bool) -> Simplex {
+        Simplex {
+            columns: Arc::new(vec![
+                vec![(0, 1.)],
+                vec![(0, 1.)],
+                vec![(0, if infeasible { 1. } else { -1. })],
+            ]),
+            rhs: vec![-1.],
+            upper: vec![2.; 3],
+            basis: vec![0],
+            basic: vec![true, false, false],
+            at_upper: vec![false; 3],
+            x: vec![-1., 0., 0.],
+            factor: Basis {
+                factor: Arc::new(Factor::Diagonal(vec![1.])),
+                updates: vec![],
+                multiplier_cache: None,
+            },
+            stats: Stats::default(),
+            limit: 100,
+            deadline: None,
+            artificial: vec![],
+            original: 3,
+            witness: None,
+            witness_point: None,
+        }
+    }
+    #[test]
+    fn zero_objective_repairs_a_genuinely_infeasible_basis_then_optimizes() {
+        let mut s = example(false);
+        assert!(s.refine_ratio(&[1.], 1., 1).is_none());
+        let (objective, dual) = s.run(&[0., -1., 0.]).unwrap();
+        assert_eq!((objective, dual), (-1., -1.));
+        assert_eq!(s.x, vec![0., 1., 2.]);
+        assert_eq!(s.stats.restoration_successes, 1);
+        assert!(s.stats.restoration_pivots > 0);
+    }
+    #[test]
+    fn infeasible_candidate_has_a_real_contradiction_and_expiry_preserves_point() {
+        let mut s = example(true);
+        assert!(matches!(s.restore_primal(), Err(Outcome::Infeasible)));
+        let witness = s.witness.as_ref().unwrap();
+        assert!([1., -1.].into_iter().any(|sign| {
+            let y = sign * witness[0];
+            y * s.rhs[0]
+                - s.columns
+                    .iter()
+                    .zip(&s.upper)
+                    .map(|(c, &u)| (y * c[0].1 * u).max(0.))
+                    .sum::<f64>()
+                > 0.
+        }));
+        let mut s = example(false);
+        s.deadline = Some(Instant::now());
+        let point = s.x.clone();
+        assert!(matches!(s.restore_primal(), Err(Outcome::TimeLimit)));
+        assert_eq!(s.x, point);
+    }
+}
+
+#[cfg(test)]
+mod long_restoration_test {
+    use super::*;
+    #[test]
+    fn zero_cost_dual_progress_is_not_mistaken_for_stagnation() {
+        let n = 600;
+        let columns: Vec<_> = (0..2 * n)
+            .map(|j| vec![(j % n, if j < n { 1. } else { -1. })])
+            .collect();
+        let mut s = Simplex {
+            columns: Arc::new(columns),
+            rhs: vec![-1.; n],
+            upper: vec![2.; 2 * n],
+            basis: (0..n).collect(),
+            basic: (0..2 * n).map(|j| j < n).collect(),
+            at_upper: vec![false; 2 * n],
+            x: (0..2 * n).map(|j| if j < n { -1. } else { 0. }).collect(),
+            factor: Basis {
+                factor: Arc::new(Factor::Diagonal(vec![1.; n])),
+                updates: vec![],
+                multiplier_cache: None,
+            },
+            stats: Stats::default(),
+            limit: 10000,
+            deadline: None,
+            artificial: vec![],
+            original: 2 * n,
+            witness: None,
+            witness_point: None,
+        };
+        s.restore_primal().unwrap();
+        assert_eq!(s.stats.restoration_successes, 1);
+        assert_eq!(s.stats.restoration_pivots, n);
+        for i in 0..n {
+            assert_eq!(s.x[i], 0.);
+            assert_eq!(s.x[n + i], 1.);
+        }
     }
 }
