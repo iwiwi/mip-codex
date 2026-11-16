@@ -117,6 +117,24 @@ impl Pool {
         limit: usize,
         deadline: Instant,
     ) -> Vec<Cut> {
+        self.separate_aggregate_mode::<false>(model, x, limit, deadline)
+    }
+    pub fn separate_three_aggregate(
+        &mut self,
+        model: &Model,
+        x: &[f64],
+        limit: usize,
+        deadline: Instant,
+    ) -> Vec<Cut> {
+        self.separate_aggregate_mode::<true>(model, x, limit, deadline)
+    }
+    fn separate_aggregate_mode<const THREE: bool>(
+        &mut self,
+        model: &Model,
+        x: &[f64],
+        limit: usize,
+        deadline: Instant,
+    ) -> Vec<Cut> {
         let started = Instant::now();
         self.stats.aggregate_calls += 1;
         if limit == 0 || x.len() != model.variables.len() || x.iter().any(|v| !v.is_finite()) {
@@ -235,42 +253,103 @@ impl Pool {
                 let Some(combined) = source(model, &terms) else {
                     continue;
                 };
-                for d in divisors(&combined) {
-                    if Instant::now() >= deadline || self.stats.aggregate_work >= 1_000_000 {
-                        break 'pairs;
+                let mut variants = Vec::new();
+                if THREE {
+                    let mut used = BTreeSet::new();
+                    'third: for &(j, coefficient) in &combined.coefficients {
+                        let coefficient = coefficient as i64;
+                        for &(k, other) in &incidence[j] {
+                            if sides[k].term.source_row == terms[0].source_row
+                                || sides[k].term.source_row == terms[1].source_row
+                                || other == 0
+                                || coefficient.signum() == other.signum()
+                            {
+                                continue;
+                            }
+                            let common = gcd(coefficient.unsigned_abs(), other.unsigned_abs());
+                            if common == 0 {
+                                continue;
+                            }
+                            let multiplier = other.unsigned_abs() / common;
+                            let mut triple = terms.clone();
+                            let Some(a) = triple[0].weight.checked_mul(multiplier) else {
+                                continue;
+                            };
+                            let Some(b) = triple[1].weight.checked_mul(multiplier) else {
+                                continue;
+                            };
+                            triple[0].weight = a;
+                            triple[1].weight = b;
+                            let mut third = sides[k].term.clone();
+                            third.weight = coefficient.unsigned_abs() / common;
+                            triple.push(third);
+                            let mut key: Vec<_> = triple
+                                .iter()
+                                .map(|t| (t.source_row, t.upper_side, t.weight))
+                                .collect();
+                            key.sort_unstable();
+                            if !used.insert(key) {
+                                continue;
+                            }
+                            self.stats.aggregate_work = self.stats.aggregate_work.saturating_add(
+                                combined.coefficients.len() + sides[k].coefficients.len(),
+                            );
+                            if Instant::now() >= deadline || self.stats.aggregate_work >= 1_000_000
+                            {
+                                break 'third;
+                            }
+                            if let Some(row) = source(model, &triple) {
+                                variants.push((triple, row));
+                            }
+                            if variants.len() >= 8 {
+                                break 'third;
+                            }
+                        }
                     }
-                    self.stats.aggregate_work = self
-                        .stats
-                        .aggregate_work
-                        .saturating_add(combined.coefficients.len());
-                    let Some(row) = rounding_row(model, &combined, true, d) else {
-                        continue;
-                    };
-                    let rhs = row.upper.unwrap();
-                    let amount = row.coefficients.iter().map(|&(j, a)| a * x[j]).sum::<f64>() - rhs;
-                    if !amount.is_finite() || amount <= 1e-5 {
-                        continue;
-                    }
-                    let norm =
-                        (1. + row.coefficients.iter().map(|&(_, a)| a * a).sum::<f64>()).sqrt();
-                    let cut = Cut {
-                        row,
-                        proof: Proof {
-                            mir: None,
-                            clique: vec![],
-                            aggregation: terms.clone(),
-                            divisor: Some(d),
-                            source_row: terms[0].source_row,
-                            source_name: terms[0].source_name.clone(),
-                            upper_side: terms[0].upper_side,
-                            cover: vec![],
-                        },
-                    };
-                    self.stats.candidates += 1;
-                    if verify(model, &cut) {
-                        candidates.push((amount / norm, cut));
-                    } else {
-                        self.stats.rejected += 1;
+                }
+                let mut singleton = (!THREE).then_some((terms, combined));
+                let mut many = variants.into_iter();
+                for (terms, combined) in
+                    std::iter::from_fn(|| if THREE { many.next() } else { singleton.take() })
+                {
+                    for d in divisors(&combined) {
+                        if Instant::now() >= deadline || self.stats.aggregate_work >= 1_000_000 {
+                            break 'pairs;
+                        }
+                        self.stats.aggregate_work = self
+                            .stats
+                            .aggregate_work
+                            .saturating_add(combined.coefficients.len());
+                        let Some(row) = rounding_row(model, &combined, true, d) else {
+                            continue;
+                        };
+                        let rhs = row.upper.unwrap();
+                        let amount =
+                            row.coefficients.iter().map(|&(j, a)| a * x[j]).sum::<f64>() - rhs;
+                        if !amount.is_finite() || amount <= 1e-5 {
+                            continue;
+                        }
+                        let norm =
+                            (1. + row.coefficients.iter().map(|&(_, a)| a * a).sum::<f64>()).sqrt();
+                        let cut = Cut {
+                            row,
+                            proof: Proof {
+                                mir: None,
+                                clique: vec![],
+                                aggregation: terms.clone(),
+                                divisor: Some(d),
+                                source_row: terms[0].source_row,
+                                source_name: terms[0].source_name.clone(),
+                                upper_side: terms[0].upper_side,
+                                cover: vec![],
+                            },
+                        };
+                        self.stats.candidates += 1;
+                        if verify(model, &cut) {
+                            candidates.push((amount / norm, cut));
+                        } else {
+                            self.stats.rejected += 1;
+                        }
                     }
                 }
             }
@@ -287,7 +366,11 @@ impl Pool {
                 cut.row.upper.unwrap() as i64,
             );
             if self.seen.insert(key) {
-                cut.row.name = format!("__aggregate_rounding_{}", self.seen.len());
+                cut.row.name = if THREE {
+                    format!("__aggregate_three_rounding_{}", self.seen.len())
+                } else {
+                    format!("__aggregate_rounding_{}", self.seen.len())
+                };
                 self.stats.added += 1;
                 self.stats.aggregate_added += 1;
                 cuts.push(cut);
@@ -405,6 +488,24 @@ mod tests {
                 },
             };
             assert!(verify(&model, &cut));
+            let generated = Pool::default().separate_three_aggregate(
+                &model,
+                &point,
+                8,
+                Instant::now() + Duration::from_secs(1),
+            );
+            assert!(
+                generated
+                    .iter()
+                    .any(|c| c.row.coefficients == cut.row.coefficients
+                        && c.row.upper == cut.row.upper
+                        && c.proof.aggregation.len() == 3)
+            );
+            assert!(
+                Pool::default()
+                    .separate_aggregate(&model, &point, 8, Instant::now() + Duration::from_secs(1))
+                    .is_empty()
+            );
             for x in 0..=1 {
                 for z in 0..=1 {
                     for t in -8..=8 {
