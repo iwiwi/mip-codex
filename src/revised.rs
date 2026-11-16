@@ -23,6 +23,8 @@ pub struct Problem {
 #[derive(Default, Clone, Debug)]
 pub struct Stats {
     pub pivots: usize,
+    pub pricing_cutoffs: usize,
+    pub pricing_fallbacks: usize,
     pub flips: usize,
     pub refactors: usize,
     pub warm_attempts: usize,
@@ -709,11 +711,14 @@ impl Simplex {
         }
     }
     fn run(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        self.run_priced(c, true)
+    }
+    fn run_priced(&mut self, c: &[f64], normalized: bool) -> Result<(f64, f64), Outcome> {
         let weights: Vec<f64> = self
             .columns
             .iter()
             .map(|column| {
-                let weight = match PRICING_NORM {
+                let weight = match if normalized { PRICING_NORM } else { 0 } {
                     1 => column.iter().fold(1.0f64, |n, &(_, a)| n.hypot(a)),
                     2 => 1. + column.iter().map(|&(_, a)| a.abs()).sum::<f64>(),
                     _ => 1.,
@@ -735,6 +740,10 @@ impl Simplex {
         } else {
             0.
         };
+        let pricing_budget = self.rhs.len().saturating_mul(8).max(100);
+        let mut normalized_active = normalized
+            && PRICING_NORM != 0
+            && self.stats.pivots + self.stats.flips < pricing_budget;
         let mut degenerate = 0usize;
         let mut verified = false;
         'iterations: loop {
@@ -749,6 +758,10 @@ impl Simplex {
             if y.iter().any(|v| !v.is_finite()) {
                 return Err(numerical());
             }
+            if normalized_active && self.stats.pivots + self.stats.flips >= pricing_budget {
+                normalized_active = false;
+                self.stats.pricing_cutoffs += 1;
+            }
             let mut entering = None;
             let mut most_negative = 0.0;
             for j in 0..c.len() {
@@ -758,7 +771,11 @@ impl Simplex {
                 let direction = if self.at_upper[j] { -1.0 } else { 1.0 };
                 let (raw, tolerance) = self.reduced_with_tolerance(c, &y, j);
                 let reduced = direction * raw;
-                let score = reduced / weights[j];
+                let score = if normalized_active {
+                    reduced / weights[j]
+                } else {
+                    reduced
+                };
                 if reduced < -tolerance.max(noise_floor)
                     && (entering.is_none() || score < most_negative)
                 {
@@ -1010,6 +1027,8 @@ fn warm_impl(
 impl Stats {
     pub fn add(&mut self, other: &Self) {
         self.pivots += other.pivots;
+        self.pricing_cutoffs += other.pricing_cutoffs;
+        self.pricing_fallbacks += other.pricing_fallbacks;
         self.flips += other.flips;
         self.refactors += other.refactors;
         self.warm_attempts += other.warm_attempts;
@@ -1037,6 +1056,15 @@ impl Stats {
     }
 }
 fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> Answer {
+    cold_priced(p, limit, deadline, retain, true)
+}
+fn cold_priced(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    retain: bool,
+    normalized: bool,
+) -> Answer {
     let m = p.rhs.len();
     let n = p.costs.len();
     let mut s = Simplex {
@@ -1109,7 +1137,7 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
             for &j in &s.artificial {
                 c[j] = 1.0;
             }
-            let (value, dual) = s.run(&c)?;
+            let (value, dual) = s.run_priced(&c, normalized)?;
             if value > 1e-7 {
                 return Err(if dual > 1e-8 {
                     Outcome::Infeasible
@@ -1126,9 +1154,20 @@ fn cold(p: &Problem, limit: usize, deadline: Option<Instant>, retain: bool) -> A
         }
         let mut c = vec![0.0; s.columns.len()];
         c[..n].copy_from_slice(&p.costs);
-        let (objective, dual) = s.run(&c)?;
+        let (objective, dual) = s.run_priced(&c, normalized)?;
         Ok((objective, dual))
     })();
+    if normalized
+        && PRICING_NORM != 0
+        && matches!(outcome, Err(Outcome::NumericalError))
+        && deadline.is_none_or(|d| Instant::now() < d)
+    {
+        let remaining = limit.saturating_sub(s.stats.pivots + s.stats.flips);
+        let mut answer = cold_priced(p, remaining, deadline, retain, false);
+        answer.stats.add(&s.stats);
+        answer.stats.pricing_fallbacks += 1;
+        return answer;
+    }
     match outcome {
         Ok((objective, dual)) => Answer {
             warm: retain.then(|| snapshot(p, &s, None)),
@@ -1652,5 +1691,29 @@ mod row_extension_tests {
                 a = b;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod pricing_budget_tests {
+    use super::*;
+    #[test]
+    fn many_bound_flips_switch_pricing_and_keep_the_total_iteration_budget() {
+        let p = Problem {
+            columns: vec![vec![]; 200],
+            rhs: vec![],
+            costs: vec![-1.; 200],
+            upper: vec![1.; 200],
+            equality: vec![],
+            slack_upper: vec![],
+        };
+        let a = cold(&p, 1000, None, true);
+        assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective == -200.));
+        assert_eq!(a.stats.pricing_cutoffs, 1);
+        assert_eq!(a.stats.flips, 200);
+        let a = cold(&p, 120, None, true);
+        assert!(matches!(a.outcome, Outcome::IterationLimit));
+        assert_eq!(a.stats.flips + a.stats.pivots, 120);
+        assert_eq!(a.stats.pricing_cutoffs, 1);
     }
 }
