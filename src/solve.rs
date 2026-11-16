@@ -120,7 +120,7 @@ impl Default for Limits {
             objective_domain_report: true,
             row_ray_report: true,
             row_subgradient_report: true,
-            row_subgradient_uniform: false,
+            row_subgradient_uniform: true,
             dual_guided_primal: true,
             row_packing_report: true,
             objective_rounding_all: false,

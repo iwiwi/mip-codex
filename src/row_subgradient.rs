@@ -1,4 +1,4 @@
-//! 非一様費用の単位箱への非負被覆乗数。終端下界の表示専用。
+//! 非負費用の単位箱への被覆乗数。元入力で検証した下界を表示する。
 use crate::{model::Model,objective_bound::Certifier,row_ray};
 use serde::{Deserialize,Serialize};
 use std::time::Instant;
