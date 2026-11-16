@@ -192,6 +192,7 @@ pub struct Result {
     pub lp_certificate_repair_trials: Option<usize>,
     pub lp_certificate_repairs: Option<usize>,
     pub lp_restoration_attempts: Option<usize>,
+    pub lp_restoration_restarts: Option<usize>,
     pub lp_restoration_successes: Option<usize>,
     pub lp_restoration_infeasible_candidates: Option<usize>,
     pub lp_restoration_pivots: Option<usize>,
@@ -2344,6 +2345,8 @@ fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result 
             .then_some(lp_stats.warm_cost_successes),
         lp_restoration_attempts: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.restoration_attempts),
+        lp_restoration_restarts: matches!(limits.engine, Engine::Revised)
+            .then_some(lp_stats.restoration_restarts),
         lp_restoration_successes: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.restoration_successes),
         lp_restoration_infeasible_candidates: matches!(limits.engine, Engine::Revised)
@@ -2584,6 +2587,7 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         certificate_repair_trials: result.lp_certificate_repair_trials.unwrap_or(0),
         certificate_repairs: result.lp_certificate_repairs.unwrap_or(0),
         restoration_attempts: result.lp_restoration_attempts.unwrap_or(0),
+        restoration_restarts: result.lp_restoration_restarts.unwrap_or(0),
         restoration_successes: result.lp_restoration_successes.unwrap_or(0),
         restoration_infeasible_candidates: result.lp_restoration_infeasible_candidates.unwrap_or(0),
         restoration_pivots: result.lp_restoration_pivots.unwrap_or(0),
