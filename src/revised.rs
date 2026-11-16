@@ -741,7 +741,7 @@ impl Simplex {
             0.
         };
         let pricing_budget = self.rhs.len().saturating_mul(8).max(100);
-        let mut normalized_active = normalized
+        let normalized_active = normalized
             && PRICING_NORM != 0
             && self.stats.pivots + self.stats.flips < pricing_budget;
         let mut degenerate = 0usize;
@@ -759,8 +759,8 @@ impl Simplex {
                 return Err(numerical());
             }
             if normalized_active && self.stats.pivots + self.stats.flips >= pricing_budget {
-                normalized_active = false;
                 self.stats.pricing_cutoffs += 1;
+                return Err(Outcome::IterationLimit);
             }
             let mut entering = None;
             let mut most_negative = 0.0;
@@ -1007,6 +1007,14 @@ fn warm_impl(
                 witness_point: s.witness_point,
             }
         }
+        Err(Outcome::IterationLimit) if s.stats.pricing_cutoffs > 0 => {
+            let used = s.stats.pivots + s.stats.flips;
+            let mut answer = cold_priced(p, limit.saturating_sub(used), deadline, true, false);
+            s.stats.warm_fallbacks = 1;
+            s.stats.pricing_fallbacks += 1;
+            answer.stats.add(&s.stats);
+            answer
+        }
         Err(outcome @ (Outcome::TimeLimit | Outcome::IterationLimit)) => Answer {
             outcome,
             dual: None,
@@ -1159,7 +1167,8 @@ fn cold_priced(
     })();
     if normalized
         && PRICING_NORM != 0
-        && matches!(outcome, Err(Outcome::NumericalError))
+        && (matches!(outcome, Err(Outcome::NumericalError))
+            || (matches!(outcome, Err(Outcome::IterationLimit)) && s.stats.pricing_cutoffs > 0))
         && deadline.is_none_or(|d| Instant::now() < d)
     {
         let remaining = limit.saturating_sub(s.stats.pivots + s.stats.flips);
@@ -1698,6 +1707,28 @@ mod row_extension_tests {
 mod pricing_budget_tests {
     use super::*;
     #[test]
+    fn cost_changed_warm_restart_charges_discarded_bound_flips() {
+        let mut p = Problem {
+            columns: vec![vec![]; 200],
+            rhs: vec![],
+            costs: vec![1.; 200],
+            upper: vec![1.; 200],
+            equality: vec![],
+            slack_upper: vec![],
+        };
+        let parent = warm_impl(&p, 1000, None, None);
+        p.costs.fill(-1.);
+        let a = warm_impl(&p, 1000, None, parent.warm.as_deref());
+        assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective == -200.));
+        assert_eq!(a.stats.flips, 300);
+        assert_eq!(a.stats.pricing_fallbacks, 1);
+        assert_eq!(a.stats.warm_fallbacks, 1);
+        let a = warm_impl(&p, 120, None, parent.warm.as_deref());
+        assert!(matches!(a.outcome, Outcome::IterationLimit));
+        assert_eq!(a.stats.flips, 120);
+    }
+
+    #[test]
     fn many_bound_flips_switch_pricing_and_keep_the_total_iteration_budget() {
         let p = Problem {
             columns: vec![vec![]; 200],
@@ -1710,7 +1741,8 @@ mod pricing_budget_tests {
         let a = cold(&p, 1000, None, true);
         assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective == -200.));
         assert_eq!(a.stats.pricing_cutoffs, 1);
-        assert_eq!(a.stats.flips, 200);
+        assert_eq!(a.stats.flips, 300);
+        assert_eq!(a.stats.pricing_fallbacks, 1);
         let a = cold(&p, 120, None, true);
         assert!(matches!(a.outcome, Outcome::IterationLimit));
         assert_eq!(a.stats.flips + a.stats.pivots, 120);
