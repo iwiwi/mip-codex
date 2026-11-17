@@ -49,7 +49,9 @@ pub fn exchange(m: &Model, repair: &Repair<'_>, x: &[f64], deadline: Instant, bu
 {
     let began = Instant::now();
     let n = m.variables.len();
-    if began >= deadline || budget == 0 || n > 100_000 || m.rows.len() > 100_000 || x.len() != n || m.maximize
+    if began >= deadline || budget == 0 || n > 100_000 || m.rows.len() > 100_000
+        || m.rows.iter().fold(0usize,|sum,row|sum.saturating_add(row.coefficients.len())) > 10_000_000
+        || x.len() != n || m.maximize
         || !m.variables.iter().all(|v| v.integer && v.lower == Some(0.) && v.upper == Some(1.) && v.objective.is_finite() && v.objective >= 0.)
         || !m.rows.iter().all(|r| r.lower.is_some_and(|b| b > 0. && b <= 1.) && r.upper.is_none() && r.coefficients.iter().all(|&(j,a)| j < n && a == 1.))
         || x.iter().any(|&v| v != 0. && v != 1.) || !repair.candidate_check(x)
@@ -59,6 +61,7 @@ pub fn exchange(m: &Model, repair: &Repair<'_>, x: &[f64], deadline: Instant, bu
     let mut counts = vec![0usize; m.rows.len()];
     let mut selected: Vec<_> = x.iter().map(|&v| v == 1.).collect();
     for (i,row) in m.rows.iter().enumerate() {
+        if Instant::now()>=deadline {return None;}
         for &(j,_) in &row.coefficients { incidence[j].push(i); counts[i] += usize::from(selected[j]); stats.work += 1; }
     }
     let mut chosen: Vec<_> = (0..n).filter(|&j| selected[j]).collect();

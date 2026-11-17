@@ -90,7 +90,7 @@ impl Default for Limits {
             root_seed_repair: true,
             pure_cover_greedy: true,
             pure_cover_portfolio: true,
-            pure_cover_exchange: false,
+            pure_cover_exchange: true,
             root_priced_repair: true,
             root_priced_objective: true,
             root_priced_continue: true,
