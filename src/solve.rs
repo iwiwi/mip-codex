@@ -1855,7 +1855,7 @@ fn solve_seeded_warm(
         .and_then(|_| Certifier::new(lp_model));
     let original_coefficient_bounds=model.original_decimal&&model.rows.iter().any(|r|!r.exact_coefficients);
     let original_coefficient_certifier=if original_coefficient_bounds&&
-        (lp_model.rows.iter().map(|r|r.coefficients.len()as u128).sum::<u128>()+lp_model.rows.len()as u128+lp_model.variables.len()as u128)*64<=limits.dense_bytes as u128{Certifier::new(lp_model)}else{None};
+        (lp_model.rows.iter().map(|r|r.coefficients.len()as u128).sum::<u128>()+lp_model.rows.len()as u128+lp_model.variables.len()as u128)*64<=limits.dense_bytes as u128{Certifier::with_implied_bounds(lp_model)}else{None};
     let mut original_coefficient_bound_checks=0;let mut original_coefficient_bound_successes=0;
 
     let check_original_infeasibility = lp_model.needs_original_feasibility_check();
