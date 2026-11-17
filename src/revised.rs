@@ -2024,3 +2024,10 @@ mod tableau_row_tests {
   let p=equality(4.,3.,f64::INFINITY);let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,0);assert!(matches!(new.outcome,Outcome::Optimal{objective,..}if objective==0.));let p=equality(4.,1.,f64::INFINITY);let expired=cold_crashed(&p,1000,Some(Instant::now()),false,false,true);assert!(matches!(expired.outcome,Outcome::TimeLimit));assert_eq!(expired.stats.singleton_crash_columns,0);
  }
 }
+
+#[cfg(test)]mod singleton_extension_tests{
+ use super::*;
+ #[test]fn a_new_row_can_touch_the_original_singleton_basic_column(){
+  let p=Problem{columns:vec![vec![(0,2.)],vec![(0,1.)]],rhs:vec![4.],costs:vec![1.,0.],upper:vec![f64::INFINITY;2],equality:vec![true],slack_upper:vec![0.]};let a=cold_crashed(&p,1000,None,true,false,true);assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(a.stats.singleton_crash_columns,1);let w=a.warm.unwrap();let mut q=p.clone();q.columns[1].push((1,1.));q.rhs.push(3.);q.equality.push(false);q.slack_upper.push(f64::INFINITY);let b=minimize_warm(&q,1000,None,Some(&w));let c=minimize(&q,1000,None);assert_eq!(b.stats.warm_row_extensions,1);assert!(matches!(b.outcome,Outcome::Optimal{objective,x}if objective==0.5&&x==vec![0.5,3.]));assert!(matches!(c.outcome,Outcome::Optimal{objective,..}if objective==0.5));let parent=minimize_warm(&p,1000,None,Some(&w));assert!(matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.]));
+ }
+}
