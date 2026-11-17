@@ -136,3 +136,8 @@ fn nonintegral_or_large_coefficients_cannot_claim_tolerance_only_optimality(){
   for enabled in [false,true]{let r=solve(&m,&Limits{integer_row_rounding:enabled,..Limits::default()});assert!(r.status!="optimal"||r.objective==Some(1.),"{coefficient}: {} {:?}",r.status,r.objective);if r.optimal_original_conflict{assert!(r.dual_bound.is_none()&&r.gap.is_none());}}
  }
 }
+
+#[test]
+fn a_pure_lp_also_withdraws_a_definitely_infeasible_optimal_point(){
+ let text="NAME purelp\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1 r 1e-16\nRHS\n rhs r -1e-16\nBOUNDS\n LO b x -2\n UP b x 0\nENDATA\n";let m=mps::parse(Cursor::new(text)).unwrap();let r=solve(&m,&Limits::default());assert!(r.status!="optimal"||r.objective==Some(1.));if r.optimal_original_conflict{assert!(r.dual_bound.is_none()&&r.gap.is_none());}
+}

@@ -1464,7 +1464,7 @@ pub fn solve(model: &Model, limits: &Limits) -> Result {
     reject_original_optimal_conflict(model,result)
 }
 fn reject_original_optimal_conflict(model:&Model,mut result:Result)->Result{
-    if result.status=="optimal" && model.original_decimal && model.variables.iter().any(|v|v.integer){
+    if result.status=="optimal" && model.original_decimal{
         let start=Instant::now();
         if let Some(values)=&result.values{
             let point:Option<Vec<f64>>=model.variables.iter().map(|v|values.get(&v.name).copied()).collect();

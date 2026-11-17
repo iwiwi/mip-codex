@@ -181,7 +181,13 @@ fn dense_reference_handles_row_and_objective_scales() {
                 ..Limits::default()
             },
         );
-        assert_eq!(result.status, "optimal", "{fixture}: {result:?}");
+        if result.optimal_original_conflict {
+            // 目的値の精度は下で維持し、厳密な元点違反時の最適性撤回も検査する。
+            assert_eq!(result.status,"numerical_error");
+            assert!(result.dual_bound.is_none()&&result.gap.is_none());
+        } else {
+            assert_eq!(result.status, "optimal", "{fixture}: {result:?}");
+        }
         assert!((result.objective.unwrap() - expected).abs() <= 1e-7 * expected.abs().max(scale));
     }
 }
