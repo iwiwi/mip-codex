@@ -797,3 +797,11 @@ PR119最終候補FP7f49a5e2b0e69aed、321 Rust成功4ignored。200有理LPは厳
 188対は主解0改善1悪化187同値、下界2改善1悪化173同値12比較不能、全376証明/128点GMP・公式有効。新証拠0件。swath1追加3対は2改善1同値に反転し全6証明/点が有効、一貫した性能差とはしない。RSS対中央値比1.00453、最大約2.19GiB。26,338原ファイル659,156,061bytes→4分割95,635,463bytes全SHA保全、ELF3除外・保持。詳細RATIONAL_PRIMAL_WITNESS_RESULTS.md。統合後は旧未起動snapshotを更新し、次にゼロPhaseI性能案を同期する。
 
 PR119統合main4f5daba804 / 通常-library FP7f49a5e2b0e69aedを主作業木で再build確認。初回pullは同一未追跡archive16ファイルとの衝突で停止したのに後続buildを進め旧13dbを使った準備ミスを記録し、全SHA照合で/tmpへ退避して更新をやり直した。旧rational-primal-final-20261117は未起動・OBSOLETE、正しいrational-primal-final-20261117-v2はconfig80ec62c19a08e28b843ffbe84001c5378d8c029d48629a95dc8bd4fb89e48c6c、109snapshot/147共有lib全SHA一致、240ジョブ未起動。200有理LP/固定9/境界11の218点GMP有効、dual違反0。PR119最終6958110309/統合後6958351046は直前AI使用量を再集計。post記録1620ファイル4,505,030bytes→752,641bytes全SHA保全、ELF8除外保持。ゼロPhaseI案を同期しResultの両統計とJournal両履歴を保持して競合解決、324 Rust成功4ignored。
+
+### 2026-11-17 ゼロPhase Iのmain119ベース最終検証
+
+最終FP70af40cd61d1003b、同一bin flag0/1、324 Rust成功4ignored。LP1200比較/4800点で854skip、一般MIP800列挙/710親証明/5680改竄拒否/800点GMP有効（skip0）、専用MIP400列挙/400親証明/3200改竄拒否/400点GMP有効で350skip。目的rel1e-8、親claimはFraction誤差なし。
+
+188対は主解4改善0悪化184同値、下界4改善2悪化170同値12比較不能。376証明/129点GMP・公式有効。実skipの主解改善gmu/graph20/joes、下界改善neos1445765/jarama。skip0のsp97/fast/seymour/sp98変化を直接効果としない。60秒3対もgmu/joes主解とneos1445765下界改善を維持、全6証明/6点有効。新native10秒3問も11点/3Rust証明有効、HiGHS/SCIPとの大きな差は残り、総合優位なし。詳細ZERO_PHASE_ONE_RESULTS.md。
+
+有利端点の同時固定4/8/16/32個のprimal試作は全候補なし、元問題の不能/下界に利用せず棄却。準備時間を含めない3秒loopの試作なのでmain同時間の比較とも扱わない。次は既知の境界点からLPを初期化する仮説を検討する。
