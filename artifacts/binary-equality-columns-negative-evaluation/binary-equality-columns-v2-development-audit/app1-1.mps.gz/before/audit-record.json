@@ -1,0 +1,78 @@
+{
+  "name": "app1-1.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "b99272cb3d91f16362ff03459422a1490018f7d10689900d5359a71f761e34bb",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "aa13b6c13967a4f16387e43560dc9fa9139975f869af9b8088aa94204ec503c7",
+    "binary_equality_columns": 0,
+    "objective_grid_valid": true,
+    "objective_step": 1,
+    "implied_integer_variables": 0,
+    "objective_domains": 2,
+    "objective_domain_report_valid": true,
+    "input_sha256": "b99272cb3d91f16362ff03459422a1490018f7d10689900d5359a71f761e34bb"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": -2.0,
+      "bound_violation": 0.0,
+      "row_violation": 2.220446049250313e-16,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": -2.0,
+    "bound_violation": 0.0,
+    "row_violation": 1.66e-16,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "-2",
+      "bound_violation": "0",
+      "row_violation": "83/500000000000000000",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "3/100000000",
+      "absolute_error": "0",
+      "recomputed_exact": "-2",
+      "reported_token": "-2.0"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/app1-1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/binary-equality-columns-v2-development-audit/app1-1.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "65fdf0ef8a7523c772c4b976e0d5b71c4cb744eda937b1bb95bbecef236297ee",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.36675313001614995
+}
