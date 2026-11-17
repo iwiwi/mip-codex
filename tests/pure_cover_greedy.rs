@@ -7,3 +7,28 @@ fn model(n:usize,rows:&[Vec<usize>],costs:&[usize])->mip_codex::model::Model{let
 #[test]fn empty_cover_and_nonfinite_costs_never_escape_as_feasible(){let m=model(3,&[vec![]],&[1,2,3]);let(x,s)=cover_greedy::candidate(&m,&Repair::new(&m),Instant::now()+Duration::from_secs(1)).unwrap();assert!(x.is_none());assert_eq!(s.candidates,0);let mut m=model(3,&[vec![0,1],vec![1,2]],&[0,0,0]);let(x,_)=cover_greedy::candidate(&m,&Repair::new(&m),Instant::now()+Duration::from_secs(1)).unwrap();let x=x.unwrap();assert!(m.check(&x,true,0.).is_ok());assert_eq!(m.objective(&x),0.);m.variables[0].objective=f64::NAN;assert!(cover_greedy::candidate(&m,&Repair::new(&m),Instant::now()+Duration::from_secs(1)).is_none());}
 #[test]fn portfolio_preserves_its_baseline_and_original_feasibility(){for case in 0..50{let n=3+case%7;let rows:Vec<_>=(0..n).map(|i|vec![i,(i+1)%n]).collect();let costs:Vec<_>=(0..n).map(|j|(j*3+case)%5).collect();let m=model(n,&rows,&costs);let repair=Repair::new(&m);let baseline=cover_greedy::candidate(&m,&repair,Instant::now()+Duration::from_secs(2)).unwrap().0.unwrap();let(x,s)=cover_greedy::candidate_portfolio(&m,&repair,Instant::now()+Duration::from_secs(2),true).unwrap();let x=x.unwrap();assert!(m.check(&x,true,0.).is_ok());assert!(m.objective(&x)<=m.objective(&baseline));assert!(s.calls>1&&s.calls<=128);let optimum=(0..1usize<<n).filter(|&b|rows.iter().all(|r|r.iter().any(|&j|b>>j&1==1))).map(|b|(0..n).filter(|&j|b>>j&1==1).map(|j|costs[j]).sum::<usize>()).min().unwrap()as f64;assert!(m.objective(&x)>=optimum);}
  let m=model(5,&[vec![0,1],vec![1,2],vec![2,3],vec![3,4],vec![4,0]],&[1;5]);let r=solve(&m,&Limits{seconds:2.,nodes:0,pure_cover_greedy:true,pure_cover_portfolio:true,binary_graph:false,parity_equalities:false,row_subgradient_report:false,dual_guided_primal:false,row_ray_report:false,row_packing_report:false,cover_cuts:false,clique_cuts:false,aggregate_cuts:false,mir_cuts:false,three_row_cuts:false,..Limits::default()});assert_eq!(r.status,"node_limit");assert_eq!(r.lp_solves,0);assert!(r.values.is_some());}
+
+#[test]
+fn exchange_removes_two_columns_but_never_uncovers_their_shared_row() {
+    let m=model(3,&[vec![0,2],vec![1,2]],&[1,1,1]);
+    let (x,s)=cover_greedy::exchange(&m,&Repair::new(&m),&[1.,1.,0.],Instant::now()+Duration::from_secs(1),100000).unwrap();
+    assert_eq!(x,vec![0.,0.,1.]); assert_eq!(s.improvements,1);
+    let m=model(3,&[vec![0,2],vec![1,2],vec![0,1]],&[1,1,1]);
+    let (x,_)=cover_greedy::exchange(&m,&Repair::new(&m),&[1.,1.,0.],Instant::now()+Duration::from_secs(1),100000).unwrap();
+    assert_eq!(x,vec![1.,1.,0.]); assert!(m.check(&x,true,0.).is_ok());
+}
+#[test]
+fn exchange_candidates_are_feasible_and_never_improve_below_enumerated_optima() {
+    let mut state=1907u64;
+    for case in 0..200 {
+        let n=3+case%7; let mut rows=Vec::new();
+        for _ in 0..2+case%9 { let mut row=Vec::new();for j in 0..n {state=state.wrapping_mul(6364136223846793005).wrapping_add(1);if state>>63!=0{row.push(j);}}if row.is_empty(){row.push(case%n);}rows.push(row); }
+        let costs:Vec<_>=(0..n).map(|j|(j*3+case)%7).collect();let m=model(n,&rows,&costs);let repair=Repair::new(&m);
+        let base=cover_greedy::candidate(&m,&repair,Instant::now()+Duration::from_secs(1)).unwrap().0.unwrap();
+        let (x,_)=cover_greedy::exchange(&m,&repair,&base,Instant::now()+Duration::from_secs(1),100000).unwrap();
+        assert!(m.check(&x,true,0.).is_ok());assert!(m.objective(&x)<=m.objective(&base));
+        let optimum=(0..1usize<<n).filter(|&b|rows.iter().all(|r|r.iter().any(|&j|b>>j&1==1))).map(|b|(0..n).filter(|&j|b>>j&1==1).map(|j|costs[j]).sum::<usize>()).min().unwrap()as f64;
+        assert!(m.objective(&x)>=optimum);
+        assert!(cover_greedy::exchange(&m,&repair,&base,Instant::now(),100000).is_none());
+    }
+}
