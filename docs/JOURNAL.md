@@ -787,3 +787,9 @@ main117にも整数xと連続yを結ぶ等式と極小上限差で誤最適が�
 PR118最終: 188主解全同値、下界2改善2悪化はガードなしtime_limitの時限差。全376証明/128点GMP・公式有効。10,185ファイル272,898,542 bytes→34,266,106 bytes全SHA保全（ELF1を除外・保持）。有理点証拠は別研究FPd7433aa067208652で320 Rust成功4ignored、まだ採用しない。resource/zeroの非稼働debugキャッシュ2件だけ削除して約6.5GiBの空きを確保し、release/凍結ELF/ソース/ログ/native snapshotは保持した。
 
 PR118統合main3c82b33661 / FP13dbde01fb6114c0の主作業木再buildで5反例+11境界コーナーを再確認、14点GMP有効。新create-only implied-boundary-final-20261117は107snapshot/147共有lib全SHA一致、config90582dbf1afb209659ad237d69b6ad0b3cf6b47a27608bd678a138b4610d9db0、240×3600秒1thread16GiB/CPU8..15、未起動。準備hash/copyはCPU43で実施。前snapshotから共有lib変更なし。post記録233ファイル1,440,208bytes→324,833bytes全SHA保全（ELF4除外・保持）。PR118最終コメント6956645930/統合後6956784155は直前AI使用量を同じwrapperで再集計。native全体18:15集計621/720完了、検査済最適HS128/SCIP105/GLPK22。
+
+### 2026-11-17 有理実行可能点の証拠と目的境界の整合性
+
+PR119最終候補FP7f49a5e2b0e69aed、321 Rust成功4ignored。200有理LPは厳密dual違反15→0、旧正89optimal維持/83numeric回復/不正境界15撤回。200混合モデルは76→121optimalで誤宣言0、整数境界800も214最適/586不能と一致し撤回3件を回復。全例元MPSのGMP絶対1e-6/目的rel1e-8で検査、親proofはFractionで誤差なし。全有理証拠の改竄1447拒否。V2目的微小差の不正dual例を理由に棄却し、V3は元目的の不確かさも検査する。
+
+188対は主解0改善1悪化187同値、下界2改善1悪化173同値12比較不能、全376証明/128点GMP・公式有効。新証拠0件。swath1追加3対は2改善1同値に反転し全6証明/点が有効、一貫した性能差とはしない。RSS対中央値比1.00453、最大約2.19GiB。26,338原ファイル659,156,061bytes→4分割95,635,463bytes全SHA保全、ELF3除外・保持。詳細RATIONAL_PRIMAL_WITNESS_RESULTS.md。統合後は旧未起動snapshotを更新し、次にゼロPhaseI性能案を同期する。
