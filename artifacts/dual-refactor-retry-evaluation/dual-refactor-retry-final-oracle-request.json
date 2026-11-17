@@ -1,0 +1,33 @@
+{
+  "source_fingerprint": "2c4e2d583362e317",
+  "flag": "MIP_DUAL_REFACTOR_RETRY",
+  "helpers": "artifacts/dual-refactor-retry-default-on-helpers/experiment.json",
+  "jobs": [
+    {
+      "cpu": 39,
+      "flag": 0,
+      "kind": "row",
+      "output": "dual-refactor-retry-final-row-before"
+    },
+    {
+      "cpu": 40,
+      "flag": 1,
+      "kind": "row",
+      "output": "dual-refactor-retry-final-row-after"
+    },
+    {
+      "cpu": 42,
+      "flag": 0,
+      "kind": "cost",
+      "output": "dual-refactor-retry-final-cost-before"
+    },
+    {
+      "cpu": 44,
+      "flag": 1,
+      "kind": "cost",
+      "output": "dual-refactor-retry-final-cost-after"
+    }
+  ],
+  "threads": 1,
+  "purpose": "independent small LP checks; observational timings"
+}

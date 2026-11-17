@@ -38,6 +38,7 @@ pub struct Stats {
     pub warm_cost_successes: usize,
     pub dual_pivots: usize,
     pub dual_flips: usize,
+    pub dual_refactor_retries: usize,
     pub scaled_columns: usize,
     pub scaled_rows: usize,
     pub multiplier_cache_hits: usize,
@@ -585,7 +586,24 @@ impl Simplex {
     }
     /// 有界変数のdual simplex。有限幅を使い切る候補をまとめてflipする。
     fn dual_run<const RESTORATION: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
-        self.dual_run_mode::<RESTORATION, false>(c)
+        self.dual_run_retry::<RESTORATION>(c,
+            std::env::var("MIP_DUAL_REFACTOR_RETRY").map_or(true, |v| v == "1"))
+    }
+    fn dual_run_retry<const RESTORATION: bool>(
+        &mut self, c: &[f64], retry: bool,
+    ) -> Result<(f64, f64), Outcome> {
+        let result = self.dual_run_mode::<RESTORATION, false>(c);
+        if retry && matches!(result, Err(Outcome::NumericalError))
+            && !self.factor.updates.is_empty()
+            && self.deadline.is_none_or(|d| Instant::now() < d)
+            && self.stats.pivots + self.stats.flips < self.limit
+        {
+            self.stats.dual_refactor_retries += 1;
+            self.refactor()?;
+            self.witness = None;
+            self.witness_point = None;
+            self.dual_run_mode::<RESTORATION, false>(c)
+        } else { result }
     }
     fn dual_run_mode<const RESTORATION: bool, const STABLE: bool>(
         &mut self,
@@ -1130,6 +1148,7 @@ impl Stats {
         self.warm_cost_successes += other.warm_cost_successes;
         self.dual_pivots += other.dual_pivots;
         self.dual_flips += other.dual_flips;
+        self.dual_refactor_retries += other.dual_refactor_retries;
         self.scaled_columns += other.scaled_columns;
         self.scaled_rows += other.scaled_rows;
         self.multiplier_cache_hits += other.multiplier_cache_hits;
@@ -1626,6 +1645,39 @@ mod restoration_tests {
             witness: None,
             witness_point: None,
         }
+    }
+    fn inaccurate_updated_basis() -> Simplex {
+        let mut s = example(false);
+        // Simulate a badly inaccurate accumulated inverse. Rebuilding the
+        // actual basis [1] must restore the original LP, not clip its bounds.
+        s.factor.updates.push(Arc::new(Eta {
+            row: 0, column: vec![(0, -1.)], pivot: -1.,
+        }));
+        s
+    }
+    #[test]
+    fn dual_retry_rebuilds_an_inaccurate_inverse_and_checks_the_original_lp() {
+        let costs = [1., 2., 0.];
+        let mut off = inaccurate_updated_basis();
+        assert!(matches!(off.dual_run_retry::<false>(&costs, false), Err(Outcome::NumericalError)));
+        let mut on = inaccurate_updated_basis();
+        let (primal, dual) = on.dual_run_retry::<false>(&costs, true).unwrap();
+        assert_eq!((primal, dual), (0., 0.));
+        assert_eq!(on.x, vec![0., 0., 1.]);
+        assert_eq!(on.stats.dual_refactor_retries, 1);
+        assert_eq!(on.stats.refactors, 1);
+        assert_eq!(on.certificate(&costs).unwrap(), (0., 0.));
+    }
+    #[test]
+    fn dual_retry_preserves_deadlines_and_work_limits() {
+        let mut expired = inaccurate_updated_basis();
+        expired.deadline = Some(Instant::now());
+        assert!(matches!(expired.dual_run_retry::<false>(&[1., 2., 0.], true), Err(Outcome::TimeLimit)));
+        assert_eq!(expired.stats.dual_refactor_retries, 0);
+        let mut limited = inaccurate_updated_basis();
+        limited.limit = 0;
+        assert!(matches!(limited.dual_run_retry::<false>(&[1., 2., 0.], true), Err(Outcome::IterationLimit)));
+        assert_eq!(limited.stats.dual_refactor_retries, 0);
     }
     #[test]
     fn zero_objective_repairs_a_genuinely_infeasible_basis_then_optimizes() {

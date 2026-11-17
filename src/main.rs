@@ -188,6 +188,9 @@ fn run() -> Result<(), String> {
             limits.row_subgradient_uniform=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROW_SUBGRADIENT_UNIFORM must be 0 or 1".into())};
         }
         if let Ok(v)=std::env::var("MIP_GOMORY_CUTS"){limits.gomory_cuts=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GOMORY_CUTS must be 0 or 1".into())};}
+        if let Ok(v) = std::env::var("MIP_DUAL_REFACTOR_RETRY") {
+            if v != "0" && v != "1" { return Err("MIP_DUAL_REFACTOR_RETRY must be 0 or 1".into()); }
+        }
         if let Ok(v) = std::env::var("MIP_DUAL_GUIDED_PRIMAL") {
             limits.dual_guided_primal=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_DUAL_GUIDED_PRIMAL must be 0 or 1".into())};
         }
