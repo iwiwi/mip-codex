@@ -1,0 +1,11 @@
+NAME var
+ROWS
+ N obj
+COLUMNS
+ x obj 1
+RHS
+ rhs obj 0
+BOUNDS
+ LI b x 1.00000000000000001
+ UI b x 3
+ENDATA

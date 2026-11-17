@@ -23,6 +23,7 @@ pub struct Problem {
 }
 #[derive(Default, Clone, Debug)]
 pub struct Stats {
+    pub zero_phase_one_skips:usize,
     pub pivots: usize,
     pub feasibility_pricing_calls: usize,
     pub pricing_cutoffs: usize,
@@ -1168,6 +1169,7 @@ impl Stats {
         self.pivots += other.pivots;
         self.feasibility_pricing_calls += other.feasibility_pricing_calls;
         self.pricing_cutoffs += other.pricing_cutoffs;
+        self.zero_phase_one_skips+=other.zero_phase_one_skips;
         self.empty_pricing_calls+=other.empty_pricing_calls;
         self.empty_pricing_skips+=other.empty_pricing_skips;
         self.pricing_fallbacks += other.pricing_fallbacks;
@@ -1250,6 +1252,9 @@ fn cold_priced(
     cold_crashed(p,limit,deadline,retain,normalized,std::env::var("MIP_LP_SINGLETON_CRASH").map_or(true,|v|v=="1"))
 }
 fn cold_crashed(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool)->Answer {
+    cold_initialized(p,limit,deadline,retain,normalized,crash,std::env::var("MIP_LP_ZERO_PHASE_ONE").map_or(true,|v|v=="1"))
+}
+fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool,skip_zero:bool)->Answer {
     let m = p.rhs.len();
     let n = p.costs.len();
     let mut s = Simplex {
@@ -1336,6 +1341,11 @@ fn cold_crashed(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,norm
     let outcome = (|| {
         if s.stats.singleton_crash_columns>0 {s.recompute()?;}
         if !s.artificial.is_empty() {
+            // Phase Iは非負人工変数の和。初期値が全て厳密0なら最小値0が既知。
+            // 正の微小値を0とみなす許容幅は使わず、既存Phase II/証明へ進む。
+            if skip_zero && s.artificial.iter().all(|&j|s.x[j]==0.) {
+                s.stats.zero_phase_one_skips+=1;
+            } else {
             s.stats.feasibility_pricing_calls += usize::from(normalized);
             let mut c = vec![0.0; s.columns.len()];
             for &j in &s.artificial {
@@ -1352,6 +1362,7 @@ fn cold_crashed(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,norm
                 } else {
                     numerical()
                 });
+            }
             }
             for &j in &s.artificial {
                 s.upper[j] = 0.0;
@@ -2085,4 +2096,19 @@ mod tableau_row_tests {
  #[test]fn skipped_columns_preserve_all_pivots_points_and_certificates(){for normalized in [false,true]{let mut old=initial();let mut new=old.clone();let mut c=vec![0.;old.columns.len()];c[0]=-1.;let(a,b)=if normalized{(old.run_priced_mode::<true>(&c,false),new.run_priced_mode::<true>(&c,true))}else{(old.run_priced_mode::<false>(&c,false),new.run_priced_mode::<false>(&c,true))};assert_eq!(a.unwrap(),b.unwrap());assert_eq!(old.x,new.x);assert_eq!(old.basis,new.basis);assert_eq!(old.stats.pivots,new.stats.pivots);assert_eq!(old.stats.flips,new.stats.flips);assert_eq!(new.stats.empty_pricing_calls,1);assert!(new.stats.empty_pricing_skips>=1299);assert_eq!(new.certificate(&c).unwrap(),(-1.,-1.));}}
  #[test]fn nonzero_empty_columns_keep_bound_flips_and_tiny_unbounded_objectives(){for cost in [-2.,-1e-19]{for finite in [false,true]{let mut old=initial();let mut new=old.clone();old.upper[1]=if finite{3.}else{f64::INFINITY};new.upper[1]=old.upper[1];let mut c=vec![0.;old.columns.len()];c[1]=cost;let a=old.run_priced_mode::<false>(&c,false);let b=new.run_priced_mode::<false>(&c,true);if finite{assert_eq!(a.unwrap(),b.unwrap());assert_eq!(old.x,new.x);assert_eq!(new.x[1],3.);}else{assert!(matches!(a,Err(Outcome::Unbounded)));assert!(matches!(b,Err(Outcome::Unbounded)));}}}}
  #[test]fn cost_and_matrix_changes_rebuild_the_candidate_set(){let mut s=initial();let mut c=vec![0.;s.columns.len()];assert!(!pricing_columns(&s.columns,&c,true).unwrap().contains(&5));s.run_priced_mode::<false>(&c,true).unwrap();c[5]=-2.;assert!(pricing_columns(&s.columns,&c,true).unwrap().contains(&5));assert_eq!(s.run_priced_mode::<false>(&c,true).unwrap(),(-6.,-6.));let mut columns=(*s.columns).clone();columns[6].push((1,1.));assert!(pricing_columns(&columns,&c,true).unwrap().contains(&6));assert!(s.columns[6].is_empty());}
+}
+#[cfg(test)]
+mod zero_phase_one_tests{
+ use super::*;
+ fn cycle()->Problem{let n=16;Problem{columns:(0..n).map(|j|vec![(j,2.),((j+n-1)%n,-1.)]).collect(),rhs:vec![0.;n],costs:vec![0.;n],upper:vec![4.;n],equality:vec![true;n],slack_upper:vec![0.;n]}}
+ #[test]
+ fn zero_artificial_objective_skips_only_phase_one_and_keeps_a_reusable_parent(){
+  let p=cycle();let old=cold_initialized(&p,10000,None,true,true,true,false);let new=cold_initialized(&p,10000,None,true,true,true,true);assert!(matches!(old.outcome,Outcome::Optimal{objective,..}if objective==0.));assert!(matches!(new.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(new.stats.zero_phase_one_skips,1);assert_eq!(new.stats.feasibility_pricing_calls,0);assert!(old.stats.feasibility_pricing_calls>0);assert!(new.stats.pivots<old.stats.pivots);
+  let parent=new.warm.unwrap();let mut changed=p.clone();changed.costs[0]=-1.;let a=minimize_warm(&changed,10000,None,Some(&parent));assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));let b=minimize_warm(&p,10000,None,Some(&parent));assert!(matches!(b.outcome,Outcome::Optimal{objective,..}if objective==0.));
+  let mut extended=p.clone();let row=extended.rhs.len();extended.rhs.push(0.);extended.equality.push(false);extended.slack_upper.push(f64::INFINITY);extended.columns[0].push((row,-1.));let e=minimize_warm(&extended,10000,None,Some(&parent));assert!(matches!(e.outcome,Outcome::Optimal{objective,..}if objective==0.));assert!(e.stats.warm_row_extensions>0);
+ }
+ #[test]
+ fn tiny_positive_phase_one_values_never_use_the_zero_shortcut(){let mut p=cycle();p.rhs[0]=1e-16;let r=cold_initialized(&p,10000,None,true,true,true,true);assert_eq!(r.stats.zero_phase_one_skips,0);assert_eq!(r.stats.feasibility_pricing_calls,1);}
+ #[test]
+ fn deadline_and_pivot_budget_remain_in_force(){let p=cycle();let r=cold_initialized(&p,10000,Some(Instant::now()),true,true,true,true);assert!(matches!(r.outcome,Outcome::TimeLimit));let r=cold_initialized(&p,0,None,true,true,true,true);assert!(matches!(r.outcome,Outcome::IterationLimit));}
 }

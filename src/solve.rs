@@ -177,6 +177,8 @@ impl Default for Limits {
 }
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
+    pub lp_zero_phase_one_skips:Option<usize>,
+
     #[serde(skip_serializing_if="Option::is_none")]
     pub rational_primal_proof:Option<crate::primal_witness::Proof>,
     pub optimal_original_conflict:bool,
@@ -3144,6 +3146,7 @@ fn solve_seeded_warm(
         lp_dual_form_attempts: Some(lp_stats.dual_form_attempts),
         lp_dual_form_successes: Some(lp_stats.dual_form_successes),
         lp_dual_form_fallbacks: Some(lp_stats.dual_form_fallbacks),
+        lp_zero_phase_one_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.zero_phase_one_skips),
         lp_empty_pricing_calls:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_calls),
         lp_empty_pricing_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_skips),
         lp_singleton_crash_columns: matches!(limits.engine, Engine::Revised).then_some(lp_stats.singleton_crash_columns),
@@ -3378,6 +3381,7 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         pivots: result.lp_pivots.unwrap_or(0),
         feasibility_pricing_calls: result.lp_feasibility_pricing_calls.unwrap_or(0),
         pricing_cutoffs: result.lp_pricing_cutoffs.unwrap_or(0),
+        zero_phase_one_skips:result.lp_zero_phase_one_skips.unwrap_or(0),
         empty_pricing_calls:result.lp_empty_pricing_calls.unwrap_or(0),
         empty_pricing_skips:result.lp_empty_pricing_skips.unwrap_or(0),
         pricing_fallbacks: result.lp_pricing_fallbacks.unwrap_or(0),
