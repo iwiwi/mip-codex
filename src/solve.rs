@@ -178,6 +178,7 @@ impl Default for Limits {
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
     pub lp_zero_phase_one_skips:Option<usize>,
+    pub adaptive_resource_repair:Option<crate::adaptive_resource_repair::Stats>,
 
     #[serde(skip_serializing_if="Option::is_none")]
     pub rational_primal_proof:Option<crate::primal_witness::Proof>,
@@ -1853,6 +1854,7 @@ fn solve_seeded_warm(
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
     let mut costs = branching::Costs::new(model.variables.len());
+    let mut adaptive_resource_repair_stats=crate::adaptive_resource_repair::Stats::default();
     let mut resource_primal_stats=resource_primal::Stats::default();
     let mut row_generation_state=None;
     let mut row_generation_stats=row_generation::Stats::default();
@@ -1998,6 +2000,13 @@ fn solve_seeded_warm(
             let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.1).min(1.)));
             if let Some(point)=resource_primal::search(model,&node,limits,requested_fixed_columns,end,&mut resource_primal_stats,&mut lp_stats,&mut lp_solves,&mut submip_fixed_columns){
                 let value=sign*model.objective(&point);if value.is_finite()&&value<incumbent&&model.check(&point,true,1e-7).is_ok()&&candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){resource_primal_stats.improvements+=1;incumbent=value;best=Some(point);first_primal_seconds.get_or_insert_with(||start.elapsed().as_secs_f64());}
+            }
+        }
+        if nodes==1&&matches!(relaxation,Relaxation::ResourceLimit)&&std::env::var("MIP_ADAPTIVE_RESOURCE_REPAIR").is_ok_and(|v|v=="1")&&let Some(seed)=best.as_deref(){
+            let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.2).min(2.)));
+            if let Some(point)=crate::adaptive_resource_repair::search(model,seed,&node.lower,&node.upper,end,limits.dense_bytes,&mut adaptive_resource_repair_stats){
+                let value=sign*model.objective(&point);
+                if value.is_finite()&&value<incumbent&&model.check(&point,true,1e-7).is_ok()&&candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){incumbent=value;best=Some(point);}
             }
         }
         if limits.row_generation && matches!(limits.engine,Engine::Revised) && (row_generation_state.is_some() || matches!(relaxation,Relaxation::ResourceLimit)) {
@@ -3146,6 +3155,7 @@ fn solve_seeded_warm(
         lp_dual_form_attempts: Some(lp_stats.dual_form_attempts),
         lp_dual_form_successes: Some(lp_stats.dual_form_successes),
         lp_dual_form_fallbacks: Some(lp_stats.dual_form_fallbacks),
+        adaptive_resource_repair:Some(adaptive_resource_repair_stats),
         lp_zero_phase_one_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.zero_phase_one_skips),
         lp_empty_pricing_calls:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_calls),
         lp_empty_pricing_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_skips),

@@ -7,6 +7,7 @@ pub struct Stats {
     pub candidates: usize,
     pub moves: usize,
     pub work: usize,
+    pub penalty_updates:usize,
 }
 pub struct Repair<'a> {
     model: &'a Model,
@@ -72,14 +73,18 @@ impl<'a> Repair<'a> {
         budget: usize,
         seed: u64,
     ) -> Option<Vec<f64>> {
-        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.)
+        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.,false)
     }
     /// 費用を正規化した修復順位を診断する。実行可能性判定は元のguardを使う。
     pub fn search_priced(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64)->Option<Vec<f64>> {
         if !weight.is_finite()||weight<0.||!scale.is_finite()||scale<=0.{return None;}
-        self.search_impl(point,lower,upper,deadline,budget,seed,weight,scale)
+        self.search_impl(point,lower,upper,deadline,budget,seed,weight,scale,false)
     }
-    fn search_impl(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64)->Option<Vec<f64>> {
+    /// 局所停滞時に違反中の行の重みを増やす主解専用探索。
+    pub fn search_adaptive(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64)->Option<Vec<f64>>{
+        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.,true)
+    }
+    fn search_impl(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64,adaptive:bool)->Option<Vec<f64>> {
         self.stats.calls += 1;
         let mut rng = seed.wrapping_add(0x9e3779b97f4a7c15);
         let mut work = 0usize;
@@ -206,7 +211,15 @@ impl<'a> Repair<'a> {
                     }
                 }
                 let Some((j, value, _, _)) = best else {
-                    break;
+                    if !adaptive{break;}
+                    let mut changed=false;
+                    for (r,&activity)in activities.iter().enumerate(){
+                        if self.violation(r,activity)>1e-12&&self.weights[r]<1e12{
+                            self.weights[r]*=2.;self.stats.penalty_updates+=1;changed=true;
+                        }
+                    }
+                    work=work.saturating_add(activities.len());
+                    if changed{continue;}else{break;}
                 };
                 let delta = value - x[j];
                 x[j] = value;
