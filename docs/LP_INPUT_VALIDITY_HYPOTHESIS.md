@@ -11,3 +11,5 @@ shifted_boundの拒否理由を最大16件表示すると、c44/c45/c48等でbin
 片側行だけの既定無効prototypeを作り、Source指紋一致/有限の係数誤差box/消失した十進項なしの場合に外向きRHSを構成する。等式/範囲行は対象外。最初のtestはsparse checkoutのfixtures不足で停止、tests/examples追加後の全333 Rustテストは成功4ignored。まだ実MPSや独立Fraction行証拠は未検証、未採用。
 
 この調査で現main121に、係数0.99999999999999999999がf64整数1へ丸まりexact_integralを保つため、連続x∈[0,2], a*x<=1, min -xで報告dual=-1が厳密最適-100000000000000000000/99999999999999999999を上回る例を確認した。整数xと連続yを結ぶ1.00000000000000000001*x-y=0,y<=1の例はnumerical/dualNoneへ既存ガードが撤回する。正しさ優先で別branch decimal-integer-coefficient-safety（main121基準）の修正へ進み、このRHS prototypeは検証前のまま保持する。
+
+小数係数安全性の最終候補の188比較を待つ間に、`scripts/verify_rhs_interval.py` を準備した。元MPSをFractionで読み、dumpのbinary64 RHSが `sign*b - sign*hatA*shift + max_box(sign*(hatA-A)*x)` 以上であることを許容なしで検査する。等式/範囲、行名/index不一致、重複shift、非有限値、非保守的なRHSは拒否する。現時点は構文確認だけで、Rust prototypeからのdumpとの照合・改ざんテストは未実施。prototypeをmainへ採用したり正しさを主張したりしない。通常shared targetは小数係数安全性fb986443b5/8b579cacb175412dであり、LP prototypeのbuildで上書きしていない。
