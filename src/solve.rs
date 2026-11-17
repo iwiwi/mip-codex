@@ -86,7 +86,7 @@ impl Default for Limits {
             primal_repair: true,
             box_primal: true,
             root_seed_repair: true,
-            pure_cover_greedy: false,
+            pure_cover_greedy: true,
             root_priced_repair: true,
             root_priced_objective: true,
             root_priced_continue: true,
