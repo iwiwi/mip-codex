@@ -115,7 +115,7 @@ fn zero_limits_and_cached_pivot_limit_preserve_status() {
     assert_eq!(r.status, "iteration_limit");
     assert!(r.root_lp_reused);
     assert_eq!(r.lp_solves, 1);
-    if std::env::var("MIP_LP_LIMIT_POINT").is_ok_and(|v|v=="1") {
+    if std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1") {
         assert_eq!(r.objective,Some(0.));assert_eq!(r.lp_limit_points,1);assert_eq!(r.lp_limit_candidates,1);
         let m=model("3");let x:Vec<_>=m.variables.iter().map(|v|r.values.as_ref().unwrap()[&v.name]).collect();assert!(m.check(&x,true,0.).is_ok());assert!(r.dual_bound.is_none());
     }else{assert_eq!(r.objective,None);}

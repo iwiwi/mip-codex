@@ -1085,7 +1085,7 @@ fn warm_impl(
             s.dual_run::<false>(&c)
         }
     });
-    let limited_point = if matches!(&outcome,Err(Outcome::TimeLimit|Outcome::IterationLimit)) && std::env::var("MIP_LP_LIMIT_POINT").is_ok_and(|v|v=="1") {Some(s.x[..s.original].to_vec())}else{None};
+    let limited_point = if matches!(&outcome,Err(Outcome::TimeLimit|Outcome::IterationLimit)) && std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1") {Some(s.x[..s.original].to_vec())}else{None};
     match outcome {
         Ok((objective, dual)) => {
             s.stats.warm_successes = 1;
@@ -1323,7 +1323,7 @@ fn cold_priced(
         answer.stats.pricing_fallbacks += 1;
         return answer;
     }
-    let limited_point = if matches!(&outcome,Err(Outcome::TimeLimit|Outcome::IterationLimit)) && std::env::var("MIP_LP_LIMIT_POINT").is_ok_and(|v|v=="1") {Some(s.x[..s.original].to_vec())}else{None};
+    let limited_point = if matches!(&outcome,Err(Outcome::TimeLimit|Outcome::IterationLimit)) && std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1") {Some(s.x[..s.original].to_vec())}else{None};
     match outcome {
         Ok((objective, dual)) => Answer {
             warm: retain.then(|| snapshot(p, &s, None)),
@@ -1996,7 +1996,7 @@ mod tableau_row_tests {
 #[cfg(test)]mod limited_point_tests{
  use super::*;
  #[test]fn limited_points_are_candidates_only_and_validated_in_original_scaled_units(){
-  if !std::env::var("MIP_LP_LIMIT_POINT").is_ok_and(|v|v=="1"){return;}
+  if !std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1"){return;}
   for scale in [1.,1e8,1e-8]{let p=Problem{columns:vec![vec![(0,scale)]],rhs:vec![scale],costs:vec![-1.],upper:vec![2.],equality:vec![false],slack_upper:vec![f64::INFINITY]};let a=minimize_warm(&p,0,None,None);assert!(matches!(a.outcome,Outcome::IterationLimit));assert_eq!(a.limited_point,Some(vec![0.]));assert!(a.dual.is_none());let opt=minimize_warm(&p,100,None,None);let a=minimize_warm(&p,0,None,opt.warm.as_deref());assert!(matches!(a.outcome,Outcome::IterationLimit));assert_eq!(a.limited_point,Some(vec![1.]));assert!(a.dual.is_none());}
   let p=Problem{columns:vec![vec![(0,1.)]],rhs:vec![1.],costs:vec![-1.],upper:vec![2.],equality:vec![true],slack_upper:vec![0.]};let a=minimize_warm(&p,0,None,None);assert!(matches!(a.outcome,Outcome::IterationLimit));assert!(a.limited_point.is_none());
  }

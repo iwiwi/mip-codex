@@ -3651,3 +3651,11 @@ fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomo
     }
     best
 }
+
+#[cfg(test)]mod limited_point_mip_tests{
+ use super::*;
+ #[test]fn original_integer_point_at_pivot_limit_preserves_both_senses_offset_and_status(){
+  if !std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1"){return;}
+  for maximize in [false,true]{let text=format!("NAME limited\nOBJSENSE\n {}\nROWS\n N c\n L r\nCOLUMNS\n x c {} r 1\nRHS\n rhs r 1 c -100\nBOUNDS\n BV b x\nENDATA\n",if maximize{"MAX"}else{"MIN"},if maximize{1}else{-1});let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let limits=Limits{seconds:1.,pivots:0,primal_repair:false,box_primal:false,root_seed_repair:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,objective_rounding:false,objective_domain_report:false,objective_box_report:false,row_ray_report:false,row_packing_report:false,row_subgradient_report:false,terminal_neighborhood:false,..Limits::default()};let r=solve(&m,&limits);assert_eq!(r.status,"iteration_limit");assert_eq!(r.objective,Some(100.));assert_eq!(r.values.as_ref().unwrap()["x"],0.);assert_eq!(r.lp_limit_candidates,1);assert!(r.dual_bound.is_none());assert!(m.check(&[0.],true,0.).is_ok());}
+ }
+}
