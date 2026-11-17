@@ -1,0 +1,71 @@
+{
+  "name": "swath1.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "05b713125dfdea88f22c1d028a4a4ab081e1d03c31401b302b41025f8b0f844d",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "aa13b6c13967a4f16387e43560dc9fa9139975f869af9b8088aa94204ec503c7"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 436.67964495000035,
+      "bound_violation": 8.833302570078073e-16,
+      "row_violation": 8.025900610738968e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 436.67964495000035,
+    "bound_violation": 8.833302570078073e-16,
+    "row_violation": 7.988663867377909e-13,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "8733592899000007/20000000000000",
+      "bound_violation": "8833302570078073/10000000000000000000000000000000",
+      "row_violation": "199716596684447708962866051/250000000000000000000000000000000000000",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "8753592899000007/2000000000000000000000",
+      "absolute_error": "0",
+      "recomputed_exact": "8733592899000007/20000000000000",
+      "reported_token": "436.67964495000035"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/swath1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/binary-equality-columns-v2-development-audit/swath1.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "b3cd38788a85b8f1db6f002b8db11170b79e4b6e70618944683202310b09d61b",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.41611372100305744
+}

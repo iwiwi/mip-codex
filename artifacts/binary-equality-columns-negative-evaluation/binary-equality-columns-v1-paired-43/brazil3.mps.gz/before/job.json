@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/binary-equality-columns-v1-paired-43/brazil3.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/binary-equality-columns-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/brazil3.mps.gz",
+    "10"
+  ],
+  "input_sha256": "717adb6b924d7f4f28b4f86cc63fbeb02c2e86dbd7163d3736b998c3caaf7ff0",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_BINARY_EQUALITY_COLUMNS": "0"
+  },
+  "cpu": 43,
+  "seconds": 10
+}

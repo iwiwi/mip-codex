@@ -1,0 +1,1 @@
+目的条件付きLP潜りの研究原記録。各tar.gzは開発試験・小例・棄却案・凍結ソース・ログを含む。bundles.jsonのSHA256で圧縮ファイル、relocation-ledger.jsonのSHA256で展開後の各memberを検証できる。例えば空の作業ディレクトリで tar -xzf objective-repeat-dive-v1.tar.gz により元のartifacts以下の相対パスが復元される。ELFと生成model.glpはローカル原本を保持し、retained-local-files.jsonへSHAを保存。全payloadの展開読み取りSHA照合を作成時に実施済み。現在走行中のbox併合最終候補はこのarchiveに含めず、別の最終評価記録に保存する。

@@ -1,0 +1,8 @@
+from pathlib import Path
+import json,subprocess
+root=Path.cwd();receipt=json.loads((root/'experiments/objective-box-snapshot-20261117.json').read_text());a=json.loads((root/'artifacts/objective-box-report-primary-audit/summary.json').read_text());assert a['checked']==a['strict_valid']==a['official_valid']==a['cut_runs']==a['cut_valid']==3
+text=f'''採用後のmain 6af7aecb2409b2b358642b518ebc62fbf683b1e1を主作業木で再ビルドし、本体・ライブラリ指紋530f085a449593fdの一致を確認しました。60秒の50v-10/lotsize/enlight_hardは、主解/下界がそれぞれ3777.599989/3056.019946、14490753/385449.996181、37/37（optimal）。3点・3証明61カットは独立検証すべて有効です。
+
+全240問の新しい本評価用snapshotは作成だけ行い、まだ1件も実行していません。config SHA256 `{receipt['config_sha256']}`、3600秒・1thread・16GiB・CPU8..15、240 jobs、ソース等{receipt['snapshot_files_verified']}ファイルと依存ライブラリ{receipt['installed_libraries_verified']}ファイルのSHAを照合済みです。旧snapshotは保持しました。比較側の全件測定を継続し、自作本評価は引き続き11月19日を目安に準備しています。
+'''
+usage=subprocess.check_output(['python3','scripts/ai_usage.py'],text=True);u=json.loads(usage);(root/'artifacts/objective-box-report-postmerge-ai-usage.json').write_text(usage);t=u['totals'];text+=f"\nAI資源量（コメント直前のローカル最終累積、{u['sessions']} session）: total {t['total_tokens']:,}、input {t['input_tokens']:,}（cached {t['cached_input_tokens']:,}を含む）、output {t['output_tokens']:,}（reasoning {t['reasoning_output_tokens']:,}を含む）。内数は二重加算していません。\n";p=root/'artifacts/objective-box-report-postmerge-comment.md';p.write_text(text);r=subprocess.run(['gh','pr','comment','106','--repo','iwiwi/mip-codex','--body-file',str(p)],capture_output=True,text=True);(root/'artifacts/objective-box-report-postmerge-comment-result.json').write_text(json.dumps(dict(exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');print(r.stdout);print(r.stderr);assert r.returncode==0
