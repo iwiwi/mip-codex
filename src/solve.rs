@@ -11,6 +11,8 @@ pub enum Engine {
 
 #[derive(Clone)]
 pub struct Limits {
+    pub row_generation: bool,
+    pub row_generation_report: bool,
     pub submip_fixed_columns: bool,
     pub lp_dual_root: bool,
     pub seconds: f64,
@@ -83,9 +85,14 @@ pub struct Limits {
     pub child_order: branching::Order,
     pub search: search::Strategy,
 }
+#[path="row_generation.rs"]
+mod row_generation;
+
 impl Default for Limits {
     fn default() -> Self {
         Self {
+            row_generation: true,
+            row_generation_report: true,
             submip_fixed_columns: true,
             lp_dual_root: true,
             seconds: 60.0,
@@ -162,6 +169,7 @@ impl Default for Limits {
 }
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
+    pub row_generation: row_generation::Stats,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parity_proof: Option<crate::parity::Proof>,
     pub binary_graph_enabled: bool,
@@ -547,6 +555,13 @@ fn standard_sparse(
     track_rows: bool,
     fixed_columns: bool,
 ) -> Relaxation {
+    standard_sparse_selected(model,node,limit,track_rows,fixed_columns,None)
+}
+fn sparse_source_rows<'a>(model:&'a Model,selected:Option<&'a [usize]>)->impl Clone+Iterator<Item=(usize,&'a crate::model::Row)> {
+    selected.into_iter().flat_map(move|indices|indices.iter().map(move|&i|(i,&model.rows[i])))
+        .chain(model.rows.iter().enumerate().take(if selected.is_none(){model.rows.len()}else{0}))
+}
+fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,fixed_columns:bool,selected:Option<&[usize]>)->Relaxation {
     let mut shift = Vec::new();
     let mut terms = Vec::new();
     let mut costs = Vec::new();
@@ -584,15 +599,12 @@ fn standard_sparse(
             upper.extend([f64::INFINITY; 2]);
         }
     }
-    let nonzeros = model
-        .rows
-        .iter()
-        .map(|r| r.coefficients.len() as u128 * if split_range(r) { 2 } else { 1 })
+    let sources=sparse_source_rows(model,selected);
+    let nonzeros = sources.clone().map(|(_,r)|r)
+        .map(|r| r.coefficients.len() as u128 * if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2 } else { 1 })
         .sum::<u128>();
-    let rows = model
-        .rows
-        .iter()
-        .map(|r| if split_range(r) { 2u128 } else { 1 })
+    let rows = sources.clone().map(|(_,r)|r)
+        .map(|r| if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2u128 } else { 1 })
         .sum::<u128>();
     let estimate = nonzeros * 48 + rows * 2048 + (costs.len() as u128) * 128;
     if estimate > limit as u128 {
@@ -604,14 +616,14 @@ fn standard_sparse(
     let mut slack_upper = Vec::new();
     let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let mut row_sources = Vec::new();
-    for (source, row) in model.rows.iter().enumerate() {
+    for (source,row) in sources {
         if row.lower.is_none() && row.upper.is_none() {
             continue;
         }
         if row.lower.zip(row.upper).is_some_and(|(l, u)| l > u) {
             return Relaxation::Infeasible;
         }
-        let split = split_range(row);
+        let split = split_range(row)||selected.is_some()&&row.lower.zip(row.upper).is_some_and(|(l,u)|l<u);
         let orientations: &[f64] = if split {
             &[1., -1.]
         } else if row.upper.is_some() {
@@ -1789,6 +1801,8 @@ fn solve_seeded_warm(
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
     let mut costs = branching::Costs::new(model.variables.len());
+    let mut row_generation_state=None;
+    let mut row_generation_stats=row_generation::Stats::default();
     let mut submip_fixed_columns=0usize;
     let mut nodes = 0;
     let mut lp_limit_points=0;let mut lp_limit_candidates=0;
@@ -1907,7 +1921,7 @@ fn solve_seeded_warm(
             }
         }
         let cached = if nodes == 1 { cached_root.take() } else { None };
-        let (relaxation, cached_answer) = if let Some(cached) = cached {
+        let (mut relaxation, mut cached_answer) = if let Some(cached) = cached {
             (Relaxation::Ready(cached.standard), Some(cached.answer))
         } else {
             (
@@ -1915,6 +1929,7 @@ fn solve_seeded_warm(
                     Engine::Dense => {
                         standard_dense(lp_model, &node, limits.dense_bytes, limits.fixed_columns)
                     }
+                    Engine::Revised if row_generation_state.is_some()=>Relaxation::ResourceLimit,
                     Engine::Revised => standard_sparse(
                         lp_model,
                         &node,
@@ -1926,6 +1941,11 @@ fn solve_seeded_warm(
                 None,
             )
         };
+        if limits.row_generation && matches!(limits.engine,Engine::Revised) && (row_generation_state.is_some() || matches!(relaxation,Relaxation::ResourceLimit)) {
+            if let Some(cached)=row_generation::run(lp_model,&node,limits,deadline,&mut row_generation_state,&mut row_generation_stats,&mut lp_stats,&mut lp_solves,nodes==1&&prepared.model.is_none()) {
+                relaxation=Relaxation::Ready(cached.standard);cached_answer=Some(cached.answer);
+            }else{relaxation=Relaxation::ResourceLimit;cached_answer=None;}
+        }
         let p = match relaxation {
             Relaxation::Infeasible => {
                 if nodes == 1 && best.is_some() {
@@ -2909,6 +2929,7 @@ fn solve_seeded_warm(
     let internal_dual = stack.min_bound(terminal_bound.min(incumbent).min(deferred.minimum));
     let internal_dual = domain_lower.map_or(internal_dual, |bound| internal_dual.max(bound));
     let internal_dual=objective_box_proof.as_ref().and_then(|p|p.bound()).map_or(internal_dual,|b|internal_dual.max(b));
+    let internal_dual = row_generation_stats.bound_proof.as_ref().and_then(|p|p.bound()).map_or(internal_dual,|bound|internal_dual.max(bound));
     let internal_dual = row_ray_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
     let internal_dual = row_packing_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound as f64));
     let internal_dual = row_subgradient_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
@@ -3035,6 +3056,7 @@ fn solve_seeded_warm(
         lp_workspace_bytes: limits.dense_bytes,
         root_fixed_columns,
         submip_fixed_columns,
+        row_generation:row_generation_stats,
         lp_scaled_columns: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.scaled_columns),
         lp_scaled_rows: matches!(limits.engine, Engine::Revised).then_some(lp_stats.scaled_rows),
