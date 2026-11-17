@@ -1,0 +1,67 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 214 variables (214 bin, 0 int, 0 cont) and 6119 constraints
+feasible solution found by trivial heuristic after 0.0 seconds, objective value 2.140000e+02
+presolving:
+(round 1, exhaustive) 0 del vars, 0 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 6119 upgd conss, 0 impls, 0 clqs, 0 implints
+   (0.0s) probing: 51/214 (23.8%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.0s) probing aborted: 50/50 successive totally useless probings
+   (0.1s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.1s) no symmetry present (symcode time: 0.00)
+presolving (2 rounds: 2 fast, 2 medium, 2 exhaustive):
+ 0 deleted vars, 0 deleted constraints, 0 added constraints, 0 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques, 0 implied integral variables (0 bin, 0 int, 0 cont)
+presolved problem has 214 variables (214 bin, 0 int, 0 cont) and 6119 constraints
+   6119 constraints of type <logicor>
+transformed objective value is always integral (scale: 1)
+Presolving Time: 0.10
+transformed 1/1 original solutions to the transformed problem space
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+p 0.1s|     1 |     0 |     0 |     - |   locks|   0 | 214 |6119 |6119 |   0 |  0 |   0 |   0 | 0.000000e+00 | 2.600000e+01 |    Inf | unknown
+i 0.1s|     1 |     0 |     0 |     - |  oneopt|   0 | 214 |6119 |6119 |   0 |  0 |   0 |   0 | 0.000000e+00 | 2.500000e+01 |    Inf | unknown
+  0.2s|     1 |     0 |   864 |     - |    64M |   0 | 214 |6119 |6119 |   0 |  0 |   0 |   0 | 1.408030e+01 | 2.500000e+01 |  77.55%| unknown
+  0.3s|     1 |     0 |   969 |     - |    69M |   0 | 214 |6119 |6120 |   1 |  1 |   0 |   0 | 1.411372e+01 | 2.500000e+01 |  77.13%| unknown
+  0.3s|     1 |     0 |  1068 |     - |    74M |   0 | 214 |6119 |6121 |   2 |  2 |   0 |   0 | 1.413965e+01 | 2.500000e+01 |  76.81%| unknown
+  0.4s|     1 |     0 |  1159 |     - |    80M |   0 | 214 |6119 |6122 |   3 |  3 |   0 |   0 | 1.415849e+01 | 2.500000e+01 |  76.57%| unknown
+  0.4s|     1 |     0 |  1238 |     - |    85M |   0 | 214 |6119 |6123 |   4 |  4 |   0 |   0 | 1.416736e+01 | 2.500000e+01 |  76.46%| unknown
+  0.4s|     1 |     0 |  1287 |     - |    89M |   0 | 214 |6119 |6124 |   5 |  5 |   0 |   0 | 1.417251e+01 | 2.500000e+01 |  76.40%| unknown
+  0.5s|     1 |     0 |  1379 |     - |    95M |   0 | 214 |6119 |6125 |   6 |  6 |   0 |   0 | 1.417827e+01 | 2.500000e+01 |  76.33%| unknown
+  0.5s|     1 |     0 |  1455 |     - |   101M |   0 | 214 |6119 |6126 |   7 |  7 |   0 |   0 | 1.418122e+01 | 2.500000e+01 |  76.29%| unknown
+  0.6s|     1 |     0 |  1519 |     - |   106M |   0 | 214 |6119 |6127 |   8 |  8 |   0 |   0 | 1.418315e+01 | 2.500000e+01 |  76.27%| unknown
+  0.6s|     1 |     0 |  1582 |     - |   112M |   0 | 214 |6119 |6128 |   9 |  9 |   0 |   0 | 1.418462e+01 | 2.500000e+01 |  76.25%| unknown
+  0.6s|     1 |     0 |  1662 |     - |   120M |   0 | 214 |6119 |6129 |  10 | 10 |   0 |   0 | 1.418817e+01 | 2.500000e+01 |  76.20%| unknown
+  0.7s|     1 |     0 |  1731 |     - |   121M |   0 | 214 |6119 |6131 |  12 | 11 |   0 |   0 | 1.419182e+01 | 2.500000e+01 |  76.16%| unknown
+  0.7s|     1 |     0 |  1756 |     - |   121M |   0 | 214 |6119 |6132 |  13 | 12 |   0 |   0 | 1.419263e+01 | 2.500000e+01 |  76.15%| unknown
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  0.7s|     1 |     0 |  1786 |     - |   122M |   0 | 214 |6119 |6133 |  14 | 13 |   0 |   0 | 1.419315e+01 | 2.500000e+01 |  76.14%| unknown
+  0.7s|     1 |     0 |  1803 |     - |   123M |   0 | 214 |6119 |6134 |  15 | 14 |   0 |   0 | 1.419351e+01 | 2.500000e+01 |  76.14%| unknown
+  0.7s|     1 |     0 |  1816 |     - |   123M |   0 | 214 |6119 |6135 |  16 | 15 |   0 |   0 | 1.419376e+01 | 2.500000e+01 |  76.13%| unknown
+  0.7s|     1 |     0 |  1847 |     - |   124M |   0 | 214 |6119 |6136 |  17 | 16 |   0 |   0 | 1.419450e+01 | 2.500000e+01 |  76.12%| unknown
+  0.8s|     1 |     0 |  1873 |     - |   125M |   0 | 214 |6119 |6137 |  18 | 17 |   0 |   0 | 1.419486e+01 | 2.500000e+01 |  76.12%| unknown
+  0.8s|     1 |     0 |  1883 |     - |   125M |   0 | 214 |6119 |6138 |  19 | 18 |   0 |   0 | 1.419494e+01 | 2.500000e+01 |  76.12%| unknown
+  0.8s|     1 |     0 |  1919 |     - |   126M |   0 | 214 |6119 |6139 |  20 | 19 |   0 |   0 | 1.419595e+01 | 2.500000e+01 |  76.11%| unknown
+  0.8s|     1 |     0 |  1932 |     - |   127M |   0 | 214 |6119 |6140 |  21 | 20 |   0 |   0 | 1.419618e+01 | 2.500000e+01 |  76.10%| unknown
+  0.8s|     1 |     0 |  1951 |     - |   127M |   0 | 214 |6119 |6141 |  22 | 21 |   0 |   0 | 1.419636e+01 | 2.500000e+01 |  76.10%| unknown
+L 9.7s|     1 |     0 |  1951 |     - |    rens|   0 | 214 |6119 |6141 |  22 | 21 |   0 |   0 | 1.419636e+01 | 2.300000e+01 |  62.01%| unknown
+  9.8s|     1 |     0 |  1951 |     - |   127M |   0 | 214 |6119 |6141 |  22 | 21 |   0 |   0 | 1.419636e+01 | 2.300000e+01 |  62.01%| unknown
+  9.8s|     1 |     0 |  1968 |     - |   127M |   0 | 214 |6119 |6142 |  23 | 22 |   0 |   0 | 1.419653e+01 | 2.300000e+01 |  62.01%| unknown
+  9.8s|     1 |     0 |  1985 |     - |   127M |   0 | 214 |6119 |6141 |  24 | 23 |   0 |   0 | 1.419658e+01 | 2.300000e+01 |  62.01%| unknown
+ 10.0s|     1 |     2 |  1985 |     - |   127M |   0 | 214 |6119 |6141 |  24 | 23 |   0 |   3 | 1.453164e+01 | 2.300000e+01 |  58.28%| unknown
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 10.00
+Solving Nodes      : 1
+Primal Bound       : +2.30000000000000e+01 (31 solutions)
+Dual Bound         : +1.45316375370310e+01
+Gap                : 58.28 %
+wrote parameter settings to file /home/ubuntu/mip-priced-repair/artifacts/smoke-20261117-005029-8cy3yy1o/glass-sc.mps.gz/scip/options.txt

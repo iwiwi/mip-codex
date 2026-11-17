@@ -23,6 +23,7 @@ pub struct Limits {
     pub box_primal: bool,
     pub root_seed_repair: bool,
     pub pure_cover_greedy: bool,
+    pub pure_cover_portfolio: bool,
     pub root_priced_repair: bool,
     pub root_priced_objective: bool,
     pub root_priced_continue: bool,
@@ -87,6 +88,7 @@ impl Default for Limits {
             box_primal: true,
             root_seed_repair: true,
             pure_cover_greedy: true,
+            pure_cover_portfolio: true,
             root_priced_repair: true,
             root_priced_objective: true,
             root_priced_continue: true,
@@ -1661,7 +1663,7 @@ fn solve_seeded_warm(
     if limits.pure_cover_greedy && limits.primal_repair && Instant::now()<deadline {
         if let Some(repair)=early_repair.as_ref(){
             let offset=start.elapsed().as_secs_f64();let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.5)));
-            if let Some((candidate,mut stats))=crate::cover_greedy::candidate(model,repair,end){
+            if let Some((candidate,mut stats))=crate::cover_greedy::candidate_portfolio(model,repair,end,limits.pure_cover_portfolio){
                 if let Some(point)=candidate{
                     let value=model.objective(&point);
                     if box_candidate.as_ref().is_none_or(|old|value<model.objective(old)-4e-8*(1.+value.abs().max(model.objective(old).abs()))){box_candidate=Some(point);stats.improvements=1;}
