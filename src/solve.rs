@@ -182,6 +182,7 @@ impl Default for Limits {
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
     pub lp_zero_phase_one_skips:Option<usize>,
+    pub lp_rhs_interval_fallbacks:Option<usize>,
     pub adaptive_resource_repair:Option<crate::adaptive_resource_repair::Stats>,
 
     #[serde(skip_serializing_if="Option::is_none")]
@@ -424,6 +425,31 @@ fn trace_shift_rejection(row:&crate::model::Row,kind:&str,value:f64){
     static COUNT:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);
     if std::env::var_os("MIP_LP_TRACE").is_some()&&COUNT.fetch_add(1,std::sync::atomic::Ordering::Relaxed)<16{eprintln!("LP shifted RHS rejection row={} kind={} value={:?}",row.name,kind,value);}
 }
+thread_local!{static RHS_INTERVAL_COUNT:std::cell::Cell<usize>=const{std::cell::Cell::new(0)};}
+fn interval_shifted_bound(model:&Model,index:usize,row:&crate::model::Row,shift:&[f64],upper:bool)->Option<f64>{
+    // 有限の範囲/等式はRHSだけを動かせないので対象外。
+    if row.lower.is_some()&&row.upper.is_some(){return None;}
+    let mut error_terms=Vec::new();
+    if model.original_decimal{
+        let source=model.decimal_source.as_ref()?;
+        // 元モデルから消えた非零の十進項には別の処理が必要。ここでは使わない。
+        if source.coefficients.range((index,0)..=(index,usize::MAX)).any(|(&(r,j),_)|r==index&&!row.coefficients.iter().any(|&(k,_)|k==j)){return None;}
+        for &(j,a)in &row.coefficients{
+            if !source.coefficients.contains_key(&(index,j)){continue;}
+            // f64上で整数に丸まっても、元十進数が異なる項の誤差は落とさない。
+            let error=(a.next_up()-a).abs().max((a-a.next_down()).abs());
+            if !error.is_finite()||error==0.{return None;}
+            let v=&model.variables[j];let lower=v.lower_enclosure?[0];let high=v.upper_enclosure?[1];
+            if !lower.is_finite()||!high.is_finite(){return None;}
+            let magnitude=lower.abs().max(high.abs());error_terms.push((error,magnitude));
+        }
+    }
+    let error=crate::exact::dot_bounds(error_terms.into_iter())?[1];
+    let sign=if upper{1.}else{-1.};
+    let bound=if model.original_decimal{if upper{row.upper_enclosure?[1]}else{row.lower_enclosure?[0]}}else if upper{row.upper?}else{row.lower?};
+    let rhs=crate::exact::dot_bounds(std::iter::once((sign*bound,1.)).chain(std::iter::once((error,1.))).chain(row.coefficients.iter().map(|&(j,a)|(-sign*a,shift[j]))))?[1];
+    rhs.is_finite().then_some(rhs)
+}
 fn shifted_bound(
     row: &crate::model::Row,
     shift: &[f64],
@@ -644,6 +670,8 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
     let mut slack_upper = Vec::new();
     let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let mut row_sources = Vec::new();
+    let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").is_ok_and(|v|v=="1");
+    let mut interval_source_valid=None;
     for (source,row) in sources {
         if row.lower.is_none() && row.upper.is_none() {
             continue;
@@ -666,13 +694,26 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
                     columns[k].push((i, row_sign * a * s));
                 }
             }
-            let bound = shifted_bound(
+            let mut bound = shifted_bound(
                 row,
                 &shift,
                 row_sign > 0.,
                 model.original_decimal,
                 exact_shift,
             );
+            if !bound.is_finite()&&interval_enabled{
+                let valid=*interval_source_valid.get_or_insert_with(||!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.matches(model)));
+                if valid&&let Some(value)=interval_shifted_bound(model,source,row,&shift,row_sign>0.){
+                    bound=value;RHS_INTERVAL_COUNT.with(|n|n.set(n.get().saturating_add(1)));
+                    if RHS_INTERVAL_COUNT.with(|n|n.get())<=1024&&let Some(path)=std::env::var_os("MIP_RHS_INTERVAL_DUMP"){
+                        use std::io::Write;
+                        if let Ok(mut file)=std::fs::OpenOptions::new().create(true).append(true).open(path){
+                            let shifts:Vec<_>=shift.iter().enumerate().filter(|&(_,&v)|v!=0.).map(|(j,v)|(j,format!("{:016x}",v.to_bits()))).collect();
+                            let _=writeln!(file,"{}",serde_json::json!({"source_row":source,"source_name":row.name,"upper":row_sign>0.,"rhs_bits":format!("{:016x}",value.to_bits()),"shift_bits":shifts}));
+                        }
+                    }
+                }
+            }
             rhs.push(bound);
             if track_rows {
                 row_sources.push((source, row_sign));
@@ -1825,6 +1866,7 @@ fn solve_seeded_warm(
             }
         }
     }
+    let rhs_interval_start=RHS_INTERVAL_COUNT.with(|n|n.get());
     let mut lp_stats = revised::Stats::default();
     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
@@ -3167,6 +3209,7 @@ fn solve_seeded_warm(
         lp_dual_form_successes: Some(lp_stats.dual_form_successes),
         lp_dual_form_fallbacks: Some(lp_stats.dual_form_fallbacks),
         adaptive_resource_repair:Some(adaptive_resource_repair_stats),
+        lp_rhs_interval_fallbacks:matches!(limits.engine,Engine::Revised).then(||RHS_INTERVAL_COUNT.with(|n|n.get()).saturating_sub(rhs_interval_start)),
         lp_zero_phase_one_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.zero_phase_one_skips),
         lp_empty_pricing_calls:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_calls),
         lp_empty_pricing_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_skips),
@@ -4050,4 +4093,29 @@ fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomo
   for maximize in [false,true]{let sign=if maximize{1}else{-1};let mut text=format!("NAME offset\nOBJSENSE\n {}\nROWS\n N c\n L r\n L s\n L t\nCOLUMNS\n x0 c {} r 1\n x0 t 1\n x1 c {} r 1\n x1 s 1\n x2 c {} s 1\n x2 t 1\n",if maximize{"MAX"}else{"MIN"},sign,sign,sign);for j in 3..20{text+=&format!(" x{j} c {}\n",2*sign);}text+="RHS\n rhs r 1 s 1\n rhs t 1 c -100\nBOUNDS\n";for j in 0..20{text+=&format!(" BV b x{j}\n");}text+="ENDATA\n";let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let mut seed=vec![1.;20];seed[..3].fill(0.);let limits=Limits{seconds:2.,nodes:1,primal_repair:false,box_primal:false,primal_probe:false,lp_diving:false,objective_lp_dive:false,feasibility_pump:false,rins:true,terminal_neighborhood:false,objective_rounding:false,objective_rounding_all:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,..Limits::default()};for enabled in [false,true]{let r=solve_seeded(&m,&Limits{submip_fixed_columns:enabled,..limits.clone()},Some(&seed));assert_eq!(r.submip_fixed_columns,if enabled{17}else{0});assert_eq!(r.objective,Some(100.+35.*sign as f64));let x:Vec<_>=m.variables.iter().map(|v|r.values.as_ref().unwrap()[&v.name]).collect();assert!(m.check(&x,true,1e-7).is_ok());}}
  }
 
+}
+
+#[cfg(test)]mod rhs_interval_tests{
+ use super::*;
+ fn row()->crate::model::Row{crate::model::Row{integer_bounds:None,name:"r".into(),lower:None,upper:Some(1.),coefficients:vec![(0,0.1)],exact_integral:false,exact_coefficients:false,exact_coefficient_flags:vec![],lower_enclosure:None,upper_enclosure:Some([1.,1.])}}
+ #[test]fn one_sided_outer_rhs_never_changes_an_equality_or_range(){
+  let mut r=row();let mut m:Model=serde_json::from_value(serde_json::json!({"name":"binary","maximize":false,"offset":0.,"variables":[{"name":"x","lower":0.,"upper":2.,"integer":false,"objective":1.}],"rows":[]})).unwrap();m.rows.push(r.clone());
+  let bound=interval_shifted_bound(&m,0,&r,&[2.],true).unwrap();assert!(bound>=0.8);
+  r.lower=Some(1.);assert!(interval_shifted_bound(&m,0,&r,&[2.],true).is_none());r.lower=Some(0.);assert!(interval_shifted_bound(&m,0,&r,&[2.],true).is_none());
+ }
+ #[test]fn decimal_sources_and_finite_uncertainty_domains_are_required(){
+  let input="NAME src\nROWS\n N c\n L r\nCOLUMNS\n x c 1 r 0.1\nRHS\n rhs r 1\nBOUNDS\n LO b x 0\n UP b x 2\nENDATA\n";
+  let mut m=crate::mps::parse(std::io::Cursor::new(input)).unwrap();assert!(m.decimal_source.as_ref().unwrap().matches(&m));assert!(interval_shifted_bound(&m,0,&m.rows[0],&[0.],true).is_some());
+  m.variables[0].upper=None;m.variables[0].upper_enclosure=None;assert!(!m.decimal_source.as_ref().unwrap().matches(&m));assert!(interval_shifted_bound(&m,0,&m.rows[0],&[0.],true).is_none());
+  m.decimal_source=None;assert!(interval_shifted_bound(&m,0,&m.rows[0],&[0.],true).is_none());
+ }
+}
+
+#[cfg(test)]mod rhs_interval_decimal_rounding_tests{
+ use super::*;
+ #[test]fn rounded_integer_coefficient_keeps_lexical_uncertainty(){
+  let input="NAME near\nROWS\n N c\n L r\nCOLUMNS\n x c 1 r 0.99999999999999999999\nRHS\n rhs r 1\nBOUNDS\n LO b x 0\n UP b x 2\nENDATA\n";
+  let m=crate::mps::parse(std::io::Cursor::new(input)).unwrap();assert!(m.decimal_source.as_ref().unwrap().coefficients.contains_key(&(0,0)));
+  assert_eq!(m.rows[0].coefficients[0].1,1.);let b=interval_shifted_bound(&m,0,&m.rows[0],&[0.],true).unwrap();assert!(b>1.);
+ }
 }

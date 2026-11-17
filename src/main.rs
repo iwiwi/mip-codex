@@ -206,6 +206,7 @@ fn run() -> Result<(), String> {
         if let Ok(v)=std::env::var("MIP_GOMORY_CUTS"){limits.gomory_cuts=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GOMORY_CUTS must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_LP_DUAL_ROOT"){limits.lp_dual_root=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_LP_DUAL_ROOT must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_ADAPTIVE_REPAIR_INCREMENTAL"){limits.adaptive_repair_incremental=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ADAPTIVE_REPAIR_INCREMENTAL must be 0 or 1".into())};}
+        if let Ok(v)=std::env::var("MIP_RHS_INTERVAL_FALLBACK"){if v!="0"&&v!="1"{return Err("MIP_RHS_INTERVAL_FALLBACK must be 0 or 1".into());}}
         if let Ok(v)=std::env::var("MIP_ADAPTIVE_RESOURCE_REPAIR"){limits.adaptive_resource_repair=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ADAPTIVE_RESOURCE_REPAIR must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_LP_ZERO_PHASE_ONE"){if v!="0"&&v!="1"{return Err("MIP_LP_ZERO_PHASE_ONE must be 0 or 1".into());}}
         if let Ok(v)=std::env::var("MIP_LP_EMPTY_PRICING"){if v!="0"&&v!="1"{return Err("MIP_LP_EMPTY_PRICING must be 0 or 1".into());}}

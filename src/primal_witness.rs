@@ -47,6 +47,7 @@ pub struct Source {
 }
 impl Source {
     pub(crate) fn seal(&mut self,m:&crate::model::Model){self.signature=signature(m);}
+    pub(crate) fn matches(&self,m:&crate::model::Model)->bool{self.signature==signature(m)}
 }
 fn signature(m:&crate::model::Model)->u64{
     let mut h=0xcbf29ce484222325u64;
