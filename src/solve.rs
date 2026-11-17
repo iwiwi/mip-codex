@@ -54,6 +54,7 @@ pub struct Limits {
     pub aggregate_infeasibility: bool,
     pub lp_diving: bool,
     pub objective_lp_dive: bool,
+    pub objective_backtrack: bool,
     pub feasibility_pump: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -123,6 +124,7 @@ impl Default for Limits {
             aggregate_infeasibility: true,
             lp_diving: true,
             objective_lp_dive: false,
+            objective_backtrack: false,
             feasibility_pump: true,
             primal_probe: true,
             cover_cuts: true,
@@ -3602,6 +3604,51 @@ fn objective_dive_path(
     }
 }
 
+fn objective_backtrack_path(base:&Model,work:&mut Model,root:&Node,seed:&[f64],incumbent:f64,limits:&Limits,deadline:Instant,stats:&mut DivingStats,lp_stats:&mut revised::Stats)->Option<Vec<f64>> {
+    stats.calls+=1;
+    let sign=if base.maximize{-1.}else{1.};let checker=heuristic::Repair::new(base);let first=stats.lp_solves;
+    let mut current=root.clone();let mut point=seed.to_vec();let mut deferred=std::collections::VecDeque::new();let mut best=None;let mut best_value=incumbent;
+    loop {
+        if Instant::now()>=deadline || stats.lp_solves-first>=256 {stats.limited+=1;return best;}
+        let choice=base.variables.iter().enumerate().filter(|(j,v)|v.integer&&(point[*j]-point[*j].round()).abs()>1e-6).min_by(|(j,_),(k,_)|(point[*j]-point[*j].round()).abs().total_cmp(&(point[*k]-point[*k].round()).abs()).then(j.cmp(k))).map(|(j,_)|j);
+        let mut next=if let Some(j)=choice {
+            let floor=point[j].floor();let ceil=point[j].ceil();let prefer_up=ceil-point[j]<=point[j]-floor;
+            let mut preferred=current.clone();let mut alternative=current.clone();
+            let tighten=|node:&mut Node,up:bool| {node.changed=Some(j);if up {node.lower[j]=Some(node.lower[j].map_or(ceil,|v|v.max(ceil)));}else{node.upper[j]=Some(node.upper[j].map_or(floor,|v|v.min(floor)));}};
+            tighten(&mut preferred,prefer_up);tighten(&mut alternative,!prefer_up);if deferred.len()==8 {deferred.pop_front();}deferred.push_back(alternative);Some(preferred)
+        }else{
+            for (j,v) in base.variables.iter().enumerate() {if v.integer {point[j]=point[j].round();}}
+            let value=base.objective(&point);
+            if checker.candidate_check(&point)&&checker.objective_reliable(&point,value) {
+                stats.candidates+=1;
+                if sign*value<best_value-4e-8*(1.+best_value.abs()) {
+                    best_value=sign*value;best=Some(point.clone());let rhs=best_value-8e-8*(1.+best_value.abs())-sign*base.offset;
+                    if !rhs.is_finite(){return best;}let cutoff=work.rows.last_mut().unwrap();cutoff.upper=Some(rhs);cutoff.upper_enclosure=Some([rhs;2]);
+                }
+            }
+            let node=deferred.pop_back();stats.reversals+=usize::from(node.is_some());node
+        };
+        loop {
+            let Some(mut node)=next else{return best;};
+            if Instant::now()>=deadline || stats.lp_solves-first>=256 {stats.limited+=1;return best;}
+            let q=match standard_sparse(work,&node,limits.dense_bytes,false,limits.fixed_columns) {
+                Relaxation::Ready(q)=>Some(q),Relaxation::Infeasible=>{stats.infeasible+=1;None},Relaxation::ResourceLimit=>{stats.limited+=1;return best;}
+            };
+            if let Some(q)=q {
+                let answer=revised::minimize_warm(q.sparse.as_ref().unwrap(),limits.pivots.min(4096),Some(deadline),if limits.warm_start {node.warm.as_deref()}else{None});stats.lp_solves+=1;lp_stats.add(&answer.stats);
+                match answer.outcome {
+                    lp::Outcome::Optimal{x,..}=>{
+                        let candidate:Vec<_>=q.terms.iter().enumerate().map(|(j,t)|q.shift[j]+t.iter().map(|&(k,s)|s*x[k]).sum::<f64>()).collect();
+                        if work.check(&candidate,false,1e-6).is_ok() {point=candidate;node.warm=answer.warm;current=node;break;}stats.numerical_errors+=1;
+                    },lp::Outcome::Infeasible=>stats.infeasible+=1,
+                    lp::Outcome::TimeLimit|lp::Outcome::IterationLimit=>{stats.limited+=1;return best;},_=>stats.numerical_errors+=1,
+                }
+            }
+            next=deferred.pop_back();stats.reversals+=usize::from(next.is_some());
+        }
+    }
+}
+
 fn improving_lp_dive(model:&Model,root:&Node,point:&[f64],incumbent:f64,limits:&Limits,deadline:Instant,stats:&mut DivingStats,lp_stats:&mut revised::Stats)->Option<Vec<f64>> {
     if Instant::now()>=deadline || !incumbent.is_finite() || model.variables.len()>100_000 || point.len()!=model.variables.len() || model.rows.iter().fold(0usize,|n,r|n.saturating_add(r.coefficients.len()))>10_000_000 {return None;}
     let sign=if model.maximize{-1.}else{1.};
@@ -3609,7 +3656,7 @@ fn improving_lp_dive(model:&Model,root:&Node,point:&[f64],incumbent:f64,limits:&
     if !rhs.is_finite(){return None;}
     let coefficients:Vec<_>=model.variables.iter().enumerate().filter(|(_,v)|v.objective!=0.).map(|(j,v)|(j,sign*v.objective)).collect();if coefficients.is_empty(){return None;}
     let mut work=model.clone();work.rows.push(crate::model::Row{name:"internal_objective_lp_dive".into(),coefficients,lower:None,upper:Some(rhs),lower_enclosure:None,upper_enclosure:Some([rhs;2]),exact_integral:false,exact_coefficients:true,exact_coefficient_flags:vec![]});
-    let candidate=objective_dive_path(&work,root,point,limits,deadline,stats,lp_stats)?;
+    let candidate=if limits.objective_backtrack {objective_backtrack_path(model,&mut work,root,point,incumbent,limits,deadline,stats,lp_stats)}else{objective_dive_path(&work,root,point,limits,deadline,stats,lp_stats)}?;
     let checker=heuristic::Repair::new(model);let value=model.objective(&candidate);
     (checker.candidate_check(&candidate)&&checker.objective_reliable(&candidate,value)&&sign*value<incumbent-4e-8*(1.+incumbent.abs())).then_some(candidate)
 }
@@ -3633,6 +3680,14 @@ mod objective_dive_tests {
     fn expired_or_unattainable_improvement_does_not_become_a_global_claim() {
         let(model,node)=example(false,0.);let mut stats=DivingStats::default();let mut lp=revised::Stats::default();assert!(improving_lp_dive(&model,&node,&[0.5,0.5,0.],10.,&Limits::default(),Instant::now(),&mut stats,&mut lp).is_none());assert_eq!(stats.lp_solves,0);
         assert!(improving_lp_dive(&model,&node,&[0.5,0.5,0.],0.,&Limits::default(),Instant::now()+std::time::Duration::from_secs(1),&mut stats,&mut lp).is_none());assert_eq!(node.bound,f64::NEG_INFINITY);assert!(node.certified_bound.is_none());
+    }
+    #[test]
+    fn bounded_backtracking_retains_a_valid_best_point_after_local_failures() {
+        for (maximize,offset) in [(false,0.),(true,0.),(false,100.),(true,100.)] {
+            let(model,node)=example(maximize,offset);let parent=node.warm.clone();let mut stats=DivingStats::default();let mut lp=revised::Stats::default();let sign=if maximize{-1.}else{1.};
+            let candidate=improving_lp_dive(&model,&node,&[0.5,0.5,0.],sign*(10.+offset),&Limits{objective_backtrack:true,..Limits::default()},Instant::now()+std::time::Duration::from_secs(1),&mut stats,&mut lp).unwrap();
+            assert!(model.check(&candidate,true,1e-9).is_ok());assert!((model.objective(&candidate)-(if maximize{13.}else{1.})-offset).abs()<1e-9);assert!(stats.lp_solves<=256);assert!(stats.reversals>0);assert_eq!(node.bound,f64::NEG_INFINITY);assert!(node.certified_bound.is_none());assert!(std::sync::Arc::ptr_eq(parent.as_ref().unwrap(),node.warm.as_ref().unwrap()));
+        }
     }
 }
 
