@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/dual-refactor-retry-development-screen/cases/cost266-UUE.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/dual-refactor-retry-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/cost266-UUE.mps.gz",
+    "10"
+  ],
+  "input_sha256": "a6048c81daa7c992ff5c3f6b954e2fd4d77048c9b9c3e49b76380a3c3e73fa7d",
+  "split": "development",
+  "cpu": 4,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_DUAL_REFACTOR_RETRY": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

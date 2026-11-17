@@ -1,0 +1,71 @@
+{
+  "name": "neos-911970.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "cf9ad35ade0015d140f33ce83a593d76672c09fd8cc30c0539213be7e4a65ebb",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 148.87000000000003,
+      "bound_violation": 0.0,
+      "row_violation": 5.329070518200751e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 148.87000000000003,
+    "bound_violation": 0.0,
+    "row_violation": 5.7e-15,
+    "integer_violation": 0.0,
+    "objective_error": 3.54e-15,
+    "exact": {
+      "objective": "7443500000000001323/50000000000000000",
+      "bound_violation": "0",
+      "row_violation": "57/10000000000000000",
+      "integer_violation": "0",
+      "objective_error": "177/50000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "7493500000000001323/5000000000000000000000000",
+      "absolute_error": "177/50000000000000000",
+      "recomputed_exact": "7443500000000001323/50000000000000000",
+      "reported_token": "148.87000000000003"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos-911970.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/dual-refactor-retry-development-audit/neos-911970.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "a3dd8ba451c2eb770bb9e4d212feadb94270d238aaef28e50e83582b39f6d3f4",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.2663419629971031
+}
