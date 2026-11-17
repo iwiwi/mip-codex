@@ -40,4 +40,9 @@ def verify(model_path,result):
     exact=offset+sum(a*point[n]for n,a in objective.items());reported=result.get('objective')
     if type(reported)not in (int,float,Decimal)or not math.isfinite(float(reported)):raise AssertionError('primal witness objective missing')
     if abs(exact-Fraction(str(reported)))>Fraction(1,10**8)*(1+abs(exact)):raise AssertionError('primal witness objective consistency')
+    dual=result.get('dual_bound')
+    if dual is not None:
+        from verify_binary_graph import maximize_sense
+        sign=-1 if maximize_sense(model_path)else 1
+        if type(dual)not in (int,float,Decimal)or not math.isfinite(float(dual))or sign*Fraction(str(dual))>sign*exact:raise AssertionError('primal witness reported dual exceeds exact primal')
     return dict(valid=True,present=True,coordinates=len(proof['values']),exact_objective=str(exact))

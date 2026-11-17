@@ -1471,7 +1471,7 @@ fn reject_original_optimal_conflict(model:&Model,mut result:Result)->Result{
         if let Some(values)=&result.values{
             let point:Option<Vec<f64>>=model.variables.iter().map(|v|values.get(&v.name).copied()).collect();
             if point.as_ref().is_some_and(|x|model.original_point_conflict(x) || model.original_feasibility_uncertain(x)){
-                let proof=point.as_ref().and_then(|x|result.objective.and_then(|obj|crate::primal_witness::certify(model,x,obj)));
+                let proof=point.as_ref().and_then(|x|result.objective.and_then(|obj|crate::primal_witness::certify(model,x,obj))).filter(|proof|proof.respects_bound(model,result.dual_bound));
                 if let Some(proof)=proof{result.rational_primal_proof=Some(proof);}else{
                     // 元制約を厳密に満たす近傍点も保証できない場合は最適性を撤回する。
                     result.status="numerical_error".into();result.dual_bound=None;result.gap=None;result.optimal_original_conflict=true;

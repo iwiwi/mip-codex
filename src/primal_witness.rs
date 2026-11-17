@@ -66,7 +66,18 @@ fn signature(m:&crate::model::Model)->u64{
 #[derive(Clone,Debug,Serialize)]
 pub struct Coordinate { pub variable:usize,pub numerator:String,pub denominator:String }
 #[derive(Clone,Debug,Serialize)]
-pub struct Proof { pub values:Vec<Coordinate> }
+pub struct Proof {
+    pub values:Vec<Coordinate>,
+    #[serde(skip)]
+    objective:Rat,
+}
+impl Proof {
+    pub(crate) fn respects_bound(&self,m:&crate::model::Model,bound:Option<f64>)->bool{
+        let Some(bound)=bound else{return true;};
+        let Some(declared)=crate::model::solution_number(bound).and_then(|n|Rat::decimal(&n.to_string()))else{return false;};
+        if m.maximize{declared.cmp(&self.objective)!=Ordering::Less}else{declared.cmp(&self.objective)!=Ordering::Greater}
+    }
+}
 #[cfg(test)]mod tests{
     use super::*;
     #[test]fn binary_and_decimal_arithmetic_are_exact(){
@@ -129,7 +140,7 @@ fn finish(e:&ExactModel,m:&crate::model::Model,raw:&[f64],x:&[Rat],reported:f64,
     // JSON十進表現との差も独立checkerのrel1e-8より十分小さくする。
     let tol=Rat::decimal("1e-9")?.mul(&Rat::integer(1).add(&report.abs())?)?;
     if obj.sub(&report)?.abs().cmp(&tol)==Ordering::Greater{return None;}
-    Some(Proof{values})
+    Some(Proof{values,objective:obj})
 }
 /// 最適化せず、数値点の近傍に元モデルを厳密に満たす有理点を構成する。
 /// 不成立・不明・時間/サイズ上限は全てNoneで保守的な撤回を維持する。
@@ -202,6 +213,11 @@ fn eliminate(a:&mut[Vec<Rat>],free:&[usize],x:&mut[Rat],deadline:std::time::Inst
     #[test]fn thirds_and_decimal_fixed_points_have_exact_nearby_witnesses(){
         let m=parse("NAME third\nROWS\n N obj\n E r\nCOLUMNS\n y obj 1 r 3\nRHS\n rhs r 1\nENDATA\n");
         let before=serde_json::to_string(&m).unwrap();let proof=certify(&m,&[1./3.],1./3.).unwrap();assert_eq!(proof.values.len(),1);assert_eq!(proof.values[0].numerator,"1");assert_eq!(proof.values[0].denominator,"3");
+        assert!(proof.respects_bound(&m,Some(1./3.)));
+        assert!(!proof.respects_bound(&m,Some((1./3f64).next_up())));
+        let mut max=m.clone();max.maximize=true;
+        assert!(!proof.respects_bound(&max,Some(1./3.)));
+        assert!(proof.respects_bound(&max,Some((1./3f64).next_up())));
         assert_eq!(serde_json::to_string(&m).unwrap(),before);
         assert!(certify(&m,&[1./3.+1e-4],1./3.).is_none());assert!(certify(&m,&[1./3.],0.4).is_none());
         let mut modified=m.clone();modified.rows[0].upper=Some(2.);assert!(certify(&modified,&[1./3.],1./3.).is_none());assert!(certify(&m,&[1./3.],1./3.).is_some());
