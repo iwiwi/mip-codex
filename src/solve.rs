@@ -134,7 +134,7 @@ impl Default for Limits {
             terminal_neighborhood: true,
             objective_rounding: true,
             objective_domain_report: true,
-            objective_box_report: false,
+            objective_box_report: true,
             row_ray_report: true,
             row_subgradient_report: true,
             row_subgradient_uniform: true,

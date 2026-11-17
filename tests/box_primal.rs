@@ -5,6 +5,7 @@ use mip_codex::{
 use std::io::Cursor;
 fn limits() -> Limits {
     Limits {
+        objective_box_report: false,
         box_primal: true,
         dense_bytes: 1,
         primal_repair: false,

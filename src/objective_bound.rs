@@ -1118,3 +1118,11 @@ pub fn original_box_bound(model:&Model,skip_integer_domain:bool,deadline:std::ti
   let text="NAME zero\nROWS\n N c\n E impossible\nCOLUMNS\n x c 0 impossible 0\nRHS\n rhs impossible 1 c -7\nBOUNDS\n FR b x\nENDATA\n";let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let p=original_box_bound(&m,false,std::time::Instant::now()+std::time::Duration::from_secs(1)).unwrap();assert_eq!(p.bound(),Some(7.));
  }
 }
+
+#[cfg(test)] mod original_box_reporting_tests {
+    use crate::{mps,solve::{solve,Limits}};
+    #[test] fn result_reporting_preserves_status_and_original_points_in_both_senses(){
+        let text="NAME box\nROWS\n N c\n G r\nCOLUMNS\n x c 0.1 r 1\n y c -0.2 r 1\nRHS\n rhs r 1 c -0.3\nBOUNDS\n LO b x -2\n UP b x 3\n LO b y -1\n UP b y 4\nENDATA\n";
+        for max in [false,true]{let mut m=mps::parse(std::io::Cursor::new(text)).unwrap();m.maximize=max;let mut limits=Limits{seconds:1.,objective_box_report:false,..Limits::default()};let before=solve(&m,&limits);limits.objective_box_report=true;let after=solve(&m,&limits);assert_eq!(before.status,after.status);assert_eq!(before.objective,after.objective);assert_eq!(before.values,after.values);assert!(after.objective_box_proof.is_some());assert!(before.objective_box_proof.is_none());}
+    }
+}
