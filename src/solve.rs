@@ -1854,8 +1854,7 @@ fn solve_seeded_warm(
         .as_ref()
         .and_then(|_| Certifier::new(lp_model));
     let original_coefficient_bounds=model.original_decimal&&model.rows.iter().any(|r|!r.exact_coefficients);
-    let original_coefficient_certifier=if original_coefficient_bounds&&
-        (lp_model.rows.iter().map(|r|r.coefficients.len()as u128).sum::<u128>()+lp_model.rows.len()as u128+lp_model.variables.len()as u128)*64<=limits.dense_bytes as u128{Certifier::with_implied_bounds(lp_model)}else{None};
+    let original_coefficient_certifier=std::cell::OnceCell::new();
     let mut original_coefficient_bound_checks=0;let mut original_coefficient_bound_successes=0;
     let mut uncertified_coefficient_leaves=0usize;
 
@@ -2258,7 +2257,10 @@ fn solve_seeded_warm(
                 let bound = if original_coefficient_bounds{
                     original_coefficient_bound_checks+=1;
                     let mut checked=None;
-                    if let (Some(certifier),Some(y))=(&original_coefficient_certifier,relaxation_witness.as_deref()){
+                    let certifier=original_coefficient_certifier.get_or_init(||{
+                        if (lp_model.rows.iter().map(|r|r.coefficients.len()as u128).sum::<u128>()+lp_model.rows.len()as u128+lp_model.variables.len()as u128)*64<=limits.dense_bytes as u128{Certifier::with_implied_bounds(lp_model)}else{None}
+                    });
+                    if let (Some(certifier),Some(y))=(certifier,relaxation_witness.as_deref()){
                         if y.len()==p.row_sources.len(){
                             let mut original_y=vec![0.;lp_model.rows.len()];
                             for(&v,&(i,s))in y.iter().zip(&p.row_sources){original_y[i]+=s*v;}
