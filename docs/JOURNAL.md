@@ -855,3 +855,5 @@ PR121は2026-11-17 22:05:20UTCにmain d11f3c9b231c32427dcc631edde9de28bc763cd5�
 main121統合後metadataだけを6cd2a0963fとしてcherry-pickし、Journal競合は両記録を保持して解決。LP RHS interval未採用コードは持ち込んでいない。baselineは23:04UTC 660/720、検査済最適HS133/SCIP108/GLPK23。同一complete prefix bytes/SHAを保存し、holdout個別内容は未参照。own240は未起動。全体目標未達成で期限まで継続。
 
 追加費用を減らす版6f4d34a4c8/a028151f2d88359cは、最初の乗数で区間証明に成功すれば追加2回の微小scale試行を省く。全333テスト成功4ignored、疎/密各216解析LPは全optimal/不正下界0、混合整数200は不正下界0・186optimal/14既存元点guard。初版188×2の全5worker/376出力完了後に同じCPU31..35で別188対を開始、監査CPU47。改良三試行版はCPU26..30で引き続き測定、監査CPU49、初版監査CPU48も継続。最終候補の全列挙1200/親proof/GMPとnativeCPU46比較を別途実行中。全版の測定と失敗記録を残してから採否を判断する。
+
+主解継続版fb986443b5/8b579cacb175412dは全334テスト成功4ignored。下界検証失敗時に証明済み親下界のみを維持し、分枝・主解探索を継続する。未証明の葉では終了時のoptimalを撤回する新テスト成功。CPU45×10秒のswath1は562検証0成功でも563ノードで458.2814475499998、下界None、time_limit。glass4は99ノード、2350021800.0000024/800002399.9999994、numeric（96検証71成功）。両点GMP・公式検査有効。監査初回の出力dir漏れwrapper失敗は保持しv2で修正成功。両エンジン216解析LP全下界保守的・全optimal、混合整数200は不正下界0・全200点GMP有効（186optimal/14既存元点guard）。188×2はimplied版全worker完了後のCPU26..30で開始、監査CPU50、first版CPU31..35/監査47と同時稼働。親proof1200/GMPとnative swath1/glass4 CPU46比較も実行中。旧版の監査48/49は継続。全ソースと出力を固定保持し、これを最終候補として評価を完了させる。
