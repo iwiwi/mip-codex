@@ -1,0 +1,84 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-objective-repair)
+    Finished `test` profile [unoptimized] target(s) in 4.98s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/207443ee2e0eda78/out/mip_codex-207443ee2e0eda78)
+
+running 76 tests
+test binary_graph::weighted_cover::tests::invalid_seeds_and_construction_limits_fail_closed ... ok
+test binary_graph::local_tests::pair_exchange_improves_a_feasible_seed_and_invalid_seeds_fail_closed ... ok
+test binary_equalities::tests::excessive_integer_sum_does_not_round_a_merged_cost ... ok
+test binary_equalities::tests::exact_components_propagate_bounds_and_detect_conflict ... ok
+test certificate::tests::ratios_clear_roundoff_without_trusting_the_candidate ... ok
+test binary_equalities::tests::decimal_cost_coefficient_and_expired_budget_are_rejected ... ok
+test branching::strong_candidate_tests::mixed_candidates_keep_fractional_variables_and_include_rare_cost_variable ... ok
+test certificate::tests::continued_fractions_match_independent_denominator_enumeration ... ok
+test certificate::tests::unsupported_inputs_and_excessive_integer_sizes_fail_closed ... ok
+test cuts::mir::tests::unbounded_continuous_term_and_corruption ... ok
+test exact::enclosure_tests::exact_zero_and_products_below_smallest_subnormal_are_enclosed ... ok
+test exact::pair_tests::a_pair_preserves_a_halfway_bit_and_can_collapse_after_cancellation ... ok
+test exact::pair_tests::a_third_separated_component_falls_back_without_losing_either_tail ... ok
+test exact::tests::cancellation_preserves_smallest_products_and_overflowing_products ... ok
+test cuts::aggregate::tests::cancels_free_continuous_variable_and_rejects_corruption ... ok
+test exact::tests::nonfinite_values_are_not_certified ... ok
+test cuts::aggregate::tests::three_rows_cancel_two_free_variables_and_validate_original_sides ... ok
+test exact::tests::arbitrary_exponents_match_independent_python_fraction_fixtures ... ok
+test objective_bound::aggregate_box_tests::inspect_aggregate_proof_boxes ... ignored, saved development dump directory via MIP_PROOF_DUMP_DIR
+test objective_bound::aggregate_box_tests::mixed_decimal_rows_imply_bounds_for_every_fractional_feasible_point ... ok
+test objective_bound::aggregate_box_tests::aggregate_bounds_enclose_fractional_points_with_negative_lower_bounds ... ok
+test objective_bound::implied_box_tests::two_unbounded_terms_do_not_imply_an_individual_bound ... ok
+test objective_bound::joint_proof_diagnostic::inspect_joint_perturbations ... ignored, saved development failure via MIP_PROOF_DUMP
+test model::activity_error_tests::exact_point_specialization_matches_the_full_outward_sum_bit_for_bit ... ok
+test objective_bound::joint_proof_diagnostic::joint_trials_reject_bad_shapes_and_nonfinite_weights ... ok
+test parity::tests::deadline_and_empty_models_are_noops ... ok
+test exact::tests::correctly_rounded_sums_match_python_fraction ... ok
+test parity::tests::rank_deficiency_and_contradiction_fall_back_without_declaration ... ok
+test parity::tests::unique_point_has_private_integer_reconstruction ... ok
+test objective_bound::implied_box_tests::decimal_interval_bounds_preserve_every_enumerated_feasible_point ... ok
+test parity::tests::unsupported_or_rounded_original_data_never_certify ... ok
+test revised::pricing_budget_tests::cost_changed_warm_keeps_standard_pricing_and_its_feasible_basis ... ok
+test cuts::mir::tests::mixed_rows_preserve_all_continuous_polygon_vertices ... ok
+test revised::ratio_regressions::entering_width_and_upper_bound_are_respected ... ok
+test revised::ratio_regressions::near_tie_chooses_stable_pivot_and_preserves_tolerance ... ok
+test revised::ratio_regressions::stable_pivot_ties_use_basic_variable_order ... ok
+test revised::ratio_regressions::tiny_bound_roundoff_is_not_amplified_by_small_pivot ... ok
+test revised::refinement_tests::refinement_does_not_clip_a_truly_infeasible_basis_or_mutate_on_expiry ... ok
+test revised::refinement_tests::refinement_recovers_an_inaccurate_basis_point_without_moving_nonbasics ... ok
+test revised::restoration_tests::dual_retry_preserves_deadlines_and_work_limits ... ok
+test revised::pricing_budget_tests::many_bound_flips_switch_pricing_and_keep_the_total_iteration_budget ... ok
+test revised::restoration_tests::dual_retry_rebuilds_an_inaccurate_inverse_and_checks_the_original_lp ... ok
+test revised::restoration_tests::infeasible_candidate_has_a_real_contradiction_and_expiry_preserves_point ... ok
+test revised::restoration_tests::progress_epoch_preserves_all_spent_iterations_and_deadline ... ok
+test revised::restoration_tests::zero_objective_repairs_a_genuinely_infeasible_basis_then_optimizes ... ok
+test revised::row_extension_tests::appended_infeasible_row_returns_a_contradiction ... ok
+test revised::row_extension_tests::appended_inequality_reuses_basis_and_preserves_parent_and_sibling ... ok
+test revised::row_extension_tests::changed_old_structure_cost_or_new_equality_rejects_extension ... ok
+test revised::tests::cached_multipliers_preserve_bits_cost_keys_updates_and_siblings ... ok
+test revised::tests::eta_forward_and_transpose_agree_with_fresh_lu ... ok
+test binary_graph::fractional_cover::tests::integer_cover_bounds_all_five_vertex_graphs ... ok
+test row_ray::tests::min_max_bounds_match_exhaustive_box ... ok
+test row_ray::tests::unsupported_bounds_and_expiration_skip ... ok
+test scaling::saved_validation_diagnostic::inspect_saved_finite_box_certificates ... ignored, saved validation failures via MIP_LP_DUMP_DIR
+test scaling::saved_validation_diagnostic::integer_candidate_cancels_an_unbounded_flow_column_and_rejects_feasible_rhs ... ok
+test scaling::saved_validation_diagnostic::scaled_bound_projection_still_requires_original_rows_and_dual_gap ... ok
+test search::deferred_tests::unbounded_inherited_lower_bound_cannot_be_dropped ... ok
+test search::deferred_tests::unresolved_regions_hold_the_global_bound_until_all_are_prunable ... ok
+test search::tests::best_bound_uses_minimum_and_deterministic_ties ... ok
+test search::tests::depth_first_keeps_last_child_preference ... ok
+test exact::value_tests::nearest_tight_bounds_and_fast_enclosures_match_fraction_oracle ... ok
+test solve::pump_tests::binary_alias_lp_reconstructs_every_original_column_and_bound ... ok
+test solve::pump_tests::expired_pump_and_infeasible_integer_domain_return_no_candidate ... ok
+test solve::pump_tests::local_probe_reuses_root_warm_without_changing_parent_or_bound ... ok
+test search::tests::hybrid_keeps_each_pending_node_exactly_once ... ok
+test solve::pump_tests::mixed_continuous_projection_keeps_original_constraints ... ok
+test solve::pump_tests::pump_projects_and_perturbs_without_changing_parent_lp ... ok
+test solve::seed_tests::seed_is_checked_and_cannot_prove_optimality_at_zero_budget ... ok
+test parity::tests::full_rank_claims_match_exhaustive_original_integer_domains ... ok
+test row_packing::tests::packed_certificate_under_exhaustive_optimum ... ok
+test revised::row_extension_tests::random_append_sequences_match_cold_solves ... ok
+test cuts::aggregate::tests::aggregate_cuts_preserve_every_binary_feasible_point ... ok
+test objective_bound::joint_proof_diagnostic::joint_trials_never_certify_a_planted_feasible_decimal_model ... ok
+test binary_graph::weighted_cover::tests::incremental_scores_edge_sets_and_forgetting_match_full_recomputation ... ok
+test binary_graph::weighted_cover::tests::local_candidates_are_valid_and_never_exceed_enumerated_optima ... ok
+test revised::long_restoration_test::zero_cost_dual_progress_is_not_mistaken_for_stagnation ... ok
+
+test result: ok. 73 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 2.76s
+
