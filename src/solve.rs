@@ -262,6 +262,8 @@ pub struct Result {
     pub propagation_pruned: usize,
     pub propagation_budget_hits: usize,
     pub fixed_leaves: usize,
+    pub lp_limit_points: usize,
+    pub lp_limit_candidates: usize,
     pub lp_solves: usize,
     pub defer_infeasibility_enabled: bool,
     pub joint_infeasibility_enabled: bool,
@@ -1780,6 +1782,7 @@ fn solve_seeded_warm(
     stack.push(root);
     let mut costs = branching::Costs::new(model.variables.len());
     let mut nodes = 0;
+    let mut lp_limit_points=0;let mut lp_limit_candidates=0;
     let mut lp_solves = prepared.lp_solves;
     let mut fixed_leaves = 0;
     let mut propagator = limits
@@ -1933,6 +1936,7 @@ fn solve_seeded_warm(
         };
         let reused_root = cached_answer.is_some();
         lp_solves += usize::from(!reused_root);
+        let mut limited_point=None;
         let mut next_warm = None;
         let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
             let answer = cached_answer.unwrap_or_else(|| {
@@ -1945,6 +1949,7 @@ fn solve_seeded_warm(
             if !reused_root {
                 lp_stats.add(&answer.stats);
             }
+            limited_point=answer.limited_point.map(|x|p.terms.iter().enumerate().map(|(j,t)|p.shift[j]+t.iter().map(|&(k,s)|s*x[k]).sum::<f64>()).collect::<Vec<_>>());
             if limits.warm_start {
                 next_warm = answer.warm;
             }
@@ -2732,6 +2737,16 @@ fn solve_seeded_warm(
                 }
             }
             other => {
+                if matches!(&other,Ok(lp::Outcome::TimeLimit|lp::Outcome::IterationLimit)) {
+                    if let Some(mut point)=limited_point {
+                        lp_limit_points+=1;
+                        if model.variables.iter().enumerate().all(|(j,v)|!v.integer||(point[j]-point[j].round()).abs()<=1e-6){
+                            for(j,v)in model.variables.iter().enumerate(){if v.integer{point[j]=point[j].round();}}
+                            let value=sign*model.objective(&point);
+                            if value.is_finite()&&value<incumbent&&model.check(&point,true,1e-7).is_ok()&&candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){lp_limit_candidates+=1;incumbent=value;best=Some(point);first_primal_seconds.get_or_insert_with(||start.elapsed().as_secs_f64());}
+                        }
+                    }
+                }
                 status = match other {
                     Ok(lp::Outcome::Unbounded) => "unbounded_relaxation",
                     Ok(lp::Outcome::TimeLimit) => "time_limit",
@@ -2997,6 +3012,8 @@ fn solve_seeded_warm(
         propagation_pruned: propagation_stats.pruned,
         propagation_budget_hits: propagation_stats.budget_hits,
         fixed_leaves,
+        lp_limit_points,
+        lp_limit_candidates,
         lp_solves,
         fixed_columns_enabled: requested_fixed_columns,
         lp_workspace_bytes: limits.dense_bytes,
@@ -3884,4 +3901,12 @@ fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomo
         }
     }
     best
+}
+
+#[cfg(test)]mod limited_point_mip_tests{
+ use super::*;
+ #[test]fn original_integer_point_at_pivot_limit_preserves_both_senses_offset_and_status(){
+  if !std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1"){return;}
+  for maximize in [false,true]{let text=format!("NAME limited\nOBJSENSE\n {}\nROWS\n N c\n L r\nCOLUMNS\n x c {} r 1\nRHS\n rhs r 1 c -100\nBOUNDS\n BV b x\nENDATA\n",if maximize{"MAX"}else{"MIN"},if maximize{1}else{-1});let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let limits=Limits{seconds:1.,pivots:0,primal_repair:false,box_primal:false,root_seed_repair:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,objective_rounding:false,objective_domain_report:false,objective_box_report:false,row_ray_report:false,row_packing_report:false,row_subgradient_report:false,terminal_neighborhood:false,..Limits::default()};let r=solve(&m,&limits);assert_eq!(r.status,"iteration_limit");assert_eq!(r.objective,Some(100.));assert_eq!(r.values.as_ref().unwrap()["x"],0.);assert_eq!(r.lp_limit_candidates,1);assert!(r.dual_bound.is_none());assert!(m.check(&[0.],true,0.).is_ok());}
+ }
 }
