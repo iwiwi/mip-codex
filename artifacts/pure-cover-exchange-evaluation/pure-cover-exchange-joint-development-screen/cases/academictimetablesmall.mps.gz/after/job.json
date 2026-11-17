@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/pure-cover-exchange-joint-development-screen/cases/academictimetablesmall.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/pure-cover-exchange-joint-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/academictimetablesmall.mps.gz",
+    "10"
+  ],
+  "input_sha256": "425392581ec5381493e76bbb6ef69d44fb7a827138e27a07586baaaa96daa922",
+  "split": "development",
+  "cpu": 5,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_PURE_COVER_EXCHANGE": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

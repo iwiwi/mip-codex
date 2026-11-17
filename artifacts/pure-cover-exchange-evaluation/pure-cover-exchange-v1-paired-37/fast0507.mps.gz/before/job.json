@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/pure-cover-exchange-v1-paired-37/fast0507.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/pure-cover-exchange-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/fast0507.mps.gz",
+    "10"
+  ],
+  "input_sha256": "91c7390d814a24bc0c6b5edbc0b1b748d89f4ea75e655bc37b0406a86b8aee11",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_PURE_COVER_EXCHANGE": "0"
+  },
+  "cpu": 37,
+  "seconds": 10
+}
