@@ -1,0 +1,24 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+    Finished `test` profile [unoptimized] target(s) in 5.41s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/207443ee2e0eda78/out/mip_codex-207443ee2e0eda78)
+
+running 3 tests
+test objective_bound::original_box_tests::constant_objective_is_reported_without_claiming_feasibility ... ok
+test objective_bound::original_box_tests::uncertain_zero_cost_without_a_required_bound_is_not_a_finite_box ... FAILED
+test objective_bound::original_box_tests::original_decimal_box_encloses_min_max_values_with_negative_domains ... ok
+
+failures:
+
+---- objective_bound::original_box_tests::uncertain_zero_cost_without_a_required_bound_is_not_a_finite_box stdout ----
+
+thread 'objective_bound::original_box_tests::uncertain_zero_cost_without_a_required_bound_is_not_a_finite_box' (2322378) panicked at src/objective_bound.rs:1115:126:
+called `Result::unwrap()` on an `Err` value: "line 5: number underflow -1e-400"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    objective_bound::original_box_tests::uncertain_zero_cost_without_a_required_bound_is_not_a_finite_box
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 78 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

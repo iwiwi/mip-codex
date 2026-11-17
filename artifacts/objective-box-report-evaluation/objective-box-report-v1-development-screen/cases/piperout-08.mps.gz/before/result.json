@@ -1,0 +1,3525 @@
+{
+  "binary_graph_enabled": true,
+  "graph_cover_local_enabled": true,
+  "aggregate_cuts_enabled": true,
+  "clique_cuts_enabled": true,
+  "mir_cuts_enabled": true,
+  "three_row_cuts_enabled": true,
+  "graph_fractional_cover_enabled": true,
+  "binary_graph": null,
+  "branching": "Pseudocost",
+  "child_order": "Down",
+  "search_strategy": "DepthFirst",
+  "search_pops": 9,
+  "search_best_pops": 0,
+  "search_transfers": 0,
+  "max_open_nodes": 3,
+  "pseudocost_updates": 6,
+  "pseudocost_selections": 0,
+  "primal_repair": true,
+  "box_primal_enabled": true,
+  "box_primal": {
+    "calls": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "moves": 0,
+    "work": 41596,
+    "seconds": 0.001951182,
+    "first_seconds": null
+  },
+  "root_incumbent_conflict": false,
+  "lp_diving": true,
+  "primal_probe": true,
+  "cover_cuts_enabled": true,
+  "cover_round_limit": 4,
+  "rounding_cuts_enabled": false,
+  "strong_branching": true,
+  "strong_objective": true,
+  "strong_infeasible_hint": true,
+  "strong": {
+    "calls": 1,
+    "candidates": 2,
+    "lp_solves": 3,
+    "optimal": 2,
+    "infeasible": 0,
+    "limited": 2,
+    "numerical_errors": 0,
+    "branch_changes": 0,
+    "evaluated_variables": [
+      3957,
+      189
+    ],
+    "selected_variable": 3957,
+    "infeasible_hint_selections": 0,
+    "seconds": 0.103149091
+  },
+  "rins_enabled": true,
+  "rins": {
+    "at_node": null,
+    "attempts": 0,
+    "calls": 0,
+    "fixed": 0,
+    "eligible": 0,
+    "nodes": 0,
+    "lp_solves": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "limited": 0,
+    "status": null,
+    "seconds": 0.0
+  },
+  "objective_rounding": true,
+  "objective_rounding_all": false,
+  "objective_grid": {
+    "min_domain": {
+      "base": 19785,
+      "first_increment": 1
+    },
+    "max_domain": {
+      "base": -4820254,
+      "first_increment": 1
+    },
+    "offset": 0,
+    "step": 1,
+    "implied": []
+  },
+  "objective_domain_bound": 19785.0,
+  "objective_box_proof": null,
+  "objective_bound_stats": {
+    "box_pruned": 0,
+    "rejected_candidates": 0,
+    "calls": 1,
+    "trials": 1,
+    "valid": 1,
+    "rounded": 1,
+    "seconds": 0.000357126
+  },
+  "infeasibility_proof_calls": 0,
+  "infeasibility_proof_trials": 0,
+  "infeasibility_proof_failures": 0,
+  "infeasibility_proof_seconds": 0.0,
+  "cut_proofs": [
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -27.0,
+          -27.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_1",
+        "lower": null,
+        "upper": -27.0,
+        "coefficients": [
+          [
+            108,
+            -1.0
+          ],
+          [
+            5108,
+            -9.0
+          ],
+          [
+            5126,
+            -18.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 11953,
+            "source_name": "p_lin_11953",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 11891,
+            "source_name": "p_lin_11891",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 11953,
+        "source_name": "p_lin_11953",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -37.0,
+          -37.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_2",
+        "lower": null,
+        "upper": -37.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            277,
+            -18.0
+          ],
+          [
+            1159,
+            -18.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 2295,
+            "source_name": "p_lin_2295",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 233,
+            "source_name": "p_lin_233",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 2295,
+        "source_name": "p_lin_2295",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -55.0,
+          -55.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_3",
+        "lower": null,
+        "upper": -55.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            1159,
+            -18.0
+          ],
+          [
+            2740,
+            -36.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 2295,
+            "source_name": "p_lin_2295",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 6068,
+            "source_name": "p_lin_6068",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 2295,
+        "source_name": "p_lin_2295",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -79.0,
+          -79.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_4",
+        "lower": null,
+        "upper": -79.0,
+        "coefficients": [
+          [
+            35,
+            -1.0
+          ],
+          [
+            268,
+            -18.0
+          ],
+          [
+            2419,
+            -60.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 5303,
+            "source_name": "p_lin_5303",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 212,
+            "source_name": "p_lin_212",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 5303,
+        "source_name": "p_lin_5303",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -73.0,
+          -73.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_5",
+        "lower": null,
+        "upper": -73.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            1159,
+            -18.0
+          ],
+          [
+            3678,
+            -54.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 2295,
+            "source_name": "p_lin_2295",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8345,
+            "source_name": "p_lin_8345",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 2295,
+        "source_name": "p_lin_2295",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -79.0,
+          -79.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_6",
+        "lower": null,
+        "upper": -79.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            1159,
+            -18.0
+          ],
+          [
+            3310,
+            -60.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 2295,
+            "source_name": "p_lin_2295",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 7443,
+            "source_name": "p_lin_7443",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 2295,
+        "source_name": "p_lin_2295",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -115.0,
+          -115.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_7",
+        "lower": null,
+        "upper": -115.0,
+        "coefficients": [
+          [
+            35,
+            -1.0
+          ],
+          [
+            2419,
+            -60.0
+          ],
+          [
+            3674,
+            -54.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 8335,
+            "source_name": "p_lin_8335",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 5303,
+            "source_name": "p_lin_5303",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 8335,
+        "source_name": "p_lin_8335",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -116.0,
+          -116.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_8",
+        "lower": null,
+        "upper": -116.0,
+        "coefficients": [
+          [
+            35,
+            -1.0
+          ],
+          [
+            2419,
+            -60.0
+          ],
+          [
+            3638,
+            -55.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 8245,
+            "source_name": "p_lin_8245",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 5303,
+            "source_name": "p_lin_5303",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 8245,
+        "source_name": "p_lin_8245",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -4.0,
+          -4.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_9",
+        "lower": null,
+        "upper": -4.0,
+        "coefficients": [
+          [
+            5108,
+            -4.0
+          ],
+          [
+            6211,
+            -1.0
+          ],
+          [
+            6212,
+            -1.0
+          ],
+          [
+            6213,
+            -1.0
+          ],
+          [
+            6214,
+            -1.0
+          ],
+          [
+            6215,
+            -2.0
+          ],
+          [
+            6216,
+            -2.0
+          ],
+          [
+            6217,
+            -2.0
+          ],
+          [
+            6218,
+            -2.0
+          ],
+          [
+            6219,
+            -2.0
+          ],
+          [
+            6220,
+            -3.0
+          ],
+          [
+            6221,
+            -3.0
+          ],
+          [
+            6222,
+            -3.0
+          ],
+          [
+            6223,
+            -3.0
+          ],
+          [
+            6224,
+            -3.0
+          ],
+          [
+            6225,
+            -4.0
+          ],
+          [
+            6226,
+            -4.0
+          ],
+          [
+            6227,
+            -4.0
+          ],
+          [
+            6228,
+            -4.0
+          ],
+          [
+            6229,
+            -4.0
+          ],
+          [
+            6230,
+            -5.0
+          ],
+          [
+            6231,
+            -5.0
+          ],
+          [
+            6232,
+            -5.0
+          ],
+          [
+            6233,
+            -5.0
+          ],
+          [
+            6234,
+            -5.0
+          ],
+          [
+            6235,
+            -6.0
+          ],
+          [
+            6236,
+            -6.0
+          ],
+          [
+            6237,
+            -6.0
+          ],
+          [
+            6238,
+            -6.0
+          ],
+          [
+            6239,
+            -6.0
+          ],
+          [
+            6240,
+            -7.0
+          ],
+          [
+            6241,
+            -7.0
+          ],
+          [
+            6242,
+            -7.0
+          ],
+          [
+            6243,
+            -7.0
+          ],
+          [
+            6244,
+            -7.0
+          ],
+          [
+            6245,
+            -8.0
+          ],
+          [
+            6246,
+            -8.0
+          ],
+          [
+            6247,
+            -8.0
+          ],
+          [
+            6248,
+            -8.0
+          ],
+          [
+            6249,
+            -8.0
+          ],
+          [
+            6250,
+            -9.0
+          ],
+          [
+            6251,
+            -9.0
+          ],
+          [
+            6252,
+            -9.0
+          ],
+          [
+            6253,
+            -9.0
+          ],
+          [
+            6254,
+            -9.0
+          ],
+          [
+            6255,
+            -10.0
+          ],
+          [
+            6256,
+            -10.0
+          ],
+          [
+            6257,
+            -10.0
+          ],
+          [
+            6258,
+            -10.0
+          ],
+          [
+            6259,
+            -10.0
+          ],
+          [
+            6260,
+            -11.0
+          ],
+          [
+            6261,
+            -11.0
+          ],
+          [
+            6262,
+            -11.0
+          ],
+          [
+            6263,
+            -11.0
+          ],
+          [
+            6264,
+            -11.0
+          ],
+          [
+            6265,
+            -12.0
+          ],
+          [
+            6266,
+            -12.0
+          ],
+          [
+            6267,
+            -12.0
+          ],
+          [
+            6268,
+            -12.0
+          ],
+          [
+            6269,
+            -12.0
+          ],
+          [
+            6270,
+            -13.0
+          ],
+          [
+            6271,
+            -13.0
+          ],
+          [
+            6272,
+            -13.0
+          ],
+          [
+            6273,
+            -13.0
+          ],
+          [
+            6274,
+            -13.0
+          ],
+          [
+            6275,
+            -14.0
+          ],
+          [
+            6276,
+            -14.0
+          ],
+          [
+            6277,
+            -14.0
+          ],
+          [
+            6278,
+            -14.0
+          ],
+          [
+            6279,
+            -14.0
+          ],
+          [
+            6280,
+            -15.0
+          ],
+          [
+            6281,
+            -15.0
+          ],
+          [
+            6282,
+            -15.0
+          ],
+          [
+            6283,
+            -15.0
+          ],
+          [
+            6284,
+            -15.0
+          ],
+          [
+            6285,
+            -16.0
+          ],
+          [
+            6286,
+            -16.0
+          ],
+          [
+            6287,
+            -16.0
+          ],
+          [
+            6288,
+            -16.0
+          ],
+          [
+            6289,
+            -16.0
+          ],
+          [
+            6290,
+            -17.0
+          ],
+          [
+            6291,
+            -17.0
+          ],
+          [
+            6292,
+            -17.0
+          ],
+          [
+            6293,
+            -17.0
+          ],
+          [
+            6294,
+            -17.0
+          ],
+          [
+            6295,
+            -18.0
+          ],
+          [
+            6296,
+            -18.0
+          ],
+          [
+            6297,
+            -18.0
+          ],
+          [
+            6298,
+            -18.0
+          ],
+          [
+            6299,
+            -18.0
+          ],
+          [
+            6300,
+            -19.0
+          ],
+          [
+            6301,
+            -19.0
+          ],
+          [
+            6302,
+            -19.0
+          ],
+          [
+            6303,
+            -19.0
+          ],
+          [
+            6304,
+            -19.0
+          ],
+          [
+            6305,
+            -20.0
+          ],
+          [
+            6306,
+            -20.0
+          ],
+          [
+            6307,
+            -20.0
+          ],
+          [
+            6308,
+            -20.0
+          ],
+          [
+            6309,
+            -20.0
+          ],
+          [
+            6310,
+            -21.0
+          ],
+          [
+            6311,
+            -21.0
+          ],
+          [
+            6312,
+            -21.0
+          ],
+          [
+            6313,
+            -21.0
+          ],
+          [
+            6314,
+            -21.0
+          ],
+          [
+            6315,
+            -22.0
+          ],
+          [
+            6316,
+            -22.0
+          ],
+          [
+            6317,
+            -22.0
+          ],
+          [
+            6318,
+            -22.0
+          ],
+          [
+            6319,
+            -22.0
+          ],
+          [
+            6320,
+            -23.0
+          ],
+          [
+            6321,
+            -23.0
+          ],
+          [
+            6322,
+            -23.0
+          ],
+          [
+            6323,
+            -23.0
+          ],
+          [
+            6324,
+            -23.0
+          ],
+          [
+            6325,
+            -24.0
+          ],
+          [
+            6326,
+            -24.0
+          ],
+          [
+            6327,
+            -24.0
+          ],
+          [
+            6328,
+            -24.0
+          ],
+          [
+            6329,
+            -24.0
+          ],
+          [
+            6330,
+            -25.0
+          ],
+          [
+            6331,
+            -25.0
+          ],
+          [
+            6332,
+            -25.0
+          ],
+          [
+            6333,
+            -25.0
+          ],
+          [
+            6334,
+            -25.0
+          ],
+          [
+            6335,
+            -26.0
+          ],
+          [
+            6336,
+            -26.0
+          ],
+          [
+            6337,
+            -26.0
+          ],
+          [
+            6338,
+            -26.0
+          ],
+          [
+            6339,
+            -26.0
+          ],
+          [
+            6340,
+            -27.0
+          ],
+          [
+            6341,
+            -27.0
+          ],
+          [
+            6342,
+            -27.0
+          ],
+          [
+            6343,
+            -27.0
+          ],
+          [
+            6344,
+            -27.0
+          ],
+          [
+            6345,
+            -28.0
+          ],
+          [
+            6346,
+            -28.0
+          ],
+          [
+            6347,
+            -28.0
+          ],
+          [
+            6348,
+            -28.0
+          ],
+          [
+            6349,
+            -28.0
+          ],
+          [
+            6350,
+            -29.0
+          ],
+          [
+            6351,
+            -29.0
+          ],
+          [
+            6352,
+            -29.0
+          ],
+          [
+            6353,
+            -29.0
+          ],
+          [
+            6354,
+            -29.0
+          ],
+          [
+            6355,
+            -30.0
+          ],
+          [
+            6356,
+            -30.0
+          ],
+          [
+            6357,
+            -30.0
+          ],
+          [
+            6358,
+            -30.0
+          ],
+          [
+            6359,
+            -30.0
+          ],
+          [
+            6360,
+            -31.0
+          ],
+          [
+            6361,
+            -31.0
+          ],
+          [
+            6362,
+            -31.0
+          ],
+          [
+            6363,
+            -31.0
+          ],
+          [
+            6364,
+            -31.0
+          ],
+          [
+            6365,
+            -32.0
+          ],
+          [
+            6366,
+            -32.0
+          ],
+          [
+            6367,
+            -32.0
+          ],
+          [
+            6368,
+            -32.0
+          ],
+          [
+            6369,
+            -32.0
+          ],
+          [
+            6370,
+            -33.0
+          ],
+          [
+            6371,
+            -33.0
+          ],
+          [
+            6372,
+            -33.0
+          ],
+          [
+            6373,
+            -33.0
+          ],
+          [
+            6374,
+            -33.0
+          ],
+          [
+            6375,
+            -34.0
+          ],
+          [
+            6376,
+            -34.0
+          ],
+          [
+            6377,
+            -34.0
+          ],
+          [
+            6378,
+            -34.0
+          ],
+          [
+            6379,
+            -34.0
+          ],
+          [
+            6380,
+            -35.0
+          ],
+          [
+            6381,
+            -35.0
+          ],
+          [
+            6382,
+            -35.0
+          ],
+          [
+            6383,
+            -35.0
+          ],
+          [
+            6384,
+            -35.0
+          ],
+          [
+            6385,
+            -36.0
+          ],
+          [
+            6386,
+            -36.0
+          ],
+          [
+            6387,
+            -36.0
+          ],
+          [
+            6388,
+            -36.0
+          ],
+          [
+            6389,
+            -36.0
+          ],
+          [
+            6390,
+            -37.0
+          ],
+          [
+            6391,
+            -37.0
+          ],
+          [
+            6392,
+            -37.0
+          ],
+          [
+            6393,
+            -37.0
+          ],
+          [
+            6394,
+            -37.0
+          ],
+          [
+            6395,
+            -38.0
+          ],
+          [
+            6396,
+            -38.0
+          ],
+          [
+            6397,
+            -38.0
+          ],
+          [
+            6398,
+            -38.0
+          ],
+          [
+            6399,
+            -38.0
+          ],
+          [
+            6400,
+            -39.0
+          ],
+          [
+            6401,
+            -39.0
+          ],
+          [
+            6402,
+            -39.0
+          ],
+          [
+            6403,
+            -39.0
+          ],
+          [
+            6404,
+            -39.0
+          ],
+          [
+            6405,
+            -40.0
+          ],
+          [
+            6406,
+            -40.0
+          ],
+          [
+            6407,
+            -40.0
+          ],
+          [
+            6408,
+            -40.0
+          ],
+          [
+            6409,
+            -40.0
+          ],
+          [
+            6410,
+            -41.0
+          ],
+          [
+            6411,
+            -41.0
+          ],
+          [
+            6412,
+            -41.0
+          ],
+          [
+            6413,
+            -41.0
+          ],
+          [
+            6414,
+            -41.0
+          ],
+          [
+            6415,
+            -42.0
+          ],
+          [
+            6416,
+            -42.0
+          ],
+          [
+            6417,
+            -42.0
+          ],
+          [
+            6418,
+            -42.0
+          ],
+          [
+            6419,
+            -42.0
+          ],
+          [
+            6420,
+            -43.0
+          ],
+          [
+            6421,
+            -43.0
+          ],
+          [
+            6422,
+            -43.0
+          ],
+          [
+            6423,
+            -43.0
+          ],
+          [
+            6424,
+            -43.0
+          ],
+          [
+            6425,
+            -1.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 11891,
+            "source_name": "p_lin_11891",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 13462,
+            "source_name": "p_lin_13462",
+            "upper_side": false,
+            "weight": 1
+          }
+        ],
+        "divisor": 5,
+        "source_row": 11891,
+        "source_name": "p_lin_11891",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_9",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            250,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 169,
+        "source_name": "p_lin_169",
+        "upper_side": true,
+        "cover": [
+          250
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_10",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            503,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 765,
+        "source_name": "p_lin_765",
+        "upper_side": true,
+        "cover": [
+          503
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_11",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            577,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 938,
+        "source_name": "p_lin_938",
+        "upper_side": true,
+        "cover": [
+          577
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_12",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            647,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1096,
+        "source_name": "p_lin_1096",
+        "upper_side": true,
+        "cover": [
+          647
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_13",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            734,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1298,
+        "source_name": "p_lin_1298",
+        "upper_side": true,
+        "cover": [
+          734
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_14",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            736,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1303,
+        "source_name": "p_lin_1303",
+        "upper_side": true,
+        "cover": [
+          736
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_15",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            805,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1464,
+        "source_name": "p_lin_1464",
+        "upper_side": true,
+        "cover": [
+          805
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_16",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            808,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1471,
+        "source_name": "p_lin_1471",
+        "upper_side": true,
+        "cover": [
+          808
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_17",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            949,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1809,
+        "source_name": "p_lin_1809",
+        "upper_side": true,
+        "cover": [
+          949
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_18",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            950,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1811,
+        "source_name": "p_lin_1811",
+        "upper_side": true,
+        "cover": [
+          950
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_19",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1014,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1955,
+        "source_name": "p_lin_1955",
+        "upper_side": true,
+        "cover": [
+          1014
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_20",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1022,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1973,
+        "source_name": "p_lin_1973",
+        "upper_side": true,
+        "cover": [
+          1022
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_21",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1025,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1980,
+        "source_name": "p_lin_1980",
+        "upper_side": true,
+        "cover": [
+          1025
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_22",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1094,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2141,
+        "source_name": "p_lin_2141",
+        "upper_side": true,
+        "cover": [
+          1094
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_23",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1220,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2442,
+        "source_name": "p_lin_2442",
+        "upper_side": true,
+        "cover": [
+          1220
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_24",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1281,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2590,
+        "source_name": "p_lin_2590",
+        "upper_side": true,
+        "cover": [
+          1281
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_25",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1355,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2771,
+        "source_name": "p_lin_2771",
+        "upper_side": true,
+        "cover": [
+          1355
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_26",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1364,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2792,
+        "source_name": "p_lin_2792",
+        "upper_side": true,
+        "cover": [
+          1364
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_27",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1409,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2897,
+        "source_name": "p_lin_2897",
+        "upper_side": true,
+        "cover": [
+          1409
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_28",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1412,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2904,
+        "source_name": "p_lin_2904",
+        "upper_side": true,
+        "cover": [
+          1412
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_29",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1414,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2909,
+        "source_name": "p_lin_2909",
+        "upper_side": true,
+        "cover": [
+          1414
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_30",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1417,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 2916,
+        "source_name": "p_lin_2916",
+        "upper_side": true,
+        "cover": [
+          1417
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_31",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1457,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 3012,
+        "source_name": "p_lin_3012",
+        "upper_side": true,
+        "cover": [
+          1457
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_33",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2549,
+            17.0
+          ],
+          [
+            3881,
+            -43.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 5607,
+            "source_name": "p_lin_5607",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 5,
+        "source_row": 5607,
+        "source_name": "p_lin_5607",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_34",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2276,
+            24.0
+          ],
+          [
+            3881,
+            -43.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4956,
+            "source_name": "p_lin_4956",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 5,
+        "source_row": 4956,
+        "source_name": "p_lin_4956",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_35",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2549,
+            8.0
+          ],
+          [
+            3881,
+            -22.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 5607,
+            "source_name": "p_lin_5607",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 10,
+        "source_row": 5607,
+        "source_name": "p_lin_5607",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_36",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2276,
+            12.0
+          ],
+          [
+            3881,
+            -22.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4956,
+            "source_name": "p_lin_4956",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 10,
+        "source_row": 4956,
+        "source_name": "p_lin_4956",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_37",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2891,
+            40.0
+          ],
+          [
+            3881,
+            -43.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 6427,
+            "source_name": "p_lin_6427",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 5,
+        "source_row": 6427,
+        "source_name": "p_lin_6427",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_38",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2549,
+            1.0
+          ],
+          [
+            3881,
+            -3.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 5607,
+            "source_name": "p_lin_5607",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 85,
+        "source_row": 5607,
+        "source_name": "p_lin_5607",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_39",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2891,
+            20.0
+          ],
+          [
+            3881,
+            -22.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 6427,
+            "source_name": "p_lin_6427",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 10,
+        "source_row": 6427,
+        "source_name": "p_lin_6427",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_40",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2276,
+            1.0
+          ],
+          [
+            3881,
+            -2.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4956,
+            "source_name": "p_lin_4956",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 123,
+        "source_row": 4956,
+        "source_name": "p_lin_4956",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_41",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            2891,
+            1.0
+          ],
+          [
+            3881,
+            -2.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 6427,
+            "source_name": "p_lin_6427",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 202,
+        "source_row": 6427,
+        "source_name": "p_lin_6427",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          1.0,
+          1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_42",
+        "lower": null,
+        "upper": 1.0,
+        "coefficients": [
+          [
+            2549,
+            28.0
+          ],
+          [
+            3881,
+            -71.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 5607,
+            "source_name": "p_lin_5607",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 3,
+        "source_row": 5607,
+        "source_name": "p_lin_5607",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          1.0,
+          1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_43",
+        "lower": null,
+        "upper": 1.0,
+        "coefficients": [
+          [
+            2276,
+            41.0
+          ],
+          [
+            3881,
+            -71.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4956,
+            "source_name": "p_lin_4956",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 3,
+        "source_row": 4956,
+        "source_name": "p_lin_4956",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          1.0,
+          1.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_44",
+        "lower": null,
+        "upper": 1.0,
+        "coefficients": [
+          [
+            2891,
+            67.0
+          ],
+          [
+            3881,
+            -71.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 6427,
+            "source_name": "p_lin_6427",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 8822,
+            "source_name": "p_lin_8822",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 3,
+        "source_row": 6427,
+        "source_name": "p_lin_6427",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -40.0,
+          -40.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_45",
+        "lower": null,
+        "upper": -40.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            277,
+            -18.0
+          ],
+          [
+            1889,
+            -21.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4033,
+            "source_name": "p_lin_4033",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 233,
+            "source_name": "p_lin_233",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 4033,
+        "source_name": "p_lin_4033",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -43.0,
+          -43.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_46",
+        "lower": null,
+        "upper": -43.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            1889,
+            -21.0
+          ],
+          [
+            2037,
+            -21.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4033,
+            "source_name": "p_lin_4033",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 4383,
+            "source_name": "p_lin_4383",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 4033,
+        "source_name": "p_lin_4033",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -50.0,
+          -50.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_47",
+        "lower": null,
+        "upper": -50.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            1781,
+            -28.0
+          ],
+          [
+            1889,
+            -21.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4033,
+            "source_name": "p_lin_4033",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 3772,
+            "source_name": "p_lin_3772",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 4033,
+        "source_name": "p_lin_4033",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -66.0,
+          -66.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_48",
+        "lower": null,
+        "upper": -66.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            1889,
+            -21.0
+          ],
+          [
+            2357,
+            -44.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 4033,
+            "source_name": "p_lin_4033",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 5149,
+            "source_name": "p_lin_5149",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 4033,
+        "source_name": "p_lin_4033",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -100.0,
+          -100.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_49",
+        "lower": null,
+        "upper": -100.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            277,
+            -18.0
+          ],
+          [
+            903,
+            -81.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 1701,
+            "source_name": "p_lin_1701",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 233,
+            "source_name": "p_lin_233",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 1701,
+        "source_name": "p_lin_1701",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -103.0,
+          -103.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_50",
+        "lower": null,
+        "upper": -103.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            903,
+            -81.0
+          ],
+          [
+            2037,
+            -21.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 1701,
+            "source_name": "p_lin_1701",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 4383,
+            "source_name": "p_lin_4383",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 1701,
+        "source_name": "p_lin_1701",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -110.0,
+          -110.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_51",
+        "lower": null,
+        "upper": -110.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            903,
+            -81.0
+          ],
+          [
+            1781,
+            -28.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 1701,
+            "source_name": "p_lin_1701",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 3772,
+            "source_name": "p_lin_3772",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 1701,
+        "source_name": "p_lin_1701",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          -126.0,
+          -126.0
+        ],
+        "exact_integral": true,
+        "name": "__aggregate_rounding_52",
+        "lower": null,
+        "upper": -126.0,
+        "coefficients": [
+          [
+            38,
+            -1.0
+          ],
+          [
+            903,
+            -81.0
+          ],
+          [
+            2357,
+            -44.0
+          ]
+        ]
+      },
+      "proof": {
+        "aggregation": [
+          {
+            "source_row": 1701,
+            "source_name": "p_lin_1701",
+            "upper_side": true,
+            "weight": 1
+          },
+          {
+            "source_row": 5149,
+            "source_name": "p_lin_5149",
+            "upper_side": true,
+            "weight": 1
+          }
+        ],
+        "divisor": 2,
+        "source_row": 1701,
+        "source_name": "p_lin_1701",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_52",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            580,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 945,
+        "source_name": "p_lin_945",
+        "upper_side": true,
+        "cover": [
+          580
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_53",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            641,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1082,
+        "source_name": "p_lin_1082",
+        "upper_side": true,
+        "cover": [
+          641
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_54",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            644,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1089,
+        "source_name": "p_lin_1089",
+        "upper_side": true,
+        "cover": [
+          644
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_55",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            645,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1091,
+        "source_name": "p_lin_1091",
+        "upper_side": true,
+        "cover": [
+          645
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_56",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            730,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1289,
+        "source_name": "p_lin_1289",
+        "upper_side": true,
+        "cover": [
+          730
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_57",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            802,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1457,
+        "source_name": "p_lin_1457",
+        "upper_side": true,
+        "cover": [
+          802
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_58",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            847,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1568,
+        "source_name": "p_lin_1568",
+        "upper_side": true,
+        "cover": [
+          847
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_59",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            871,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1624,
+        "source_name": "p_lin_1624",
+        "upper_side": true,
+        "cover": [
+          871
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_60",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            946,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1802,
+        "source_name": "p_lin_1802",
+        "upper_side": true,
+        "cover": [
+          946
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_61",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            952,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1816,
+        "source_name": "p_lin_1816",
+        "upper_side": true,
+        "cover": [
+          952
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_62",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1010,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1946,
+        "source_name": "p_lin_1946",
+        "upper_side": true,
+        "cover": [
+          1010
+        ]
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": null,
+        "upper_enclosure": [
+          0.0,
+          0.0
+        ],
+        "exact_integral": true,
+        "name": "__cover_63",
+        "lower": null,
+        "upper": 0.0,
+        "coefficients": [
+          [
+            1016,
+            1.0
+          ]
+        ]
+      },
+      "proof": {
+        "source_row": 1960,
+        "source_name": "p_lin_1960",
+        "upper_side": true,
+        "cover": [
+          1016
+        ]
+      }
+    }
+  ],
+  "cut_stats": {
+    "gomory_calls": 1,
+    "gomory_added": 0,
+    "gomory_lp_solves": 1,
+    "gomory_rejected_cuts": 8,
+    "gomory_seconds": 0.011485022,
+    "gomory_trial_seconds": 0.024906408,
+    "three_calls": 0,
+    "three_work": 0,
+    "three_added": 0,
+    "three_lp_solves": 0,
+    "three_rejected_cuts": 0,
+    "three_seconds": 0.0,
+    "three_trial_seconds": 0.0,
+    "mir_calls": 0,
+    "mir_lp_solves": 0,
+    "mir_rejected_cuts": 0,
+    "mir_trial_seconds": 0.0,
+    "mir_work": 0,
+    "mir_added": 0,
+    "mir_seconds": 0.0,
+    "clique_calls": 3,
+    "clique_edges": 0,
+    "clique_work": 180097,
+    "clique_added": 0,
+    "clique_seconds": 0.006421034,
+    "aggregate_calls": 3,
+    "aggregate_pairs": 497,
+    "aggregate_work": 257508,
+    "aggregate_added": 29,
+    "aggregate_seconds": 0.015049933,
+    "rounding_calls": 0,
+    "rounding": 0,
+    "rounding_projected": 0,
+    "rounding_work": 0,
+    "calls": 3,
+    "eligible": 5044,
+    "candidates": 97,
+    "added": 64,
+    "integer": 35,
+    "interval": 0,
+    "projected": 35,
+    "rejected": 0,
+    "work": 124656
+  },
+  "cut_rounds": 4,
+  "cut_lp_solves": 4,
+  "cut_seconds": 7.594296156,
+  "cut_initial_lp_seconds": 7.281101183,
+  "root_lp_reused": true,
+  "probe": {
+    "precut_roots": 0,
+    "calls": 1,
+    "nodes": 13,
+    "lp_solves": 15,
+    "max_open_nodes": 7,
+    "seconds": 1.006894052,
+    "status": "time_limit",
+    "candidates": 0,
+    "improvements": 0
+  },
+  "diving": {
+    "calls": 1,
+    "lp_solves": 5,
+    "reversals": 1,
+    "infeasible": 2,
+    "numerical_errors": 0,
+    "limited": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "seconds": 0.07027508
+  },
+  "feasibility_pump_enabled": true,
+  "pump": {
+    "calls": 0,
+    "lp_solves": 0,
+    "perturbations": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "numerical_errors": 0,
+    "limited": 0,
+    "seconds": 7.85e-07
+  },
+  "repair_calls": 1,
+  "repair_candidates": 0,
+  "repair_improvements": 0,
+  "repair_moves": 77,
+  "first_primal_seconds": null,
+  "repair_lp_solves": 1,
+  "repair_lp_candidates": 0,
+  "repair_work": 1430402,
+  "lp_engine": "Revised",
+  "propagation": false,
+  "propagation_calls": 0,
+  "propagation_rows": 0,
+  "propagation_tightenings": 0,
+  "propagation_pruned": 0,
+  "propagation_budget_hits": 0,
+  "fixed_leaves": 0,
+  "lp_solves": 36,
+  "defer_infeasibility_enabled": true,
+  "joint_infeasibility_enabled": true,
+  "aggregate_infeasibility_enabled": true,
+  "deferred_infeasibilities": 0,
+  "deferred_infeasibilities_pending": 0,
+  "deferred_infeasibilities_pruned": 0,
+  "deferred_infeasibility_bound": null,
+  "deferred_infeasibility_unbounded": false,
+  "lp_search_termination": "time_limit",
+  "fixed_columns_enabled": true,
+  "lp_workspace_bytes": 536870912,
+  "root_fixed_columns": 14,
+  "lp_scaled_columns": 0,
+  "lp_scaled_rows": 0,
+  "lp_warm_start": true,
+  "lp_warm_attempts": 35,
+  "lp_warm_successes": 31,
+  "lp_warm_fallbacks": 1,
+  "lp_warm_rejections": 0,
+  "lp_warm_row_extensions": 5,
+  "lp_warm_cost_attempts": 0,
+  "lp_warm_cost_successes": 0,
+  "lp_multiplier_cache_hits": 55,
+  "lp_multiplier_cache_misses": 12318,
+  "lp_certificate_repair_trials": 0,
+  "lp_certificate_repairs": 0,
+  "lp_restoration_attempts": 0,
+  "lp_restoration_restarts": 0,
+  "lp_dual_refactor_retries": 5,
+  "lp_restoration_extended_attempts": 0,
+  "lp_restoration_successes": 0,
+  "lp_restoration_infeasible_candidates": 0,
+  "lp_restoration_pivots": 0,
+  "lp_refinement_attempts": 0,
+  "lp_refinement_steps": 0,
+  "lp_refinement_successes": 0,
+  "lp_dual_pivots": 2120,
+  "lp_dual_flips": 445,
+  "lp_pivots": 12307,
+  "lp_bound_point_trials": 0,
+  "lp_bound_point_repairs": 0,
+  "lp_feasibility_pricing_calls": 0,
+  "lp_pricing_cutoffs": 0,
+  "lp_pricing_fallbacks": 0,
+  "lp_flips": 446,
+  "lp_refactors": 254,
+  "status": "time_limit",
+  "objective": null,
+  "dual_bound": 99129.0,
+  "gap": null,
+  "nodes": 9,
+  "seconds": 10.00334628,
+  "values": null
+}
