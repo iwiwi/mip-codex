@@ -1,0 +1,8 @@
+from pathlib import Path
+import json,subprocess
+root=Path.cwd();receipt=json.loads((root/'experiments/objective-dive-snapshot-20261117.json').read_text());a=json.loads((root/'artifacts/objective-dive-primary-audit/summary.json').read_text());assert a['checked']==a['strict_valid']==a['official_valid']==a['cut_runs']==a['cut_valid']==3
+text=f'''採用後のmain 063b379a996979d237ce731101656b52f2c41a25を主作業木で再ビルドし、本体・ライブラリ指紋344b84b997da532bが一致しました。60秒のexp-1/Binkar/enlight_hardは主解/下界が129471/33291.334578、6849.949995/6646.313679、37/37（optimal）。3点3証明55カットは独立検証すべて有効です。expは同指紋の候補試験131771から到達点が変動しており、局所時間枠による差として元出力を両方保持します。
+
+全240問の新snapshotは作成だけ行い、まだ1件も実行していません。config SHA256 `{receipt['config_sha256']}`、3600秒・1thread・16GiB・CPU8..15、240 jobs、ソース等{receipt['snapshot_files_verified']}ファイルと依存ライブラリ{receipt['installed_libraries_verified']}ファイルのSHAを照合済み。旧snapshotも保持し、自作本評価は11月19日を目安に準備しています。
+'''
+usage=subprocess.check_output(['python3','scripts/ai_usage.py'],text=True);u=json.loads(usage);(root/'artifacts/objective-dive-postmerge-ai-usage.json').write_text(usage);t=u['totals'];text+=f"\nAI資源量（コメント直前のローカル最終累積、{u['sessions']} session）: total {t['total_tokens']:,}、input {t['input_tokens']:,}（cached {t['cached_input_tokens']:,}を含む）、output {t['output_tokens']:,}（reasoning {t['reasoning_output_tokens']:,}を含む）。内数は二重加算していません。\n";p=root/'artifacts/objective-dive-postmerge-comment.md';p.write_text(text);r=subprocess.run(['gh','pr','comment','107','--repo','iwiwi/mip-codex','--body-file',str(p)],capture_output=True,text=True);(root/'artifacts/objective-dive-postmerge-comment-result.json').write_text(json.dumps(dict(exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr),indent=2)+'\n');print(r.stdout);print(r.stderr);assert r.returncode==0
