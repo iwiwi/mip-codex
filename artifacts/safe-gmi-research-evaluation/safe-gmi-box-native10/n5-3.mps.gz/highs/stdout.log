@@ -1,0 +1,68 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-030531-plk1qw2w/n5-3.mps.gz/highs/options.txt
+MIP n5-3 has 1062 rows; 2550 cols; 9900 nonzeros; 150 integer variables (0 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 3e+02]
+  Cost    [1e+00, 3e+02]
+  Bound   [0e+00, 0e+00] (continuous)
+  Bound   [1e+03, 1e+03] (non-continuous)
+  RHS     [5e+00, 1e+02]
+Presolving model
+1062 rows, 2550 cols, 9900 nonzeros 0s
+836 rows, 2143 cols, 8331 nonzeros 0s
+832 rows, 2131 cols, 8319 nonzeros 0s
+Presolve reductions: rows 832(-230); columns 2131(-419); nonzeros 8319(-1581) 
+
+Solving MIP model with:
+   832 rows
+   2131 cols (1 binary, 128 integer, 0 implied int., 2002 continuous, 0 domain fixed)
+   8319 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   955             inf                  inf        0      0      0         0     0.0s
+ S       0       0         0   0.00%   955             12025             92.06%        0      0      0         0     0.0s
+         0       0         0   0.00%   3801.470588     12025             68.39%        0      0      0       683     0.1s
+ L       0       0         0   0.00%   7777.625044     8555               9.09%     8345    532      2      5868     5.1s
+ L       0       0         0   0.00%   7782.33681      8543               8.90%     8218    548      2     16338     9.6s
+
+Symmetry detection completed in 0.0s
+No symmetry present
+
+         2       2         1   0.00%   7811.156933     8543               8.57%     7060    305      2     45859    10.0s
+
+Solving report
+  Model             n5-3
+  Status            Time limit reached
+  Primal bound      8543
+  Dual bound        7811.15693349
+  Gap               8.57%
+  P-D integral      2.36
+  Solution status   feasible
+                    8543 (objective)
+                    1.54189545629e-14 (integrality violation)
+  Timing            10.00
+                    0.17 (Presolve)
+                        MIP    time [calls] = 0.01 [1]
+                        subMIP time [calls] = 0.16 [9]
+                    9.83 (Solve)
+                        MIP    time [calls] = 3.07 [1]
+                        subMIP time [calls] = 6.76 [9]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [9]
+  Max sub-MIP depth 8
+  Nodes             2
+  Repair LPs        0
+  LP iterations     45859
+                    2644 (strong br.)
+                    5383 (separation)
+                    37149 (heuristics)

@@ -45,6 +45,8 @@ pub struct Limits {
     pub aggregate_cuts: bool,
     pub clique_cuts: bool,
     pub mir_cuts: bool,
+    pub gomory_cuts: bool,
+    pub gomory_report_only: bool,
     pub three_row_cuts: bool,
     pub graph_fractional_cover: bool,
     pub defer_infeasibility: bool,
@@ -111,6 +113,8 @@ impl Default for Limits {
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
+            gomory_cuts: true,
+            gomory_report_only: true,
             three_row_cuts: true,
             graph_fractional_cover: true,
             defer_infeasibility: true,
@@ -218,6 +222,8 @@ pub struct Result {
     pub infeasibility_proof_failures: usize,
     pub infeasibility_proof_seconds: f64,
     pub cut_proofs: Vec<cuts::Cut>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub gomory_bound_proof: Option<crate::gomory::BoundProof>,
     pub cut_stats: cuts::Stats,
     pub cut_rounds: usize,
     pub cut_lp_solves: usize,
@@ -313,6 +319,7 @@ struct Node {
     changed: Option<usize>,
     edge: Option<branching::Edge>,
 }
+#[derive(Clone)]
 struct Standard {
     row_sources: Vec<(usize, f64)>,
     sparse: Option<revised::Problem>,
@@ -957,6 +964,7 @@ pub struct ProbeStats {
     pub candidates: usize,
     pub improvements: usize,
 }
+#[derive(Clone)]
 struct CachedRoot {
     standard: Standard,
     answer: revised::Answer,
@@ -965,6 +973,8 @@ struct CachedRoot {
 struct CutPreparation {
     cached: Option<CachedRoot>,
     primal_root: Option<(Model, Arc<revised::WarmStart>)>,
+    primal_seed: Option<Vec<f64>>,
+    gomory_bound: Option<crate::gomory::BoundProof>,
     initial_lp_seconds: f64,
     model: Option<Model>,
     cuts: Vec<cuts::Cut>,
@@ -986,6 +996,7 @@ fn prepare_cuts(
             || (limits.rounding_cuts && cuts::rounding_applicable(model))
             || (limits.aggregate_cuts && cuts::aggregate_applicable(model))
             || (limits.clique_cuts && cuts::applicable(model))
+            || (limits.gomory_cuts && model.variables.iter().any(|v|v.integer))
             || (limits.mir_cuts && cuts::mir_applicable(model))
             || (limits.three_row_cuts && cuts::aggregate_applicable(model)))
         || limits.nodes == 0
@@ -1132,7 +1143,7 @@ fn prepare_cuts(
             &mut three_pool,
             &mut prepared,
         );
-        if prepared.cuts.len() > old_cuts
+        if prepared.primal_root.is_none() && prepared.cuts.len() > old_cuts
             && let Some(warm) = old_warm
         {
             let mut primal_model = work.clone();
@@ -1149,6 +1160,32 @@ fn prepare_cuts(
         pool.stats.added += three_pool.stats.added;
         pool.stats.candidates += three_pool.stats.candidates;
         pool.stats.rejected += three_pool.stats.rejected;
+    }
+    if limits.gomory_cuts && global_first
+        && work.variables.len().saturating_mul(16) <= 1_000_000
+        && work.rows.iter().fold(0usize, |n, r| n.saturating_add(r.coefficients.len())) <= 1_000_000
+    {
+        let gomory_deadline=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(1.0)));
+        let backup=limits.gomory_report_only.then(||(work.clone(),prepared.cached.clone(),root.warm.clone()));
+        let old_rows=work.rows.len();let old_cuts=prepared.cuts.len();
+        let old_seed=prepared.cached.as_ref().and_then(|c| {
+            if let lp::Outcome::Optimal{x,..}=&c.answer.outcome {
+                Some(c.standard.terms.iter().enumerate().map(|(j,t)|c.standard.shift[j]+t.iter().map(|&(k,s)|s*x[k]).sum::<f64>()).collect::<Vec<_>>())
+            } else {None}
+        });
+        let old_warm=if limits.primal_probe&&limits.warm_start {prepared.cached.as_ref().and_then(|c|c.answer.warm.clone())}else{None};
+        improve_with_gomory(model,root,limits,gomory_deadline,lp_stats,&mut work,&mut pool,&mut prepared);
+        if let Some((old_work,old_cached,old_root_warm))=backup {
+            if prepared.cuts.len()>old_cuts {
+                prepared.gomory_bound=prepared.cached.as_ref().and_then(|c|gomory_report_bound(&work,c));
+            }
+            work=old_work;prepared.cached=old_cached;root.warm=old_root_warm;
+        } else {
+            if prepared.cuts.len()>old_cuts {prepared.primal_seed=old_seed;}
+            if prepared.primal_root.is_none() && prepared.cuts.len()>old_cuts && let Some(warm)=old_warm {
+                let mut primal_model=work.clone();primal_model.rows.truncate(old_rows);prepared.primal_root=Some((primal_model,warm));
+            }
+        }
     }
     if !prepared.cuts.is_empty() {
         prepared.model = Some(work);
@@ -1687,6 +1724,8 @@ fn solve_seeded_warm(
     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
     let mut primal_root = prepared.primal_root.take();
+    let primal_seed = prepared.primal_seed.take();
+    let gomory_bound_proof=prepared.gomory_bound.take();
     let root_lp_reused = cached_root.is_some();
     let lp_model = prepared.model.as_ref().unwrap_or(model);
     let objective_grid = if limits.objective_rounding
@@ -2193,6 +2232,10 @@ fn solve_seeded_warm(
                 }
                 if branch.is_some() && (nodes == 1 || nodes % 256 == 0) {
                     if let Some(h) = &mut repair {
+                        let repair_reference: &[f64]=if nodes==1 {primal_seed.as_deref().unwrap_or(&original)}else{&original};
+                        let repair_model=if nodes==1 {primal_root.as_ref().map(|(m,_)|m).unwrap_or(lp_model)}else{lp_model};
+                        let repair_warm=if nodes==1 {primal_root.as_ref().map(|(_,w)|w.as_ref()).or(node.warm.as_deref())}else{node.warm.as_deref()};
+
                         let allocation = if nodes == 1 { 0.05 } else { 0.001 };
                         let repair_deadline = deadline
                             .min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
@@ -2203,7 +2246,7 @@ fn solve_seeded_warm(
                             let mut fixed = node.clone();
                             for (j, v) in model.variables.iter().enumerate() {
                                 if v.integer {
-                                    let mut value = original[j].round();
+                                    let mut value = repair_reference[j].round();
                                     if let Some(l) = node.lower[j] {
                                         value = value.max(l.ceil());
                                     }
@@ -2215,7 +2258,7 @@ fn solve_seeded_warm(
                                 }
                             }
                             if let Relaxation::Ready(q) = standard_sparse(
-                                lp_model,
+                                repair_model,
                                 &fixed,
                                 limits.dense_bytes,
                                 false,
@@ -2225,7 +2268,7 @@ fn solve_seeded_warm(
                                     q.sparse.as_ref().unwrap(),
                                     limits.pivots.min(256),
                                     Some(repair_deadline),
-                                    node.warm.as_deref(),
+                                    repair_warm,
                                 );
                                 lp_solves += 1;
                                 repair_lp_solves += 1;
@@ -2270,7 +2313,7 @@ fn solve_seeded_warm(
                             .saturating_mul(256)
                             .clamp(4096, 2_000_000);
                         if let Some(x) = h.search(
-                            &original,
+                            repair_reference,
                             &node.lower,
                             &node.upper,
                             repair_deadline,
@@ -2391,6 +2434,7 @@ fn solve_seeded_warm(
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
+                    probe_limits.gomory_cuts = false;
                     probe_limits.three_row_cuts = false;
                     probe_limits.box_primal = false;
                     probe_limits.rounding_cuts = false;
@@ -2502,6 +2546,7 @@ fn solve_seeded_warm(
                             // This neighborhood search seeks a quick incumbent;
                             // root MIR trials must not redirect its limited tree.
                             local.mir_cuts = false;
+            local.gomory_cuts = false;
                             local.three_row_cuts = false;
                             local.box_primal = false;
                             local.rounding_cuts = false;
@@ -2727,6 +2772,7 @@ fn solve_seeded_warm(
             local.strong_branching = false;
             local.cover_cuts = false;
             local.mir_cuts = false;
+            local.gomory_cuts = false;
             local.three_row_cuts = false;
             local.box_primal = false;
             local.rounding_cuts = false;
@@ -2798,6 +2844,7 @@ fn solve_seeded_warm(
     let internal_dual = row_ray_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
     let internal_dual = row_packing_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound as f64));
     let internal_dual = row_subgradient_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
+    let internal_dual=gomory_bound_proof.as_ref().map_or(internal_dual,|p|internal_dual.max(p.normalized_bound));
     if status == "optimal" && best.is_none() {
         status = "infeasible".into();
     }
@@ -2884,6 +2931,7 @@ fn solve_seeded_warm(
         infeasibility_proof_failures,
         infeasibility_proof_seconds,
         cut_proofs: prepared.cuts,
+        gomory_bound_proof,
         cut_stats: prepared.stats,
         cut_rounds: prepared.rounds,
         cut_lp_solves: prepared.lp_solves,
@@ -3303,6 +3351,8 @@ mod pump_tests {
             aggregate_cuts: false,
             clique_cuts: false,
             mir_cuts: false,
+            gomory_cuts: false,
+            gomory_report_only: false,
             rounding_cuts: false,
             objective_rounding: false,
             strong_branching: false,
@@ -3409,4 +3459,169 @@ mod pump_tests {
         assert!(m.check(&candidate, true, 1e-6).is_ok());
         assert!(s.lp_solves > 0);
     }
+}
+
+fn improve_with_gomory(
+    model: &Model,
+    root: &mut Node,
+    limits: &Limits,
+    deadline: Instant,
+    lp_stats: &mut revised::Stats,
+    work: &mut Model,
+    pool: &mut cuts::Pool,
+    prepared: &mut CutPreparation,
+) {
+    fn point(q: &Standard, answer: &revised::Answer) -> Option<Vec<f64>> {
+        let lp::Outcome::Optimal { x, .. } = &answer.outcome else {
+            return None;
+        };
+        Some(
+            q.terms
+                .iter()
+                .enumerate()
+                .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                .collect(),
+        )
+    }
+    let Some(mut baseline) = prepared.cached.take() else {
+        return;
+    };
+    for _ in 0..limits.cover_rounds {
+        if Instant::now() >= deadline {
+            break;
+        }
+        let Some(old_point) = point(&baseline.standard, &baseline.answer) else {
+            break;
+        };
+        let old_objective = model.objective(&old_point);
+        if !old_objective.is_finite() || work.check(&old_point, false, 1e-6).is_err() {
+            break;
+        }
+        let proposed = pool.separate_gomory(model, &old_point, gomory_proposals(model,&baseline.standard,&baseline.answer,&old_point,deadline), 8, deadline);
+        if proposed.is_empty() {
+            break;
+        }
+        let old_rows = work.rows.len();
+        work.rows.extend(proposed.iter().map(|c| c.row.clone()));
+        let started = Instant::now();
+        let trial = if let Relaxation::Ready(q) =
+            standard_sparse(work, root, limits.dense_bytes, true, limits.fixed_columns)
+        {
+            let answer = revised::minimize_warm(
+                q.sparse.as_ref().unwrap(),
+                limits.pivots,
+                Some(deadline),
+                if limits.warm_start {
+                    baseline.answer.warm.as_deref()
+                } else {
+                    None
+                },
+            );
+            prepared.lp_solves += 1;
+            prepared.rounds += 1;
+            pool.stats.gomory_lp_solves += 1;
+            lp_stats.add(&answer.stats);
+            Some(CachedRoot {
+                standard: q,
+                answer,
+            })
+        } else {
+            None
+        };
+        pool.stats.gomory_trial_seconds += started.elapsed().as_secs_f64();
+        let accepted = trial
+            .as_ref()
+            .and_then(|t| point(&t.standard, &t.answer))
+            .is_some_and(|p| {
+                let new_objective = model.objective(&p);
+                let sign = if model.maximize { -1. } else { 1. };
+                let gain = sign * (new_objective - old_objective);
+                Instant::now() < deadline
+                    && new_objective.is_finite()
+                    && work.check(&p, false, 1e-6).is_ok()
+                    && (gain >= 1e-3 * old_objective.abs().max(1.)
+                        || model.check(&p, true, 1e-6).is_ok())
+            });
+        if !accepted {
+            work.rows.truncate(old_rows);
+            pool.stats.gomory_added -= proposed.len();
+            pool.stats.added -= proposed.len();
+            pool.stats.gomory_rejected_cuts += proposed.len();
+            break;
+        }
+        prepared.cuts.extend(proposed);
+        baseline = trial.unwrap();
+        if limits.warm_start {
+            root.warm = baseline.answer.warm.clone();
+        }
+    }
+    prepared.cached = Some(baseline);
+}
+
+fn gomory_proposals(model: &Model, standard: &Standard, answer: &revised::Answer, point: &[f64], deadline: Instant) -> Vec<crate::gomory::Proof> {
+    let Some(warm)=answer.warm.as_deref()else{return vec![];};
+    let Some(problem)=standard.sparse.as_ref()else{return vec![];};
+    if !model.variables.iter().any(|v|v.integer) {return vec![];}
+    let mut upper_bounds=Vec::new();
+    for (j,v) in model.variables.iter().enumerate() {
+        let exact=|bound:Option<f64>,enclosure:Option<[f64;2]>|bound.filter(|b|b.is_finite()&&b.fract()==0.&&b.abs()<=(1u64<<52)as f64&&enclosure==Some([*b;2]));
+        match (exact(v.lower,v.lower_enclosure),exact(v.upper,v.upper_enclosure)) {
+            (Some(l),Some(u))=>if u-point[j]<point[j]-l {upper_bounds.push(j);},
+            (None,Some(_))=>upper_bounds.push(j),
+            (Some(_),None)=>{},(None,None)=>return vec![],
+        }
+    }
+    let mut ranking:Vec<_>=model.variables.iter().enumerate().filter_map(|(j,_)| {
+        let t=&standard.terms[j];if !model.variables[j].integer || t.len()!=1{return None;}
+        let fraction=(point[j]-point[j].round()).abs();(fraction>1e-6).then_some((fraction,j,t[0].0))
+    }).collect();ranking.sort_by(|a,b|b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));ranking.truncate(16);
+    let columns:Vec<_>=ranking.iter().map(|v|v.2).collect();let mut result=Vec::new();
+    for (column,weights) in revised::tableau_rows(problem,warm,&columns,deadline) {
+        let Some(&(_,pivot,_))=ranking.iter().find(|v|v.2==column)else{continue;};
+        if weights.len()!=standard.row_sources.len(){continue;}
+        let mut terms=Vec::new();let mut valid=true;
+        for (&w,&(row,sign)) in weights.iter().zip(&standard.row_sources) {
+            if row>=model.rows.len(){continue;}
+            let value=(w*65536.).round();
+            if !value.is_finite() || value.abs()>(1u64<<40)as f64 {valid=false;break;}
+            if value!=0. {terms.push(crate::gomory::Term{row,upper:sign>0.,weight:value as i64});}
+        }
+        terms.sort_by_key(|t|(t.row,t.upper));
+        if valid && !terms.is_empty() {result.push(crate::gomory::Proof{normalized:true,mixed:true,terms,pivot,upper_bounds:upper_bounds.clone()});}
+    }
+    result
+}
+
+fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomory::BoundProof> {
+    let witness=cached.answer.witness.as_ref()?;
+    if witness.len()!=cached.standard.row_sources.len() {return None;}
+    let mut weights=vec![0.;model.rows.len()];
+    for (&w,&(row,sign)) in witness.iter().zip(&cached.standard.row_sources) {weights[row]+=sign*w;}
+    for (row,w) in model.rows.iter().zip(&mut weights) {
+        let supported=if *w>0. {row.lower.zip(row.lower_enclosure)}else{row.upper.zip(row.upper_enclosure)};
+        if !supported.is_some_and(|(v,[lo,hi])|lo.is_finite()&&hi.is_finite()&&lo<=v&&v<=hi) {*w=0.;}
+    }
+    let lower:Vec<_>=model.variables.iter().map(|v|v.lower_enclosure.map(|b|b[0])).collect();
+    let upper:Vec<_>=model.variables.iter().map(|v|v.upper_enclosure.map(|b|b[1])).collect();
+    let certifier=Certifier::new(model)?;let mut best=None;
+    for factor in [1.,1.-2f64.powi(-40),1.+2f64.powi(-40)] {
+        let candidate:Vec<_>=weights.iter().map(|w|w*factor).collect();
+        let Some(bound)=certifier.bound(&lower,&upper,&candidate).map(f64::next_down)else{continue;};
+        if bound.is_finite() && best.as_ref().is_none_or(|p:&crate::gomory::BoundProof|bound>p.normalized_bound) {
+            best=Some(crate::gomory::BoundProof{bounds:vec![],normalized_bound:bound,multipliers:candidate.iter().enumerate().filter(|(_,w)|**w!=0.).map(|(i,w)|(i,format!("{:016x}",w.to_bits()))).collect()});
+        }
+    }
+    if best.is_none() {
+        let (inferred_lower,inferred_upper,steps)=certifier.infer_box_proof(model);
+        if !steps.is_empty() {
+            for factor in [1.,1.-2f64.powi(-40),1.+2f64.powi(-40)] {
+                let candidate:Vec<_>=weights.iter().map(|w|w*factor).collect();
+                let Some(bound)=certifier.bound(&inferred_lower,&inferred_upper,&candidate).map(f64::next_down)else{continue;};
+                if bound.is_finite() && best.as_ref().is_none_or(|p:&crate::gomory::BoundProof|bound>p.normalized_bound) {
+                    best=Some(crate::gomory::BoundProof{bounds:steps.clone(),normalized_bound:bound,multipliers:candidate.iter().enumerate().filter(|(_,w)|**w!=0.).map(|(i,w)|(i,format!("{:016x}",w.to_bits()))).collect()});
+                }
+            }
+        }
+    }
+    best
 }

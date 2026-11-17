@@ -334,6 +334,7 @@ impl Pool {
                         let cut = Cut {
                             row,
                             proof: Proof {
+                            gomory: None,
                                 mir: None,
                                 clique: vec![],
                                 aggregation: terms.clone(),
@@ -477,6 +478,7 @@ mod tests {
             let cut = Cut {
                 row,
                 proof: Proof {
+                            gomory: None,
                     mir: None,
                     clique: vec![],
                     aggregation: terms,

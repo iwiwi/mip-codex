@@ -1,0 +1,12 @@
+from pathlib import Path
+from fractions import Fraction as F
+from importlib.util import spec_from_file_location,module_from_spec
+import json,subprocess,shutil,sys,os,hashlib,copy
+sys.path.insert(0,'scripts');root=Path.cwd();out=root/'artifacts/safe-gmi-rust-proof-audit';out.mkdir();os.sched_setaffinity(0,{42});source=Path('/home/ubuntu/mip-dual-restoration/target/release/examples/safe_gomory_oracle');shutil.copy2(source,out/'helper');info=json.loads(subprocess.check_output([str(out/'helper'),'build-info']));inputs=json.load(open('artifacts/safe-gmi-fraction-oracle/input.json'));expected=json.load(open('artifacts/safe-gmi-fraction-oracle/expected.json'))
+with Path('artifacts/safe-gmi-fraction-oracle/input.json').open()as inp,(out/'rust.jsonl').open('w')as stream,(out/'stderr.log').open('w')as err:p=subprocess.run([str(out/'helper')],stdin=inp,stdout=stream,stderr=err,timeout=60)
+assert p.returncode==0;rows=[json.loads(x)for x in(out/'rust.jsonl').read_text().splitlines()];assert len(rows)==200;spec=spec_from_file_location('checker','/home/ubuntu/mip-codex/artifacts/safe-gmi-v1-diagnostic/scripts/verify_cover_cuts.py');checker=module_from_spec(spec);spec.loader.exec_module(checker);valid=0;tampered=0
+for case,(v,row,want)in enumerate(zip(inputs,rows,expected)):
+ if want is None:assert row is None;continue
+ assert row is not None and row['coefficients']==want['coefficients']and row['lower']==want['lower'],(case,row,want);d=out/str(case);d.mkdir();model=d/'model.mps';model.write_text(v['model']);names,variables,sources=checker.exact_model(model);first=v['proof']['terms'][0];proof=dict(gomory=v['proof'],source_row=first['row'],source_name=sources[first['row']]['name'],upper_side=first['upper'],cover=[],divisor=None,clique=[],aggregation=[]);result=dict(cut_proofs=[dict(row=row,proof=proof)]);good=checker.validate_cut_proofs(model,result);assert good['valid']is True,(case,good);valid+=1
+ bad=copy.deepcopy(result);bad['cut_proofs'][0]['row']['coefficients'][0][1]+=1;check=checker.validate_cut_proofs(model,bad);assert check['valid']is False;tampered+=1;(d/'validation.json').write_text(json.dumps(dict(valid=good,tampered=check))+'\n')
+summary=dict(cases=200,valid=valid,tampered_rejected=tampered,failures=0,build_info=info,binary_sha256=hashlib.sha256((out/'helper').read_bytes()).hexdigest());(out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(summary)

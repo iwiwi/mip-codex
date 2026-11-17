@@ -2,7 +2,7 @@
 //! 大規模問題用ではない。返却statusは浮動小数点の判定であり厳密証明ではない。
 const EPS: f64 = 1e-9;
 const FEAS: f64 = 1e-8;
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Outcome {
     Optimal { objective: f64, x: Vec<f64> },
     Infeasible,

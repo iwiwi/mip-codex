@@ -1,0 +1,506 @@
+[
+  {
+    "run": "safe-gmi-box-native10",
+    "name": "lotsize.mps.gz",
+    "solver": "highs",
+    "solution_sha256": "dcbe91853e0a0834a564c77ed2f2e6f8adca4f0d6eecd4e72206e1238afa0445",
+    "input_sha256": "14702c1793474b78a30b91512a12917790ba860f7abe765b01b296fb86835902",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-box-native10/lotsize.mps.gz/highs/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/lotsize.mps.gz/highs"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 1510896.0000000037,
+        "bound_violation": 9.629275155020878e-10,
+        "row_violation": 4.4889892419817156e-11,
+        "integer_violation": 1.5098427703658029e-13,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 1510896.0000000037,
+      "bound_violation": 9.629275155020878e-10,
+      "row_violation": 4.4889892419817156e-11,
+      "integer_violation": 1.5098427703658029e-13,
+      "objective_error": 9.859572360640251e-11,
+      "exact": {
+        "objective": "60435840000000151943828944256100319/40000000000000000000000000000",
+        "bound_violation": "4814637577510439/5000000000000000000000000",
+        "row_violation": "112224731049542891799/2500000000000000000000000000000",
+        "integer_violation": "15098427703658029/100000000000000000000000000000",
+        "objective_error": "3943828944256100319/40000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "60435880000000151943828944256100319/4000000000000000000000000000000000000",
+        "absolute_error": "3943828944256100319/40000000000000000000000000000",
+        "recomputed_exact": "60435840000000151943828944256100319/40000000000000000000000000000",
+        "reported_token": "1510896.0000000037"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+        "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/lotsize.mps.gz/highs/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "safe-gmi-box-native10",
+    "name": "lotsize.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "07b378b44a7b188f51697fac41e2c94775b7ee339408d1b28481cafac13d382d",
+    "input_sha256": "14702c1793474b78a30b91512a12917790ba860f7abe765b01b296fb86835902",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-box-native10/lotsize.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/lotsize.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 14825679.0,
+        "bound_violation": 4.445110945994202e-12,
+        "row_violation": 3.637978807091713e-12,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 14825679.0,
+      "bound_violation": 4.445110945994202e-12,
+      "row_violation": 4e-12,
+      "integer_violation": 0.0,
+      "objective_error": 5.076281294186886e-11,
+      "exact": {
+        "objective": "3706419750000000012690703235467213679/250000000000000000000000000000",
+        "bound_violation": "2222555472997101/500000000000000000000000000",
+        "row_violation": "1/250000000000",
+        "integer_violation": "0",
+        "objective_error": "12690703235467213679/250000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "3706420000000000012690703235467213679/25000000000000000000000000000000000000",
+        "absolute_error": "12690703235467213679/250000000000000000000000000000",
+        "recomputed_exact": "3706419750000000012690703235467213679/250000000000000000000000000000",
+        "reported_token": "14825679.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+        "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/lotsize.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "safe-gmi-box-native10",
+    "name": "lotsize.mps.gz",
+    "solver": "scip",
+    "solution_sha256": "77ae821b55b2f41a39b4d4c185d5eaa810359e4a552fe1721ed5d4c74bf44b59",
+    "input_sha256": "14702c1793474b78a30b91512a12917790ba860f7abe765b01b296fb86835902",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-box-native10/lotsize.mps.gz/scip/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/lotsize.mps.gz/scip"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 5062268.0,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 5062268.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "5062268",
+        "bound_violation": "0",
+        "row_violation": "0",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "5062269/100000000",
+        "absolute_error": "0",
+        "recomputed_exact": "5062268",
+        "reported_token": "5062268.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+        "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/lotsize.mps.gz/scip/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "safe-gmi-box-native10",
+    "name": "n5-3.mps.gz",
+    "solver": "glpk",
+    "solution_sha256": "87b3ed4be2dc45dfce4d25811e051c7c98973ffdef43d353dab7f9d461de2156",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-box-native10/n5-3.mps.gz/glpk/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/glpk"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 9552.000000000242,
+        "bound_violation": 2.1030510666264487e-11,
+        "row_violation": 3.012246008182809e-11,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 9552.000000000242,
+      "bound_violation": 2.1030510666264487e-11,
+      "row_violation": 3.012246008182809e-11,
+      "integer_violation": 0.0,
+      "objective_error": 4.0247353480298814e-13,
+      "exact": {
+        "objective": "23880000000000603993816162992529654325541103276327/2500000000000000000000000000000000000000000000",
+        "bound_violation": "21030510666264487/1000000000000000000000000000",
+        "row_violation": "15061230040914047170664128248773/500000000000000000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1006183837007470345674458896723673/2500000000000000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "23882500000000603993816162992529654325541103276327/250000000000000000000000000000000000000000000000000000",
+        "absolute_error": "1006183837007470345674458896723673/2500000000000000000000000000000000000000000000",
+        "recomputed_exact": "23880000000000603993816162992529654325541103276327/2500000000000000000000000000000000000000000000",
+        "reported_token": "9552.000000000242"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/glpk/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "safe-gmi-box-native10",
+    "name": "n5-3.mps.gz",
+    "solver": "highs",
+    "solution_sha256": "29cede06697ce814a74181d1ba5f7ad5b9167ec29b59c398351fef473e1b50fd",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-box-native10/n5-3.mps.gz/highs/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/highs"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 8543.000000000002,
+        "bound_violation": 2.8066438062523957e-12,
+        "row_violation": 7.500193661616844e-14,
+        "integer_violation": 1.541895456286802e-14,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 8543.000000000002,
+      "bound_violation": 2.8066438062523957e-12,
+      "row_violation": 6.964636140400742e-14,
+      "integer_violation": 1.541895456286802e-14,
+      "objective_error": 9.659092103705603e-13,
+      "exact": {
+        "objective": "2135750000000000258522697407359917/250000000000000000000000000000",
+        "bound_violation": "28066438062523957/10000000000000000000000000000",
+        "row_violation": "69646361404007413/1000000000000000000000000000000",
+        "integer_violation": "770947728143401/50000000000000000000000000000",
+        "objective_error": "241477302592640083/250000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "2136000000000000258522697407359917/25000000000000000000000000000000000000",
+        "absolute_error": "241477302592640083/250000000000000000000000000000",
+        "recomputed_exact": "2135750000000000258522697407359917/250000000000000000000000000000",
+        "reported_token": "8543.000000000002"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/highs/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "safe-gmi-box-native10",
+    "name": "n5-3.mps.gz",
+    "solver": "rust",
+    "solution_sha256": "9d39bcf208bb0646cdd1c3472200da07d5a1410d9def751d55bad3a02c12f90d",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-box-native10/n5-3.mps.gz/rust/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/rust"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "106260000000000005604881656680343531/1000000000000000000000000000000000000000",
+        "absolute_error": "5604881656680343531/10000000000000000000000000000000",
+        "recomputed_exact": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "reported_token": "10625.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/rust/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "safe-gmi-box-native10",
+    "name": "n5-3.mps.gz",
+    "solver": "scip",
+    "solution_sha256": "0197625a3db4a0b2511869ac9b484b02c82e1adb78f09db71df54f67897b2514",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-box-native10/n5-3.mps.gz/scip/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/scip"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 12023.0,
+        "bound_violation": 1.697055194784173e-14,
+        "row_violation": 1.2057022047429235e-13,
+        "integer_violation": 2.930988785010413e-14,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 12023.0,
+      "bound_violation": 1.697055194784173e-14,
+      "row_violation": 1.2057022047429235e-13,
+      "integer_violation": 2.93e-14,
+      "objective_error": 6.101158384265869e-13,
+      "exact": {
+        "objective": "24046000000000001220231676853173957/2000000000000000000000000000000",
+        "bound_violation": "1697055194784173/100000000000000000000000000000",
+        "row_violation": "241140440948584721/2000000000000000000000000000000",
+        "integer_violation": "293/10000000000000000",
+        "objective_error": "1220231676853173957/2000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "24048000000000001220231676853173957/200000000000000000000000000000000000000",
+        "absolute_error": "1220231676853173957/2000000000000000000000000000000",
+        "recomputed_exact": "24046000000000001220231676853173957/2000000000000000000000000000000",
+        "reported_token": "12023.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/safe-gmi-box-native10-audit/safe-gmi-box-native10/n5-3.mps.gz/scip/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+]

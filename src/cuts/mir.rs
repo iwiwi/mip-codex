@@ -239,6 +239,7 @@ impl Pool {
                             Cut {
                                 row,
                                 proof: Proof {
+                            gomory: None,
                                     mir: Some(MirProof {
                                         upper_bounds: complements.clone(),
                                     }),
@@ -401,6 +402,7 @@ mod tests {
         let mut cut = Cut {
             row,
             proof: Proof {
+                            gomory: None,
                 mir: Some(MirProof {
                     upper_bounds: vec![],
                 }),

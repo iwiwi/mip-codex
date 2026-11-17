@@ -1,0 +1,26 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-dual-restoration)
+error[E0433]: cannot find module or crate `objective_bound` in this scope
+    --> src/solve.rs:3599:15
+     |
+3599 |     let bound=objective_bound::Certifier::new(model)?.bound(&lower,&upper,&weights)?.next_down();
+     |               ^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `objective_bound`
+     |
+help: to make use of source file src/objective_bound.rs, use `mod objective_bound` in this file to declare the module
+    -->  src/lib.rs:2:1
+     |
+   2 + mod objective_bound;
+     |
+help: consider importing this struct
+     |
+   2 + use crate::objective_bound::Certifier;
+     |
+help: if you import `Certifier`, refer to it directly
+     |
+3599 -     let bound=objective_bound::Certifier::new(model)?.bound(&lower,&upper,&weights)?.next_down();
+3599 +     let bound=Certifier::new(model)?.bound(&lower,&upper,&weights)?.next_down();
+     |
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `mip-codex` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `mip-codex` (lib test) due to 1 previous error

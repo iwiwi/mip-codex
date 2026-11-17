@@ -1,0 +1,1154 @@
+[
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "exp-1-500-5-5.mps.gz",
+    "solver": "after",
+    "solution_sha256": "51260c7e43b8004ef79bcf709c8dbf4ad79b350b654908f1b931ff1cd4281fbb",
+    "input_sha256": "6e00da7741d808d331ff37bfcaf498bcc4c57ac24f32622f01047b6bbc7d870f",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/exp-1-500-5-5.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/exp-1-500-5-5.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 179115.0,
+        "bound_violation": 7.105427357601002e-15,
+        "row_violation": 1.2079226507921703e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 179115.0,
+      "bound_violation": 7.105427357601002e-15,
+      "row_violation": 1.1e-13,
+      "integer_violation": 0.0,
+      "objective_error": 4.57156581139192e-13,
+      "exact": {
+        "objective": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "bound_violation": "3552713678800501/500000000000000000000000000000",
+        "row_violation": "11/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "28572286321199499/62500000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "11194749999999999971427713678800501/6250000000000000000000000000000000000",
+        "absolute_error": "28572286321199499/62500000000000000000000000000",
+        "recomputed_exact": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "reported_token": "179115.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/exp-1-500-5-5.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "exp-1-500-5-5.mps.gz",
+    "solver": "before",
+    "solution_sha256": "8a244b795b9cb18592a8c30e86ff5bdecdf903135d98e69bb6dd92e71f2a0487",
+    "input_sha256": "6e00da7741d808d331ff37bfcaf498bcc4c57ac24f32622f01047b6bbc7d870f",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/exp-1-500-5-5.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/exp-1-500-5-5.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 179115.0,
+        "bound_violation": 7.105427357601002e-15,
+        "row_violation": 1.2079226507921703e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 179115.0,
+      "bound_violation": 7.105427357601002e-15,
+      "row_violation": 1.1e-13,
+      "integer_violation": 0.0,
+      "objective_error": 4.57156581139192e-13,
+      "exact": {
+        "objective": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "bound_violation": "3552713678800501/500000000000000000000000000000",
+        "row_violation": "11/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "28572286321199499/62500000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "11194749999999999971427713678800501/6250000000000000000000000000000000000",
+        "absolute_error": "28572286321199499/62500000000000000000000000000",
+        "recomputed_exact": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "reported_token": "179115.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/exp-1-500-5-5.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "mad.mps.gz",
+    "solver": "after",
+    "solution_sha256": "2d6da726351794a15b6854bc8a68e041254ac5bca73b435d20f56f448d6f160b",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/mad.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/mad.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37659999999999955,
+        "bound_violation": 0.0,
+        "row_violation": 6.622306869541461e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37659999999999955,
+      "bound_violation": 0.0,
+      "row_violation": 6.45e-16,
+      "integer_violation": 0.0,
+      "objective_error": 8e-18,
+      "exact": {
+        "objective": "188299999999999779/500000000000000000",
+        "bound_violation": "0",
+        "row_violation": "129/200000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/125000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "688299999999999779/50000000000000000000000000",
+        "absolute_error": "1/125000000000000000",
+        "recomputed_exact": "188299999999999779/500000000000000000",
+        "reported_token": "0.37659999999999955"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/mad.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "mad.mps.gz",
+    "solver": "before",
+    "solution_sha256": "6cff463a1a9857b6cf4b452bbb7f15c35f11266a7eec11b6a95b227718ca3307",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/mad.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/mad.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.37659999999999955,
+        "bound_violation": 0.0,
+        "row_violation": 6.622306869541461e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.37659999999999955,
+      "bound_violation": 0.0,
+      "row_violation": 6.45e-16,
+      "integer_violation": 0.0,
+      "objective_error": 8e-18,
+      "exact": {
+        "objective": "188299999999999779/500000000000000000",
+        "bound_violation": "0",
+        "row_violation": "129/200000000000000000",
+        "integer_violation": "0",
+        "objective_error": "1/125000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "688299999999999779/50000000000000000000000000",
+        "absolute_error": "1/125000000000000000",
+        "recomputed_exact": "188299999999999779/500000000000000000",
+        "reported_token": "0.37659999999999955"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/mad.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "n5-3.mps.gz",
+    "solver": "after",
+    "solution_sha256": "85a763a9f9c3c45fa26485b354a6aa1f139d7f8e05fe2e87b09a445df0d32824",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/n5-3.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/n5-3.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "106260000000000005604881656680343531/1000000000000000000000000000000000000000",
+        "absolute_error": "5604881656680343531/10000000000000000000000000000000",
+        "recomputed_exact": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "reported_token": "10625.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/n5-3.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "n5-3.mps.gz",
+    "solver": "before",
+    "solution_sha256": "93aa81b4649cf255da00f9617188c227e4c5a2da809a5166b100a17a9ccff5d8",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/n5-3.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/n5-3.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "106260000000000005604881656680343531/1000000000000000000000000000000000000000",
+        "absolute_error": "5604881656680343531/10000000000000000000000000000000",
+        "recomputed_exact": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "reported_token": "10625.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/n5-3.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "pk1.mps.gz",
+    "solver": "after",
+    "solution_sha256": "b1edd7fec84358565f95611e079da6ca1cedf3ff3311e10d44c32bc9b7433df8",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/pk1.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/pk1.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 17.0,
+        "bound_violation": 4.6629367034256575e-15,
+        "row_violation": 7.105427357601002e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 17.0,
+      "bound_violation": 4.6629367034256575e-15,
+      "row_violation": 7.5e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "17",
+        "bound_violation": "1865174681370263/400000000000000000000000000000",
+        "row_violation": "3/400000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "9/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "17",
+        "reported_token": "17.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/pk1.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-paired-41",
+    "name": "pk1.mps.gz",
+    "solver": "before",
+    "solution_sha256": "0907d504dc79641fd13648ebe8c215bd29010780435f9dae8f4d9d205e41445e",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-paired-41/pk1.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/pk1.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 17.0,
+        "bound_violation": 4.6629367034256575e-15,
+        "row_violation": 7.105427357601002e-15,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 17.0,
+      "bound_violation": 4.6629367034256575e-15,
+      "row_violation": 7.5e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "17",
+        "bound_violation": "1865174681370263/400000000000000000000000000000",
+        "row_violation": "3/400000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "9/50000000",
+        "absolute_error": "0",
+        "recomputed_exact": "17",
+        "reported_token": "17.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-paired-41/pk1.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "exp-1-500-5-5.mps.gz",
+    "solver": "after",
+    "solution_sha256": "1ec6aa4e534d6f163b45167efc44a04f5ab3d0ed738722bf92f21578af42c9aa",
+    "input_sha256": "6e00da7741d808d331ff37bfcaf498bcc4c57ac24f32622f01047b6bbc7d870f",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/exp-1-500-5-5.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/exp-1-500-5-5.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 179115.0,
+        "bound_violation": 7.105427357601002e-15,
+        "row_violation": 1.2079226507921703e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 179115.0,
+      "bound_violation": 7.105427357601002e-15,
+      "row_violation": 1.1e-13,
+      "integer_violation": 0.0,
+      "objective_error": 4.57156581139192e-13,
+      "exact": {
+        "objective": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "bound_violation": "3552713678800501/500000000000000000000000000000",
+        "row_violation": "11/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "28572286321199499/62500000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "11194749999999999971427713678800501/6250000000000000000000000000000000000",
+        "absolute_error": "28572286321199499/62500000000000000000000000000",
+        "recomputed_exact": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "reported_token": "179115.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/exp-1-500-5-5.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "exp-1-500-5-5.mps.gz",
+    "solver": "before",
+    "solution_sha256": "25a7a35fd57951f666ab1f3ac7f0b652ef701e616072dd5e221ad321d2933903",
+    "input_sha256": "6e00da7741d808d331ff37bfcaf498bcc4c57ac24f32622f01047b6bbc7d870f",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/exp-1-500-5-5.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/exp-1-500-5-5.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 179115.0,
+        "bound_violation": 7.105427357601002e-15,
+        "row_violation": 1.2079226507921703e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 179115.0,
+      "bound_violation": 7.105427357601002e-15,
+      "row_violation": 1.1e-13,
+      "integer_violation": 0.0,
+      "objective_error": 4.57156581139192e-13,
+      "exact": {
+        "objective": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "bound_violation": "3552713678800501/500000000000000000000000000000",
+        "row_violation": "11/100000000000000",
+        "integer_violation": "0",
+        "objective_error": "28572286321199499/62500000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "11194749999999999971427713678800501/6250000000000000000000000000000000000",
+        "absolute_error": "28572286321199499/62500000000000000000000000000",
+        "recomputed_exact": "11194687499999999971427713678800501/62500000000000000000000000000",
+        "reported_token": "179115.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/exp-1-500-5-5.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/exp-1-500-5-5.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "mad.mps.gz",
+    "solver": "after",
+    "solution_sha256": "eca1c87de48d4aa6299cd5b7643bfa60cfc031568f08c5b0329aed7281594a89",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/mad.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/mad.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.6279999999999997,
+        "bound_violation": 0.0,
+        "row_violation": 2.9967348047499343e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.6279999999999997,
+      "bound_violation": 0.0,
+      "row_violation": 2.71e-16,
+      "integer_violation": 0.0,
+      "objective_error": 6.7e-17,
+      "exact": {
+        "objective": "627999999999999633/1000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "271/1000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "67/1000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "1627999999999999633/100000000000000000000000000",
+        "absolute_error": "67/1000000000000000000",
+        "recomputed_exact": "627999999999999633/1000000000000000000",
+        "reported_token": "0.6279999999999997"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/mad.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "mad.mps.gz",
+    "solver": "before",
+    "solution_sha256": "3c73799feddfa49355e5d26144263240555e0854f86271a6e8fd4cb89f42eae1",
+    "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/mad.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/mad.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 0.6279999999999997,
+        "bound_violation": 0.0,
+        "row_violation": 2.9967348047499343e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 0.6279999999999997,
+      "bound_violation": 0.0,
+      "row_violation": 2.71e-16,
+      "integer_violation": 0.0,
+      "objective_error": 6.7e-17,
+      "exact": {
+        "objective": "627999999999999633/1000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "271/1000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "67/1000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "1627999999999999633/100000000000000000000000000",
+        "absolute_error": "67/1000000000000000000",
+        "recomputed_exact": "627999999999999633/1000000000000000000",
+        "reported_token": "0.6279999999999997"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/mad.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "n5-3.mps.gz",
+    "solver": "after",
+    "solution_sha256": "5372588ea3ddb2c53973baa72a8cb60c2def565844fa5d9b90f4aeb4642f57b2",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/n5-3.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/n5-3.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "106260000000000005604881656680343531/1000000000000000000000000000000000000000",
+        "absolute_error": "5604881656680343531/10000000000000000000000000000000",
+        "recomputed_exact": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "reported_token": "10625.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/n5-3.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "n5-3.mps.gz",
+    "solver": "before",
+    "solution_sha256": "a24c17be0c116980fdf189d1dba1d231a99f5ae718625575b4e1435524b24b82",
+    "input_sha256": "48efedf21c4057851a4ef7efc79fbbcbd292b68ee5f6b6a16e904d11ab11bacc",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/n5-3.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/n5-3.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 10625.0,
+        "bound_violation": 0.0,
+        "row_violation": 1.1812772982011666e-13,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 10625.0,
+      "bound_violation": 0.0,
+      "row_violation": 1.1791434834260726e-13,
+      "integer_violation": 0.0,
+      "objective_error": 5.604881656680343e-13,
+      "exact": {
+        "objective": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "bound_violation": "0",
+        "row_violation": "58957174171303633/500000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "5604881656680343531/10000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "106260000000000005604881656680343531/1000000000000000000000000000000000000000",
+        "absolute_error": "5604881656680343531/10000000000000000000000000000000",
+        "recomputed_exact": "106250000000000005604881656680343531/10000000000000000000000000000000",
+        "reported_token": "10625.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/n5-3.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/n5-3.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "pk1.mps.gz",
+    "solver": "after",
+    "solution_sha256": "b0fec29d4e01d873c2763c0731f9a3c50969f2e0a06b6625ab8f7ab65e3a67b1",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/pk1.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/pk1.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 22.000000000000004,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 22.000000000000004,
+      "bound_violation": 0.0,
+      "row_violation": 7e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "5500000000000001/250000000000000",
+        "bound_violation": "0",
+        "row_violation": "7/1000000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "5750000000000001/25000000000000000000000",
+        "absolute_error": "0",
+        "recomputed_exact": "5500000000000001/250000000000000",
+        "reported_token": "22.000000000000004"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/pk1.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "strong-child-warm-v1-node10k-paired-42",
+    "name": "pk1.mps.gz",
+    "solver": "before",
+    "solution_sha256": "9580f76d117c7662ef56c8d10f47a74f7461be0ca8bbb294f896b710aeb1dc40",
+    "input_sha256": "6c64530538b254a8ae648f8f8f188847366ae52da560fdec0ad290c642973ba0",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/strong-child-warm-v1-node10k-paired-42/pk1.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/pk1.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 22.000000000000004,
+        "bound_violation": 0.0,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 22.000000000000004,
+      "bound_violation": 0.0,
+      "row_violation": 7e-15,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "exact": {
+        "objective": "5500000000000001/250000000000000",
+        "bound_violation": "0",
+        "row_violation": "7/1000000000000000",
+        "integer_violation": "0",
+        "objective_error": "0"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "5750000000000001/25000000000000000000000",
+        "absolute_error": "0",
+        "recomputed_exact": "5500000000000001/250000000000000",
+        "reported_token": "22.000000000000004"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/pk1.mps.gz",
+        "artifacts/strong-child-warm-v1-short-audit/strong-child-warm-v1-node10k-paired-42/pk1.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+]

@@ -1,0 +1,146 @@
+[
+  {
+    "run": "safe-gmi-work-cap-repeat-paired-45",
+    "name": "binkar10_1.mps.gz",
+    "solver": "after",
+    "solution_sha256": "31542bce3ab31b3ba66711285cabb5b05ed23963638f39483e2b6415767259b6",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-work-cap-repeat-paired-45/binkar10_1.mps.gz/after/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-work-cap-repeat-audit/safe-gmi-work-cap-repeat-paired-45/binkar10_1.mps.gz/after"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 6849.949995,
+        "bound_violation": 2.220446049250313e-16,
+        "row_violation": 4.440892098500626e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 6849.949995,
+      "bound_violation": 2.220446049250313e-16,
+      "row_violation": 4e-16,
+      "integer_violation": 0.0,
+      "objective_error": 5.641169096008192e-15,
+      "exact": {
+        "objective": "136998999900000000112823381920163843639687/20000000000000000000000000000000000000",
+        "bound_violation": "2220446049250313/10000000000000000000000000000000",
+        "row_violation": "1/2500000000000000",
+        "integer_violation": "0",
+        "objective_error": "112823381920163843639687/20000000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "137018999900000000112823381920163843639687/2000000000000000000000000000000000000000000000",
+        "absolute_error": "112823381920163843639687/20000000000000000000000000000000000000",
+        "recomputed_exact": "136998999900000000112823381920163843639687/20000000000000000000000000000000000000",
+        "reported_token": "6849.949995"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/safe-gmi-work-cap-repeat-audit/safe-gmi-work-cap-repeat-paired-45/binkar10_1.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  },
+  {
+    "run": "safe-gmi-work-cap-repeat-paired-45",
+    "name": "binkar10_1.mps.gz",
+    "solver": "before",
+    "solution_sha256": "1568c85f3cb90518ed129642921cce16d84da3ede95d6d0c29674a76bf14562b",
+    "input_sha256": "94282c38edd6c83bb6c2d788d823fd82f218218e8e07c98d1d1ab42c1e91039e",
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/.venv/bin/python",
+      "/home/ubuntu/mip-codex/scripts/benchmark_validate.py",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-work-cap-repeat-paired-45/binkar10_1.mps.gz/before/result.json",
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "artifacts/safe-gmi-work-cap-repeat-audit/safe-gmi-work-cap-repeat-paired-45/binkar10_1.mps.gz/before"
+    ],
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 6849.949995,
+        "bound_violation": 2.220446049250313e-16,
+        "row_violation": 4.440892098500626e-16,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 6849.949995,
+      "bound_violation": 2.220446049250313e-16,
+      "row_violation": 4e-16,
+      "integer_violation": 0.0,
+      "objective_error": 5.641169096008192e-15,
+      "exact": {
+        "objective": "136998999900000000112823381920163843639687/20000000000000000000000000000000000000",
+        "bound_violation": "2220446049250313/10000000000000000000000000000000",
+        "row_violation": "1/2500000000000000",
+        "integer_violation": "0",
+        "objective_error": "112823381920163843639687/20000000000000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "137018999900000000112823381920163843639687/2000000000000000000000000000000000000000000000",
+        "absolute_error": "112823381920163843639687/20000000000000000000000000000000000000",
+        "recomputed_exact": "136998999900000000112823381920163843639687/20000000000000000000000000000000000000",
+        "reported_token": "6849.949995"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/binkar10_1.mps.gz",
+        "artifacts/safe-gmi-work-cap-repeat-audit/safe-gmi-work-cap-repeat-paired-45/binkar10_1.mps.gz/before/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+]

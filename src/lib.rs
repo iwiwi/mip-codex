@@ -48,3 +48,5 @@ pub mod dual_guided_primal;
 pub mod component_objective_repair;
 
 pub mod cover_greedy;
+
+pub mod gomory;

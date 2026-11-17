@@ -1,0 +1,1265 @@
+diff --git a/scripts/verify_cover_cuts.py b/scripts/verify_cover_cuts.py
+index aad2258f0b..51d2943031 100644
+--- a/scripts/verify_cover_cuts.py
++++ b/scripts/verify_cover_cuts.py
+@@ -165,6 +165,56 @@ def verify_mir_exact(names,variables,source,cut):
+     actual=[(j,Fraction(a))for j,a in row['coefficients']]
+     if actual!=coeff or row['lower']is not None or Fraction(row['upper'])!=rhs or row.get('exact_integral')is not True:raise AssertionError('MIR inequality mismatch')
+ 
++def verify_gomory_exact(names,variables,rows,cut):
++    p=cut['proof'];proof=p['gomory'];row=cut['row'];terms=proof['terms'];upper=proof['upper_bounds'];pivot=proof['pivot'];n=len(names);indices={name:j for j,name in enumerate(names)}
++    if p.get('mir')is not None or p.get('clique')or p.get('aggregation')or p.get('divisor')is not None or p['cover']:raise AssertionError('Gomory mixed proof kinds')
++    mixed=proof.get('mixed',False);normalized=proof.get('normalized',False)
++    if type(normalized)is not bool:raise AssertionError('Gomory normalization flag')
++    if type(mixed)is not bool or (not mixed and not all(v['integer']for v in variables.values()))or not 0<n<=100000:raise AssertionError('Gomory integer flags')
++    if type(pivot)is not int or not 0<=pivot<n or not isinstance(terms,list)or not 0<len(terms)<=1024:raise AssertionError('Gomory shape')
++    if not isinstance(upper,list)or any(type(j)is not int or not 0<=j<n for j in upper)or upper!=sorted(set(upper)):raise AssertionError('Gomory complements')
++    if not variables[names[pivot]]['integer']:raise AssertionError('Gomory pivot must be integer')
++    anchors=[];directions=[]
++    for j,name in enumerate(names):
++        d=-1 if j in upper else 1;b=variables[name]['upper'if d==-1 else'lower']
++        if b is None or b.denominator!=1 or abs(b)>2**52:raise AssertionError('Gomory bound must be exact integer')
++        anchors.append(int(b));directions.append(d)
++    A=[0]*n;B=0;equations=[];previous=None;work=0
++    for t in terms:
++        i=t['row'];side=t['upper'];weight=t['weight']
++        if type(i)is not int or not 0<=i<len(rows)or type(side)is not bool or type(weight)is not int or not -2**63<=weight<2**63 or weight==0:raise AssertionError('Gomory term')
++        key=(i,side)
++        if previous is not None and key<=previous:raise AssertionError('Gomory term order')
++        previous=key;source=rows[i];sign=1 if side else-1;b=source['upper'if side else'lower'];work+=len(source['coefficients'])
++        if b is None or b.denominator!=1 or abs(b)>2**52 or work>1000000:raise AssertionError('Gomory source bound/work')
++        coefficients={indices[name]:int(v)*sign for name,v in source['coefficients'].items()if v}
++        if any(v.denominator!=1 or abs(v)>2**52 for v in source['coefficients'].values()):raise AssertionError('Gomory source coefficients')
++        for j,v in coefficients.items():A[j]+=weight*v
++        B+=weight*sign*int(b);equations.append((coefficients,sign*int(b),weight,all(variables[names[j]]['integer']for j in coefficients)))
++    orientation=-1 if A[pivot]<0 else 1;A=[v*orientation for v in A];B*=orientation;M=A[pivot]
++    if M<=0:raise AssertionError('Gomory zero pivot')
++    shifted=B-sum(v*t for v,t in zip(A,anchors));R0=shifted%M
++    if R0==0:raise AssertionError('Gomory integral rhs')
++    h=M-R0
++    def coefficient(v,integer):
++        if not mixed:return v%M
++        if not integer:return v*h if v>=0 else -R0*v
++        rem=v%M
++        return rem*h if rem<=R0 else R0*(M-rem)
++    C=[d*coefficient(d*v,variables[name]['integer'])for d,v,name in zip(directions,A,names)];rhs=(R0*h if mixed else R0)+sum(v*t for v,t in zip(C,anchors))
++    for coefficients,b,w,slack_integer in equations:
++        rem=coefficient(w*orientation,slack_integer);rhs-=rem*b
++        for j,v in coefficients.items():C[j]-=rem*v
++    common=math.gcd(rhs,*C)
++    if common>1:C=[v//common for v in C];rhs//=common
++    largest=max(abs(rhs),*(abs(v)for v in C));scale=1<<(largest.bit_length()-1)if normalized and largest>16384 else 1
++    expected=[(j,Fraction(v,scale))for j,v in enumerate(C)if v]
++    if not expected or abs(rhs)>2**52 or any(abs(v)>2**52 for v in C):raise AssertionError('Gomory exact float range')
++    rhs=Fraction(rhs,scale);exact_float=lambda v:Fraction(v)if type(v)is int else Fraction.from_float(float(v))
++    actual=[(j,exact_float(v))for j,v in row['coefficients']];integral=rhs.denominator==1 and all(v.denominator==1 for j,v in expected)
++    if actual!=expected or row['upper']is not None or exact_float(row['lower'])!=rhs:raise AssertionError('Gomory cut mismatch')
++    if (row.get('lower_enclosure')is None or [exact_float(v)for v in row['lower_enclosure']]!=[rhs,rhs])or row.get('upper_enclosure')is not None or row.get('exact_integral')is not integral or row.get('exact_coefficients')is not True or row.get('exact_coefficient_flags'):raise AssertionError('Gomory row metadata')
++
+ def verify_clique_exact(names,variables,rows,cut):
+     proof=cut['proof'];pairs=proof['clique'];row=cut['row']
+     if proof.get('aggregation',[]) or proof.get('divisor') is not None:raise AssertionError('clique cannot combine other proof kinds')
+@@ -218,9 +268,10 @@ def validate_cut_proofs(model_path,result):
+     ray=result.get('row_ray_proof')
+     packing=result.get('row_packing_proof')
+     subgradient=result.get('row_subgradient_proof')
++    gomory_bound=result.get('gomory_bound_proof')
+     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
+     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
+-    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None:return dict(metadata,valid=True)
++    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None and gomory_bound is None:return dict(metadata,valid=True)
+     try:names,variables,rows,objective,offset=exact_model(model_path,True)
+     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
+     indices={name:j for j,name in enumerate(names)}
+@@ -322,6 +373,11 @@ def validate_cut_proofs(model_path,result):
+             selected={names[j] for j in cover};sign=1 if side else -1
+             bound=source['upper' if side else 'lower']
+             if bound is None:raise AssertionError('source side missing')
++            if proof.get('gomory') is not None:
++                verify_gomory_exact(names,variables,rows,cut)
++                metadata['checked']+=1
++                metadata['gomory_checked']=metadata.get('gomory_checked',0)+1
++                continue
+             if proof.get('mir') is not None:
+                 verify_mir_exact(names,variables,source,cut)
+                 metadata['checked']+=1
+@@ -406,6 +462,79 @@ def validate_cut_proofs(model_path,result):
+             if row['lower'] is not None or Fraction(row['upper'])!=expected or actual!=coeff:
+                 raise AssertionError('derived inequality does not match cover')
+             metadata['checked']+=1
++        if gomory_bound is not None:
++            import struct
++            all_rows=list(rows)
++            for cut in cuts:
++                row=cut['row'];number=lambda v:Fraction(v)if type(v)is int else Fraction.from_float(float(v))
++                all_rows.append(dict(coefficients={names[j]:number(a)for j,a in row['coefficients']},lower=None if row['lower']is None else number(row['lower']),upper=None if row['upper']is None else number(row['upper'])))
++            box_lower={name:v['lower']for name,v in variables.items()};box_upper={name:v['upper']for name,v in variables.items()};steps=gomory_bound.get('bounds',[]);box_work=0
++            if not isinstance(steps,list)or len(steps)>1024:raise AssertionError('Gomory box proof length')
++            for step in steps:
++                i=step['source_row'];j=step['variable'];upper_side=step['upper_side'];lower_side=step['lower'];bits=step['value_bits']
++                if type(i)is not int or not 0<=i<len(all_rows)or type(j)is not int or not 0<=j<len(names)or type(upper_side)is not bool or type(lower_side)is not bool or not isinstance(bits,str)or len(bits)!=16:raise AssertionError('Gomory box proof metadata')
++                row=all_rows[i];box_work+=len(row['coefficients'])
++                if box_work>2000000:raise AssertionError('Gomory box proof work')
++                sign_row=1 if upper_side else-1;b=row['upper'if upper_side else'lower'];a=sign_row*row['coefficients'].get(names[j],Fraction(0))
++                if b is None or a==0 or (a<0)!=lower_side:raise AssertionError('Gomory box row side/direction')
++                others=Fraction(0)
++                for name,v in row['coefficients'].items():
++                    if name==names[j]or v==0:continue
++                    coefficient=sign_row*v;bound=box_lower[name]if coefficient>0 else box_upper[name]
++                    if bound is None:raise AssertionError('Gomory box missing dependency')
++                    others+=coefficient*bound
++                exact_bound=(sign_row*b-others)/a;value=struct.unpack('>d',bytes.fromhex(bits))[0]
++                if not math.isfinite(value):raise AssertionError('Gomory box nonfinite bound')
++                value=Fraction.from_float(value)
++                if lower_side:
++                    if value>exact_bound:raise AssertionError('Gomory box lower bound too strong')
++                    old=box_lower[names[j]];box_lower[names[j]]=value if old is None else max(old,value)
++                else:
++                    if value<exact_bound:raise AssertionError('Gomory box upper bound too strong')
++                    old=box_upper[names[j]];box_upper[names[j]]=value if old is None else min(old,value)
++            metadata['gomory_box_steps']=len(steps)
++            terms=gomory_bound['multipliers'];previous=-1;weights={}
++            for i,bits in terms:
++                if type(i)is not int or not previous<i<len(all_rows)or not isinstance(bits,str)or len(bits)!=16:raise AssertionError('Gomory bound multiplier order/encoding')
++                previous=i;value=struct.unpack('>d',bytes.fromhex(bits))[0]
++                if not math.isfinite(value)or value==0:raise AssertionError('Gomory bound multiplier value')
++                weights[i]=Fraction.from_float(value)
++            sign=1
++            # MPS OBJSENSE is authoritative; the result need not expose it.
++            import gzip
++            opener=gzip.open if str(model_path).endswith('.gz')else open
++            with opener(model_path,'rt')as stream:
++                lines=iter(stream)
++                for line in lines:
++                    t=line.split()
++                    if t and t[0]=='OBJSENSE':
++                        if len(t)>1:sense=t[1]
++                        else:
++                            sense=None
++                            for candidate in lines:
++                                values=candidate.split()
++                                if values and not values[0].startswith('*'):sense=values[0];break
++                            if sense is None:raise AssertionError('missing OBJSENSE')
++                        if sense.upper()not in ['MIN','MINIMIZE','MAX','MAXIMIZE']:raise AssertionError('invalid OBJSENSE')
++                        sign=-1 if sense.upper().startswith('MAX')else 1;break
++            rhs=sign*offset;columns={name:Fraction(0)for name in names}
++            for i,w in weights.items():
++                row=all_rows[i];b=row['lower'if w>0 else'upper']
++                if b is None:raise AssertionError('Gomory bound row side')
++                rhs+=w*b
++                for name,a in row['coefficients'].items():columns[name]+=w*a
++            exact=rhs
++            for name in names:
++                reduced=sign*objective.get(name,Fraction(0))-columns[name]
++                if reduced:
++                    bound=box_lower[name]if reduced>0 else box_upper[name]
++                    if bound is None:raise AssertionError('Gomory bound missing variable bound')
++                    exact+=reduced*bound
++            declared=Fraction(str(gomory_bound['normalized_bound']))
++            if declared>exact:raise AssertionError('Gomory bound exceeds exact Lagrangian')
++            dual=result.get('dual_bound')
++            if dual is not None and sign*Fraction(str(dual))<declared:raise AssertionError('reported bound weaker than Gomory proof')
++            metadata['gomory_bound_valid']=True
+     except Exception as error:return dict(metadata,valid=False,error=f'{type(error).__name__}: {error}')
+     return dict(metadata,valid=True,input_sha256=sha256(Path(model_path)))
+ 
+diff --git a/src/cuts.rs b/src/cuts.rs
+index 353ee53a4f..d35ce8df30 100644
+--- a/src/cuts.rs
++++ b/src/cuts.rs
+@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
+ use std::{collections::HashSet, time::Instant};
+ #[derive(Clone, Debug, Serialize, Deserialize)]
+ pub struct Proof {
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub gomory: Option<crate::gomory::Proof>,
+     #[serde(default, skip_serializing_if = "Option::is_none")]
+     pub mir: Option<MirProof>,
+     #[serde(default, skip_serializing_if = "Vec::is_empty")]
+@@ -40,6 +42,12 @@ pub struct Cut {
+ }
+ #[derive(Default, Debug, Serialize)]
+ pub struct Stats {
++    pub gomory_calls: usize,
++    pub gomory_added: usize,
++    pub gomory_lp_solves: usize,
++    pub gomory_rejected_cuts: usize,
++    pub gomory_seconds: f64,
++    pub gomory_trial_seconds: f64,
+     pub three_calls: usize,
+     pub three_work: usize,
+     pub three_added: usize,
+@@ -219,6 +227,15 @@ fn lower_product(a: [f64; 2], b: [f64; 2]) -> Option<f64> {
+ /// 選択された二値変数を強制した元行の最小活動量を、原境界から検査する。
+ /// i128で正確に扱える行は整数、それ以外は外向き区間。選択用の近似容量は使わない。
+ fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
++    if let Some(proof)=&cut.proof.gomory {
++        if cut.proof.mir.is_some() || !cut.proof.clique.is_empty() || !cut.proof.aggregation.is_empty()
++            || cut.proof.divisor.is_some() || !cut.proof.cover.is_empty() {return None;}
++        let first=proof.terms.first()?;
++        if cut.proof.source_row!=first.row || cut.proof.upper_side!=first.upper
++            || model.rows.get(first.row)?.name!=cut.proof.source_name {return None;}
++        return crate::gomory::verify(model,proof,&cut.row).then_some(ProofKind::Gomory);
++    }
++
+     if cut.proof.mir.is_some() {
+         return mir::verify(model, cut).then_some(ProofKind::Mir);
+     }
+@@ -312,6 +329,7 @@ fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
+ }
+ #[derive(Clone, Copy)]
+ enum ProofKind {
++    Gomory,
+     Mir,
+     Clique,
+     Integer,
+@@ -324,6 +342,7 @@ pub fn verify(model: &Model, cut: &Cut) -> bool {
+ 
+ #[derive(Default)]
+ pub struct Pool {
++    gomory_seen: HashSet<(Vec<(usize,u64)>,u64)>,
+     seen: HashSet<(Vec<(usize, i64)>, i64)>,
+     pub stats: Stats,
+ }
+@@ -433,6 +452,7 @@ impl Pool {
+                             coefficients,
+                         },
+                         proof: Proof {
++                            gomory: None,
+                             mir: None,
+                             clique: vec![],
+                             aggregation: vec![],
+@@ -460,7 +480,7 @@ impl Pool {
+                         match kind {
+                             ProofKind::Integer => self.stats.integer += 1,
+                             ProofKind::Interval => self.stats.interval += 1,
+-                            ProofKind::Clique | ProofKind::Mir => unreachable!(),
++                            ProofKind::Clique | ProofKind::Mir | ProofKind::Gomory => unreachable!(),
+                             ProofKind::Rounding => unreachable!(),
+                         }
+                         if row
+@@ -664,6 +684,7 @@ impl Pool {
+                     let cut = Cut {
+                         row,
+                         proof: Proof {
++                            gomory: None,
+                             mir: None,
+                             clique: vec![],
+                             aggregation: vec![],
+@@ -698,3 +719,28 @@ impl Pool {
+         cuts
+     }
+ }
++
++impl Pool {
++    pub fn separate_gomory(&mut self, model: &Model, x: &[f64], proofs: Vec<crate::gomory::Proof>, limit: usize, deadline: Instant) -> Vec<Cut> {
++        let began=Instant::now();self.stats.gomory_calls+=1;let mut candidates=Vec::new();
++        if x.len()!=model.variables.len() || x.iter().any(|v|!v.is_finite()) {return vec![];}
++        for proof in proofs {
++            if Instant::now()>=deadline {break;}
++            let Some(mut row)=crate::gomory::derive(model,&proof)else{continue;};
++            let activity:f64=row.coefficients.iter().map(|&(j,a)|a*x[j]).sum();
++            let violation=row.lower.unwrap()-activity;
++            let norm=row.coefficients.iter().map(|&(_,a)|a*a).sum::<f64>().sqrt();
++            if !violation.is_finite() || violation<=1e-6*(1.+row.lower.unwrap().abs()) || !norm.is_finite() || norm==0. {continue;}
++            let first=&proof.terms[0];row.name=format!("__gomory_{}",self.gomory_seen.len()+candidates.len());
++            let cut=Cut {row,proof:Proof {gomory:Some(proof.clone()),mir:None,clique:vec![],aggregation:vec![],divisor:None,source_row:first.row,source_name:model.rows[first.row].name.clone(),upper_side:first.upper,cover:vec![]}};
++            if verify(model,&cut) {candidates.push((violation/norm,cut));}
++        }
++        candidates.sort_by(|a,b|b.0.total_cmp(&a.0));let mut result=Vec::new();
++        for (_,cut) in candidates {
++            if result.len()>=limit || Instant::now()>=deadline {break;}
++            let key=(cut.row.coefficients.iter().map(|&(j,a)|(j,a.to_bits())).collect(),cut.row.lower.unwrap().to_bits());
++            if self.gomory_seen.insert(key) {self.stats.gomory_added+=1;self.stats.added+=1;result.push(cut);}
++        }
++        self.stats.gomory_seconds+=began.elapsed().as_secs_f64();result
++    }
++}
+diff --git a/src/cuts/aggregate.rs b/src/cuts/aggregate.rs
+index 11a9c9d4b2..1fa1b418db 100644
+--- a/src/cuts/aggregate.rs
++++ b/src/cuts/aggregate.rs
+@@ -334,6 +334,7 @@ impl Pool {
+                         let cut = Cut {
+                             row,
+                             proof: Proof {
++                            gomory: None,
+                                 mir: None,
+                                 clique: vec![],
+                                 aggregation: terms.clone(),
+@@ -477,6 +478,7 @@ mod tests {
+             let cut = Cut {
+                 row,
+                 proof: Proof {
++                            gomory: None,
+                     mir: None,
+                     clique: vec![],
+                     aggregation: terms,
+diff --git a/src/cuts/clique.rs b/src/cuts/clique.rs
+index 2e5b4f0491..d0ae6ee20e 100644
+--- a/src/cuts/clique.rs
++++ b/src/cuts/clique.rs
+@@ -116,6 +116,7 @@ fn verify_until(model: &Model, cut: &Cut, deadline: Option<Instant>) -> bool {
+                 exact_coefficient_flags: vec![],
+             },
+             proof: Proof {
++                            gomory: None,
+                 mir: None,
+                 clique: vec![],
+                 aggregation: vec![],
+@@ -304,6 +305,7 @@ impl Pool {
+                     exact_coefficient_flags: vec![],
+                 },
+                 proof: Proof {
++                            gomory: None,
+                     mir: None,
+                     source_row: first.source_row,
+                     source_name: first.source_name.clone(),
+diff --git a/src/cuts/mir.rs b/src/cuts/mir.rs
+index 49f74a08ba..bf17837c43 100644
+--- a/src/cuts/mir.rs
++++ b/src/cuts/mir.rs
+@@ -239,6 +239,7 @@ impl Pool {
+                             Cut {
+                                 row,
+                                 proof: Proof {
++                            gomory: None,
+                                     mir: Some(MirProof {
+                                         upper_bounds: complements.clone(),
+                                     }),
+@@ -401,6 +402,7 @@ mod tests {
+         let mut cut = Cut {
+             row,
+             proof: Proof {
++                            gomory: None,
+                 mir: Some(MirProof {
+                     upper_bounds: vec![],
+                 }),
+diff --git a/src/gomory.rs b/src/gomory.rs
+new file mode 100644
+index 0000000000..4b02ec2504
+--- /dev/null
++++ b/src/gomory.rs
+@@ -0,0 +1,138 @@
++//! Experimental exact pure-integer Gomory derivation; not connected to search.
++//! Mathematical references and derivation: docs/SAFE_GOMORY_HYPOTHESIS.md.
++use crate::model::{Model, Row};
++use serde::{Deserialize, Serialize};
++#[derive(Clone, Debug, Serialize, Deserialize)]
++pub struct Term { pub row: usize, pub upper: bool, pub weight: i64 }
++#[derive(Clone, Debug, Serialize, Deserialize)]
++pub struct Proof { #[serde(default)] pub normalized: bool, #[serde(default)] pub mixed: bool, pub terms: Vec<Term>, pub pivot: usize, pub upper_bounds: Vec<usize> }
++fn integer(v: f64) -> Option<i128> {
++    (v.is_finite() && v.abs() <= (1u64 << 52) as f64 && v.fract() == 0.).then_some(v as i128)
++}
++fn gcd(mut a: i128, mut b: i128) -> i128 { while b != 0 { let r=a%b; a=b; b=r; } a }
++pub fn derive(model: &Model, proof: &Proof) -> Option<Row> {
++    let n=model.variables.len();
++    if n==0 || n>100_000 || proof.pivot>=n || proof.terms.is_empty() || proof.terms.len()>1024
++        || (!proof.mixed && !model.variables.iter().all(|v|v.integer))
++        || !model.variables[proof.pivot].integer
++        || proof.upper_bounds.windows(2).any(|w|w[0]>=w[1])
++        || proof.upper_bounds.last().is_some_and(|&j|j>=n)
++        || proof.terms.windows(2).any(|w|(w[0].row,w[0].upper)>=(w[1].row,w[1].upper)) { return None; }
++    let mut anchors=Vec::with_capacity(n);let mut directions=Vec::with_capacity(n);
++    for (j,v) in model.variables.iter().enumerate() {
++        let upper=proof.upper_bounds.binary_search(&j).is_ok();
++        let (b,e)=if upper {(v.upper?,v.upper_enclosure?)}else{(v.lower?,v.lower_enclosure?)};
++        if e!=[b;2] {return None;}
++        anchors.push(integer(b)?);directions.push(if upper {-1i128}else{1});
++    }
++    let mut rows=Vec::new();let mut a=vec![0i128;n];let mut b=0i128;let mut work=0usize;
++    for t in &proof.terms {
++        if t.weight==0 {return None;}
++        let row=model.rows.get(t.row)?;
++        work=work.checked_add(row.coefficients.len())?;if work>1_000_000 || !row.exact_integral || !row.exact_coefficients {return None;}
++        let (rhs,enclosure)=if t.upper {(row.upper?,row.upper_enclosure?)}else{(row.lower?,row.lower_enclosure?)};
++        if enclosure!=[rhs;2] {return None;}
++        let sign=if t.upper {1i128}else{-1};let rhs=integer(rhs)?.checked_mul(sign)?;
++        let mut coefficients=Vec::new();let mut previous=None;
++        for &(j,v) in &row.coefficients {
++            if j>=n || previous.is_some_and(|k|k>=j) {return None;}previous=Some(j);
++            let v=integer(v)?.checked_mul(sign)?;
++            a[j]=a[j].checked_add(v.checked_mul(t.weight as i128)?)?;coefficients.push((j,v));
++        }
++        b=b.checked_add(rhs.checked_mul(t.weight as i128)?)?;let slack_integer=coefficients.iter().all(|&(j,a)|a==0||model.variables[j].integer);rows.push((coefficients,rhs,t.weight as i128,slack_integer));
++    }
++    let orientation=if a[proof.pivot]<0 {-1i128}else{1};
++    for v in &mut a {*v=v.checked_mul(orientation)?;}b=b.checked_mul(orientation)?;
++    let modulus=a[proof.pivot];if modulus<=0 {return None;}
++    let mut shifted=b;
++    for (&v,&anchor) in a.iter().zip(&anchors) {shifted=shifted.checked_sub(v.checked_mul(anchor)?)?;}
++    let fractional=shifted.rem_euclid(modulus);if fractional==0 {return None;}
++    let h=modulus.checked_sub(fractional)?;
++    let gmi=|coefficient:i128,integer:bool|->Option<i128> {
++        if integer {let rem=coefficient.rem_euclid(modulus);if rem<=fractional {rem.checked_mul(h)}else{fractional.checked_mul(modulus.checked_sub(rem)?)}}
++        else if coefficient>=0 {coefficient.checked_mul(h)}else{fractional.checked_mul(coefficient.checked_neg()?)}
++    };
++    let mut c=Vec::with_capacity(n);let mut rhs=if proof.mixed {fractional.checked_mul(h)?}else{fractional};
++    for (j,((&v,&direction),&anchor)) in a.iter().zip(&directions).zip(&anchors).enumerate() {
++        let value=v.checked_mul(direction)?;
++        let rem=if proof.mixed {gmi(value,model.variables[j].integer)?}else{value.rem_euclid(modulus)};
++        let coefficient=rem.checked_mul(direction)?;rhs=rhs.checked_add(coefficient.checked_mul(anchor)?)?;c.push(coefficient);
++    }
++    for (row,b,weight,slack_integer) in rows {
++        let value=weight.checked_mul(orientation)?;
++        let rem=if proof.mixed {gmi(value,slack_integer)?}else{value.rem_euclid(modulus)};
++        rhs=rhs.checked_sub(rem.checked_mul(b)?)?;
++        for (j,v) in row {c[j]=c[j].checked_sub(rem.checked_mul(v)?)?;}
++    }
++    let mut common=rhs.checked_abs()?;
++    for &v in &c {common=gcd(common,v.checked_abs()?);}
++    if common>1 {rhs/=common;for v in &mut c {*v/=common;}}
++    let exact_limit=1i128<<52;
++    if rhs.checked_abs()?>exact_limit || c.iter().any(|v|v.checked_abs().is_none_or(|v|v>exact_limit)) {return None;}
++    let coefficients:Vec<_>=c.into_iter().enumerate().filter(|&(_,v)|v!=0).map(|(j,v)|(j,v as f64)).collect();
++    if coefficients.is_empty() {return None;}
++    let largest=coefficients.iter().map(|&(_,v)|v.abs()).fold((rhs as f64).abs(),f64::max);
++    let scale=if proof.normalized && largest>16384. {crate::scaling::power(largest)}else{1.};
++    let coefficients:Vec<_>=coefficients.into_iter().map(|(j,v)|(j,v/scale)).collect();
++    let rhs=rhs as f64/scale;
++    let integral=rhs.fract()==0. && coefficients.iter().all(|&(_,v)|v.fract()==0.);
++    Some(Row{name:String::new(),coefficients,lower:Some(rhs),upper:None,lower_enclosure:Some([rhs;2]),upper_enclosure:None,exact_integral:integral,exact_coefficients:true,exact_coefficient_flags:vec![]})
++}
++pub fn verify(model: &Model, proof: &Proof, row: &Row) -> bool {
++    derive(model,proof).is_some_and(|r|r.coefficients==row.coefficients && r.lower==row.lower && row.upper.is_none()
++        && r.lower_enclosure==row.lower_enclosure && row.upper_enclosure.is_none() && row.exact_integral==r.exact_integral
++        && row.exact_coefficients && row.exact_coefficient_flags.is_empty())
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn example()->Model {
++        crate::mps::parse(std::io::Cursor::new("NAME g\nROWS\n N obj\n L r\nCOLUMNS\n x obj 0\n x r 2\n y obj 0\n y r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n")).unwrap()
++    }
++    fn proof()->Proof {Proof{normalized:false,mixed:false,terms:vec![Term{row:0,upper:true,weight:1}],pivot:0,upper_bounds:vec![]}}
++    #[test]
++    fn fractional_knapsack_cut_and_tampering() {
++        let m=example();let p=proof();let cut=derive(&m,&p).unwrap();
++        assert_eq!(cut.coefficients,vec![(0,-1.),(1,-1.)]);assert_eq!(cut.lower,Some(-1.));assert!(verify(&m,&p,&cut));
++        for x in 0..=1 {for y in 0..=1 {if 2*x+2*y<=3 {assert!(-x-y>=-1);}}}
++        let mut bad=cut.clone();bad.lower=Some(0.);bad.lower_enclosure=Some([0.;2]);assert!(!verify(&m,&p,&bad));
++    }
++    #[test]
++    fn complements_and_negative_multipliers_remain_valid() {
++        let m=example();let mut p=proof();p.upper_bounds=vec![0,1];p.terms[0].weight=-3;
++        let cut=derive(&m,&p).unwrap();assert!(verify(&m,&p,&cut));
++        for x in 0..=1 {for y in 0..=1 {if 2*x+2*y<=3 {let point=[x as f64,y as f64];assert!(cut.coefficients.iter().map(|&(j,a)|a*point[j]).sum::<f64>()>=cut.lower.unwrap());}}}
++    }
++    #[test]
++    fn invalid_or_inexact_proofs_are_rejected() {
++        let m=example();let mut p=proof();p.terms.push(p.terms[0].clone());assert!(derive(&m,&p).is_none());
++        let mut p=proof();p.pivot=2;assert!(derive(&m,&p).is_none());
++        let mut m=example();m.variables[0].integer=false;assert!(derive(&m,&proof()).is_none());
++        let mut m=example();m.rows[0].upper_enclosure=Some([3.,3.00001]);assert!(derive(&m,&proof()).is_none());
++        let mut m=example();m.rows[0].coefficients[0].1=f64::INFINITY;assert!(derive(&m,&proof()).is_none());
++    }
++}
++#[cfg(test)]
++mod mixed_tests {
++    use super::*;
++    fn example(negative:bool)->Model {
++        let text=format!("NAME g\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1\n x r 2\n y obj 0\n y r {}\nRHS\n rhs r 3\nBOUNDS\n LI b x 0\n UI b x 2\n LO b y 0\n UP b y 2\nENDATA\n",if negative{-1}else{1});
++        crate::mps::parse(std::io::Cursor::new(text)).unwrap()
++    }
++    #[test]
++    fn mixed_cut_handles_both_signs_of_continuous_coefficients() {
++        for negative in [false,true] {
++            let m=example(negative);let p=Proof{normalized:false,mixed:true,terms:vec![Term{row:0,upper:true,weight:1}],pivot:0,upper_bounds:vec![]};let cut=derive(&m,&p).unwrap();
++            if !negative {assert_eq!(cut.coefficients,vec![(0,-1.)]);assert_eq!(cut.lower,Some(-1.));}
++            for x in 0..=2 {for t in 0..=8 {let point=[x as f64,t as f64/4.];if m.check(&point,false,0.).is_ok(){assert!(cut.coefficients.iter().map(|&(j,a)|a*point[j]).sum::<f64>()>=cut.lower.unwrap());}}}
++            assert!(verify(&m,&p,&cut));
++        }
++    }
++    #[test]
++    fn a_continuous_pivot_cannot_be_used_as_the_integer_split() {
++        let m=example(false);let p=Proof{normalized:false,mixed:true,terms:vec![Term{row:0,upper:true,weight:1}],pivot:1,upper_bounds:vec![]};assert!(derive(&m,&p).is_none());
++    }
++}
++
++#[derive(Clone, Debug, Serialize, Deserialize)]
++pub struct BoundProof { #[serde(default,skip_serializing_if="Vec::is_empty")] pub bounds: Vec<crate::objective_bound::BoxStep>, pub normalized_bound: f64, pub multipliers: Vec<(usize,String)> }
+diff --git a/src/lib.rs b/src/lib.rs
+index f38c223f5a..914797a9d1 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -48,3 +48,5 @@ pub mod dual_guided_primal;
+ pub mod component_objective_repair;
+ 
+ pub mod cover_greedy;
++
++pub mod gomory;
+diff --git a/src/lp.rs b/src/lp.rs
+index 15ce3adbeb..4ba511343f 100644
+--- a/src/lp.rs
++++ b/src/lp.rs
+@@ -2,7 +2,7 @@
+ //! 大規模問題用ではない。返却statusは浮動小数点の判定であり厳密証明ではない。
+ const EPS: f64 = 1e-9;
+ const FEAS: f64 = 1e-8;
+-#[derive(Debug, PartialEq)]
++#[derive(Clone, Debug, PartialEq)]
+ pub enum Outcome {
+     Optimal { objective: f64, x: Vec<f64> },
+     Infeasible,
+diff --git a/src/main.rs b/src/main.rs
+index a2f9191916..1e83b9d712 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -187,6 +187,8 @@ fn run() -> Result<(), String> {
+         if let Ok(v) = std::env::var("MIP_ROW_SUBGRADIENT_UNIFORM") {
+             limits.row_subgradient_uniform=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROW_SUBGRADIENT_UNIFORM must be 0 or 1".into())};
+         }
++        if let Ok(v)=std::env::var("MIP_GOMORY_REPORT_ONLY"){limits.gomory_report_only=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GOMORY_REPORT_ONLY must be 0 or 1".into())};}
++        if let Ok(v)=std::env::var("MIP_GOMORY_CUTS"){limits.gomory_cuts=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GOMORY_CUTS must be 0 or 1".into())};}
+         if let Ok(v) = std::env::var("MIP_DUAL_REFACTOR_RETRY") {
+             if v != "0" && v != "1" { return Err("MIP_DUAL_REFACTOR_RETRY must be 0 or 1".into()); }
+         }
+diff --git a/src/objective_bound.rs b/src/objective_bound.rs
+index a0da002864..0644cbf842 100644
+--- a/src/objective_bound.rs
++++ b/src/objective_bound.rs
+@@ -291,6 +291,8 @@ impl I {
+         )
+     }
+ }
++#[derive(Clone, Debug, Serialize, Deserialize)]
++pub struct BoxStep { pub source_row: usize, pub upper_side: bool, pub variable: usize, pub lower: bool, pub value_bits: String }
+ pub struct Certifier {
+     implied_box: Option<(Vec<Option<f64>>, Vec<Option<f64>>)>,
+     costs: Vec<I>,
+@@ -572,6 +574,119 @@ impl Certifier {
+         }
+         (lower, upper)
+     }
++    pub fn infer_box_proof(
++        &self,
++        model: &Model,
++    ) -> (Vec<Option<f64>>, Vec<Option<f64>>, Vec<BoxStep>) {
++        let mut steps=Vec::new();let mut proof_work=0usize;
++        let mut lower: Vec<_> = model
++            .variables
++            .iter()
++            .map(|v| {
++                v.lower
++                    .and_then(|x| I::metadata(x, v.lower_enclosure))
++                    .map(|b| b.lo)
++            })
++            .collect();
++        let mut upper: Vec<_> = model
++            .variables
++            .iter()
++            .map(|v| {
++                v.upper
++                    .and_then(|x| I::metadata(x, v.upper_enclosure))
++                    .map(|b| b.hi)
++            })
++            .collect();
++        let mut rows = vec![Vec::new(); self.rows.len()];
++        for (j, col) in self.columns.iter().enumerate() {
++            for &(i, a) in col {
++                rows[i].push((j, a));
++            }
++        }
++        for _ in 0..4 {
++            let mut changed = false;
++            for (i, row) in rows.iter().enumerate() {
++                for (sign, side) in [(1., 1), (-1., 0)] {
++                    let Some(rhs) = self.rows[i][side].and_then(|b| b.mul(I::point(sign)?)) else {
++                        continue;
++                    };
++                    let mut terms = Vec::with_capacity(row.len());
++                    let mut total = Some(I::point(0.).unwrap());
++                    let mut unknown = 0;
++                    for &(j, a) in row {
++                        let a = if sign > 0. {
++                            a
++                        } else {
++                            I {
++                                lo: -a.hi,
++                                hi: -a.lo,
++                            }
++                        };
++                        let domain = match (lower[j], upper[j]) {
++                            (Some(l), Some(u)) => I::new(l, u),
++                            (Some(l), None) if a.lo >= 0. => I::point(l),
++                            (None, Some(u)) if a.hi <= 0. => I::point(u),
++                            _ => None,
++                        };
++                        let minimum = if a.zero() {
++                            Some(0.)
++                        } else {
++                            domain.and_then(|d| a.mul(d)).map(|p| p.lo)
++                        };
++                        if let Some(v) = minimum {
++                            total = total.and_then(|t| t.add(I::point(v)?));
++                        } else {
++                            unknown += 1;
++                        }
++                        terms.push((j, a, minimum));
++                    }
++                    let Some(total) = total else {
++                        continue;
++                    };
++                    for (j, a, minimum) in terms {
++                        if !(a.lo > 0. && upper[j].is_none() || a.hi < 0. && lower[j].is_none()) {
++                            continue;
++                        }
++                        let others = match (unknown, minimum) {
++                            (0, Some(v)) => total.sub(I::point(v).unwrap()).map(|v| v.lo),
++                            (1, None) => Some(total.lo),
++                            _ => None,
++                        };
++                        let Some(numerator) =
++                            others.and_then(|v| rhs.sub(I::point(v)?)).map(|v| v.hi)
++                        else {
++                            continue;
++                        };
++                        let a1 = numerator / a.lo;
++                        let a2 = numerator / a.hi;
++                        if a.lo > 0. {
++                            let value = a1.max(a2).next_up();
++                            if value.is_finite() {
++                                proof_work=proof_work.saturating_add(row.len());
++                                if steps.len()>=1024 || proof_work>2_000_000 {return(lower,upper,steps);}
++                                upper[j] = Some(value);
++                                steps.push(BoxStep{source_row:i,upper_side:sign>0.,variable:j,lower:false,value_bits:format!("{:016x}",value.to_bits())});
++                                changed = true;
++                            }
++                        } else {
++                            let value = a1.min(a2).next_down();
++                            if value.is_finite() {
++                                proof_work=proof_work.saturating_add(row.len());
++                                if steps.len()>=1024 || proof_work>2_000_000 {return(lower,upper,steps);}
++                                lower[j] = Some(value);
++                                steps.push(BoxStep{source_row:i,upper_side:sign>0.,variable:j,lower:true,value_bits:format!("{:016x}",value.to_bits())});
++                                changed = true;
++                            }
++                        }
++                    }
++                }
++            }
++            if !changed {
++                break;
++            }
++        }
++        (lower, upper, steps)
++    }
+     /// Propose joint perturbations; only `bound` can accept a certificate.
+     pub(crate) fn joint_positive_bound(
+         &self,
+diff --git a/src/revised.rs b/src/revised.rs
+index ce52c335c1..c5da48a361 100644
+--- a/src/revised.rs
++++ b/src/revised.rs
+@@ -57,7 +57,7 @@ pub struct Stats {
+     pub refinement_steps: usize,
+     pub refinement_successes: usize,
+ }
+-#[derive(Debug)]
++#[derive(Clone, Debug)]
+ pub struct Answer {
+     pub outcome: Outcome,
+     pub dual: Option<f64>,
+@@ -251,6 +251,21 @@ impl WarmStart {
+             },
+         })
+     }
++    pub(crate) fn tableau_rows_raw(&self, p: &Problem, columns: &[usize], deadline: Instant)
++        -> Vec<(usize, Vec<f64>)>
++    {
++        if !self.compatible(p) { return vec![]; }
++        let mut result=Vec::new();
++        for &column in columns.iter().take(16) {
++            if Instant::now()>=deadline {break;}
++            if column>=p.columns.len() {continue;}
++            let Some(row)=self.basis.iter().position(|&j|j==column) else {continue;};
++            let mut unit=vec![0.;p.rhs.len()];unit[row]=1.;
++            let weights=self.factor.backward(&unit);
++            if weights.iter().all(|v|v.is_finite()) {result.push((column,weights));}
++        }
++        result
++    }
+     fn compatible(&self, p: &Problem) -> bool {
+         let a = &self.structure;
+         a.costs.len() == p.costs.len()
+@@ -1949,3 +1964,22 @@ mod pricing_budget_tests {
+         assert_eq!(a.stats.pricing_fallbacks, 0);
+     }
+ }
++
++/// Approximate tableau rows for cut proposal only; validity requires separate proof.
++pub fn tableau_rows(p: &Problem, warm: &WarmStart, columns: &[usize], deadline: Instant)
++    -> Vec<(usize, Vec<f64>)>
++{ crate::scaling::tableau_rows(p,warm,columns,deadline) }
++#[cfg(test)]
++mod tableau_row_tests {
++    use super::*;
++    #[test]
++    fn tableau_rows_return_original_units_after_column_and_row_scaling() {
++        let large=2f64.powi(20);
++        let p=Problem {columns:vec![vec![(0,large),(1,1.)],vec![(0,large),(1,2.)]],rhs:vec![large,1.5],costs:vec![1.,2.],upper:vec![f64::INFINITY;2],equality:vec![true;2],slack_upper:vec![0.;2]};
++        let a=minimize_warm(&p,1000,None,None);assert!(matches!(a.outcome,Outcome::Optimal{..}));let warm=a.warm.unwrap();
++        let rows=tableau_rows(&p,&warm,&[0,1],Instant::now()+std::time::Duration::from_secs(1));assert_eq!(rows.len(),2);
++        for (k,w) in rows {for j in 0..2 {let value:f64=p.columns[j].iter().map(|&(i,a)|a*w[i]).sum();assert!((value-if j==k{1.}else{0.}).abs()<1e-12);}}
++        assert!(tableau_rows(&p,&warm,&[0,1],Instant::now()).is_empty());
++        let mut changed=p.clone();changed.columns[0][0].1*=2.;assert!(tableau_rows(&changed,&warm,&[0],Instant::now()+std::time::Duration::from_secs(1)).is_empty());
++    }
++}
+diff --git a/src/scaling.rs b/src/scaling.rs
+index 4540d0efe8..9854c2634e 100644
+--- a/src/scaling.rs
++++ b/src/scaling.rs
+@@ -588,3 +588,18 @@ mod saved_validation_diagnostic {
+         }
+     }
+ }
++
++pub(crate) fn tableau_rows(p: &Problem, warm: &WarmStart, columns: &[usize], deadline: Instant)
++    -> Vec<(usize, Vec<f64>)>
++{
++    if Instant::now()>=deadline {return vec![];}
++    match scale(p) {
++        Ok(None)=>warm.tableau_rows_raw(p,columns,deadline),
++        Ok(Some((q,factors,rows)))=>warm.tableau_rows_raw(&q,columns,deadline).into_iter()
++            .filter_map(|(column,mut weights)| {
++                for (w,&scale) in weights.iter_mut().zip(&rows) {*w=(*w/scale)/factors[column];}
++                weights.iter().all(|v|v.is_finite()).then_some((column,weights))
++            }).collect(),
++        Err(())=>vec![],
++    }
++}
+diff --git a/src/solve.rs b/src/solve.rs
+index d9c595df02..f30de516e3 100644
+--- a/src/solve.rs
++++ b/src/solve.rs
+@@ -45,6 +45,8 @@ pub struct Limits {
+     pub aggregate_cuts: bool,
+     pub clique_cuts: bool,
+     pub mir_cuts: bool,
++    pub gomory_cuts: bool,
++    pub gomory_report_only: bool,
+     pub three_row_cuts: bool,
+     pub graph_fractional_cover: bool,
+     pub defer_infeasibility: bool,
+@@ -111,6 +113,8 @@ impl Default for Limits {
+             aggregate_cuts: true,
+             clique_cuts: true,
+             mir_cuts: true,
++            gomory_cuts: true,
++            gomory_report_only: true,
+             three_row_cuts: true,
+             graph_fractional_cover: true,
+             defer_infeasibility: true,
+@@ -218,6 +222,8 @@ pub struct Result {
+     pub infeasibility_proof_failures: usize,
+     pub infeasibility_proof_seconds: f64,
+     pub cut_proofs: Vec<cuts::Cut>,
++    #[serde(skip_serializing_if="Option::is_none")]
++    pub gomory_bound_proof: Option<crate::gomory::BoundProof>,
+     pub cut_stats: cuts::Stats,
+     pub cut_rounds: usize,
+     pub cut_lp_solves: usize,
+@@ -313,6 +319,7 @@ struct Node {
+     changed: Option<usize>,
+     edge: Option<branching::Edge>,
+ }
++#[derive(Clone)]
+ struct Standard {
+     row_sources: Vec<(usize, f64)>,
+     sparse: Option<revised::Problem>,
+@@ -957,6 +964,7 @@ pub struct ProbeStats {
+     pub candidates: usize,
+     pub improvements: usize,
+ }
++#[derive(Clone)]
+ struct CachedRoot {
+     standard: Standard,
+     answer: revised::Answer,
+@@ -965,6 +973,8 @@ struct CachedRoot {
+ struct CutPreparation {
+     cached: Option<CachedRoot>,
+     primal_root: Option<(Model, Arc<revised::WarmStart>)>,
++    primal_seed: Option<Vec<f64>>,
++    gomory_bound: Option<crate::gomory::BoundProof>,
+     initial_lp_seconds: f64,
+     model: Option<Model>,
+     cuts: Vec<cuts::Cut>,
+@@ -986,6 +996,7 @@ fn prepare_cuts(
+             || (limits.rounding_cuts && cuts::rounding_applicable(model))
+             || (limits.aggregate_cuts && cuts::aggregate_applicable(model))
+             || (limits.clique_cuts && cuts::applicable(model))
++            || (limits.gomory_cuts && model.variables.iter().any(|v|v.integer))
+             || (limits.mir_cuts && cuts::mir_applicable(model))
+             || (limits.three_row_cuts && cuts::aggregate_applicable(model)))
+         || limits.nodes == 0
+@@ -1132,7 +1143,7 @@ fn prepare_cuts(
+             &mut three_pool,
+             &mut prepared,
+         );
+-        if prepared.cuts.len() > old_cuts
++        if prepared.primal_root.is_none() && prepared.cuts.len() > old_cuts
+             && let Some(warm) = old_warm
+         {
+             let mut primal_model = work.clone();
+@@ -1150,6 +1161,32 @@ fn prepare_cuts(
+         pool.stats.candidates += three_pool.stats.candidates;
+         pool.stats.rejected += three_pool.stats.rejected;
+     }
++    if limits.gomory_cuts && global_first
++        && work.variables.len().saturating_mul(16) <= 1_000_000
++        && work.rows.iter().fold(0usize, |n, r| n.saturating_add(r.coefficients.len())) <= 1_000_000
++    {
++        let gomory_deadline=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(1.0)));
++        let backup=limits.gomory_report_only.then(||(work.clone(),prepared.cached.clone(),root.warm.clone()));
++        let old_rows=work.rows.len();let old_cuts=prepared.cuts.len();
++        let old_seed=prepared.cached.as_ref().and_then(|c| {
++            if let lp::Outcome::Optimal{x,..}=&c.answer.outcome {
++                Some(c.standard.terms.iter().enumerate().map(|(j,t)|c.standard.shift[j]+t.iter().map(|&(k,s)|s*x[k]).sum::<f64>()).collect::<Vec<_>>())
++            } else {None}
++        });
++        let old_warm=if limits.primal_probe&&limits.warm_start {prepared.cached.as_ref().and_then(|c|c.answer.warm.clone())}else{None};
++        improve_with_gomory(model,root,limits,gomory_deadline,lp_stats,&mut work,&mut pool,&mut prepared);
++        if let Some((old_work,old_cached,old_root_warm))=backup {
++            if prepared.cuts.len()>old_cuts {
++                prepared.gomory_bound=prepared.cached.as_ref().and_then(|c|gomory_report_bound(&work,c));
++            }
++            work=old_work;prepared.cached=old_cached;root.warm=old_root_warm;
++        } else {
++            if prepared.cuts.len()>old_cuts {prepared.primal_seed=old_seed;}
++            if prepared.primal_root.is_none() && prepared.cuts.len()>old_cuts && let Some(warm)=old_warm {
++                let mut primal_model=work.clone();primal_model.rows.truncate(old_rows);prepared.primal_root=Some((primal_model,warm));
++            }
++        }
++    }
+     if !prepared.cuts.is_empty() {
+         prepared.model = Some(work);
+     }
+@@ -1687,6 +1724,8 @@ fn solve_seeded_warm(
+     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
+     let mut cached_root = prepared.cached.take();
+     let mut primal_root = prepared.primal_root.take();
++    let primal_seed = prepared.primal_seed.take();
++    let gomory_bound_proof=prepared.gomory_bound.take();
+     let root_lp_reused = cached_root.is_some();
+     let lp_model = prepared.model.as_ref().unwrap_or(model);
+     let objective_grid = if limits.objective_rounding
+@@ -2193,6 +2232,10 @@ fn solve_seeded_warm(
+                 }
+                 if branch.is_some() && (nodes == 1 || nodes % 256 == 0) {
+                     if let Some(h) = &mut repair {
++                        let repair_reference: &[f64]=if nodes==1 {primal_seed.as_deref().unwrap_or(&original)}else{&original};
++                        let repair_model=if nodes==1 {primal_root.as_ref().map(|(m,_)|m).unwrap_or(lp_model)}else{lp_model};
++                        let repair_warm=if nodes==1 {primal_root.as_ref().map(|(_,w)|w.as_ref()).or(node.warm.as_deref())}else{node.warm.as_deref()};
++
+                         let allocation = if nodes == 1 { 0.05 } else { 0.001 };
+                         let repair_deadline = deadline
+                             .min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
+@@ -2203,7 +2246,7 @@ fn solve_seeded_warm(
+                             let mut fixed = node.clone();
+                             for (j, v) in model.variables.iter().enumerate() {
+                                 if v.integer {
+-                                    let mut value = original[j].round();
++                                    let mut value = repair_reference[j].round();
+                                     if let Some(l) = node.lower[j] {
+                                         value = value.max(l.ceil());
+                                     }
+@@ -2215,7 +2258,7 @@ fn solve_seeded_warm(
+                                 }
+                             }
+                             if let Relaxation::Ready(q) = standard_sparse(
+-                                lp_model,
++                                repair_model,
+                                 &fixed,
+                                 limits.dense_bytes,
+                                 false,
+@@ -2225,7 +2268,7 @@ fn solve_seeded_warm(
+                                     q.sparse.as_ref().unwrap(),
+                                     limits.pivots.min(256),
+                                     Some(repair_deadline),
+-                                    node.warm.as_deref(),
++                                    repair_warm,
+                                 );
+                                 lp_solves += 1;
+                                 repair_lp_solves += 1;
+@@ -2270,7 +2313,7 @@ fn solve_seeded_warm(
+                             .saturating_mul(256)
+                             .clamp(4096, 2_000_000);
+                         if let Some(x) = h.search(
+-                            &original,
++                            repair_reference,
+                             &node.lower,
+                             &node.upper,
+                             repair_deadline,
+@@ -2391,6 +2434,7 @@ fn solve_seeded_warm(
+                     let mut probe_limits = limits.clone();
+                     probe_limits.cover_cuts = false;
+                     probe_limits.mir_cuts = false;
++                    probe_limits.gomory_cuts = false;
+                     probe_limits.three_row_cuts = false;
+                     probe_limits.box_primal = false;
+                     probe_limits.rounding_cuts = false;
+@@ -2502,6 +2546,7 @@ fn solve_seeded_warm(
+                             // This neighborhood search seeks a quick incumbent;
+                             // root MIR trials must not redirect its limited tree.
+                             local.mir_cuts = false;
++            local.gomory_cuts = false;
+                             local.three_row_cuts = false;
+                             local.box_primal = false;
+                             local.rounding_cuts = false;
+@@ -2727,6 +2772,7 @@ fn solve_seeded_warm(
+             local.strong_branching = false;
+             local.cover_cuts = false;
+             local.mir_cuts = false;
++            local.gomory_cuts = false;
+             local.three_row_cuts = false;
+             local.box_primal = false;
+             local.rounding_cuts = false;
+@@ -2798,6 +2844,7 @@ fn solve_seeded_warm(
+     let internal_dual = row_ray_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
+     let internal_dual = row_packing_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound as f64));
+     let internal_dual = row_subgradient_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
++    let internal_dual=gomory_bound_proof.as_ref().map_or(internal_dual,|p|internal_dual.max(p.normalized_bound));
+     if status == "optimal" && best.is_none() {
+         status = "infeasible".into();
+     }
+@@ -2884,6 +2931,7 @@ fn solve_seeded_warm(
+         infeasibility_proof_failures,
+         infeasibility_proof_seconds,
+         cut_proofs: prepared.cuts,
++        gomory_bound_proof,
+         cut_stats: prepared.stats,
+         cut_rounds: prepared.rounds,
+         cut_lp_solves: prepared.lp_solves,
+@@ -3303,6 +3351,8 @@ mod pump_tests {
+             aggregate_cuts: false,
+             clique_cuts: false,
+             mir_cuts: false,
++            gomory_cuts: false,
++            gomory_report_only: false,
+             rounding_cuts: false,
+             objective_rounding: false,
+             strong_branching: false,
+@@ -3410,3 +3460,168 @@ mod pump_tests {
+         assert!(s.lp_solves > 0);
+     }
+ }
++
++fn improve_with_gomory(
++    model: &Model,
++    root: &mut Node,
++    limits: &Limits,
++    deadline: Instant,
++    lp_stats: &mut revised::Stats,
++    work: &mut Model,
++    pool: &mut cuts::Pool,
++    prepared: &mut CutPreparation,
++) {
++    fn point(q: &Standard, answer: &revised::Answer) -> Option<Vec<f64>> {
++        let lp::Outcome::Optimal { x, .. } = &answer.outcome else {
++            return None;
++        };
++        Some(
++            q.terms
++                .iter()
++                .enumerate()
++                .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
++                .collect(),
++        )
++    }
++    let Some(mut baseline) = prepared.cached.take() else {
++        return;
++    };
++    for _ in 0..limits.cover_rounds {
++        if Instant::now() >= deadline {
++            break;
++        }
++        let Some(old_point) = point(&baseline.standard, &baseline.answer) else {
++            break;
++        };
++        let old_objective = model.objective(&old_point);
++        if !old_objective.is_finite() || work.check(&old_point, false, 1e-6).is_err() {
++            break;
++        }
++        let proposed = pool.separate_gomory(model, &old_point, gomory_proposals(model,&baseline.standard,&baseline.answer,&old_point,deadline), 8, deadline);
++        if proposed.is_empty() {
++            break;
++        }
++        let old_rows = work.rows.len();
++        work.rows.extend(proposed.iter().map(|c| c.row.clone()));
++        let started = Instant::now();
++        let trial = if let Relaxation::Ready(q) =
++            standard_sparse(work, root, limits.dense_bytes, true, limits.fixed_columns)
++        {
++            let answer = revised::minimize_warm(
++                q.sparse.as_ref().unwrap(),
++                limits.pivots,
++                Some(deadline),
++                if limits.warm_start {
++                    baseline.answer.warm.as_deref()
++                } else {
++                    None
++                },
++            );
++            prepared.lp_solves += 1;
++            prepared.rounds += 1;
++            pool.stats.gomory_lp_solves += 1;
++            lp_stats.add(&answer.stats);
++            Some(CachedRoot {
++                standard: q,
++                answer,
++            })
++        } else {
++            None
++        };
++        pool.stats.gomory_trial_seconds += started.elapsed().as_secs_f64();
++        let accepted = trial
++            .as_ref()
++            .and_then(|t| point(&t.standard, &t.answer))
++            .is_some_and(|p| {
++                let new_objective = model.objective(&p);
++                let sign = if model.maximize { -1. } else { 1. };
++                let gain = sign * (new_objective - old_objective);
++                Instant::now() < deadline
++                    && new_objective.is_finite()
++                    && work.check(&p, false, 1e-6).is_ok()
++                    && (gain >= 1e-3 * old_objective.abs().max(1.)
++                        || model.check(&p, true, 1e-6).is_ok())
++            });
++        if !accepted {
++            work.rows.truncate(old_rows);
++            pool.stats.gomory_added -= proposed.len();
++            pool.stats.added -= proposed.len();
++            pool.stats.gomory_rejected_cuts += proposed.len();
++            break;
++        }
++        prepared.cuts.extend(proposed);
++        baseline = trial.unwrap();
++        if limits.warm_start {
++            root.warm = baseline.answer.warm.clone();
++        }
++    }
++    prepared.cached = Some(baseline);
++}
++
++fn gomory_proposals(model: &Model, standard: &Standard, answer: &revised::Answer, point: &[f64], deadline: Instant) -> Vec<crate::gomory::Proof> {
++    let Some(warm)=answer.warm.as_deref()else{return vec![];};
++    let Some(problem)=standard.sparse.as_ref()else{return vec![];};
++    if !model.variables.iter().any(|v|v.integer) {return vec![];}
++    let mut upper_bounds=Vec::new();
++    for (j,v) in model.variables.iter().enumerate() {
++        let exact=|bound:Option<f64>,enclosure:Option<[f64;2]>|bound.filter(|b|b.is_finite()&&b.fract()==0.&&b.abs()<=(1u64<<52)as f64&&enclosure==Some([*b;2]));
++        match (exact(v.lower,v.lower_enclosure),exact(v.upper,v.upper_enclosure)) {
++            (Some(l),Some(u))=>if u-point[j]<point[j]-l {upper_bounds.push(j);},
++            (None,Some(_))=>upper_bounds.push(j),
++            (Some(_),None)=>{},(None,None)=>return vec![],
++        }
++    }
++    let mut ranking:Vec<_>=model.variables.iter().enumerate().filter_map(|(j,_)| {
++        let t=&standard.terms[j];if !model.variables[j].integer || t.len()!=1{return None;}
++        let fraction=(point[j]-point[j].round()).abs();(fraction>1e-6).then_some((fraction,j,t[0].0))
++    }).collect();ranking.sort_by(|a,b|b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));ranking.truncate(16);
++    let columns:Vec<_>=ranking.iter().map(|v|v.2).collect();let mut result=Vec::new();
++    for (column,weights) in revised::tableau_rows(problem,warm,&columns,deadline) {
++        let Some(&(_,pivot,_))=ranking.iter().find(|v|v.2==column)else{continue;};
++        if weights.len()!=standard.row_sources.len(){continue;}
++        let mut terms=Vec::new();let mut valid=true;
++        for (&w,&(row,sign)) in weights.iter().zip(&standard.row_sources) {
++            if row>=model.rows.len(){continue;}
++            let value=(w*65536.).round();
++            if !value.is_finite() || value.abs()>(1u64<<40)as f64 {valid=false;break;}
++            if value!=0. {terms.push(crate::gomory::Term{row,upper:sign>0.,weight:value as i64});}
++        }
++        terms.sort_by_key(|t|(t.row,t.upper));
++        if valid && !terms.is_empty() {result.push(crate::gomory::Proof{normalized:true,mixed:true,terms,pivot,upper_bounds:upper_bounds.clone()});}
++    }
++    result
++}
++
++fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomory::BoundProof> {
++    let witness=cached.answer.witness.as_ref()?;
++    if witness.len()!=cached.standard.row_sources.len() {return None;}
++    let mut weights=vec![0.;model.rows.len()];
++    for (&w,&(row,sign)) in witness.iter().zip(&cached.standard.row_sources) {weights[row]+=sign*w;}
++    for (row,w) in model.rows.iter().zip(&mut weights) {
++        let supported=if *w>0. {row.lower.zip(row.lower_enclosure)}else{row.upper.zip(row.upper_enclosure)};
++        if !supported.is_some_and(|(v,[lo,hi])|lo.is_finite()&&hi.is_finite()&&lo<=v&&v<=hi) {*w=0.;}
++    }
++    let lower:Vec<_>=model.variables.iter().map(|v|v.lower_enclosure.map(|b|b[0])).collect();
++    let upper:Vec<_>=model.variables.iter().map(|v|v.upper_enclosure.map(|b|b[1])).collect();
++    let certifier=Certifier::new(model)?;let mut best=None;
++    for factor in [1.,1.-2f64.powi(-40),1.+2f64.powi(-40)] {
++        let candidate:Vec<_>=weights.iter().map(|w|w*factor).collect();
++        let Some(bound)=certifier.bound(&lower,&upper,&candidate).map(f64::next_down)else{continue;};
++        if bound.is_finite() && best.as_ref().is_none_or(|p:&crate::gomory::BoundProof|bound>p.normalized_bound) {
++            best=Some(crate::gomory::BoundProof{bounds:vec![],normalized_bound:bound,multipliers:candidate.iter().enumerate().filter(|(_,w)|**w!=0.).map(|(i,w)|(i,format!("{:016x}",w.to_bits()))).collect()});
++        }
++    }
++    if best.is_none() {
++        let (inferred_lower,inferred_upper,steps)=certifier.infer_box_proof(model);
++        if !steps.is_empty() {
++            for factor in [1.,1.-2f64.powi(-40),1.+2f64.powi(-40)] {
++                let candidate:Vec<_>=weights.iter().map(|w|w*factor).collect();
++                let Some(bound)=certifier.bound(&inferred_lower,&inferred_upper,&candidate).map(f64::next_down)else{continue;};
++                if bound.is_finite() && best.as_ref().is_none_or(|p:&crate::gomory::BoundProof|bound>p.normalized_bound) {
++                    best=Some(crate::gomory::BoundProof{bounds:steps.clone(),normalized_bound:bound,multipliers:candidate.iter().enumerate().filter(|(_,w)|**w!=0.).map(|(i,w)|(i,format!("{:016x}",w.to_bits()))).collect()});
++                }
++            }
++        }
++    }
++    best
++}
+diff --git a/tests/clique_cuts.rs b/tests/clique_cuts.rs
+index 77a134908f..2e63243e09 100644
+--- a/tests/clique_cuts.rs
++++ b/tests/clique_cuts.rs
+@@ -191,6 +191,7 @@ fn clique_cut_strengthens_the_root_without_other_cuts_or_heuristics() {
+     let m = triangle(false, false);
+     let l = Limits {
+         clique_cuts: false,
++        gomory_cuts: false,
+         cover_cuts: false,
+         mir_cuts: false,
+         aggregate_cuts: false,
+diff --git a/tests/cuts.rs b/tests/cuts.rs
+index 82ebc0ade8..eba01612a0 100644
+--- a/tests/cuts.rs
++++ b/tests/cuts.rs
+@@ -137,6 +137,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
+     use mip_codex::solve::{Limits, solve};
+     let model = read("2", "3");
+     let limits = Limits {
++        gomory_cuts: false,
+         box_primal: false,
+         binary_graph: false,
+         objective_rounding: false,
+@@ -404,6 +405,7 @@ fn mir_alone_strengthens_a_mixed_integer_root_and_has_an_original_row_proof() {
+     use mip_codex::solve::{Limits, solve};
+     let model=mps::parse(std::io::Cursor::new("NAME mixed\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 3\n t c 1 r -1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n")).unwrap();
+     let limits = Limits {
++        gomory_cuts: false,
+         cover_cuts: false,
+         clique_cuts: false,
+         aggregate_cuts: false,
+diff --git a/tests/diving.rs b/tests/diving.rs
+index 0730688957..719e82410b 100644
+--- a/tests/diving.rs
++++ b/tests/diving.rs
+@@ -7,6 +7,7 @@ fn run(text: &str, enabled: bool, nodes: usize) -> mip_codex::solve::Result {
+     let result = solve(
+         &model,
+         &Limits {
++        gomory_cuts: false,
+             box_primal: false,
+             binary_graph: false,
+             objective_rounding: false,
+diff --git a/tests/gmi_box_proof.rs b/tests/gmi_box_proof.rs
+new file mode 100644
+index 0000000000..368bd34c17
+--- /dev/null
++++ b/tests/gmi_box_proof.rs
+@@ -0,0 +1,13 @@
++use mip_codex::{mps,objective_bound::Certifier};
++#[test]
++fn inferred_box_bounds_hold_for_every_enumerated_feasible_grid_point() {
++ let model=mps::parse(std::io::Cursor::new("NAME box\nROWS\n N obj\n L r0\n L r1\n L r2\nCOLUMNS\n x obj 0\n x r0 2\n x r1 1\n x r2 -1\n y obj 1\n y r0 1\n z obj 0\n z r1 -1\nRHS\n rhs r0 5\n rhs r1 4\n rhs r2 0\nBOUNDS\n LO b x 0\n LO b y 0\n MI b z\n UP b z 0\nENDATA\n")).unwrap();
++ let certifier=Certifier::new(&model).unwrap();let original_lower:Vec<_>=model.variables.iter().map(|v|v.lower).collect();let original_upper:Vec<_>=model.variables.iter().map(|v|v.upper).collect();let weights=[0.,0.,-1.];assert!(certifier.bound(&original_lower,&original_upper,&weights).is_none());
++ let(lower,upper,steps)=certifier.infer_box_proof(&model);assert!(steps.len()>=3);assert!(upper[0].unwrap()>=2.5&&upper[0].unwrap()<2.500001);assert!(upper[1].unwrap()>=5.&&upper[1].unwrap()<5.000001);assert!(lower[2].unwrap()<=-4.&&lower[2].unwrap()>-4.000001);
++ let bound=certifier.bound(&lower,&upper,&weights).unwrap();assert!(bound<=-2.5&&bound>-2.500001);
++ for x in 0..=10 {for y in 0..=20 {for z in -16..=0 {let point=[x as f64/4.,y as f64/4.,z as f64/4.];if model.check(&point,false,0.).is_ok(){for j in 0..3 {assert!(lower[j].is_none_or(|l|point[j]>=l));assert!(upper[j].is_none_or(|u|point[j]<=u));}}}}}
++}
++#[test]
++fn a_missing_bound_is_not_invented_without_a_supporting_row() {
++ let model=mps::parse(std::io::Cursor::new("NAME unbounded\nROWS\n N obj\n L r\nCOLUMNS\n x obj 0\n x r -1\n y obj 1\nRHS\n rhs r 0\nBOUNDS\n LO b x 0\n LO b y 0\nENDATA\n")).unwrap();let c=Certifier::new(&model).unwrap();let(l,u,steps)=c.infer_box_proof(&model);assert!(steps.is_empty());assert!(u[0].is_none());assert!(c.bound(&l,&u,&[-1.]).is_none());
++}
+diff --git a/tests/objective_bounds.rs b/tests/objective_bounds.rs
+index 1857ae3596..e9723f01d8 100644
+--- a/tests/objective_bounds.rs
++++ b/tests/objective_bounds.rs
+@@ -100,6 +100,7 @@ fn a_tiny_negative_reduced_cost_on_an_unbounded_column_is_not_a_bound() {
+ }
+ fn optimization_limits() -> mip_codex::solve::Limits {
+     mip_codex::solve::Limits {
++        gomory_cuts: false,
+         box_primal: false,
+         binary_graph: false,
+         nodes: 1,
+diff --git a/tests/rins.rs b/tests/rins.rs
+index 33054484a4..0aefb90242 100644
+--- a/tests/rins.rs
++++ b/tests/rins.rs
+@@ -8,6 +8,7 @@ fn model() -> mip_codex::model::Model {
+ }
+ fn limits() -> Limits {
+     Limits {
++        gomory_cuts: false,
+         box_primal: false,
+         binary_graph: false,
+         objective_rounding: false,
+diff --git a/tests/root_cut_cache.rs b/tests/root_cut_cache.rs
+index 2b43ac2df9..6fbe54f8f4 100644
+--- a/tests/root_cut_cache.rs
++++ b/tests/root_cut_cache.rs
+@@ -7,6 +7,7 @@ fn model(rhs: &str) -> mip_codex::model::Model {
+ }
+ fn limits() -> Limits {
+     Limits {
++        gomory_cuts: false,
+         binary_graph: false,
+         box_primal: false,
+         primal_repair: false,
+diff --git a/tests/rounding.rs b/tests/rounding.rs
+index 40fbc75fca..33f592a711 100644
+--- a/tests/rounding.rs
++++ b/tests/rounding.rs
+@@ -24,6 +24,7 @@ fn separate(m: &Model, x: &[f64]) -> Vec<mip_codex::cuts::Cut> {
+ fn division_closes_a_root_that_pairwise_covers_cannot_close() {
+     let m = model(&[2, 2, 2], 3, "L");
+     let limits = Limits {
++        gomory_cuts: false,
+         box_primal: false,
+         binary_graph: false,
+         objective_rounding: false,
+diff --git a/tests/safe_gmi_normalization.rs b/tests/safe_gmi_normalization.rs
+new file mode 100644
+index 0000000000..6d67517acf
+--- /dev/null
++++ b/tests/safe_gmi_normalization.rs
+@@ -0,0 +1,9 @@
++use mip_codex::{gomory::{derive,verify,Proof,Term},mps};
++#[test]
++fn power_of_two_normalization_preserves_the_exact_inequality() {
++ let m=mps::parse(std::io::Cursor::new("NAME g\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1\n x r 3\n y obj 0\n y r -100000\nRHS\n rhs r 2\nBOUNDS\n LI b x 0\n UI b x 2\n LO b y 0\n UP b y 1\nENDATA\n")).unwrap();
++ let p=Proof{normalized:false,mixed:true,terms:vec![Term{row:0,upper:true,weight:1}],pivot:0,upper_bounds:vec![]};let raw=derive(&m,&p).unwrap();assert_eq!(raw.coefficients,vec![(0,-1.),(1,100000.)]);
++ let mut normalized=p.clone();normalized.normalized=true;let row=derive(&m,&normalized).unwrap();assert!(!row.exact_integral);assert!(row.exact_coefficients);assert!(verify(&m,&normalized,&row));assert!(!verify(&m,&normalized,&raw));
++ for ((j,a),(k,b)) in raw.coefficients.iter().zip(&row.coefficients){assert_eq!(j,k);assert_eq!(*a,*b*65536.);}
++ assert_eq!(raw.lower.unwrap(),row.lower.unwrap()*65536.);
++}
+diff --git a/tests/safe_gomory.rs b/tests/safe_gomory.rs
+new file mode 100644
+index 0000000000..c25bde28ed
+--- /dev/null
++++ b/tests/safe_gomory.rs
+@@ -0,0 +1,22 @@
++use mip_codex::{mps,solve::{solve,Limits}};
++#[test]
++fn exact_gomory_cut_strengthens_the_fractional_root_and_keeps_its_proof() {
++ let model=mps::parse(std::io::Cursor::new("NAME g\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1\n x r 2\n y obj -1\n y r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n")).unwrap();
++ let limits=Limits{seconds:2.,nodes:1,gomory_cuts:true,gomory_report_only:false,cover_cuts:false,mir_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,binary_graph:false,parity_equalities:false,primal_repair:false,lp_diving:false,primal_probe:false,rins:false,feasibility_pump:false,strong_branching:false,row_ray_report:false,row_packing_report:false,row_subgradient_report:false,dual_guided_primal:false,pure_cover_greedy:false,..Limits::default()};
++ let result=solve(&model,&limits);assert!(result.cut_stats.gomory_added>0,"{result:?}");assert!(result.cut_proofs.iter().any(|c|c.proof.gomory.is_some()));assert_eq!(result.objective,Some(-1.));assert_eq!(result.status,"optimal");
++ for c in &result.cut_proofs {assert!(mip_codex::cuts::verify(&model,c));}
++ let values=result.values.unwrap();let point:Vec<_>=model.variables.iter().map(|v|values[&v.name]).collect();assert!(model.check(&point,true,0.).is_ok());
++}
++#[test]
++fn reporting_a_gmi_bound_preserves_the_fractional_search_root() {
++ for maximize in [false,true] {
++  let sense=if maximize {"OBJSENSE\n MAX\n"}else{""};let cost=if maximize{1}else{-1};
++  let text=format!("NAME report\n{sense}ROWS\n N obj\n L r\nCOLUMNS\n x obj {cost}\n x r 2\n y obj {cost}\n y r 2\nRHS\n rhs r 3\nBOUNDS\n BV b x\n BV b y\nENDATA\n");
++  let model=mps::parse(std::io::Cursor::new(text)).unwrap();
++  let limits=Limits{seconds:2.,nodes:1,gomory_cuts:true,gomory_report_only:true,cover_cuts:false,mir_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,binary_graph:false,parity_equalities:false,primal_repair:false,lp_diving:false,primal_probe:false,rins:false,feasibility_pump:false,strong_branching:false,objective_rounding:false,objective_domain_report:false,row_ray_report:false,row_packing_report:false,row_subgradient_report:false,dual_guided_primal:false,pure_cover_greedy:false,..Limits::default()};
++  let mut baseline=limits.clone();baseline.gomory_cuts=false;let before=solve(&model,&baseline);
++  let result=solve(&model,&limits);assert_eq!(result.status,"node_limit");assert_eq!(result.nodes,1);assert_eq!(result.status,before.status);assert_eq!(result.objective,before.objective);
++  let proof=result.gomory_bound_proof.unwrap();assert!(proof.normalized_bound<=-1. && proof.normalized_bound>=-1.000001);let bound=result.dual_bound.unwrap();assert!((bound-if maximize{1.}else{-1.}).abs()<1e-6);
++  for c in &result.cut_proofs{assert!(mip_codex::cuts::verify(&model,c));}
++ }
++}

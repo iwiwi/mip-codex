@@ -1,0 +1,1765 @@
+{
+  "binary_graph_enabled": true,
+  "graph_cover_local_enabled": true,
+  "aggregate_cuts_enabled": true,
+  "clique_cuts_enabled": true,
+  "mir_cuts_enabled": true,
+  "three_row_cuts_enabled": true,
+  "graph_fractional_cover_enabled": true,
+  "binary_graph": null,
+  "branching": "Pseudocost",
+  "child_order": "Down",
+  "search_strategy": "DepthFirst",
+  "search_pops": 32,
+  "search_best_pops": 0,
+  "search_transfers": 0,
+  "max_open_nodes": 18,
+  "pseudocost_updates": 26,
+  "pseudocost_selections": 23,
+  "primal_repair": true,
+  "box_primal_enabled": true,
+  "box_primal": {
+    "calls": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "moves": 0,
+    "work": 15488,
+    "seconds": 0.00042074,
+    "first_seconds": null
+  },
+  "root_incumbent_conflict": false,
+  "lp_diving": true,
+  "primal_probe": true,
+  "cover_cuts_enabled": true,
+  "cover_round_limit": 4,
+  "rounding_cuts_enabled": false,
+  "strong_branching": true,
+  "strong_objective": true,
+  "strong_infeasible_hint": true,
+  "strong": {
+    "calls": 1,
+    "candidates": 3,
+    "lp_solves": 5,
+    "optimal": 3,
+    "infeasible": 0,
+    "limited": 3,
+    "numerical_errors": 0,
+    "branch_changes": 1,
+    "evaluated_variables": [
+      1567,
+      1397,
+      1549
+    ],
+    "selected_variable": 1397,
+    "infeasible_hint_selections": 0,
+    "seconds": 0.102596391
+  },
+  "rins_enabled": true,
+  "rins": {
+    "at_node": null,
+    "attempts": 0,
+    "calls": 0,
+    "fixed": 0,
+    "eligible": 0,
+    "nodes": 0,
+    "lp_solves": 0,
+    "candidates": 0,
+    "improvements": 0,
+    "limited": 0,
+    "status": null,
+    "seconds": 0.0
+  },
+  "objective_rounding": true,
+  "objective_rounding_all": false,
+  "objective_grid": null,
+  "objective_bound_stats": {
+    "box_pruned": 0,
+    "rejected_candidates": 0,
+    "calls": 0,
+    "trials": 0,
+    "valid": 0,
+    "rounded": 0,
+    "seconds": 0.0
+  },
+  "infeasibility_proof_calls": 7,
+  "infeasibility_proof_trials": 7,
+  "infeasibility_proof_failures": 0,
+  "infeasibility_proof_seconds": 0.0017919200000000002,
+  "cut_proofs": [
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_12",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            807,
+            137.0
+          ],
+          [
+            831,
+            137.0
+          ],
+          [
+            1462,
+            3288.0
+          ],
+          [
+            1946,
+            -137.0
+          ],
+          [
+            3226,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 250,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1146,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1658,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2906,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1462,
+          "upper_bounds": []
+        },
+        "source_row": 250,
+        "source_name": "FLO23211",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_11",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            1207,
+            137.0
+          ],
+          [
+            1231,
+            137.0
+          ],
+          [
+            1552,
+            3288.0
+          ],
+          [
+            1951,
+            -137.0
+          ],
+          [
+            3231,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 255,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1151,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1663,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2911,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1552,
+          "upper_bounds": []
+        },
+        "source_row": 255,
+        "source_name": "FLO23216",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_7",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            807,
+            137.0
+          ],
+          [
+            831,
+            137.0
+          ],
+          [
+            1468,
+            3288.0
+          ],
+          [
+            1946,
+            -137.0
+          ],
+          [
+            3226,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 250,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1146,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1658,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2938,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1468,
+          "upper_bounds": []
+        },
+        "source_row": 250,
+        "source_name": "FLO23211",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_8",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            815,
+            137.0
+          ],
+          [
+            847,
+            137.0
+          ],
+          [
+            1475,
+            3288.0
+          ],
+          [
+            2330,
+            -137.0
+          ],
+          [
+            3354,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 506,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1274,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1786,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 3322,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1475,
+          "upper_bounds": []
+        },
+        "source_row": 506,
+        "source_name": "FLO24811",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_9",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            1207,
+            137.0
+          ],
+          [
+            1231,
+            137.0
+          ],
+          [
+            1558,
+            3288.0
+          ],
+          [
+            1951,
+            -137.0
+          ],
+          [
+            3231,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 255,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1151,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1663,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2943,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1558,
+          "upper_bounds": []
+        },
+        "source_row": 255,
+        "source_name": "FLO23216",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_0",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            494,
+            137.0
+          ],
+          [
+            1404,
+            3425.0
+          ],
+          [
+            2252,
+            -137.0
+          ],
+          [
+            3078,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 1254,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1510,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2534,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1404,
+          "upper_bounds": []
+        },
+        "source_row": 1254,
+        "source_name": "FLOW1507",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_1",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            647,
+            137.0
+          ],
+          [
+            1441,
+            3425.0
+          ],
+          [
+            1920,
+            -137.0
+          ],
+          [
+            2968,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 1144,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1400,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2424,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1441,
+          "upper_bounds": []
+        },
+        "source_row": 1144,
+        "source_name": "FLOW0809",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          0.0,
+          0.0
+        ],
+        "upper_enclosure": null,
+        "exact_integral": true,
+        "name": "__gomory_2",
+        "lower": 0.0,
+        "upper": null,
+        "coefficients": [
+          [
+            1127,
+            137.0
+          ],
+          [
+            1549,
+            3425.0
+          ],
+          [
+            1932,
+            -137.0
+          ],
+          [
+            2974,
+            224.0
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 1150,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1406,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2430,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1549,
+          "upper_bounds": []
+        },
+        "source_row": 1150,
+        "source_name": "FLOW0815",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          -0.097869873046875,
+          -0.097869873046875
+        ],
+        "upper_enclosure": null,
+        "exact_integral": false,
+        "name": "__gomory_8",
+        "lower": -0.097869873046875,
+        "upper": null,
+        "coefficients": [
+          [
+            1046,
+            0.0020904541015625
+          ],
+          [
+            1069,
+            0.0020904541015625
+          ],
+          [
+            1205,
+            0.0001068115234375
+          ],
+          [
+            1207,
+            0.0020904541015625
+          ],
+          [
+            1227,
+            0.0001068115234375
+          ],
+          [
+            1231,
+            0.0020904541015625
+          ],
+          [
+            1498,
+            1.0
+          ],
+          [
+            1516,
+            1.0
+          ],
+          [
+            1534,
+            0.0986328125
+          ],
+          [
+            1552,
+            0.05340576171875
+          ],
+          [
+            1558,
+            0.0034027099609375
+          ],
+          [
+            1855,
+            -0.0001068115234375
+          ],
+          [
+            1900,
+            -0.0020904541015625
+          ],
+          [
+            1901,
+            -0.0020904541015625
+          ],
+          [
+            1948,
+            -0.0020904541015625
+          ],
+          [
+            1949,
+            -0.0020904541015625
+          ],
+          [
+            1950,
+            -0.0020904541015625
+          ],
+          [
+            3212,
+            0.00341796875
+          ],
+          [
+            3213,
+            0.00341796875
+          ],
+          [
+            3228,
+            0.00341796875
+          ],
+          [
+            3229,
+            0.00341796875
+          ],
+          [
+            3230,
+            0.00341796875
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 191,
+              "upper": true,
+              "weight": -7
+            },
+            {
+              "row": 220,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 221,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 252,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 253,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 254,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 255,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1119,
+              "upper": true,
+              "weight": -7
+            },
+            {
+              "row": 1132,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1133,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1148,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1149,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1150,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1151,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1631,
+              "upper": true,
+              "weight": 7
+            },
+            {
+              "row": 1644,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1645,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1660,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1661,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1662,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2815,
+              "upper": true,
+              "weight": 3500
+            },
+            {
+              "row": 2860,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 2861,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 2908,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2909,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2910,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2943,
+              "upper": true,
+              "weight": -223
+            }
+          ],
+          "pivot": 1534,
+          "upper_bounds": [
+            1404,
+            1441,
+            1475,
+            1549
+          ]
+        },
+        "source_row": 191,
+        "source_name": "FLO22816",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          -0.097869873046875,
+          -0.097869873046875
+        ],
+        "upper_enclosure": null,
+        "exact_integral": false,
+        "name": "__gomory_9",
+        "lower": -0.097869873046875,
+        "upper": null,
+        "coefficients": [
+          [
+            1046,
+            0.0020904541015625
+          ],
+          [
+            1069,
+            0.0020904541015625
+          ],
+          [
+            1205,
+            0.0001068115234375
+          ],
+          [
+            1207,
+            0.0020904541015625
+          ],
+          [
+            1227,
+            0.0001068115234375
+          ],
+          [
+            1231,
+            0.0020904541015625
+          ],
+          [
+            1498,
+            1.0
+          ],
+          [
+            1516,
+            1.0
+          ],
+          [
+            1538,
+            0.0986328125
+          ],
+          [
+            1552,
+            0.05340576171875
+          ],
+          [
+            1558,
+            0.0034027099609375
+          ],
+          [
+            1855,
+            -0.0001068115234375
+          ],
+          [
+            1900,
+            -0.0020904541015625
+          ],
+          [
+            1901,
+            -0.0020904541015625
+          ],
+          [
+            1948,
+            -0.0020904541015625
+          ],
+          [
+            1949,
+            -0.0020904541015625
+          ],
+          [
+            1950,
+            -0.0020904541015625
+          ],
+          [
+            3212,
+            0.00341796875
+          ],
+          [
+            3213,
+            0.00341796875
+          ],
+          [
+            3228,
+            0.00341796875
+          ],
+          [
+            3229,
+            0.00341796875
+          ],
+          [
+            3230,
+            0.00341796875
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 191,
+              "upper": true,
+              "weight": -7
+            },
+            {
+              "row": 220,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 221,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 252,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 253,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 254,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 255,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1119,
+              "upper": true,
+              "weight": -7
+            },
+            {
+              "row": 1132,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1133,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1148,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1149,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1150,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1151,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1631,
+              "upper": true,
+              "weight": 7
+            },
+            {
+              "row": 1644,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1645,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1660,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1661,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1662,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2815,
+              "upper": true,
+              "weight": 3500
+            },
+            {
+              "row": 2860,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 2861,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 2908,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2909,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2926,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2943,
+              "upper": true,
+              "weight": -223
+            }
+          ],
+          "pivot": 1538,
+          "upper_bounds": [
+            1404,
+            1441,
+            1475,
+            1549
+          ]
+        },
+        "source_row": 191,
+        "source_name": "FLO22816",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          -0.097869873046875,
+          -0.097869873046875
+        ],
+        "upper_enclosure": null,
+        "exact_integral": false,
+        "name": "__gomory_10",
+        "lower": -0.097869873046875,
+        "upper": null,
+        "coefficients": [
+          [
+            1046,
+            0.0020904541015625
+          ],
+          [
+            1069,
+            0.0020904541015625
+          ],
+          [
+            1205,
+            0.0001068115234375
+          ],
+          [
+            1207,
+            0.0020904541015625
+          ],
+          [
+            1227,
+            0.0001068115234375
+          ],
+          [
+            1231,
+            0.0020904541015625
+          ],
+          [
+            1498,
+            1.0
+          ],
+          [
+            1516,
+            1.0
+          ],
+          [
+            1540,
+            0.0986328125
+          ],
+          [
+            1552,
+            0.05340576171875
+          ],
+          [
+            1558,
+            0.0034027099609375
+          ],
+          [
+            1855,
+            -0.0001068115234375
+          ],
+          [
+            1900,
+            -0.0020904541015625
+          ],
+          [
+            1901,
+            -0.0020904541015625
+          ],
+          [
+            1948,
+            -0.0020904541015625
+          ],
+          [
+            1949,
+            -0.0020904541015625
+          ],
+          [
+            1950,
+            -0.0020904541015625
+          ],
+          [
+            3212,
+            0.00341796875
+          ],
+          [
+            3213,
+            0.00341796875
+          ],
+          [
+            3228,
+            0.00341796875
+          ],
+          [
+            3229,
+            0.00341796875
+          ],
+          [
+            3230,
+            0.00341796875
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 191,
+              "upper": true,
+              "weight": -7
+            },
+            {
+              "row": 220,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 221,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 252,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 253,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 254,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 255,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1119,
+              "upper": true,
+              "weight": -7
+            },
+            {
+              "row": 1132,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1133,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1148,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1149,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1150,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1151,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1631,
+              "upper": true,
+              "weight": 7
+            },
+            {
+              "row": 1644,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1645,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1660,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1661,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1662,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 2815,
+              "upper": true,
+              "weight": 3500
+            },
+            {
+              "row": 2860,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 2861,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 2908,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2909,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2942,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 2943,
+              "upper": true,
+              "weight": -223
+            }
+          ],
+          "pivot": 1540,
+          "upper_bounds": [
+            1404,
+            1441,
+            1475,
+            1549
+          ]
+        },
+        "source_row": 191,
+        "source_name": "FLO22816",
+        "upper_side": true,
+        "cover": []
+      }
+    },
+    {
+      "row": {
+        "exact_coefficients": true,
+        "exact_coefficient_flags": [],
+        "lower_enclosure": [
+          -0.09197998046875,
+          -0.09197998046875
+        ],
+        "upper_enclosure": null,
+        "exact_integral": false,
+        "name": "__gomory_11",
+        "lower": -0.09197998046875,
+        "upper": null,
+        "coefficients": [
+          [
+            894,
+            0.0020904541015625
+          ],
+          [
+            895,
+            0.0020904541015625
+          ],
+          [
+            925,
+            0.0020904541015625
+          ],
+          [
+            927,
+            0.0020904541015625
+          ],
+          [
+            1451,
+            0.054351806640625
+          ],
+          [
+            1469,
+            1.0
+          ],
+          [
+            1487,
+            1.0
+          ],
+          [
+            2282,
+            -0.0020904541015625
+          ],
+          [
+            2283,
+            -0.0020904541015625
+          ],
+          [
+            2329,
+            -0.0020904541015625
+          ],
+          [
+            2330,
+            -0.0020904541015625
+          ],
+          [
+            2331,
+            -0.0020904541015625
+          ],
+          [
+            3338,
+            0.00341796875
+          ],
+          [
+            3339,
+            0.00341796875
+          ],
+          [
+            3353,
+            0.00341796875
+          ],
+          [
+            3354,
+            0.00341796875
+          ],
+          [
+            3355,
+            0.00341796875
+          ]
+        ]
+      },
+      "proof": {
+        "gomory": {
+          "normalized": true,
+          "mixed": true,
+          "terms": [
+            {
+              "row": 474,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 475,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 505,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 506,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 507,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1258,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1259,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1273,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1274,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1275,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1770,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1771,
+              "upper": true,
+              "weight": 137
+            },
+            {
+              "row": 1785,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1786,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 1787,
+              "upper": true,
+              "weight": -137
+            },
+            {
+              "row": 3242,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 3243,
+              "upper": true,
+              "weight": 65536
+            },
+            {
+              "row": 3289,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 3290,
+              "upper": true,
+              "weight": -65536
+            },
+            {
+              "row": 3291,
+              "upper": true,
+              "weight": -65536
+            }
+          ],
+          "pivot": 1451,
+          "upper_bounds": [
+            1404,
+            1441,
+            1475,
+            1549
+          ]
+        },
+        "source_row": 474,
+        "source_name": "FLO24611",
+        "upper_side": true,
+        "cover": []
+      }
+    }
+  ],
+  "cut_stats": {
+    "gomory_calls": 3,
+    "gomory_added": 12,
+    "gomory_lp_solves": 3,
+    "gomory_rejected_cuts": 8,
+    "gomory_seconds": 0.005620026,
+    "gomory_trial_seconds": 0.489813918,
+    "three_calls": 1,
+    "three_work": 1646,
+    "three_added": 0,
+    "three_lp_solves": 0,
+    "three_rejected_cuts": 0,
+    "three_seconds": 0.001206088,
+    "three_trial_seconds": 0.0,
+    "mir_calls": 1,
+    "mir_lp_solves": 0,
+    "mir_rejected_cuts": 0,
+    "mir_trial_seconds": 0.0,
+    "mir_work": 81600,
+    "mir_added": 0,
+    "mir_seconds": 0.002089727,
+    "clique_calls": 1,
+    "clique_edges": 0,
+    "clique_work": 23890,
+    "clique_added": 0,
+    "clique_seconds": 0.000652856,
+    "aggregate_calls": 1,
+    "aggregate_pairs": 209,
+    "aggregate_work": 6668,
+    "aggregate_added": 0,
+    "aggregate_seconds": 0.001233039,
+    "rounding_calls": 0,
+    "rounding": 0,
+    "rounding_projected": 0,
+    "rounding_work": 0,
+    "calls": 1,
+    "eligible": 1600,
+    "candidates": 0,
+    "added": 12,
+    "integer": 0,
+    "interval": 0,
+    "projected": 0,
+    "rejected": 0,
+    "work": 28160
+  },
+  "cut_rounds": 4,
+  "cut_lp_solves": 4,
+  "cut_seconds": 1.585098838,
+  "cut_initial_lp_seconds": 1.072894085,
+  "root_lp_reused": true,
+  "probe": {
+    "precut_roots": 0,
+    "calls": 1,
+    "nodes": 2,
+    "lp_solves": 2,
+    "max_open_nodes": 2,
+    "seconds": 1.002236566,
+    "status": "time_limit",
+    "candidates": 0,
+    "improvements": 0
+  },
+  "diving": {
+    "calls": 1,
+    "lp_solves": 84,
+    "reversals": 17,
+    "infeasible": 17,
+    "numerical_errors": 0,
+    "limited": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "seconds": 0.250621321
+  },
+  "feasibility_pump_enabled": true,
+  "pump": {
+    "calls": 1,
+    "lp_solves": 2,
+    "perturbations": 1,
+    "candidates": 0,
+    "improvements": 0,
+    "numerical_errors": 0,
+    "limited": 1,
+    "seconds": 1.001590318
+  },
+  "repair_calls": 1,
+  "repair_candidates": 0,
+  "repair_improvements": 0,
+  "repair_moves": 23,
+  "first_primal_seconds": null,
+  "repair_lp_solves": 1,
+  "repair_lp_candidates": 0,
+  "repair_work": 167059,
+  "lp_engine": "Revised",
+  "propagation": false,
+  "propagation_calls": 0,
+  "propagation_rows": 0,
+  "propagation_tightenings": 0,
+  "propagation_pruned": 0,
+  "propagation_budget_hits": 0,
+  "fixed_leaves": 0,
+  "lp_solves": 129,
+  "defer_infeasibility_enabled": true,
+  "joint_infeasibility_enabled": true,
+  "aggregate_infeasibility_enabled": true,
+  "deferred_infeasibilities": 0,
+  "deferred_infeasibilities_pending": 0,
+  "deferred_infeasibilities_pruned": 0,
+  "deferred_infeasibility_bound": null,
+  "deferred_infeasibility_unbounded": false,
+  "lp_search_termination": "time_limit",
+  "fixed_columns_enabled": true,
+  "lp_workspace_bytes": 536870912,
+  "root_fixed_columns": 0,
+  "lp_scaled_columns": 0,
+  "lp_scaled_rows": 0,
+  "lp_warm_start": true,
+  "lp_warm_attempts": 128,
+  "lp_warm_successes": 121,
+  "lp_warm_fallbacks": 3,
+  "lp_warm_rejections": 0,
+  "lp_warm_row_extensions": 3,
+  "lp_warm_cost_attempts": 2,
+  "lp_warm_cost_successes": 1,
+  "lp_multiplier_cache_hits": 223,
+  "lp_multiplier_cache_misses": 45553,
+  "lp_certificate_repair_trials": 0,
+  "lp_certificate_repairs": 0,
+  "lp_restoration_attempts": 0,
+  "lp_restoration_restarts": 0,
+  "lp_dual_refactor_retries": 8,
+  "lp_restoration_extended_attempts": 0,
+  "lp_restoration_successes": 0,
+  "lp_restoration_infeasible_candidates": 0,
+  "lp_restoration_pivots": 0,
+  "lp_refinement_attempts": 0,
+  "lp_refinement_steps": 0,
+  "lp_refinement_successes": 0,
+  "lp_dual_pivots": 2848,
+  "lp_dual_flips": 0,
+  "lp_pivots": 45248,
+  "lp_bound_point_trials": 0,
+  "lp_bound_point_repairs": 0,
+  "lp_feasibility_pricing_calls": 0,
+  "lp_pricing_cutoffs": 0,
+  "lp_pricing_fallbacks": 0,
+  "lp_flips": 0,
+  "lp_refactors": 1187,
+  "status": "time_limit",
+  "objective": null,
+  "dual_bound": 2866.8562500000016,
+  "gap": null,
+  "nodes": 32,
+  "seconds": 10.000906517,
+  "values": null
+}

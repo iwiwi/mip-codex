@@ -1,0 +1,76 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 2985 variables (1195 bin, 0 int, 1790 cont) and 1920 constraints
+presolving:
+(round 1, fast)       0 del vars, 0 del conss, 0 add conss, 1195 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 120 clqs, 0 implints
+(round 2, fast)       0 del vars, 0 del conss, 0 add conss, 1795 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 120 clqs, 0 implints
+(round 3, exhaustive) 0 del vars, 0 del conss, 0 add conss, 1805 chg bounds, 0 chg sides, 0 chg coeffs, 1195 upgd conss, 0 impls, 120 clqs, 0 implints
+(round 4, exhaustive) 0 del vars, 0 del conss, 0 add conss, 1815 chg bounds, 0 chg sides, 0 chg coeffs, 1320 upgd conss, 1195 impls, 120 clqs, 0 implints
+   (0.1s) probing: 1000/1195 (83.7%) - 0 fixings, 0 aggregations, 7943 implications, 0 bound changes
+   (0.1s) probing: 1001/1195 (83.8%) - 0 fixings, 0 aggregations, 7944 implications, 0 bound changes
+   (0.1s) probing aborted: 1000/1000 successive useless probings
+   (0.1s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.1s) no symmetry present (symcode time: 0.00)
+presolving (5 rounds: 5 fast, 3 medium, 3 exhaustive):
+ 0 deleted vars, 0 deleted constraints, 0 added constraints, 1825 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 9104 implications, 155 cliques, 0 implied integral variables (0 bin, 0 int, 0 cont)
+presolved problem has 2985 variables (1195 bin, 0 int, 1790 cont) and 1920 constraints
+   1195 constraints of type <varbound>
+      5 constraints of type <knapsack>
+    120 constraints of type <setppc>
+    600 constraints of type <linear>
+Presolving Time: 0.09
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  0.1s|     1 |     0 |  1522 |     - |    29M |   0 |2985 |1922 |1920 |   0 |  0 |   2 |   0 | 3.483853e+05 |      --      |    Inf | unknown
+o 0.2s|     1 |     0 |  2862 |     - |feaspump|   0 |2985 |1922 |1920 |   0 |  0 |   2 |   0 | 3.483853e+05 | 5.062268e+06 |1353.07%| unknown
+  0.3s|     1 |     0 |  4305 |     - |    32M |   0 |2985 |1922 |2408 | 488 |  1 |   2 |   0 | 5.327225e+05 | 5.062268e+06 | 850.26%| unknown
+  0.3s|     1 |     0 |  4305 |     - |    32M |   0 |2985 |1922 |2408 | 488 |  1 |   2 |   0 | 5.327225e+05 | 5.062268e+06 | 850.26%| unknown
+  0.3s|     1 |     0 |  4900 |     - |    34M |   0 |2985 |1922 |2725 | 805 |  2 |   2 |   0 | 6.305061e+05 | 5.062268e+06 | 702.89%| unknown
+  0.4s|     1 |     0 |  5475 |     - |    34M |   0 |2985 |1922 |3003 |1083 |  3 |   2 |   0 | 7.043245e+05 | 5.062268e+06 | 618.74%| unknown
+  0.5s|     1 |     0 |  6001 |     - |    35M |   0 |2985 |1922 |3246 |1326 |  4 |   2 |   0 | 7.699083e+05 | 5.062268e+06 | 557.52%| unknown
+  0.6s|     1 |     0 |  6571 |     - |    36M |   0 |2985 |1922 |3468 |1548 |  5 |   2 |   0 | 8.330638e+05 | 5.062268e+06 | 507.67%| unknown
+  0.7s|     1 |     0 |  7385 |     - |    36M |   0 |2985 |1922 |3656 |1736 |  6 |   2 |   0 | 8.922602e+05 | 5.062268e+06 | 467.35%| unknown
+  0.8s|     1 |     0 |  8255 |     - |    38M |   0 |2985 |1922 |3832 |1912 |  7 |   2 |   0 | 9.406042e+05 | 5.062268e+06 | 438.19%| unknown
+  1.0s|     1 |     0 |  9106 |     - |    39M |   0 |2985 |1922 |3994 |2074 |  8 |   2 |   0 | 9.797426e+05 | 5.062268e+06 | 416.69%| unknown
+  1.1s|     1 |     0 | 10104 |     - |    40M |   0 |2985 |1922 |4160 |2240 |  9 |   2 |   0 | 1.022846e+06 | 5.062268e+06 | 394.92%| unknown
+  1.3s|     1 |     0 | 11102 |     - |    41M |   0 |2985 |1922 |4324 |2404 | 10 |   2 |   0 | 1.058722e+06 | 5.062268e+06 | 378.15%| unknown
+  1.5s|     1 |     0 | 12256 |     - |    41M |   0 |2985 |1922 |4466 |2546 | 11 |   2 |   0 | 1.086366e+06 | 5.062268e+06 | 365.98%| unknown
+  1.7s|     1 |     0 | 13601 |     - |    42M |   0 |2985 |1922 |4535 |2696 | 12 |   2 |   0 | 1.118461e+06 | 5.062268e+06 | 352.61%| unknown
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  1.9s|     1 |     0 | 14525 |     - |    45M |   0 |2985 |1922 |4673 |2834 | 13 |   2 |   0 | 1.139455e+06 | 5.062268e+06 | 344.27%| unknown
+  2.1s|     1 |     0 | 15857 |     - |    47M |   0 |2985 |1922 |4802 |2963 | 14 |   2 |   0 | 1.162420e+06 | 5.062268e+06 | 335.49%| unknown
+  2.5s|     1 |     0 | 17225 |     - |    48M |   0 |2985 |1922 |4927 |3088 | 15 |   2 |   0 | 1.182688e+06 | 5.062268e+06 | 328.03%| unknown
+  2.8s|     1 |     0 | 18781 |     - |    49M |   0 |2985 |1923 |5050 |3211 | 16 |   3 |   0 | 1.199793e+06 | 5.062268e+06 | 321.93%| unknown
+  3.1s|     1 |     0 | 20124 |     - |    50M |   0 |2985 |1923 |5160 |3321 | 17 |   3 |   0 | 1.215240e+06 | 5.062268e+06 | 316.57%| unknown
+  3.5s|     1 |     0 | 22133 |     - |    51M |   0 |2985 |1923 |4465 |3434 | 18 |   3 |   0 | 1.231586e+06 | 5.062268e+06 | 311.04%| unknown
+  4.0s|     1 |     0 | 24043 |     - |    52M |   0 |2985 |1923 |4576 |3545 | 19 |   3 |   0 | 1.245381e+06 | 5.062268e+06 | 306.48%| unknown
+  4.4s|     1 |     0 | 25699 |     - |    53M |   0 |2985 |1923 |4685 |3654 | 20 |   3 |   0 | 1.257275e+06 | 5.062268e+06 | 302.64%| unknown
+  5.0s|     1 |     0 | 28219 |     - |    54M |   0 |2985 |1923 |4794 |3763 | 21 |   3 |   0 | 1.272630e+06 | 5.062268e+06 | 297.78%| unknown
+  5.5s|     1 |     0 | 30239 |     - |    54M |   0 |2985 |1923 |4907 |3876 | 22 |   3 |   0 | 1.282682e+06 | 5.062268e+06 | 294.66%| unknown
+  6.2s|     1 |     0 | 32951 |     - |    54M |   0 |2985 |1923 |5006 |3975 | 23 |   3 |   0 | 1.293206e+06 | 5.062268e+06 | 291.45%| unknown
+  6.9s|     1 |     0 | 35813 |     - |    55M |   0 |2985 |1923 |4395 |4080 | 24 |   3 |   0 | 1.302270e+06 | 5.062268e+06 | 288.73%| unknown
+  7.4s|     1 |     0 | 38019 |     - |    55M |   0 |2985 |1923 |4492 |4177 | 25 |   3 |   0 | 1.310417e+06 | 5.062268e+06 | 286.31%| unknown
+  8.0s|     1 |     0 | 40162 |     - |    58M |   0 |2985 |1923 |4591 |4276 | 26 |   3 |   0 | 1.319887e+06 | 5.062268e+06 | 283.54%| unknown
+  8.6s|     1 |     0 | 42688 |     - |    58M |   0 |2985 |1923 |4694 |4379 | 27 |   3 |   0 | 1.328010e+06 | 5.062268e+06 | 281.19%| unknown
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  9.3s|     1 |     0 | 45406 |     - |    58M |   0 |2985 |1923 |4794 |4479 | 28 |   3 |   0 | 1.335230e+06 | 5.062268e+06 | 279.13%| unknown
+ 10.0s|     1 |     0 | 48078 |     - |    59M |   0 |2985 |1923 |4887 |4572 | 29 |   3 |   0 | 1.335230e+06 | 5.062268e+06 | 279.13%| unknown
+(node 1) LP solver hit time limit in LP 53 -- using pseudo solution instead
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 10.00
+Solving Nodes      : 1
+Primal Bound       : +5.06226800000000e+06 (1 solutions)
+Dual Bound         : +1.33523012314981e+06
+Gap                : 279.13 %
+wrote parameter settings to file /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-030531-plk1qw2w/lotsize.mps.gz/scip/options.txt
