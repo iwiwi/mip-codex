@@ -1,0 +1,5 @@
+係数ベクトルが空で現在の目的係数も厳密0の列を、primal simplexの価格付け候補から省きます。大きく疎な原行部分LPで全列を毎回走査する費用を減らします。列・境界・基底・復元対応と最終証明を保ち、費用変更/行追加/Phaseごとに候補を再計算して元index順の入り変数選択を維持します。MIP_LP_EMPTY_PRICING=0で従来経路へ戻せます。
+
+306 Rust成功4無視、独立LP1200比較4800点は全有効で点/目的/pivot一致。空列付き全列挙MIP800出力も全有効、710親証明5680改竄拒否。188開発対は主解1改善0悪化、下界4改善2悪化。全376出力証明/128整数点が元MPS独立有効です。map2問/SAV/jaramaの4下界改善は新処理が動き、swath1主解改善とsp97ar/sp98ar下界悪化は処理0回の時限変動として保存しました。
+
+同CPUでHiGHS1.16.0/SCIP10.0.2/GLPK5.0とも比較しました。jaramaの当該下界は3者より強いですが、map2問ではHiGHS/SCIPより主解・下界が弱く、総合優位や新記録ではありません。詳細はdocs/EMPTY_PRICING_RESULTS.md。原記録13717ファイルの全payload SHAを照合したbundleをartifacts/empty-pricing-final-evaluationに保存しています。
