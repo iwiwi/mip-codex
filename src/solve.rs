@@ -182,6 +182,8 @@ impl Default for Limits {
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
     pub lp_zero_phase_one_skips:Option<usize>,
+    pub original_coefficient_bound_checks:usize,
+    pub original_coefficient_bound_successes:usize,
     pub adaptive_resource_repair:Option<crate::adaptive_resource_repair::Stats>,
 
     #[serde(skip_serializing_if="Option::is_none")]
@@ -516,7 +518,8 @@ fn standard_dense(model: &Model, node: &Node, limit: usize, fixed_columns: bool)
     }
     let mut a = Vec::with_capacity(rows);
     let mut b = Vec::with_capacity(rows);
-    for row in &model.rows {
+    let mut row_sources=Vec::new();
+    for (source,row) in model.rows.iter().enumerate() {
         let mut coeff = vec![0.0; cols];
         for &(j, v) in &row.coefficients {
             for &(k, s) in &terms[j] {
@@ -524,6 +527,7 @@ fn standard_dense(model: &Model, node: &Node, limit: usize, fixed_columns: bool)
             }
         }
         if row.upper.is_some() {
+            row_sources.push((source,1.));
             a.push(coeff.clone());
             b.push(shifted_bound(
                 row,
@@ -534,6 +538,7 @@ fn standard_dense(model: &Model, node: &Node, limit: usize, fixed_columns: bool)
             ));
         }
         if row.lower.is_some() {
+            row_sources.push((source,-1.));
             a.push(coeff.iter().map(|x| -x).collect());
             b.push(shifted_bound(
                 row,
@@ -555,7 +560,7 @@ fn standard_dense(model: &Model, node: &Node, limit: usize, fixed_columns: bool)
         }
     }
     Relaxation::Ready(Standard {
-        row_sources: vec![],
+        row_sources,
         sparse: None,
         a,
         b,
@@ -1848,6 +1853,11 @@ fn solve_seeded_warm(
     let mut objective_certifier = objective_grid
         .as_ref()
         .and_then(|_| Certifier::new(lp_model));
+    let original_coefficient_bounds=model.original_decimal&&model.rows.iter().any(|r|!r.exact_coefficients);
+    let original_coefficient_certifier=if original_coefficient_bounds&&
+        (lp_model.rows.iter().map(|r|r.coefficients.len()as u128).sum::<u128>()+lp_model.rows.len()as u128+lp_model.variables.len()as u128)*64<=limits.dense_bytes as u128{Certifier::new(lp_model)}else{None};
+    let mut original_coefficient_bound_checks=0;let mut original_coefficient_bound_successes=0;
+
     let check_original_infeasibility = lp_model.needs_original_feasibility_check();
     let mut infeasibility_certifier = None;
     let mut infeasibility_proof_calls = 0;
@@ -2057,11 +2067,10 @@ fn solve_seeded_warm(
             }
             (Ok(answer.outcome), answer.dual, answer.witness)
         } else {
-            (
-                lp::minimize_until(&p.a, &p.b, &p.c, limits.pivots, Some(deadline)),
-                None,
-                None,
-            )
+            let mut witness=None;
+            let answer=lp::minimize_until_with_witness(&p.a,&p.b,&p.c,limits.pivots,Some(deadline),&mut witness);
+            if let Some(y)=&mut witness{y.truncate(p.row_sources.len());}
+            (answer,None,witness)
         };
         match answer {
             Ok(lp::Outcome::Infeasible) => {
@@ -2244,7 +2253,31 @@ fn solve_seeded_warm(
                 if let Some(edge) = node.edge {
                     costs.observe(edge, objective);
                 }
-                let bound = if let Some(dual) = relaxation_dual {
+                let bound = if original_coefficient_bounds{
+                    original_coefficient_bound_checks+=1;
+                    let mut checked=None;
+                    if let (Some(certifier),Some(y))=(&original_coefficient_certifier,relaxation_witness.as_deref()){
+                        if y.len()==p.row_sources.len(){
+                            let mut original_y=vec![0.;lp_model.rows.len()];
+                            for(&v,&(i,s))in y.iter().zip(&p.row_sources){original_y[i]+=s*v;}
+                            // 元の連続境界の丸めを、より狭いboxとして使わない。
+                            let lower:Vec<_>=node.lower.iter().zip(&model.variables).map(|(&a,v)|{
+                                if !v.integer||a==v.lower.map(f64::ceil){match(a,v.lower_enclosure){(Some(a),Some(e))=>Some(a.min(e[0])),_=>a}}else{a}
+                            }).collect();
+                            let upper:Vec<_>=node.upper.iter().zip(&model.variables).map(|(&a,v)|{
+                                if !v.integer||a==v.upper.map(f64::floor){match(a,v.upper_enclosure){(Some(a),Some(e))=>Some(a.max(e[1])),_=>a}}else{a}
+                            }).collect();
+                            for factor in [1.,1.-2f64.powi(-40),1.+2f64.powi(-40)]{
+                                let weights:Vec<_>=original_y.iter().map(|v|v*factor).collect();
+                                if let Some(value)=certifier.bound(&lower,&upper,&weights){checked=Some(checked.map_or(value,|old:f64|old.max(value)));}
+                            }
+                        }
+                    }
+                    let Some(value)=checked else{
+                        stack.push(node);status="numerical_error".into();break;
+                    };
+                    original_coefficient_bound_successes+=1;value.min(objective)
+                }else if let Some(dual) = relaxation_dual {
                     let value = crate::exact::dot_lower(
                         std::iter::once((dual, 1.))
                             .chain(std::iter::once((sign * model.offset, 1.)))
@@ -3161,6 +3194,8 @@ fn solve_seeded_warm(
         lp_dual_form_successes: Some(lp_stats.dual_form_successes),
         lp_dual_form_fallbacks: Some(lp_stats.dual_form_fallbacks),
         adaptive_resource_repair:Some(adaptive_resource_repair_stats),
+        original_coefficient_bound_checks,
+        original_coefficient_bound_successes,
         lp_zero_phase_one_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.zero_phase_one_skips),
         lp_empty_pricing_calls:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_calls),
         lp_empty_pricing_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_skips),
