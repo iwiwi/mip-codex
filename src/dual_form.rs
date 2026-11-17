@@ -2,7 +2,7 @@
 use crate::{lp::Outcome,revised::{Problem,Answer,WarmStart}};
 use std::time::Instant;
 pub(crate) fn solve_for_root(p:&Problem,limit:usize,deadline:Option<Instant>,warm:Option<&WarmStart>,retain:bool)->Answer{
- if warm.is_some()||!crate::revised::valid(p)||p.rhs.len()<32||p.rhs.len()<=4*p.costs.len()||p.costs.is_empty()||p.costs.len()>10000{return crate::scaling::solve(p,limit,deadline,warm,retain);}
+ if warm.is_some()||p.costs.is_empty()||p.costs.len()>10000||p.rhs.len()<32||p.rhs.len()<=4*p.costs.len()||!crate::revised::valid(p){return crate::scaling::solve(p,limit,deadline,warm,retain);}
  let Some((q,positive,negative))=transform(p,deadline)else{return crate::scaling::solve(p,limit,deadline,warm,retain)};
  let mut a=crate::scaling::solve(&q,limit,deadline,None,false);a.stats.dual_form_attempts+=1;
  if let Outcome::Optimal{x:ref dx,..}=a.outcome{
@@ -15,7 +15,7 @@ pub(crate) fn solve_for_root(p:&Problem,limit:usize,deadline:Option<Instant>,war
    }
   }
  }
- a.stats.dual_form_fallbacks+=1;let mut fallback=crate::scaling::solve(p,limit.saturating_sub(a.stats.pivots),deadline,None,retain);fallback.stats.add(&a.stats);fallback
+ a.stats.dual_form_fallbacks+=1;let mut fallback=crate::scaling::solve(p,limit.saturating_sub(a.stats.pivots.saturating_add(a.stats.flips)),deadline,None,retain);fallback.stats.add(&a.stats);fallback
 }
 fn transform(p:&Problem,deadline:Option<Instant>)->Option<(Problem,Vec<usize>,Vec<Option<usize>>)> {
  let n=p.costs.len();let m=p.rhs.len();let mut rows=vec![vec![];m];
@@ -33,4 +33,9 @@ fn transform(p:&Problem,deadline:Option<Instant>)->Option<(Problem,Vec<usize>,Ve
  #[test]fn finite_upper_ranged_equality_and_signs_map_back(){
   for cost in [-3.,2.]{let p=Problem{columns:vec![(0..40).map(|i|(i,if i%2==0{1.}else{-1.})).collect()],rhs:(0..40).map(|i|if i%2==0{2.}else{-1.}).collect(),costs:vec![cost],upper:vec![1.5],equality:vec![false;40],slack_upper:vec![f64::INFINITY;40]};let(q,pos,neg)=transform(&p,None).unwrap();let a=crate::scaling::solve(&q,1000,None,None,false);let Outcome::Optimal{x:dx,..}=a.outcome else{panic!("{:?}",a.outcome)};let x:Vec<_>=a.witness.unwrap().iter().map(|v|-v).collect();let y:Vec<_>=pos.iter().zip(neg).map(|(&j,k)|-dx[j]+k.map_or(0.,|k|dx[k])).collect();let(v,d)=crate::scaling::primal_dual(&p,&x,&y).unwrap();assert!((v-d).abs()<1e-10);assert_eq!(x,vec![if cost<0.{1.5}else{1.}]);}
  }
+}
+
+#[cfg(test)]mod budget_tests{
+ use super::*;
+ #[test]fn dual_limit_is_not_an_original_optimality_or_infeasibility_certificate(){let p=Problem{columns:vec![(0..40).map(|i|(i,if i%2==0{1.}else{-1.})).collect()],rhs:(0..40).map(|i|if i%2==0{2.}else{-1.}).collect(),costs:vec![-3.],upper:vec![1.5],equality:vec![false;40],slack_upper:vec![f64::INFINITY;40]};let a=solve_for_root(&p,0,None,None,true);assert!(matches!(a.outcome,Outcome::IterationLimit));assert!(a.dual.is_none());assert!(a.warm.is_none());assert_eq!(a.stats.dual_form_attempts,1);assert_eq!(a.stats.dual_form_fallbacks,1);assert_eq!(a.stats.pivots+a.stats.flips,0);}
 }
