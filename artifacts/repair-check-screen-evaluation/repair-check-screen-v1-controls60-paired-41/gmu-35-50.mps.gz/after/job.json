@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/repair-check-screen-v1-controls60-paired-41/gmu-35-50.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/repair-check-screen-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/gmu-35-50.mps.gz",
+    "60"
+  ],
+  "input_sha256": "5652e6ad8889e874bc88356d3f717677793457dc6afe76c934b3603bc3adb8d1",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_REPAIR_CHECK_SCREEN": "1"
+  },
+  "cpu": 41,
+  "seconds": 60
+}
