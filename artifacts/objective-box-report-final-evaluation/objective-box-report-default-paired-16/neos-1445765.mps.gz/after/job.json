@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/objective-box-report-default-paired-16/neos-1445765.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/objective-box-report-default-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/neos-1445765.mps.gz",
+    "60"
+  ],
+  "input_sha256": "195639d1186c8f70b6cf563b0f67f6090b55b3936ade34a32ed40e5dbb67d6fe",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_OBJECTIVE_BOX_REPORT": "1"
+  },
+  "cpu": 16,
+  "seconds": 60
+}

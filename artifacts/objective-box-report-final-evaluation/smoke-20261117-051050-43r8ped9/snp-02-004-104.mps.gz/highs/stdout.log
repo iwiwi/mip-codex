@@ -1,0 +1,62 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-051050-43r8ped9/snp-02-004-104.mps.gz/highs/options.txt
+Number of BV entries in BOUNDS section is 167
+MIP snp-02-004-104 has 126512 rows; 228350 cols; 463941 nonzeros; 334 integer variables (167 binary)
+Coefficient ranges:
+  Matrix  [6e-01, 3e+03]
+  Cost    [1e-01, 1e+08]
+  Bound   [1e+00, 1e+03] (continuous)
+  Bound   [1e+00, 1e+03] (non-continuous)
+  RHS     [1e+00, 8e+03]
+WARNING: Problem has some excessively large costs
+WARNING:    Consider scaling the objective by 1e-3, or setting the user_objective_scale option to -7
+WARNING: Problem has excessively large ratio (1e+15) between max objective coefficient (1e+08) and dual feasibility tolerance (1e-07)
+WARNING:    Improve scaling and/or increase tolerance
+WARNING: Problem is badly scaled, particularly relative to tolerances, which may compromise the speed, accuracy and reliability of solvers in HiGHS
+Presolving model
+126512 rows, 228350 cols, 463941 nonzeros 0s
+81334 rows, 181434 cols, 369283 nonzeros 0s
+58401 rows, 154747 cols, 317747 nonzeros 0s
+55833 rows, 152114 cols, 312465 nonzeros 0s
+Presolve reductions: rows 55833(-70679); columns 152114(-76236); nonzeros 312465(-151476) 
+
+Solving MIP model with:
+   55833 rows
+   152114 cols (60 binary, 57 integer, 10 implied int., 151987 continuous, 0 domain fixed)
+   312465 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -inf            inf                  inf        0      0      0         0     1.5s
+         0       0         0   0.00%   560490197.1839  inf                  inf        0      0      1     62059     5.3s
+ R       0       0         0   0.00%   586783732.1326  587142258.789      0.06%      919     65      5     62142     9.6s
+         0       0         0   0.00%   586783732.1326  587142258.789      0.06%      919     65     25     62142    24.4s
+
+Solving report
+  Model             snp-02-004-104
+  Status            Time limit reached
+  Primal bound      587142258.789
+  Dual bound        586783732.133
+  Gap               0.0611%
+  P-D integral      9.63
+  Solution status   feasible
+                    587142258.789 (objective)
+  Timing            24.40
+                    0.79 (Presolve)
+                    23.60 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     62142
+                    0 (strong br.)
+                    83 (separation)
+                    0 (heuristics)

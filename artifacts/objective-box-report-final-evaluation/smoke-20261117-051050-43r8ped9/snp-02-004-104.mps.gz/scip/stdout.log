@@ -1,0 +1,44 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 228350 variables (167 bin, 167 int, 228016 cont) and 126512 constraints
+presolving:
+(round 1, fast)       77061 del vars, 61917 del conss, 13 add conss, 111152 chg bounds, 38 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 13 implints
+(round 2, fast)       80260 del vars, 63647 del conss, 16 add conss, 164848 chg bounds, 11366 chg sides, 3 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 13 implints
+(round 3, fast)       81935 del vars, 64403 del conss, 17 add conss, 175640 chg bounds, 11569 chg sides, 9 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 13 implints
+(round 4, fast)       82397 del vars, 64524 del conss, 17 add conss, 175713 chg bounds, 11661 chg sides, 9 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 13 implints
+(round 5, fast)       82580 del vars, 64556 del conss, 17 add conss, 175713 chg bounds, 11734 chg sides, 9 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 13 implints
+(round 6, fast)       82687 del vars, 64574 del conss, 17 add conss, 175713 chg bounds, 11780 chg sides, 9 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 13 implints
+(round 7, exhaustive) 82786 del vars, 64598 del conss, 17 add conss, 175713 chg bounds, 11836 chg sides, 9 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 13 implints
+(round 8, exhaustive) 82817 del vars, 64609 del conss, 18 add conss, 175713 chg bounds, 11866 chg sides, 9 chg coeffs, 75 upgd conss, 5 impls, 1 clqs, 13 implints
+(round 9, exhaustive) 82827 del vars, 64612 del conss, 18 add conss, 175713 chg bounds, 11873 chg sides, 9 chg coeffs, 132 upgd conss, 63 impls, 1 clqs, 13 implints
+(round 10, exhaustive) 83037 del vars, 64615 del conss, 18 add conss, 175713 chg bounds, 11873 chg sides, 9 chg coeffs, 132 upgd conss, 120 impls, 0 clqs, 13 implints
+   (2.0s) probing cycle finished: starting next cycle
+(round 11, exhaustive) 83043 del vars, 64621 del conss, 19 add conss, 177612 chg bounds, 11879 chg sides, 9 chg coeffs, 132 upgd conss, 60894 impls, 38 clqs, 13 implints
+   (2.5s) probing cycle finished: starting next cycle
+   (2.6s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (2.8s) no symmetry present (symcode time: 0.06)
+presolving (12 rounds: 12 fast, 6 medium, 6 exhaustive):
+ 83054 deleted vars, 64629 deleted constraints, 22 added constraints, 177625 tightened bounds, 0 added holes, 11879 changed sides, 9 changed coefficients
+ 61150 implications, 38 cliques, 13 implied integral variables (0 bin, 0 int, 13 cont)
+presolved problem has 145296 variables (60 bin, 57 int, 145179 cont) and 61905 constraints
+    134 constraints of type <varbound>
+  61771 constraints of type <linear>
+Presolving Time: 2.59
+
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 10.78
+Solving Nodes      : 1
+Primal Bound       : +1.00000000000000e+20 (0 solutions)
+Dual Bound         : -1.00000000000000e+20
+Gap                : infinite
+wrote parameter settings to file /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-051050-43r8ped9/snp-02-004-104.mps.gz/scip/options.txt
