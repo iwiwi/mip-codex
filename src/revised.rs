@@ -1211,7 +1211,7 @@ fn cold_priced(
     retain: bool,
     normalized: bool,
 ) -> Answer {
-    cold_crashed(p,limit,deadline,retain,normalized,std::env::var("MIP_LP_SINGLETON_CRASH").as_deref()==Ok("1"))
+    cold_crashed(p,limit,deadline,retain,normalized,std::env::var("MIP_LP_SINGLETON_CRASH").map_or(true,|v|v=="1"))
 }
 fn cold_crashed(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool)->Answer {
     let m = p.rhs.len();
