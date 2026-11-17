@@ -3609,7 +3609,7 @@ fn objective_backtrack_path(base:&Model,work:&mut Model,root:&Node,seed:&[f64],i
     let sign=if base.maximize{-1.}else{1.};let checker=heuristic::Repair::new(base);let first=stats.lp_solves;
     let mut current=root.clone();let mut point=seed.to_vec();let mut deferred=std::collections::VecDeque::new();let mut best=None;let mut best_value=incumbent;
     loop {
-        if Instant::now()>=deadline || stats.lp_solves-first>=256 {stats.limited+=1;return best;}
+        if Instant::now()>=deadline || stats.lp_solves-first>=512 {stats.limited+=1;return best;}
         let choice=base.variables.iter().enumerate().filter(|(j,v)|v.integer&&(point[*j]-point[*j].round()).abs()>1e-6).min_by(|(j,_),(k,_)|(point[*j]-point[*j].round()).abs().total_cmp(&(point[*k]-point[*k].round()).abs()).then(j.cmp(k))).map(|(j,_)|j);
         let mut next=if let Some(j)=choice {
             let floor=point[j].floor();let ceil=point[j].ceil();let prefer_up=ceil-point[j]<=point[j]-floor;
@@ -3630,7 +3630,7 @@ fn objective_backtrack_path(base:&Model,work:&mut Model,root:&Node,seed:&[f64],i
         };
         loop {
             let Some(mut node)=next else{return best;};
-            if Instant::now()>=deadline || stats.lp_solves-first>=256 {stats.limited+=1;return best;}
+            if Instant::now()>=deadline || stats.lp_solves-first>=512 {stats.limited+=1;return best;}
             let q=match standard_sparse(work,&node,limits.dense_bytes,false,limits.fixed_columns) {
                 Relaxation::Ready(q)=>Some(q),Relaxation::Infeasible=>{stats.infeasible+=1;None},Relaxation::ResourceLimit=>{stats.limited+=1;return best;}
             };
