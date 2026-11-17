@@ -1003,7 +1003,7 @@ impl Simplex {
     }
 }
 pub fn minimize(p: &Problem, limit: usize, deadline: Option<Instant>) -> Answer {
-    crate::dual_form::solve(p, limit, deadline, None, false)
+    crate::scaling::solve(p, limit, deadline, None, false)
 }
 pub(crate) fn valid(p: &Problem) -> bool {
     p.columns.len() == p.costs.len()
@@ -1570,7 +1570,7 @@ pub fn minimize_warm(
     deadline: Option<Instant>,
     warm: Option<&WarmStart>,
 ) -> Answer {
-    crate::dual_form::solve(p, limit, deadline, warm, true)
+    crate::scaling::solve(p, limit, deadline, warm, true)
 }
 pub(crate) fn raw(
     p: &Problem,

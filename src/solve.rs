@@ -84,7 +84,7 @@ pub struct Limits {
 impl Default for Limits {
     fn default() -> Self {
         Self {
-            lp_dual_root: false,
+            lp_dual_root: true,
             seconds: 60.0,
             nodes: usize::MAX,
             pivots: usize::MAX,
@@ -1050,7 +1050,7 @@ fn prepare_cuts(
         };
         let lp_started = Instant::now();
         let root_solve = round==0 && global_first && limits.lp_dual_root;
-        let solver=if root_solve{crate::dual_form::solve_for_root}else{crate::dual_form::solve};
+        let solver=if root_solve{crate::dual_form::solve_for_root}else{crate::scaling::solve};
         let answer = solver(
             q.sparse.as_ref().unwrap(),
             limits.pivots,
