@@ -1,0 +1,7 @@
+# 正の同率比率に限ったdual pivot安定化
+
+親PR101/coreFP443aa161e153a3fe。Devexとは独立の試作。通常dualの候補比率betaが完全同値、かつ既存の非退化判定beta>=1e-10の場合だけ、大きい正denomを先にする。ゼロ/退化比率は従来の変数番号順を保持。復元用STABLEの従来順は変更しない。これはHarrisの許容幅を持つ二段比率検定ではなく、完全同率の順位付けのみ。適格性、比率値、許容誤差、反転、certificate、deadline上限は不変。追加FTRAN/BTRANなし。
+
+MIP_DUAL_POSITIVE_TIE既定off、CLI0/1のみ。実発動は通常dual呼出し数と、実際に大小が異なる正pivotを比較した回数で記録する。既存RESTORATIONのコードを分離した自作Rustであり既存solverコード/ライブラリを呼ばない。
+
+全Rust on/off、行追加/費用変更warmのHiGHS/Fraction照合、選択MIP10/60秒の元MPS独立検査で採否を決める。大きいpivotは数値的に有利と期待するだけで、性能改善は未確認。

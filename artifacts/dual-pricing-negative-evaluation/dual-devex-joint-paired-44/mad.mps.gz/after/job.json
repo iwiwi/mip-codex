@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/dual-devex-joint-paired-44/mad.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/dual-devex-joint-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+    "60"
+  ],
+  "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_DUAL_DEVEX": "1"
+  },
+  "cpu": 44,
+  "seconds": 60
+}

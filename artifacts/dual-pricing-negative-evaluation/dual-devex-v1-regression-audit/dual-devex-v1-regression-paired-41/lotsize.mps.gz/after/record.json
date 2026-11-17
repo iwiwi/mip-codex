@@ -1,0 +1,68 @@
+{
+  "source": "/home/ubuntu/mip-codex/artifacts/dual-devex-v1-regression-paired-41/lotsize.mps.gz/after/result.json",
+  "sha256": "ae3b36f42f64801e5bf0a1da497c404ac015288daa3efe850922cc4f0efc0196",
+  "cut": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "point": {
+    "strict": {
+      "valid": true,
+      "float_diagnostics": {
+        "valid": true,
+        "objective": 14171765.0,
+        "bound_violation": 1.1368683772161603e-13,
+        "row_violation": 0.0,
+        "integer_violation": 0.0,
+        "objective_error": 0.0,
+        "feasibility_tolerance": 1e-06,
+        "integrality_tolerance": 1e-06,
+        "reader": "HiGHS 1.16.0"
+      },
+      "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+      "objective": 14171765.0,
+      "bound_violation": 1.1368683772161603e-13,
+      "row_violation": 1.368683772161603e-14,
+      "integer_violation": 0.0,
+      "objective_error": 3.1520711096189915e-12,
+      "exact": {
+        "objective": "1417176500000000000315207110961899161/100000000000000000000000000000",
+        "bound_violation": "11368683772161603/100000000000000000000000000000",
+        "row_violation": "1368683772161603/100000000000000000000000000000",
+        "integer_violation": "0",
+        "objective_error": "315207110961899161/100000000000000000000000000000"
+      },
+      "objective_evaluation": {
+        "criterion": "relative",
+        "relative_tolerance": "1/100000000",
+        "absolute_tolerance_at_point": "1417176600000000000315207110961899161/10000000000000000000000000000000000000",
+        "absolute_error": "315207110961899161/100000000000000000000000000000",
+        "recomputed_exact": "1417176500000000000315207110961899161/100000000000000000000000000000",
+        "reported_token": "14171765.0"
+      }
+    },
+    "official": {
+      "valid": true,
+      "exit_code": 0,
+      "command": [
+        "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+        "/home/ubuntu/mip-codex/data/raw/benchmark/lotsize.mps.gz",
+        "/home/ubuntu/mip-codex/artifacts/dual-devex-v1-regression-audit/dual-devex-v1-regression-paired-41/lotsize.mps.gz/after/solution.sol",
+        "1e-6",
+        "1e-6"
+      ],
+      "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+      "linear_tolerance": 1e-06,
+      "integer_tolerance": 1e-06,
+      "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+      "integrality": true,
+      "constraints": true,
+      "objective": true
+    }
+  }
+}

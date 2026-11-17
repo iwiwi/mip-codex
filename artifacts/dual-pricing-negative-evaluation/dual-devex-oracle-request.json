@@ -1,0 +1,33 @@
+{
+  "source_fingerprint": "02850befc50883c0",
+  "flag_name": "MIP_DUAL_DEVEX",
+  "helpers_reference": "artifacts/dual-devex-helpers/experiment.json",
+  "jobs": [
+    {
+      "cpu": 43,
+      "flag": "1",
+      "kind": "row",
+      "output": "dual-devex-row-oracle-after"
+    },
+    {
+      "cpu": 39,
+      "flag": "0",
+      "kind": "row",
+      "output": "dual-devex-row-oracle-before"
+    },
+    {
+      "cpu": 40,
+      "flag": "1",
+      "kind": "cost",
+      "output": "dual-devex-cost-oracle-after"
+    },
+    {
+      "cpu": 45,
+      "flag": "0",
+      "kind": "cost",
+      "output": "dual-devex-cost-oracle-before"
+    }
+  ],
+  "threads": 1,
+  "purpose": "small independent diagnostics; not full MIP benchmark; timings observational, no speedup claim"
+}
