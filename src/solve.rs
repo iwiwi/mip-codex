@@ -65,6 +65,7 @@ pub struct Limits {
     pub terminal_neighborhood: bool,
     pub objective_rounding: bool,
     pub objective_domain_report: bool,
+    pub objective_box_report: bool,
     pub row_ray_report: bool,
     pub row_subgradient_report: bool,
     pub row_subgradient_uniform: bool,
@@ -133,6 +134,7 @@ impl Default for Limits {
             terminal_neighborhood: true,
             objective_rounding: true,
             objective_domain_report: true,
+            objective_box_report: true,
             row_ray_report: true,
             row_subgradient_report: true,
             row_subgradient_uniform: true,
@@ -208,6 +210,7 @@ pub struct Result {
         serialize_with = "crate::model::serialize_optional_solution_number"
     )]
     pub objective_domain_bound: Option<f64>,
+    pub objective_box_proof: Option<crate::objective_bound::OriginalBoxProof>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub row_ray_proof: Option<crate::row_ray::Proof>,
     #[serde(skip_serializing_if="Option::is_none")]
@@ -1525,6 +1528,7 @@ fn solve_seeded_warm(
     let limits = &effective_limits;
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
     let sign = if model.maximize { -1.0 } else { 1.0 };
+    let objective_box_proof=if limits.objective_box_report {crate::objective_bound::original_box_bound(model,limits.objective_domain_report,deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.01).min(0.05))))}else{None};
     let row_ray_proof = limits.row_ray_report.then(|| {
         let end = deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.25).max(0.)));
         crate::row_ray::compute(model,end)
@@ -2436,6 +2440,7 @@ fn solve_seeded_warm(
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
                     probe_limits.gomory_cuts = false;
+                    probe_limits.objective_box_report = false;
                     probe_limits.three_row_cuts = false;
                     probe_limits.box_primal = false;
                     probe_limits.rounding_cuts = false;
@@ -2548,6 +2553,7 @@ fn solve_seeded_warm(
                             // root MIR trials must not redirect its limited tree.
                             local.mir_cuts = false;
             local.gomory_cuts = false;
+            local.objective_box_report = false;
                             local.three_row_cuts = false;
                             local.box_primal = false;
                             local.rounding_cuts = false;
@@ -2774,6 +2780,7 @@ fn solve_seeded_warm(
             local.cover_cuts = false;
             local.mir_cuts = false;
             local.gomory_cuts = false;
+            local.objective_box_report = false;
             local.three_row_cuts = false;
             local.box_primal = false;
             local.rounding_cuts = false;
@@ -2842,6 +2849,7 @@ fn solve_seeded_warm(
     let objective_domain_bound = domain_lower.map(|bound| sign * bound);
     let internal_dual = stack.min_bound(terminal_bound.min(incumbent).min(deferred.minimum));
     let internal_dual = domain_lower.map_or(internal_dual, |bound| internal_dual.max(bound));
+    let internal_dual=objective_box_proof.as_ref().and_then(|p|p.bound()).map_or(internal_dual,|b|internal_dual.max(b));
     let internal_dual = row_ray_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
     let internal_dual = row_packing_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound as f64));
     let internal_dual = row_subgradient_proof.as_ref().map_or(internal_dual, |proof| internal_dual.max(proof.normalized_bound));
@@ -2922,6 +2930,7 @@ fn solve_seeded_warm(
         objective_rounding_all: limits.objective_rounding_all,
         objective_grid,
         objective_domain_bound,
+        objective_box_proof,
         row_ray_proof,
         row_subgradient_proof,
         dual_guided_primal,

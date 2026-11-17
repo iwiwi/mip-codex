@@ -1,0 +1,61 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-051050-43r8ped9/atlanta-ip.mps.gz/highs/options.txt
+MIP atlanta-ip has 21732 rows; 48738 cols; 257532 nonzeros; 46773 integer variables (46667 binary)
+Coefficient ranges:
+  Matrix  [3e-02, 6e+01]
+  Cost    [1e-06, 2e+01]
+  Bound   [1e+00, 6e+01] (continuous)
+  Bound   [1e+00, 2e+09] (non-continuous)
+  RHS     [1e-01, 1e+05]
+WARNING: Problem has some excessively small costs
+WARNING: Problem has some excessively large bounds on non-continuous variables
+WARNING: Problem has excessively large ratio (2e+15) between max variable or constraint bound (2e+09) and primal feasibility tolerance (1e-06)
+WARNING:    Improve scaling and/or increase tolerance
+WARNING: Problem is badly scaled, particularly relative to tolerances, which may compromise the speed, accuracy and reliability of solvers in HiGHS
+Presolving model
+21732 rows, 48738 cols, 257532 nonzeros 0s
+19985 rows, 17526 cols, 182749 nonzeros 0s
+14736 rows, 14838 cols, 147758 nonzeros 0s
+14627 rows, 14723 cols, 146574 nonzeros 0s
+Presolve reductions: rows 14627(-7105); columns 14723(-34015); nonzeros 146574(-110958) 
+
+Solving MIP model with:
+   14627 rows
+   14723 cols (14723 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   146574 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            128.0182956        Large        0      0      0         0     2.0s
+         0       0         0   0.00%   81.54572488     128.0182956       36.30%        0      0      3     10422     4.9s
+         0       0         0   0.00%   81.66572483     128.0182956       36.21%      363     80    221     16936    10.0s
+         0       0         0   0.00%   81.66572483     128.0182956       36.21%      363     80    221     16936    10.0s
+
+Solving report
+  Model             atlanta-ip
+  Status            Time limit reached
+  Primal bound      128.018295571
+  Dual bound        81.6657248327
+  Gap               36.21%
+  P-D integral      6.66
+  Solution status   feasible
+                    128.018295571 (objective)
+  Timing            10.03
+                    1.28 (Presolve)
+                    8.75 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     16936
+                    0 (strong br.)
+                    6514 (separation)
+                    0 (heuristics)
