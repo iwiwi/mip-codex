@@ -1,0 +1,80 @@
+{
+  "name": "enlight_hard.mps.gz",
+  "variant": "after",
+  "solver_status": "optimal",
+  "input_sha256": "942168c2126a2a91ae3ec1ededea59bc1af0cad55f94223edf4c03d20e831f66",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 37.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 37.0,
+    "bound_violation": 0.0,
+    "row_violation": 0.0,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "37",
+      "bound_violation": "0",
+      "row_violation": "0",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "19/50000000",
+      "absolute_error": "0",
+      "recomputed_exact": "37",
+      "reported_token": "37.0"
+    },
+    "parity_proof": {
+      "valid": true,
+      "applicable": true,
+      "rank": 100,
+      "binary": 100,
+      "rows": 100,
+      "exact_objective": "37",
+      "criterion": "unique integer solution by streaming highest-bit elimination and exact original-row reconstruction"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/enlight_hard.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/pure-cover-greedy-joint-development-audit/enlight_hard.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "b7843a57cdcfacaea08d349cdef29f16b9db0e750f779ad2c82720d716b114a4",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26623585098423064
+}

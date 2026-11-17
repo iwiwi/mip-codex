@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/pure-cover-greedy-joint-development-screen/cases/highschool1-aigio.mps.gz/after/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/pure-cover-greedy-joint-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/highschool1-aigio.mps.gz",
+    "10"
+  ],
+  "input_sha256": "285c05189bea919640e599fbc99f2e8fc68951348d32919f570a79dc323aeab6",
+  "split": "development",
+  "cpu": 6,
+  "seconds": 10,
+  "threads": 1,
+  "memory_bytes": 17179869184,
+  "wall_watchdog_seconds": 70,
+  "environment": {
+    "MIP_PURE_COVER_GREEDY": "1",
+    "MIP_MIR_CUTS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

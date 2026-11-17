@@ -22,6 +22,7 @@ pub struct Limits {
     pub primal_repair: bool,
     pub box_primal: bool,
     pub root_seed_repair: bool,
+    pub pure_cover_greedy: bool,
     pub root_priced_repair: bool,
     pub root_priced_objective: bool,
     pub root_priced_continue: bool,
@@ -85,6 +86,7 @@ impl Default for Limits {
             primal_repair: true,
             box_primal: true,
             root_seed_repair: true,
+            pure_cover_greedy: true,
             root_priced_repair: true,
             root_priced_objective: true,
             root_priced_continue: true,
@@ -162,6 +164,8 @@ pub struct Result {
     pub box_primal: heuristic::BoxStats,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub root_seed_repair: Option<heuristic::BoxStats>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pure_cover_greedy: Option<heuristic::BoxStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub root_priced_repair: Option<heuristic::BoxStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1653,6 +1657,19 @@ fn solve_seeded_warm(
             }
         }
     }
+    let mut pure_cover_greedy=None;
+    if limits.pure_cover_greedy && limits.primal_repair && Instant::now()<deadline {
+        if let Some(repair)=early_repair.as_ref(){
+            let offset=start.elapsed().as_secs_f64();let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.5)));
+            if let Some((candidate,mut stats))=crate::cover_greedy::candidate(model,repair,end){
+                if let Some(point)=candidate{
+                    let value=model.objective(&point);
+                    if box_candidate.as_ref().is_none_or(|old|value<model.objective(old)-4e-8*(1.+value.abs().max(model.objective(old).abs()))){box_candidate=Some(point);stats.improvements=1;}
+                }
+                if let Some(t)=&mut stats.first_seconds{*t+=offset;}pure_cover_greedy=Some(stats);
+            }
+        }
+    }
     let mut lp_stats = revised::Stats::default();
     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
@@ -1719,6 +1736,7 @@ fn solve_seeded_warm(
         first_primal_seconds = box_primal
             .first_seconds
             .or_else(|| root_seed_repair.as_ref().and_then(|s| s.first_seconds))
+            .or_else(|| pure_cover_greedy.as_ref().and_then(|s| s.first_seconds))
             .or_else(|| root_priced_repair.as_ref().and_then(|s| s.first_seconds));
         best = Some(x);
     }
@@ -2819,6 +2837,7 @@ fn solve_seeded_warm(
         box_primal_enabled: limits.box_primal,
         box_primal,
         root_seed_repair,
+        pure_cover_greedy,
         root_priced_repair,
         root_priced_scale,
         root_priced_objective,
