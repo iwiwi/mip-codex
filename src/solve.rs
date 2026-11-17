@@ -101,7 +101,7 @@ impl Default for Limits {
             integer_row_rounding: true,
             resource_primal:true,
             adaptive_resource_repair:true,
-            adaptive_repair_incremental:false,
+            adaptive_repair_incremental:true,
             resource_primal_compact:true,
             row_generation: true,
             row_generation_report: true,

@@ -827,3 +827,5 @@ main120統合後のcreate-only zero-phase-one-final-20261117はconfig5fe60cd08a5
 ### 2026-11-17 違反行priorityの増分更新
 
 main候補26debb9be6dd0377の測定は凍結binで継続中。別branch incremental-adaptive-repair（base17866f5033）で、正の有限違反のBTreeSetとscreen違反数を入射行だけ更新する。最大同点行index順を維持、候補は全元行検査、局所不能/下界なし。Limits.adaptive_repair_incrementalはdefaultfalse、CLI0/1。行あたり見積り192bytes、通常/従来適応経路は128bytesのまま。診断2秒続行でmap10-16/map167-12、GMP/公式2点有効だが準備込み4.08/4.33秒でmain同時間比較でない。fixture名前欠落を修正後、重複行と100列挙モデルの新2テストを含む330 Rust成功4ignored。既定無効の実MIP比較をこれから行う。
+
+中間版26debbの後に増分版c1bd9de1が10秒main pilotで-2→map10-16/map167-12を示したため、main取り込み候補は両機能をまとめる。中間版は独立した研究証拠として保存し、最終combined版は増分既定trueかつadaptive全体flag0/1で直接比較する。未採用、現在のmainは3aac482bf2/70af40cd61d1003bのまま。

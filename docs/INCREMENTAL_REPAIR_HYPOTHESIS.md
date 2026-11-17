@@ -11,3 +11,7 @@
 診断は同じ77移動で-1を再現し、6点GMP/公式有効。2秒の続行試作はmap10-16、map167-12、両点GMP/公式有効。準備時間を含むwall4.08/4.33秒なのでmainの2秒と同じ比較ではない。最終候補26debb9be6dd0377の評価と並行し、incremental-adaptive-repairブランチ（base17866f5033）で既定無効のLimits.adaptive_repair_incremental/CLI MIP_ADAPTIVE_REPAIR_INCREMENTALへ接続する。元の適応修復は保持し、予算/元点/目的検査も保持する。BTreeSet用の行当たり作業見積りは128→192bytesとする（この経路のみ）。
 
 重複行係数と親不変、両目的方向・100生成binaryモデルの列挙最適値との整合を追加検査。初回はfixture必須name欠落で失敗し修正。全330 Rust成功4ignored。実問題はこれから同じ全体10秒で測定し、独立列挙・GMP点・親証明検査を行う。
+
+最終main候補は先行する適応修復と増分更新をまとめる。中間版26debbの0→-2、増分版c1bd9de1の-2→-16/-12を区別して保存し、最終版はadaptive機能全体flag0/1で直接比較する。Limits.adaptive_repair_incrementalは最終候補で既定trueへ変更する。全体時間・仕事量・元点/目的検査・内部MIP無効化を維持し、最終330テスト/生成列挙/GMP/証明/188対を再実行してからmain採否を判断する。
+
+増分版c1bd9de1の一般800出力は全列挙/710親proof/5680改竄拒否/800GMP、binary400出力は全列挙/318親proof/2544改竄拒否/400GMP有効。10秒4問8出力/8点GMP・公式有効。60秒2対も-2→-16/-12で下界同値（検査進行中）。統合候補の既定true変更後も330 Rust成功4ignored。最終ソースを固定して、機能全体off/onを比較する。
