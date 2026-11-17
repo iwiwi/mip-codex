@@ -57,7 +57,7 @@ pub struct Stats {
     pub refinement_steps: usize,
     pub refinement_successes: usize,
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Answer {
     pub outcome: Outcome,
     pub dual: Option<f64>,

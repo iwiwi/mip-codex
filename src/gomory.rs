@@ -133,3 +133,6 @@ mod mixed_tests {
         let m=example(false);let p=Proof{normalized:false,mixed:true,terms:vec![Term{row:0,upper:true,weight:1}],pivot:1,upper_bounds:vec![]};assert!(derive(&m,&p).is_none());
     }
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct BoundProof { #[serde(default,skip_serializing_if="Vec::is_empty")] pub bounds: Vec<crate::objective_bound::BoxStep>, pub normalized_bound: f64, pub multipliers: Vec<(usize,String)> }
