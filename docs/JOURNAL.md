@@ -862,3 +862,5 @@ main121統合後metadataだけを6cd2a0963fとしてcherry-pickし、Journal競�
 
 最終候補の188対・全監査が完了。主解1改善4悪化183同値、下界3改善1悪化171同値13比較不能。前後182time/1optimal/5numeric、有限下界176→175（swath1を未証明として保留）。全376出力証明/130点GMP・公式有効。解析LP両エンジン各216全optimal/下界不正0、混合200不正下界0/全点GMP、一般800+binary400/実親proof1028/改竄拒否8224/GMP1200全有効、334 Rust成功4ignored。全中間版の解析目的値も3456出力/3240optimal宣言を分数で確認し誤宣言0。
 分散監査は208既存+168新規で全376、checker SHA/入力出力SHAを照合し重複なし。旧serialを302件でSIGTERM、実プロセス不在・superseded終了を記録。first版は343+33分散全376/126点、serialも全376完了。中間全結果はRESULTSに整理。最終native swath1/glass4全8点GMP・公式/Rust2出力2カット有効。比較他社がなお大幅に良い。native全体23:31集計666/720、最適HS134/SCIP109/GLPK23。元係数で非保守的下界を防ぐ必須の正しさ修正として採用し、性能損失1改善4悪化もそのまま報告する。次は全証拠archive/PR、main再buildとcreate-only更新。新記録・総合優位は未達成。
+
+最終証拠archiveは64,315ファイル1,476,246,982bytes→16束224,467,455bytes、全payload SHA成功、ELF4除外保持して実体SHA再確認。live archive stdoutの入力混入を初回で検出し停止、初回script/log/再試行理由を保存して再実行成功。raw・frozen・既存評価を変更せず保持。次はown repo PRと直前AI使用量コメント、統合後main再build/元点検査/create-only更新。
