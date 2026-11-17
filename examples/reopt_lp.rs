@@ -50,7 +50,7 @@ fn main() {
             let cold_seconds = begin.elapsed().as_secs_f64();
             println!(
                 "{}",
-                json!({"case":case,"step":step,"warm":answer(&warm),"cold":answer(&cold),"warm_seconds":warm_seconds,"cold_seconds":cold_seconds,"warm_pivots":warm.stats.pivots,"warm_dual_refactor_retries":warm.stats.dual_refactor_retries,"cold_pivots":cold.stats.pivots,"warm_cost_successes":warm.stats.warm_cost_successes,"warm_fallbacks":warm.stats.warm_fallbacks})
+                json!({"case":case,"step":step,"warm":answer(&warm),"cold":answer(&cold),"warm_seconds":warm_seconds,"cold_seconds":cold_seconds,"warm_pivots":warm.stats.pivots,"warm_singleton_crash_columns":warm.stats.singleton_crash_columns,"warm_dual_refactor_retries":warm.stats.dual_refactor_retries,"cold_pivots":cold.stats.pivots,"cold_singleton_crash_columns":cold.stats.singleton_crash_columns,"warm_cost_successes":warm.stats.warm_cost_successes,"warm_fallbacks":warm.stats.warm_fallbacks})
             );
             state = warm.warm;
         }
