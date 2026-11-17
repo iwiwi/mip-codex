@@ -1,0 +1,1 @@
+完了済み開発試作の圧縮原記録。空の作業ディレクトリでtar.gzを展開すると元artifacts以下の相対パスが復元される。bundles.jsonで圧縮SHA、relocation-ledger.jsonで展開payloadのSHAを照合。作成時に全payloadの展開SHAを確認済み。元ファイルと除外したELF/生成LPはローカル保持。原行LPと根下界の候補feab7937b302312bを含む。development-audit-import-failedはModuleNotFoundErrorによる監査セットアップ失敗で、確定結果の監査はdevelopment-audit。全生データはローカル保持。
