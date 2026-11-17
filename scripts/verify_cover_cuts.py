@@ -292,12 +292,14 @@ def validate_cut_proofs(model_path,result):
     gomory_bound=result.get('gomory_bound_proof')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None and gomory_bound is None and result.get("objective_box_proof")is None:return dict(metadata,valid=True)
+    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None and gomory_bound is None and result.get("objective_box_proof")is None and result.get("zero_dominance_proof")is None:return dict(metadata,valid=True)
     try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
     try:
         metadata["objective_box"]=verify_original_box(model_path,names,variables,objective,offset,result)
+        from verify_zero_dominance import verify as verify_zero_dominance
+        metadata["zero_dominance"]=verify_zero_dominance(names,variables,rows,objective,result)
         if graph is not None:
             from verify_binary_graph import verify
             metadata['binary_graph']=verify(model_path,result,(names,variables,rows,objective,offset))

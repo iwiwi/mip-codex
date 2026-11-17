@@ -164,6 +164,7 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_LP_WARM_START must be 0 or 1".into()),
             };
         }
+        if let Ok(v)=std::env::var("MIP_ZERO_DOMINANCE"){limits.zero_dominance=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ZERO_DOMINANCE must be 0 or 1".into())};}
         if let Ok(value) = std::env::var("MIP_FIXED_COLUMNS") {
             limits.fixed_columns = match value.as_str() {
                 "0" => false,

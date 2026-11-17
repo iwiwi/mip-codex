@@ -50,3 +50,5 @@ pub mod component_objective_repair;
 pub mod cover_greedy;
 
 pub mod gomory;
+
+pub mod zero_dominance;
