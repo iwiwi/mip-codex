@@ -55,6 +55,7 @@ pub struct Limits {
     pub lp_diving: bool,
     pub objective_lp_dive: bool,
     pub objective_backtrack: bool,
+    pub objective_dive_repeat: bool,
     pub feasibility_pump: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -125,6 +126,7 @@ impl Default for Limits {
             lp_diving: true,
             objective_lp_dive: false,
             objective_backtrack: false,
+            objective_dive_repeat: false,
             feasibility_pump: true,
             primal_probe: true,
             cover_cuts: true,
@@ -2430,10 +2432,14 @@ fn solve_seeded_warm(
                     diving.seconds += started.elapsed().as_secs_f64();
                 }
                 if limits.objective_lp_dive && nodes==1 && branch.is_some() && node.bound<incumbent && incumbent.is_finite() && matches!(limits.engine,Engine::Revised) && Instant::now()<deadline {
-                    let started=Instant::now();let end=deadline.min(started+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.25)));let old_solves=objective_diving.lp_solves;
-                    if let Some(x)=improving_lp_dive(lp_model,&node,&original,incumbent,limits,end,&mut objective_diving,&mut lp_stats){
+                    let started=Instant::now();let old_solves=objective_diving.lp_solves;
+                    let hard_end=deadline.min(started+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(if limits.objective_dive_repeat{1.}else{0.25})));
+                    for _ in 0..if limits.objective_dive_repeat{4}else{1} {
+                        let end=hard_end.min(Instant::now()+std::time::Duration::from_secs_f64(0.25));
+                        let Some(x)=improving_lp_dive(lp_model,&node,&original,incumbent,limits,end,&mut objective_diving,&mut lp_stats)else{break;};
                         let value=sign*model.objective(&x);
-                        if value.is_finite() && value<incumbent && model.check(&x,true,1e-7).is_ok() && candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){objective_diving.improvements+=1;incumbent=value;best=Some(x);}
+                        if value.is_finite() && value<incumbent && model.check(&x,true,1e-7).is_ok() && candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){objective_diving.improvements+=1;incumbent=value;best=Some(x);}else{break;}
+                        if Instant::now()>=hard_end{break;}
                     }
                     lp_solves+=objective_diving.lp_solves-old_solves;objective_diving.seconds+=started.elapsed().as_secs_f64();
                 }
