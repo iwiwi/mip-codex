@@ -1,0 +1,1 @@
+完了済み開発試作の圧縮原記録。空の作業ディレクトリでtar.gzを展開すると元artifacts以下の相対パスが復元される。bundles.jsonで圧縮SHA、relocation-ledger.jsonで展開payloadのSHAを照合。作成時に全payloadの展開SHAを確認済み。元ファイルと除外したELF/生成LPはローカル保持。元十進数の整数境界安全性修正FPcdfc159e435d9194。最終800出力は213最適/586不能/1安全側撤回。全214点GMP有効、変換798証明/8928改竄拒否。途中の過剰なoracle assertや合成MPS形式/optional float readerの失敗も保持し、数値許容幅は変更していない。

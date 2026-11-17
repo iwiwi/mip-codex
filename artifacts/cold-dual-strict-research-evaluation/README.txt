@@ -1,0 +1,1 @@
+完了済み開発試作の圧縮原記録。空の作業ディレクトリでtar.gzを展開すると元artifacts以下の相対パスが復元される。bundles.jsonで圧縮SHA、relocation-ledger.jsonで展開payloadのSHAを照合。作成時に全payloadの展開SHAを確認済み。元ファイルと除外したELF/生成LPはローカル保持。厳密冷dualの未採用研究。旧版の微小境界誤答と全失敗ログ、合成検査成功、実問題6問で成功0回の棄却理由を保全。研究srcは証拠としてのみ含みmainへ採用しない。
