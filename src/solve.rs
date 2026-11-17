@@ -11,6 +11,7 @@ pub enum Engine {
 
 #[derive(Clone)]
 pub struct Limits {
+    pub submip_fixed_columns: bool,
     pub seconds: f64,
     pub nodes: usize,
     pub pivots: usize,
@@ -84,6 +85,7 @@ pub struct Limits {
 impl Default for Limits {
     fn default() -> Self {
         Self {
+            submip_fixed_columns: false,
             seconds: 60.0,
             nodes: usize::MAX,
             pivots: usize::MAX,
@@ -278,6 +280,7 @@ pub struct Result {
     pub fixed_columns_enabled: bool,
     pub lp_workspace_bytes: usize,
     pub root_fixed_columns: usize,
+    pub submip_fixed_columns: usize,
     pub lp_scaled_columns: Option<usize>,
     pub lp_scaled_rows: Option<usize>,
     pub lp_warm_start: bool,
@@ -1778,6 +1781,7 @@ fn solve_seeded_warm(
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
     let mut costs = branching::Costs::new(model.variables.len());
+    let mut submip_fixed_columns=0usize;
     let mut nodes = 0;
     let mut lp_limit_points=0;let mut lp_limit_candidates=0;
     let mut lp_solves = prepared.lp_solves;
@@ -2467,6 +2471,7 @@ fn solve_seeded_warm(
                 {
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
+                    if limits.submip_fixed_columns{probe_limits.fixed_columns=requested_fixed_columns;}
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
                     probe_limits.gomory_cuts = false;
@@ -2517,7 +2522,7 @@ fn solve_seeded_warm(
                     probe.max_open_nodes = probe.max_open_nodes.max(result.max_open_nodes);
                     probe.status = Some(result.status.clone());
                     lp_solves += result.lp_solves;
-                    add_lp_result(&mut lp_stats, &result);
+                    add_lp_result(&mut lp_stats, &result);submip_fixed_columns+=result.root_fixed_columns;
                     if let Some(values) = result.values {
                         let x: Option<Vec<_>> = model
                             .variables
@@ -2572,6 +2577,7 @@ fn solve_seeded_warm(
                         rins.eligible = neighborhood.eligible;
                         if Instant::now() < local_deadline {
                             let mut local = limits.clone();
+                            if limits.submip_fixed_columns{local.fixed_columns=requested_fixed_columns;}
                             local.rins = false;
                             local.objective_rounding = false;
                             local.objective_rounding_all = false;
@@ -2607,7 +2613,7 @@ fn solve_seeded_warm(
                             rins.lp_solves += result.lp_solves;
                             rins.status = Some(result.status.clone());
                             lp_solves += result.lp_solves;
-                            add_lp_result(&mut lp_stats, &result);
+                            add_lp_result(&mut lp_stats, &result);submip_fixed_columns+=result.root_fixed_columns;
                             if let Some(values) = result.values {
                                 let x: Option<Vec<_>> = model
                                     .variables
@@ -2813,6 +2819,7 @@ fn solve_seeded_warm(
                 break;
             }
             let mut local = limits.clone();
+                            if limits.submip_fixed_columns{local.fixed_columns=requested_fixed_columns;}
             local.rins = false;
             local.objective_rounding = false;
             local.objective_rounding_all = false;
@@ -2848,7 +2855,7 @@ fn solve_seeded_warm(
             terminal.lp_solves += result.lp_solves;
             terminal.status = Some(format!("terminal:{}", result.status));
             lp_solves += result.lp_solves;
-            add_lp_result(&mut lp_stats, &result);
+            add_lp_result(&mut lp_stats, &result);submip_fixed_columns+=result.root_fixed_columns;
             if let Some(values) = result.values {
                 let candidate: Option<Vec<_>> = model
                     .variables
@@ -3021,6 +3028,7 @@ fn solve_seeded_warm(
         fixed_columns_enabled: requested_fixed_columns,
         lp_workspace_bytes: limits.dense_bytes,
         root_fixed_columns,
+        submip_fixed_columns,
         lp_scaled_columns: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.scaled_columns),
         lp_scaled_rows: matches!(limits.engine, Engine::Revised).then_some(lp_stats.scaled_rows),
@@ -3905,5 +3913,12 @@ fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomo
  #[test]fn original_integer_point_at_pivot_limit_preserves_both_senses_offset_and_status(){
   if !std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1"){return;}
   for maximize in [false,true]{let text=format!("NAME limited\nOBJSENSE\n {}\nROWS\n N c\n L r\nCOLUMNS\n x c {} r 1\nRHS\n rhs r 1 c -100\nBOUNDS\n BV b x\nENDATA\n",if maximize{"MAX"}else{"MIN"},if maximize{1}else{-1});let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let limits=Limits{seconds:1.,pivots:0,primal_repair:false,box_primal:false,root_seed_repair:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,objective_rounding:false,objective_domain_report:false,objective_box_report:false,row_ray_report:false,row_packing_report:false,row_subgradient_report:false,terminal_neighborhood:false,..Limits::default()};let r=solve(&m,&limits);assert_eq!(r.status,"iteration_limit");assert_eq!(r.objective,Some(100.));assert_eq!(r.values.as_ref().unwrap()["x"],0.);assert_eq!(r.lp_limit_candidates,1);assert!(r.dual_bound.is_none());assert!(m.check(&[0.],true,0.).is_ok());}
+ }
+}
+
+#[cfg(test)]mod submip_fixed_column_tests{
+ use super::*;
+ #[test]fn a_neighborhood_rechecks_fixed_columns_without_overriding_an_explicit_opt_out(){
+  let mut text=String::from("NAME subfix\nROWS\n N c\n L r\n L s\n L t\nCOLUMNS\n x0 c -1 r 1\n x0 t 1\n x1 c -1 r 1\n x1 s 1\n x2 c -1 s 1\n x2 t 1\n");for j in 3..20{text+=&format!(" x{j} c 1\n");}text+="RHS\n rhs r 1 s 1\n rhs t 1\nBOUNDS\n";for j in 0..20{text+=&format!(" BV b x{j}\n");}text+="ENDATA\n";let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let base=Limits{seconds:2.,nodes:1,primal_repair:false,box_primal:false,primal_probe:false,lp_diving:false,objective_lp_dive:false,feasibility_pump:false,rins:true,terminal_neighborhood:false,objective_rounding:false,objective_rounding_all:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,..Limits::default()};for(enabled,requested,columns)in [(false,true,0),(true,true,17),(true,false,0)]{let r=solve_seeded(&m,&Limits{submip_fixed_columns:enabled,fixed_columns:requested,..base.clone()},Some(&[0.;20]));assert_eq!(r.rins.calls,1);assert_eq!(r.root_fixed_columns,0);assert_eq!(r.submip_fixed_columns,columns);assert_eq!(r.objective,Some(-1.));let x:Vec<_>=m.variables.iter().map(|v|r.values.as_ref().unwrap()[&v.name]).collect();assert!(m.check(&x,true,1e-7).is_ok());assert_eq!(m.variables[3].upper,Some(1.));}
  }
 }
