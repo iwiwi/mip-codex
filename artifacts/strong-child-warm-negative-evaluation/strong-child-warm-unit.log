@@ -1,0 +1,22 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-objective-repair)
+    Finished `test` profile [unoptimized] target(s) in 9.16s
+     Running unittests src/lib.rs (target/debug/build/mip-codex/207443ee2e0eda78/out/mip_codex-207443ee2e0eda78)
+
+running 1 test
+test solve::pump_tests::strong_child_bases_are_rechecked_and_leave_parent_unchanged ... FAILED
+
+failures:
+
+---- solve::pump_tests::strong_child_bases_are_rechecked_and_leave_parent_unchanged stdout ----
+
+thread 'solve::pump_tests::strong_child_bases_are_rechecked_and_leave_parent_unchanged' (2287573) panicked at src/solve.rs:3311:40:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    solve::pump_tests::strong_child_bases_are_rechecked_and_leave_parent_unchanged
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 72 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`
