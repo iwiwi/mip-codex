@@ -1,0 +1,53 @@
+Reading problem data from '/home/ubuntu/mip-dual-restoration/data/raw/benchmark/n5-3.mps.gz'...
+Problem: n5-3
+Objective: R1063
+1063 rows, 2550 columns, 12400 non-zeros
+150 integer variables, none of which are binary
+13733 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-030531-plk1qw2w/n5-3.mps.gz/glpk/model.glp'...
+18778 lines were written
+GLPK Integer Optimizer 5.0
+1062 rows, 2550 columns, 9900 non-zeros
+150 integer variables, none of which are binary
+Preprocessing...
+1062 rows, 2550 columns, 9900 non-zeros
+150 integer variables, none of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.550e+02  ratio =  2.550e+02
+GM: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+EQ: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+2N: min|aij| =  8.750e-01  max|aij| =  1.000e+00  ratio =  1.143e+00
+Constructing initial basis...
+Size of triangular part is 996
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+1062 rows, 2550 columns, 9900 non-zeros
+      0: obj =  -1.150000000e+02 inf =   2.005e+03 (145)
+    294: obj =   3.123235294e+03 inf =   4.896e-14 (0) 1
+*   436: obj =   2.883823529e+03 inf =   1.513e-14 (0) 1
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+No 0-1 knapsack inequalities detected
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++   436: mip =     not found yet >=              -inf        (1; 0)
+FPUMP heuristic cannot be applied due to general integer variables
+Cuts on level 0: gmi = 22; mir = 80;
+Cuts on level 90: gmi = 23; mir = 81;
++  6460: >>>>>   1.058200000e+04 >=   5.707499451e+03  46.1% (171; 1)
+Cuts on level 91: gmi = 23; mir = 82;
++ 20205: >>>>>   1.057700000e+04 >=   5.954888782e+03  43.7% (609; 26)
+Cuts on level 84: gmi = 29; mir = 105;
++ 46900: >>>>>   9.695000000e+03 >=   6.074443730e+03  37.3% (1458; 39)
+Cuts on level 71: gmi = 25; mir = 96;
++ 53135: >>>>>   9.552000000e+03 >=   6.080005352e+03  36.3% (1200; 884)
++ 62609: mip =   9.552000000e+03 >=   6.103223004e+03  36.1% (1394; 995)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-030531-plk1qw2w/n5-3.mps.gz/glpk/solution.raw'...
+3621 lines were written

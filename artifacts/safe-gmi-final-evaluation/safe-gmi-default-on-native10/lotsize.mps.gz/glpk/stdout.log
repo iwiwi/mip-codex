@@ -1,0 +1,51 @@
+Reading problem data from '/home/ubuntu/mip-dual-restoration/data/raw/benchmark/lotsize.mps.gz'...
+Problem: lotsize
+Objective: R1921
+1921 rows, 2985 columns, 8955 non-zeros
+1195 integer variables, all of which are binary
+12804 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-035454-xpqqs4wi/lotsize.mps.gz/glpk/model.glp'...
+17574 lines were written
+GLPK Integer Optimizer 5.0
+1920 rows, 2985 columns, 6565 non-zeros
+1195 integer variables, all of which are binary
+Preprocessing...
+1920 rows, 2985 columns, 6565 non-zeros
+1195 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.002e+04  ratio =  2.002e+04
+GM: min|aij| =  9.007e-01  max|aij| =  1.110e+00  ratio =  1.233e+00
+EQ: min|aij| =  8.374e-01  max|aij| =  1.000e+00  ratio =  1.194e+00
+2N: min|aij| =  5.000e-01  max|aij| =  1.222e+00  ratio =  2.444e+00
+Constructing initial basis...
+Size of triangular part is 1920
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+1920 rows, 2985 columns, 6565 non-zeros
+      0: obj =   4.595110000e+05 inf =   1.461e+03 (600)
+    600: obj =   5.826263403e+05 inf =   0.000e+00 (0)
+*  1325: obj =   3.483853466e+05 inf =   0.000e+00 (0) 3
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+Number of 0-1 knapsack inequalities = 5
+Clique cuts enabled
+Constructing conflict graph...
+Conflict graph has 600 + 0 = 600 vertices
++  1325: mip =     not found yet >=              -inf        (1; 0)
+Applying FPUMP heuristic...
+Pass 1
+Pass 2
+Pass 3
+Pass 4
+Pass 5
+Cuts on level 0: mir = 863;
++  9673: mip =     not found yet >=   8.084867474e+05        (93; 0)
++ 10534: mip =     not found yet >=   8.084867474e+05        (283; 0)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-035454-xpqqs4wi/lotsize.mps.gz/glpk/solution.raw'...
+4914 lines were written

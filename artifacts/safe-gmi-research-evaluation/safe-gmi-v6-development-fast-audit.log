@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/artifacts/safe-gmi-v6-development-fast-audit.py", line 35, in <module>
+    worker_errors=any(json.loads(p.read_text())['status']!='complete'for p in exits);failed=worker_errors or len(records)!=376 or stats['cut_invalid']or stats['strict_invalid']or stats['strict_unverified']or stats['points']!=stats['official_valid'];atomic_json(out/'exit.json',dict(status='failed'if failed else'complete',records=len(records),worker_errors=worker_errors));break
+                                                                                                                                  ^^^^^
+NameError: name 'stats' is not defined

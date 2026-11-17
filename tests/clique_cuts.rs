@@ -191,6 +191,7 @@ fn clique_cut_strengthens_the_root_without_other_cuts_or_heuristics() {
     let m = triangle(false, false);
     let l = Limits {
         clique_cuts: false,
+        gomory_cuts: false,
         cover_cuts: false,
         mir_cuts: false,
         aggregate_cuts: false,

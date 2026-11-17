@@ -14,6 +14,8 @@ use std::{collections::HashSet, time::Instant};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Proof {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gomory: Option<crate::gomory::Proof>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mir: Option<MirProof>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub clique: Vec<CliquePair>,
@@ -40,6 +42,12 @@ pub struct Cut {
 }
 #[derive(Default, Debug, Serialize)]
 pub struct Stats {
+    pub gomory_calls: usize,
+    pub gomory_added: usize,
+    pub gomory_lp_solves: usize,
+    pub gomory_rejected_cuts: usize,
+    pub gomory_seconds: f64,
+    pub gomory_trial_seconds: f64,
     pub three_calls: usize,
     pub three_work: usize,
     pub three_added: usize,
@@ -219,6 +227,15 @@ fn lower_product(a: [f64; 2], b: [f64; 2]) -> Option<f64> {
 /// 選択された二値変数を強制した元行の最小活動量を、原境界から検査する。
 /// i128で正確に扱える行は整数、それ以外は外向き区間。選択用の近似容量は使わない。
 fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
+    if let Some(proof)=&cut.proof.gomory {
+        if cut.proof.mir.is_some() || !cut.proof.clique.is_empty() || !cut.proof.aggregation.is_empty()
+            || cut.proof.divisor.is_some() || !cut.proof.cover.is_empty() {return None;}
+        let first=proof.terms.first()?;
+        if cut.proof.source_row!=first.row || cut.proof.upper_side!=first.upper
+            || model.rows.get(first.row)?.name!=cut.proof.source_name {return None;}
+        return crate::gomory::verify(model,proof,&cut.row).then_some(ProofKind::Gomory);
+    }
+
     if cut.proof.mir.is_some() {
         return mir::verify(model, cut).then_some(ProofKind::Mir);
     }
@@ -312,6 +329,7 @@ fn proof_kind(model: &Model, cut: &Cut) -> Option<ProofKind> {
 }
 #[derive(Clone, Copy)]
 enum ProofKind {
+    Gomory,
     Mir,
     Clique,
     Integer,
@@ -324,6 +342,7 @@ pub fn verify(model: &Model, cut: &Cut) -> bool {
 
 #[derive(Default)]
 pub struct Pool {
+    gomory_seen: HashSet<(Vec<(usize,u64)>,u64)>,
     seen: HashSet<(Vec<(usize, i64)>, i64)>,
     pub stats: Stats,
 }
@@ -433,6 +452,7 @@ impl Pool {
                             coefficients,
                         },
                         proof: Proof {
+                            gomory: None,
                             mir: None,
                             clique: vec![],
                             aggregation: vec![],
@@ -460,7 +480,7 @@ impl Pool {
                         match kind {
                             ProofKind::Integer => self.stats.integer += 1,
                             ProofKind::Interval => self.stats.interval += 1,
-                            ProofKind::Clique | ProofKind::Mir => unreachable!(),
+                            ProofKind::Clique | ProofKind::Mir | ProofKind::Gomory => unreachable!(),
                             ProofKind::Rounding => unreachable!(),
                         }
                         if row
@@ -664,6 +684,7 @@ impl Pool {
                     let cut = Cut {
                         row,
                         proof: Proof {
+                            gomory: None,
                             mir: None,
                             clique: vec![],
                             aggregation: vec![],
@@ -696,5 +717,30 @@ impl Pool {
             }
         }
         cuts
+    }
+}
+
+impl Pool {
+    pub fn separate_gomory(&mut self, model: &Model, x: &[f64], proofs: Vec<crate::gomory::Proof>, limit: usize, deadline: Instant) -> Vec<Cut> {
+        let began=Instant::now();self.stats.gomory_calls+=1;let mut candidates=Vec::new();
+        if x.len()!=model.variables.len() || x.iter().any(|v|!v.is_finite()) {return vec![];}
+        for proof in proofs {
+            if Instant::now()>=deadline {break;}
+            let Some(mut row)=crate::gomory::derive(model,&proof)else{continue;};
+            let activity:f64=row.coefficients.iter().map(|&(j,a)|a*x[j]).sum();
+            let violation=row.lower.unwrap()-activity;
+            let norm=row.coefficients.iter().map(|&(_,a)|a*a).sum::<f64>().sqrt();
+            if !violation.is_finite() || violation<=1e-6*(1.+row.lower.unwrap().abs()) || !norm.is_finite() || norm==0. {continue;}
+            let first=&proof.terms[0];row.name=format!("__gomory_{}",self.gomory_seen.len()+candidates.len());
+            let cut=Cut {row,proof:Proof {gomory:Some(proof.clone()),mir:None,clique:vec![],aggregation:vec![],divisor:None,source_row:first.row,source_name:model.rows[first.row].name.clone(),upper_side:first.upper,cover:vec![]}};
+            if verify(model,&cut) {candidates.push((violation/norm,cut));}
+        }
+        candidates.sort_by(|a,b|b.0.total_cmp(&a.0));let mut result=Vec::new();
+        for (_,cut) in candidates {
+            if result.len()>=limit || Instant::now()>=deadline {break;}
+            let key=(cut.row.coefficients.iter().map(|&(j,a)|(j,a.to_bits())).collect(),cut.row.lower.unwrap().to_bits());
+            if self.gomory_seen.insert(key) {self.stats.gomory_added+=1;self.stats.added+=1;result.push(cut);}
+        }
+        self.stats.gomory_seconds+=began.elapsed().as_secs_f64();result
     }
 }

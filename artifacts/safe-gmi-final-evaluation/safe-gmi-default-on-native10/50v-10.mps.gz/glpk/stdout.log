@@ -1,0 +1,48 @@
+Reading problem data from '/home/ubuntu/mip-dual-restoration/data/raw/benchmark/50v-10.mps.gz'...
+Problem: 50v-10
+Objective: obj
+234 rows, 2013 columns, 4392 non-zeros
+1647 integer variables, 1464 of which are binary
+6307 records were read
+One free row was removed
+Writing problem data to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-035454-xpqqs4wi/50v-10.mps.gz/glpk/model.glp'...
+7400 lines were written
+GLPK Integer Optimizer 5.0
+233 rows, 2013 columns, 2745 non-zeros
+1647 integer variables, 1464 of which are binary
+Preprocessing...
+233 rows, 2013 columns, 2745 non-zeros
+1647 integer variables, 1464 of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.160e+02  ratio =  2.160e+02
+GM: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+EQ: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+2N: min|aij| =  7.500e-01  max|aij| =  1.125e+00  ratio =  1.500e+00
+Constructing initial basis...
+Size of triangular part is 232
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+233 rows, 2013 columns, 2745 non-zeros
+      0: obj =   0.000000000e+00 inf =   7.868e+03 (38)
+    125: obj =   4.723563901e+03 inf =   0.000e+00 (0)
+*   419: obj =   2.879065687e+03 inf =   2.158e-14 (0) 1
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
+Gomory's cuts enabled
+MIR cuts enabled
+Cover cuts enabled
+No 0-1 knapsack inequalities detected
+Clique cuts enabled
+Constructing conflict graph...
+No conflicts found
++   419: mip =     not found yet >=              -inf        (1; 0)
+FPUMP heuristic cannot be applied due to general integer variables
+Cuts on level 0: gmi = 33; mir = 10;
+Cuts on level 361: gmi = 33; mir = 10;
++  2953: >>>>>   4.741989989e+03 >=   3.077466582e+03  35.1% (362; 0)
++ 13364: mip =   4.741989989e+03 >=   3.084353072e+03  35.0% (1498; 16)
++ 22515: mip =   4.741989989e+03 >=   3.088870009e+03  34.9% (2456; 21)
+TIME LIMIT EXCEEDED; SEARCH TERMINATED
+Writing MIP solution to '/home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-035454-xpqqs4wi/50v-10.mps.gz/glpk/solution.raw'...
+2255 lines were written

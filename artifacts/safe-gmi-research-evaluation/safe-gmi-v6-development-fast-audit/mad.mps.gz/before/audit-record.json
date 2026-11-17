@@ -1,0 +1,71 @@
+{
+  "name": "mad.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "0109c5aefd23dbe6d46dd84ab4ad451eab329904249b7acaa38e9a0c94a6bc7a",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "20c2059dda01fee3b27cc57921b21110ef46ac9d1a48f8b45a4aea3f53f1172b"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 0.37659999999999955,
+      "bound_violation": 0.0,
+      "row_violation": 6.622306869541461e-16,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 0.37659999999999955,
+    "bound_violation": 0.0,
+    "row_violation": 6.45e-16,
+    "integer_violation": 0.0,
+    "objective_error": 8e-18,
+    "exact": {
+      "objective": "188299999999999779/500000000000000000",
+      "bound_violation": "0",
+      "row_violation": "129/200000000000000000",
+      "integer_violation": "0",
+      "objective_error": "1/125000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "688299999999999779/50000000000000000000000000",
+      "absolute_error": "1/125000000000000000",
+      "recomputed_exact": "188299999999999779/500000000000000000",
+      "reported_token": "0.37659999999999955"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/mad.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-v6-development-audit/mad.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "a1f36c6d9c3a2fd2a626dafdaa45916675e6ef0b9f1c9c850c9f7a5f1732fd16",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.21627896997961216
+}

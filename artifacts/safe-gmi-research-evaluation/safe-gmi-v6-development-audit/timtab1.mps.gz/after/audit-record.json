@@ -1,0 +1,75 @@
+{
+  "name": "timtab1.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a",
+  "cut_validation": {
+    "valid": true,
+    "checked": 117,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "20c2059dda01fee3b27cc57921b21110ef46ac9d1a48f8b45a4aea3f53f1172b",
+    "aggregate_checked": 64,
+    "mir_checked": 32,
+    "gomory_checked": 21,
+    "input_sha256": "5867d1a9c1067a849211c1a61bdb8839fb0025255dde09989d0ed333e0674d7a"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 1176105.9999996999,
+      "bound_violation": 1.4210854715202004e-14,
+      "row_violation": 2.1316282072803006e-14,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 1176105.9999996999,
+    "bound_violation": 1.4210854715202004e-14,
+    "row_violation": 2.4e-14,
+    "integer_violation": 0.0,
+    "objective_error": 6.74993010965028e-11,
+    "exact": {
+      "objective": "294026499999924991874825274125698499/250000000000000000000000000000",
+      "bound_violation": "3552713678800501/250000000000000000000000000000",
+      "row_violation": "3/125000000000000",
+      "integer_violation": "0",
+      "objective_error": "16874825274125698499/250000000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "294026749999924991874825274125698499/25000000000000000000000000000000000000",
+      "absolute_error": "16874825274125698499/250000000000000000000000000000",
+      "recomputed_exact": "294026499999924991874825274125698499/250000000000000000000000000000",
+      "reported_token": "1176105.9999996999"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/timtab1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-v6-development-audit/timtab1.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "d76bba142fc495b0e823e2b6ed148fe6a1b734d7443aa6d4c819057ca4faa255",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.21608247500262223
+}

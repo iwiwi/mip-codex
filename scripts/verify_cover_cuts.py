@@ -165,6 +165,56 @@ def verify_mir_exact(names,variables,source,cut):
     actual=[(j,Fraction(a))for j,a in row['coefficients']]
     if actual!=coeff or row['lower']is not None or Fraction(row['upper'])!=rhs or row.get('exact_integral')is not True:raise AssertionError('MIR inequality mismatch')
 
+def verify_gomory_exact(names,variables,rows,cut):
+    p=cut['proof'];proof=p['gomory'];row=cut['row'];terms=proof['terms'];upper=proof['upper_bounds'];pivot=proof['pivot'];n=len(names);indices={name:j for j,name in enumerate(names)}
+    if p.get('mir')is not None or p.get('clique')or p.get('aggregation')or p.get('divisor')is not None or p['cover']:raise AssertionError('Gomory mixed proof kinds')
+    mixed=proof.get('mixed',False);normalized=proof.get('normalized',False)
+    if type(normalized)is not bool:raise AssertionError('Gomory normalization flag')
+    if type(mixed)is not bool or (not mixed and not all(v['integer']for v in variables.values()))or not 0<n<=100000:raise AssertionError('Gomory integer flags')
+    if type(pivot)is not int or not 0<=pivot<n or not isinstance(terms,list)or not 0<len(terms)<=1024:raise AssertionError('Gomory shape')
+    if not isinstance(upper,list)or any(type(j)is not int or not 0<=j<n for j in upper)or upper!=sorted(set(upper)):raise AssertionError('Gomory complements')
+    if not variables[names[pivot]]['integer']:raise AssertionError('Gomory pivot must be integer')
+    anchors=[];directions=[]
+    for j,name in enumerate(names):
+        d=-1 if j in upper else 1;b=variables[name]['upper'if d==-1 else'lower']
+        if b is None or b.denominator!=1 or abs(b)>2**52:raise AssertionError('Gomory bound must be exact integer')
+        anchors.append(int(b));directions.append(d)
+    A=[0]*n;B=0;equations=[];previous=None;work=0
+    for t in terms:
+        i=t['row'];side=t['upper'];weight=t['weight']
+        if type(i)is not int or not 0<=i<len(rows)or type(side)is not bool or type(weight)is not int or not -2**63<=weight<2**63 or weight==0:raise AssertionError('Gomory term')
+        key=(i,side)
+        if previous is not None and key<=previous:raise AssertionError('Gomory term order')
+        previous=key;source=rows[i];sign=1 if side else-1;b=source['upper'if side else'lower'];work+=len(source['coefficients'])
+        if b is None or b.denominator!=1 or abs(b)>2**52 or work>1000000:raise AssertionError('Gomory source bound/work')
+        coefficients={indices[name]:int(v)*sign for name,v in source['coefficients'].items()if v}
+        if any(v.denominator!=1 or abs(v)>2**52 for v in source['coefficients'].values()):raise AssertionError('Gomory source coefficients')
+        for j,v in coefficients.items():A[j]+=weight*v
+        B+=weight*sign*int(b);equations.append((coefficients,sign*int(b),weight,all(variables[names[j]]['integer']for j in coefficients)))
+    orientation=-1 if A[pivot]<0 else 1;A=[v*orientation for v in A];B*=orientation;M=A[pivot]
+    if M<=0:raise AssertionError('Gomory zero pivot')
+    shifted=B-sum(v*t for v,t in zip(A,anchors));R0=shifted%M
+    if R0==0:raise AssertionError('Gomory integral rhs')
+    h=M-R0
+    def coefficient(v,integer):
+        if not mixed:return v%M
+        if not integer:return v*h if v>=0 else -R0*v
+        rem=v%M
+        return rem*h if rem<=R0 else R0*(M-rem)
+    C=[d*coefficient(d*v,variables[name]['integer'])for d,v,name in zip(directions,A,names)];rhs=(R0*h if mixed else R0)+sum(v*t for v,t in zip(C,anchors))
+    for coefficients,b,w,slack_integer in equations:
+        rem=coefficient(w*orientation,slack_integer);rhs-=rem*b
+        for j,v in coefficients.items():C[j]-=rem*v
+    common=math.gcd(rhs,*C)
+    if common>1:C=[v//common for v in C];rhs//=common
+    largest=max(abs(rhs),*(abs(v)for v in C));scale=1<<(largest.bit_length()-1)if normalized and largest>16384 else 1
+    expected=[(j,Fraction(v,scale))for j,v in enumerate(C)if v]
+    if not expected or abs(rhs)>2**52 or any(abs(v)>2**52 for v in C):raise AssertionError('Gomory exact float range')
+    rhs=Fraction(rhs,scale);exact_float=lambda v:Fraction(v)if type(v)is int else Fraction.from_float(float(v))
+    actual=[(j,exact_float(v))for j,v in row['coefficients']];integral=rhs.denominator==1 and all(v.denominator==1 for j,v in expected)
+    if actual!=expected or row['upper']is not None or exact_float(row['lower'])!=rhs:raise AssertionError('Gomory cut mismatch')
+    if (row.get('lower_enclosure')is None or [exact_float(v)for v in row['lower_enclosure']]!=[rhs,rhs])or row.get('upper_enclosure')is not None or row.get('exact_integral')is not integral or row.get('exact_coefficients')is not True or row.get('exact_coefficient_flags'):raise AssertionError('Gomory row metadata')
+
 def verify_clique_exact(names,variables,rows,cut):
     proof=cut['proof'];pairs=proof['clique'];row=cut['row']
     if proof.get('aggregation',[]) or proof.get('divisor') is not None:raise AssertionError('clique cannot combine other proof kinds')
@@ -218,9 +268,10 @@ def validate_cut_proofs(model_path,result):
     ray=result.get('row_ray_proof')
     packing=result.get('row_packing_proof')
     subgradient=result.get('row_subgradient_proof')
+    gomory_bound=result.get('gomory_bound_proof')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None:return dict(metadata,valid=True)
+    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None and gomory_bound is None:return dict(metadata,valid=True)
     try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
@@ -322,6 +373,11 @@ def validate_cut_proofs(model_path,result):
             selected={names[j] for j in cover};sign=1 if side else -1
             bound=source['upper' if side else 'lower']
             if bound is None:raise AssertionError('source side missing')
+            if proof.get('gomory') is not None:
+                verify_gomory_exact(names,variables,rows,cut)
+                metadata['checked']+=1
+                metadata['gomory_checked']=metadata.get('gomory_checked',0)+1
+                continue
             if proof.get('mir') is not None:
                 verify_mir_exact(names,variables,source,cut)
                 metadata['checked']+=1
@@ -406,6 +462,79 @@ def validate_cut_proofs(model_path,result):
             if row['lower'] is not None or Fraction(row['upper'])!=expected or actual!=coeff:
                 raise AssertionError('derived inequality does not match cover')
             metadata['checked']+=1
+        if gomory_bound is not None:
+            import struct
+            all_rows=list(rows)
+            for cut in cuts:
+                row=cut['row'];number=lambda v:Fraction(v)if type(v)is int else Fraction.from_float(float(v))
+                all_rows.append(dict(coefficients={names[j]:number(a)for j,a in row['coefficients']},lower=None if row['lower']is None else number(row['lower']),upper=None if row['upper']is None else number(row['upper'])))
+            box_lower={name:v['lower']for name,v in variables.items()};box_upper={name:v['upper']for name,v in variables.items()};steps=gomory_bound.get('bounds',[]);box_work=0
+            if not isinstance(steps,list)or len(steps)>1024:raise AssertionError('Gomory box proof length')
+            for step in steps:
+                i=step['source_row'];j=step['variable'];upper_side=step['upper_side'];lower_side=step['lower'];bits=step['value_bits']
+                if type(i)is not int or not 0<=i<len(all_rows)or type(j)is not int or not 0<=j<len(names)or type(upper_side)is not bool or type(lower_side)is not bool or not isinstance(bits,str)or len(bits)!=16:raise AssertionError('Gomory box proof metadata')
+                row=all_rows[i];box_work+=len(row['coefficients'])
+                if box_work>2000000:raise AssertionError('Gomory box proof work')
+                sign_row=1 if upper_side else-1;b=row['upper'if upper_side else'lower'];a=sign_row*row['coefficients'].get(names[j],Fraction(0))
+                if b is None or a==0 or (a<0)!=lower_side:raise AssertionError('Gomory box row side/direction')
+                others=Fraction(0)
+                for name,v in row['coefficients'].items():
+                    if name==names[j]or v==0:continue
+                    coefficient=sign_row*v;bound=box_lower[name]if coefficient>0 else box_upper[name]
+                    if bound is None:raise AssertionError('Gomory box missing dependency')
+                    others+=coefficient*bound
+                exact_bound=(sign_row*b-others)/a;value=struct.unpack('>d',bytes.fromhex(bits))[0]
+                if not math.isfinite(value):raise AssertionError('Gomory box nonfinite bound')
+                value=Fraction.from_float(value)
+                if lower_side:
+                    if value>exact_bound:raise AssertionError('Gomory box lower bound too strong')
+                    old=box_lower[names[j]];box_lower[names[j]]=value if old is None else max(old,value)
+                else:
+                    if value<exact_bound:raise AssertionError('Gomory box upper bound too strong')
+                    old=box_upper[names[j]];box_upper[names[j]]=value if old is None else min(old,value)
+            metadata['gomory_box_steps']=len(steps)
+            terms=gomory_bound['multipliers'];previous=-1;weights={}
+            for i,bits in terms:
+                if type(i)is not int or not previous<i<len(all_rows)or not isinstance(bits,str)or len(bits)!=16:raise AssertionError('Gomory bound multiplier order/encoding')
+                previous=i;value=struct.unpack('>d',bytes.fromhex(bits))[0]
+                if not math.isfinite(value)or value==0:raise AssertionError('Gomory bound multiplier value')
+                weights[i]=Fraction.from_float(value)
+            sign=1
+            # MPS OBJSENSE is authoritative; the result need not expose it.
+            import gzip
+            opener=gzip.open if str(model_path).endswith('.gz')else open
+            with opener(model_path,'rt')as stream:
+                lines=iter(stream)
+                for line in lines:
+                    t=line.split()
+                    if t and t[0]=='OBJSENSE':
+                        if len(t)>1:sense=t[1]
+                        else:
+                            sense=None
+                            for candidate in lines:
+                                values=candidate.split()
+                                if values and not values[0].startswith('*'):sense=values[0];break
+                            if sense is None:raise AssertionError('missing OBJSENSE')
+                        if sense.upper()not in ['MIN','MINIMIZE','MAX','MAXIMIZE']:raise AssertionError('invalid OBJSENSE')
+                        sign=-1 if sense.upper().startswith('MAX')else 1;break
+            rhs=sign*offset;columns={name:Fraction(0)for name in names}
+            for i,w in weights.items():
+                row=all_rows[i];b=row['lower'if w>0 else'upper']
+                if b is None:raise AssertionError('Gomory bound row side')
+                rhs+=w*b
+                for name,a in row['coefficients'].items():columns[name]+=w*a
+            exact=rhs
+            for name in names:
+                reduced=sign*objective.get(name,Fraction(0))-columns[name]
+                if reduced:
+                    bound=box_lower[name]if reduced>0 else box_upper[name]
+                    if bound is None:raise AssertionError('Gomory bound missing variable bound')
+                    exact+=reduced*bound
+            declared=Fraction(str(gomory_bound['normalized_bound']))
+            if declared>exact:raise AssertionError('Gomory bound exceeds exact Lagrangian')
+            dual=result.get('dual_bound')
+            if dual is not None and sign*Fraction(str(dual))<declared:raise AssertionError('reported bound weaker than Gomory proof')
+            metadata['gomory_bound_valid']=True
     except Exception as error:return dict(metadata,valid=False,error=f'{type(error).__name__}: {error}')
     return dict(metadata,valid=True,input_sha256=sha256(Path(model_path)))
 
