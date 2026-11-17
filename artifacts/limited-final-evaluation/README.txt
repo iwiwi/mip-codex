@@ -1,0 +1,1 @@
+final-candidate.tar.gzを空の作業ディレクトリで展開すると、元artifacts以下の相対パスが復元される。bundles.jsonで圧縮ファイル、relocation-ledger.jsonで展開後の各payloadのSHA256を照合する。全payloadを作成時に照合済み。元ファイルと除外ELF/生成LPはローカルに保持する。

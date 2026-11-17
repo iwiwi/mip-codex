@@ -12,6 +12,7 @@ fn error() -> Answer {
         warm: None,
         witness: None,
         witness_point: None,
+        limited_point: None,
     }
 }
 fn validation_diagnostic(p: &Problem, answer: &Answer, stage: &str) {
@@ -333,6 +334,7 @@ pub(crate) fn solve(
             answer.witness = None;
             answer.witness_point = None;
         }
+        answer.limited_point = answer.limited_point.take().filter(|x|point_valid(p,x));
         return answer;
     };
     let mut answer = revised::raw(&q, limit, deadline, warm, retain);
@@ -351,6 +353,8 @@ pub(crate) fn solve(
             }
         }
     }
+    if let Some(x)=answer.limited_point.as_mut(){for(v,&factor)in x.iter_mut().zip(&factors){*v/=factor;}}
+    answer.limited_point=answer.limited_point.take().filter(|x|point_valid(p,x));
     let valid = match &mut answer.outcome {
         Outcome::Optimal { objective, x } => {
             for (v, &s) in x.iter_mut().zip(&factors) {
