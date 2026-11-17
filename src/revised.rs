@@ -572,7 +572,7 @@ impl Simplex {
     /// 有界変数のdual simplex。有限幅を使い切る候補をまとめてflipする。
     fn dual_run<const RESTORATION: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
         self.dual_run_retry::<RESTORATION>(c,
-            std::env::var("MIP_DUAL_REFACTOR_RETRY").is_ok_and(|v| v == "1"))
+            std::env::var("MIP_DUAL_REFACTOR_RETRY").map_or(true, |v| v == "1"))
     }
     fn dual_run_retry<const RESTORATION: bool>(
         &mut self, c: &[f64], retry: bool,
