@@ -228,6 +228,12 @@ fn eliminate(a:&mut[Vec<Rat>],free:&[usize],x:&mut[Rat],deadline:std::time::Inst
             let m=parse(&format!("NAME bad\nROWS\n N obj\n E link\n L cap\nCOLUMNS\n x obj -1 link {a}\n y link {b} cap {c}\nRHS\n rhs link 0 cap {cap}\nBOUNDS\n LI b x 0\n UI b x 2\n LO b y 0\n UP b y 2\nENDATA\n"));assert!(certify(&m,&[1.,y],-1.).is_none(),"{a} {b} {cap}");assert!(certify(&m,&[0.,0.],0.).is_some());
         }
     }
+    #[test]fn original_objective_uncertainty_cannot_claim_a_contradictory_dual(){
+        let m=parse("NAME cost\nROWS\n N obj\n E row\nCOLUMNS\n y obj 1.00000000000000000001 row 2\nRHS\n rhs row -6 obj -1.00000000000000000001\nBOUNDS\n LO b y -10\n UP b y 10\nENDATA\n");
+        assert!(m.original_objective_uncertain());let p=certify(&m,&[-3.],-2.).unwrap();assert!(p.values.is_empty());
+        assert!(!p.respects_bound(&m,Some(-2.)));assert!(p.respects_bound(&m,Some((-2f64).next_down())));
+        let r=crate::solve::solve(&m,&crate::solve::Limits::default());assert_eq!(r.status,"numerical_error");assert!(r.dual_bound.is_none()&&r.gap.is_none());
+    }
     #[test]fn source_preserves_duplicate_sums_ranges_and_bound_overwrites(){
         let m=parse("NAME metadata\nROWS\n N obj\n E r\nCOLUMNS\n x obj -1.000000000000000000001 r 1\n x obj 1\nRHS\n rhs r 1.000000000000000000001\nRANGES\n rng r -1\nBOUNDS\n FX b x 0.3\n BV b x\nENDATA\n");let s=m.decimal_source.as_ref().unwrap();assert!(s.variable_bounds.is_empty());assert_eq!(Rat::decimal(s.objective.get(&0).unwrap()).unwrap(),Rat::decimal("-1e-21").unwrap());assert_eq!(Rat::decimal(s.row_bounds.get(&(0,0)).unwrap()).unwrap(),Rat::decimal("1e-21").unwrap());assert!(certify(&m,&[1.],-1e-21).is_some());assert!(certify(&m,&[0.],0.).is_none());
     }
