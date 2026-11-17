@@ -1,0 +1,71 @@
+{
+  "name": "neos-957323.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "d27d1d019e5c406753c69f4c0e1b7259739a68518af5e9a0d2287777c5c79d97",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "cc5aaff1c9333fb7bb3e19a57eaf5d952fda91560b62c597d88b9a56222971de"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 0.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 0.0,
+    "bound_violation": 0.0,
+    "row_violation": 0.0,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "0",
+      "bound_violation": "0",
+      "row_violation": "0",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "1/100000000",
+      "absolute_error": "0",
+      "recomputed_exact": "0",
+      "reported_token": "0.0"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos-957323.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-work-cap-development-audit/neos-957323.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "8f5cc179fb6280efb673f34c1fbfac6f35d7de0805d6bd5b75b07f6bde4435a1",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 2.470551370002795
+}

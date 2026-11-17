@@ -1,0 +1,71 @@
+{
+  "name": "pg5_34.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "d169bbd600ddc0be5625d95d52092f63e86d8bdfc78f86662c05429d26519567",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "1d56e660ef88364fa1bba2506e477ebb4d7d437c8b6623aaeb592d7488b9f2a6"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": -14092.912244837475,
+      "bound_violation": 1.1571858782195482e-15,
+      "row_violation": 1.2789769243681803e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": -14092.912244837475,
+    "bound_violation": 1.1571858782195482e-15,
+    "row_violation": 1.664e-13,
+    "integer_violation": 0.0,
+    "objective_error": 1.5365211826706778e-14,
+    "exact": {
+      "objective": "-14092912244837475015365211826706777/1000000000000000000000000000000",
+      "bound_violation": "5785929391097741/5000000000000000000000000000000",
+      "row_violation": "13/78125000000000",
+      "integer_violation": "0",
+      "objective_error": "15365211826706777/1000000000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "14093912244837475015365211826706777/100000000000000000000000000000000000000",
+      "absolute_error": "15365211826706777/1000000000000000000000000000000",
+      "recomputed_exact": "-14092912244837475015365211826706777/1000000000000000000000000000000",
+      "reported_token": "-14092.912244837475"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/pg5_34.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/safe-gmi-report-development-audit/pg5_34.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "d6e175bb174c821fb54dbc3b4bac7374c34d093b99fba9e671a7e29a07fb4e3b",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.2662311920139473
+}

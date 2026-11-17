@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/artifacts/safe-gomory-independent-proof-audit.py", line 4, in <module>
+    root=Path.cwd();out=root/'artifacts/safe-gomory-independent-proof-audit';out.mkdir();os.sched_setaffinity(0,{42});spec=spec_from_file_location('checker','/home/ubuntu/mip-dual-restoration/scripts/verify_cover_cuts.py');checker=module_from_spec(spec);spec.loader.exec_module(checker);inputs=json.load(open('artifacts/safe-gomory-rust-oracle/input.json'));rows=[json.loads(x)for x in Path('artifacts/safe-gomory-rust-oracle/rust.jsonl').read_text().splitlines()];valid=0;tampered=0;records=[]
+                                                                                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/ubuntu/mip-dual-restoration/scripts/verify_cover_cuts.py", line 10, in <module>
+    from benchmark_common import atomic_json, sha256
+ModuleNotFoundError: No module named 'benchmark_common'
