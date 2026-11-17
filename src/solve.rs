@@ -420,6 +420,10 @@ fn checked_difference(a: f64, b: f64) -> f64 {
         .filter(|&(_, e)| e <= 1e-9)
         .map_or(f64::NAN, |(v, _)| v)
 }
+fn trace_shift_rejection(row:&crate::model::Row,kind:&str,value:f64){
+    static COUNT:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);
+    if std::env::var_os("MIP_LP_TRACE").is_some()&&COUNT.fetch_add(1,std::sync::atomic::Ordering::Relaxed)<16{eprintln!("LP shifted RHS rejection row={} kind={} value={:?}",row.name,kind,value);}
+}
 fn shifted_bound(
     row: &crate::model::Row,
     shift: &[f64],
@@ -439,6 +443,7 @@ fn shifted_bound(
             row.lower_enclosure
         };
         let Some([lo, hi]) = enclosure else {
+            trace_shift_rejection(row,"missing-bound-enclosure",f64::NAN);
             return f64::NAN;
         };
         bound = if upper { hi } else { lo };
@@ -450,6 +455,7 @@ fn shifted_bound(
             row.activity_error(shift)
         };
         if !error.is_finite() || error > 1e-9 {
+            trace_shift_rejection(row,"source-shift-uncertainty",error);
             return f64::NAN;
         }
     }
@@ -457,7 +463,7 @@ fn shifted_bound(
         std::iter::once((sign * bound, 1.))
             .chain(row.coefficients.iter().map(|&(j, a)| (-sign * a, shift[j]))),
     )
-    .filter(|&(_, error)| error <= 1e-9)
+    .filter(|&(_, error)|{if error>1e-9{trace_shift_rejection(row,"binary-shift-summation",error);}error<=1e-9})
     .map_or(f64::NAN, |(value, _)| value)
 }
 fn standard_dense(model: &Model, node: &Node, limit: usize, fixed_columns: bool) -> Relaxation {
