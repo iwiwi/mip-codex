@@ -1,0 +1,41 @@
+{
+  "source_fingerprint": "1a770c6d2feb097b",
+  "flag_name": "MIP_DUAL_POSITIVE_TIE",
+  "helpers_reference": "artifacts/dual-positive-tie-helpers/experiment.json",
+  "jobs": [
+    {
+      "cpu": 39,
+      "flag": "0",
+      "script": "check_row_warm.py",
+      "kind": "ROW",
+      "name": "dual-positive-tie-row-before",
+      "bin": "append_lp"
+    },
+    {
+      "cpu": 40,
+      "flag": "1",
+      "script": "check_row_warm.py",
+      "kind": "ROW",
+      "name": "dual-positive-tie-row-after",
+      "bin": "append_lp"
+    },
+    {
+      "cpu": 41,
+      "flag": "0",
+      "script": "check_cost_warm.py",
+      "kind": "COST",
+      "name": "dual-positive-tie-cost-before",
+      "bin": "reopt_lp"
+    },
+    {
+      "cpu": 45,
+      "flag": "1",
+      "script": "check_cost_warm.py",
+      "kind": "COST",
+      "name": "dual-positive-tie-cost-after",
+      "bin": "reopt_lp"
+    }
+  ],
+  "threads": 1,
+  "purpose": "small independent diagnostics; not capped MIP benchmark; observational timings"
+}

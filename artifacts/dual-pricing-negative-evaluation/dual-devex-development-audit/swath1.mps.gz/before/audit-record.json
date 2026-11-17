@@ -1,0 +1,71 @@
+{
+  "name": "swath1.mps.gz",
+  "variant": "before",
+  "solver_status": "numerical_error",
+  "input_sha256": "05b713125dfdea88f22c1d028a4a4ab081e1d03c31401b302b41025f8b0f844d",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 448.8828389999989,
+      "bound_violation": 6.508682481864981e-16,
+      "row_violation": 8.320026580194674e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 448.8828389999989,
+    "bound_violation": 6.508682481864981e-16,
+    "row_violation": 8.527444572052829e-13,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "4488828389999989/10000000000000",
+      "bound_violation": "6508682481864981/10000000000000000000000000000000",
+      "row_violation": "213186114301320741505651709/250000000000000000000000000000000000000",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "4498828389999989/1000000000000000000000",
+      "absolute_error": "0",
+      "recomputed_exact": "4488828389999989/10000000000000",
+      "reported_token": "448.8828389999989"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/swath1.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/dual-devex-development-audit/swath1.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "9843bac89836230cf924efc20e8d43f5b20526f870450a84882fd1eb74d50bfe",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.4165891940065194
+}

@@ -1,0 +1,173 @@
+SOURCE highs/simplex/HEkkDual.cpp:1520-1548
+bool HEkkDual::newDevexFramework(const double updated_edge_weight) {
+  // Analyse the Devex weight to determine whether a new framework
+  // should be set up
+  //
+  // There is a new Devex framework if either
+  //
+  // 1) The weight inaccuracy ratio exceeds kMaxAllowedDevexWeightRatio
+  //
+  // 2) There have been max(kMinAbsNumberDevexIterations,
+  // numRow/kMinRlvNumberDevexIterations) Devex iterations
+  //
+  const HighsInt kMinAbsNumberDevexIterations = 25;
+  const double kMinRlvNumberDevexIterations = 1e-2;
+  const double kMaxAllowedDevexWeightRatio = 3.0;
+
+  double devex_ratio = max(updated_edge_weight / computed_edge_weight,
+                           computed_edge_weight / updated_edge_weight);
+  HighsInt i_te = solver_num_row / kMinRlvNumberDevexIterations;
+  i_te = max(kMinAbsNumberDevexIterations, i_te);
+  // Square kMaxAllowedDevexWeightRatio due to keeping squared
+  // weights
+  const double accept_ratio_threshold =
+      kMaxAllowedDevexWeightRatio * kMaxAllowedDevexWeightRatio;
+  const bool accept_ratio = devex_ratio <= accept_ratio_threshold;
+  const bool accept_it = num_devex_iterations <= i_te;
+  bool return_new_devex_framework;
+  return_new_devex_framework = !accept_ratio || !accept_it;
+  return return_new_devex_framework;
+}
+
+SOURCE highs/simplex/HEkkDual.cpp:2137-2192
+  if (rebuild_reason) return;
+  std::vector<double>& edge_weight = ekk_instance_.dual_edge_weight_;
+  if (edge_weight_mode == EdgeWeightMode::kDevex) {
+    const double updated_edge_weight = edge_weight[row_out];
+    edge_weight[row_out] = computed_edge_weight;
+    new_devex_framework = newDevexFramework(updated_edge_weight);
+  }
+  // DSE_Vector is either col_DSE = B^{-1}B^{-T}e_p (if using dual
+  // steepest edge weights) or row_ep = B^{-T}e_p.
+  //
+  // Update - primal and weight
+  dualRHS.updatePrimal(&col_BFRT, 1);
+  dualRHS.updateInfeasList(&col_BFRT);
+  double x_out = baseValue[row_out];
+  double l_out = baseLower[row_out];
+  double u_out = baseUpper[row_out];
+  theta_primal = (x_out - (delta_primal < 0 ? l_out : u_out)) / alpha_col;
+  const bool ok_update_primal = dualRHS.updatePrimal(&col_aq, theta_primal);
+  if (!ok_update_primal) {
+    rebuild_reason = kRebuildReasonExcessivePrimalValue;
+    return;
+  }
+  ekk_instance_.updateBadBasisChange(col_aq, theta_primal);
+  if (edge_weight_mode == EdgeWeightMode::kSteepestEdge) {
+    const double pivot_in_scaled_space =
+        ekk_instance_.simplex_nla_.pivotInScaledSpace(&col_aq, variable_in,
+                                                      row_out);
+    if (ekk_instance_.simplex_in_scaled_space_)
+      assert(pivot_in_scaled_space == alpha_col);
+    const double new_pivotal_edge_weight =
+        edge_weight[row_out] / (pivot_in_scaled_space * pivot_in_scaled_space);
+    const double Kai = -2 / pivot_in_scaled_space;
+    ekk_instance_.updateDualSteepestEdgeWeights(row_out, variable_in, &col_aq,
+                                                new_pivotal_edge_weight, Kai,
+                                                DSE_Vector->array.data());
+    edge_weight[row_out] = new_pivotal_edge_weight;
+  } else if (edge_weight_mode == EdgeWeightMode::kDevex) {
+    // Pivotal row is for the current basis: weights are required for
+    // the next basis so have to divide the current (exact) weight by
+    // the pivotal value
+    double new_pivotal_edge_weight =
+        edge_weight[row_out] / (alpha_col * alpha_col);
+    new_pivotal_edge_weight = max(1.0, new_pivotal_edge_weight);
+    // nw_wt is max(use_edge_weight_[iRow], NewExactWeight*columnArray[iRow]^2);
+    //
+    // But NewExactWeight is new_pivotal_edge_weight = max(1.0,
+    // edge_weight[row_out] / (alpha * alpha))
+    //
+    // so nw_wt = max(use_edge_weight_[iRow],
+    // new_pivotal_edge_weight*columnArray[iRow]^2);
+    //
+    // Update rest of weights
+    ekk_instance_.updateDualDevexWeights(&col_aq, new_pivotal_edge_weight);
+    edge_weight[row_out] = new_pivotal_edge_weight;
+    num_devex_iterations++;
+  }
+
+SOURCE highs/simplex/HEkkDual.cpp:2273-2301
+void HEkkDual::initialiseDevexFramework() {
+  HighsSimplexInfo& info = ekk_instance_.info_;
+  // Initialise the Devex framework: reference set is all basic
+  // variables
+  analysis->simplexTimerStart(DevexIzClock);
+  // Resize in case this is the first call
+  ekk_instance_.info_.devex_index_.resize(solver_num_tot);
+  const vector<int8_t>& nonbasicFlag = ekk_instance_.basis_.nonbasicFlag_;
+  // Initialise the devex framework. The devex reference set is
+  // initialise to be the current set of basic variables - and never
+  // changes until a new framework is set up. In a simplex iteration,
+  // to compute the exact Devex weight for the pivotal row requires
+  // summing the squares of the its entries over the indices in the
+  // reference set. This is achieved by summing over all indices, but
+  // multiplying the entry by the value in devex_index before
+  // equating. Thus devex_index contains 1 for indices in the
+  // reference set, and 0 otherwise. This is achieved by setting the
+  // values of devex_index to be 1-nonbasicFlag^2, ASSUMING
+  // |nonbasicFlag|=1 iff the corresponding variable is nonbasic
+  for (HighsInt vr_n = 0; vr_n < solver_num_tot; vr_n++)
+    info.devex_index_[vr_n] = 1 - nonbasicFlag[vr_n] * nonbasicFlag[vr_n];
+  // Set all initial weights to 1, zero the count of iterations with
+  // this Devex framework, increment the number of Devex frameworks
+  // and indicate that there's no need for a new Devex framework
+  ekk_instance_.dual_edge_weight_.assign(solver_num_row, 1.0);
+  num_devex_iterations = 0;
+  new_devex_framework = false;
+  minor_new_devex_framework = false;
+  analysis->simplexTimerStop(DevexIzClock);
+
+SOURCE highs/simplex/HEkk.cpp:2260-2290
+// Update the Devex weights
+void HEkk::updateDualDevexWeights(const HVector* column,
+                                  const double new_pivotal_edge_weight) {
+  analysis_.simplexTimerStart(DevexUpdateWeightClock);
+
+  const HighsInt num_row = lp_.num_row_;
+  const HighsInt column_count = column->count;
+  const HighsInt* variable_index = column->index.data();
+  const double* column_array = column->array.data();
+
+  if ((HighsInt)dual_edge_weight_.size() < num_row) {
+    printf(
+        "HEkk::updateDualDevexWeights solve %d: "
+        "dual_edge_weight_.size() = %d < %d\n",
+        (int)debug_solve_call_num_, (int)dual_edge_weight_.size(),
+        (int)num_row);
+    fflush(stdout);
+  }
+  assert((HighsInt)dual_edge_weight_.size() >= num_row);
+  HighsInt to_entry;
+  const bool use_row_indices =
+      simplex_nla_.sparseLoopStyle(column_count, num_row, to_entry);
+  for (HighsInt iEntry = 0; iEntry < to_entry; iEntry++) {
+    const HighsInt iRow = use_row_indices ? variable_index[iEntry] : iEntry;
+    const double aa_iRow = column_array[iRow];
+    dual_edge_weight_[iRow] = max(dual_edge_weight_[iRow],
+                                  new_pivotal_edge_weight * aa_iRow * aa_iRow);
+  }
+  analysis_.simplexTimerStop(DevexUpdateWeightClock);
+}
+
+
+SOURCE highs/simplex/HEkkDualRow.cpp:614-632
+void HEkkDualRow::computeDevexWeight(const HighsInt slice) {
+  const bool rp_computed_edge_weight = false;
+  computed_edge_weight = 0;
+  for (HighsInt el_n = 0; el_n < packCount; el_n++) {
+    HighsInt vr_n = packIndex[el_n];
+    if (!ekk_instance_.basis_.nonbasicFlag_[vr_n]) continue;
+    double pv = work_devex_index[vr_n] * packValue[el_n];
+    if (pv) {
+      computed_edge_weight += pv * pv;
+    }
+  }
+  if (rp_computed_edge_weight) {
+    if (slice >= 0)
+      printf("HEkkDualRow::computeDevexWeight: Slice %1" HIGHSINT_FORMAT
+             "; computed_edge_weight = "
+             "%11.4g\n",
+             slice, computed_edge_weight);
+  }
+}

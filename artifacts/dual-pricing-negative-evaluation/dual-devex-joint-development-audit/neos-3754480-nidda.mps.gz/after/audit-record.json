@@ -1,0 +1,71 @@
+{
+  "name": "neos-3754480-nidda.mps.gz",
+  "variant": "after",
+  "solver_status": "numerical_error",
+  "input_sha256": "63f322dd9be49acf31f7579d8f04e3bb578bdd7ca7d3525683384190c9a8bf7f",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 13856.899502653616,
+      "bound_violation": 1.5581969159050379e-12,
+      "row_violation": 9.060840966412798e-11,
+      "integer_violation": 0.0,
+      "objective_error": 4.3655745685100555e-11,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 13856.899502653854,
+    "bound_violation": 1.5581969159050379e-12,
+    "row_violation": 1.0050226875e-10,
+    "integer_violation": 0.0,
+    "objective_error": 1.9345710335913412e-10,
+    "exact": {
+      "objective": "346422487566346336427583978353069343875751/25000000000000000000000000000000000000",
+      "bound_violation": "15581969159050379/10000000000000000000000000000",
+      "row_violation": "16080363/160000000000000000",
+      "integer_violation": "0",
+      "objective_error": "4836427583978353069343875751/25000000000000000000000000000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "346447487566346336427583978353069343875751/2500000000000000000000000000000000000000000000",
+      "absolute_error": "4836427583978353069343875751/25000000000000000000000000000000000000",
+      "recomputed_exact": "346422487566346336427583978353069343875751/25000000000000000000000000000000000000",
+      "reported_token": "13856.89950265366"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3754480-nidda.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/dual-devex-joint-development-audit/neos-3754480-nidda.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "9f5b8612298e8bee12c9d81b908e378555ef0629e11f1d1cd6619f94674ea2a3",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26577441199333407
+}
