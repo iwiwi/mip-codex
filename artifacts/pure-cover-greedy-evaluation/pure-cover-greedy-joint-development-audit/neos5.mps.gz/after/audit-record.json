@@ -1,0 +1,74 @@
+{
+  "name": "neos5.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "2888e9aeb10a4cf16d3b9ad221302fd3de815ce1454b31e660ebd060589c1072",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040",
+    "row_ray_valid": true,
+    "row_subgradient_valid": true,
+    "input_sha256": "2888e9aeb10a4cf16d3b9ad221302fd3de815ce1454b31e660ebd060589c1072"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 15.0,
+      "bound_violation": 0.0,
+      "row_violation": 0.0,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 15.0,
+    "bound_violation": 0.0,
+    "row_violation": 0.0,
+    "integer_violation": 0.0,
+    "objective_error": 0.0,
+    "exact": {
+      "objective": "15",
+      "bound_violation": "0",
+      "row_violation": "0",
+      "integer_violation": "0",
+      "objective_error": "0"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "1/6250000",
+      "absolute_error": "0",
+      "recomputed_exact": "15",
+      "reported_token": "15.0"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos5.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/pure-cover-greedy-joint-development-audit/neos5.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "b6423f55ee57c1435f3f7d45e74f34bc8f33022c8236bec5977f761feaf7cf17",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.2663122809899505
+}

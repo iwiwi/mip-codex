@@ -1,0 +1,62 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-objective-repair/artifacts/smoke-20261116-235346-sftuzz_r/fast0507.mps.gz/highs/options.txt
+MIP fast0507 has 507 rows; 63009 cols; 409349 nonzeros; 63009 integer variables (63009 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+00, 2e+00]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 1e+00]
+Presolving model
+507 rows, 63009 cols, 409349 nonzeros 0s
+482 rows, 26113 cols, 168577 nonzeros 0s
+Presolve reductions: rows 482(-25); columns 26113(-36896); nonzeros 168577(-240772) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   482 rows
+   26113 cols (26113 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   168577 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ u       0       0         0   0.00%   -inf            50393              Large        0      0      0         0     1.5s
+ J       0       0         0   0.00%   -inf            190                Large        0      0      0         0     2.7s
+         0       0         0   0.00%   172.1455667     190                9.40%        0      0      2      3346     3.8s
+ L       0       0         0   0.00%   172.1455667     174                1.07%        0      0      4      3346    10.0s
+         0       0         0   0.00%   172.1455667     174                1.07%        0      0      4     11541    10.0s
+
+Solving report
+  Model             fast0507
+  Status            Time limit reached
+  Primal bound      174
+  Dual bound        173
+  Gap               0.575%
+  P-D integral      4.29
+  Solution status   feasible
+                    174 (objective)
+                    1.33226762955e-15 (integrality violation)
+  Timing            10.01
+                    1.81 (Presolve)
+                        MIP    time [calls] = 1.51 [1]
+                        subMIP time [calls] = 0.30 [2]
+                    8.20 (Solve)
+                        MIP    time [calls] = 2.60 [1]
+                        subMIP time [calls] = 5.61 [2]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [2]
+  Max sub-MIP depth 4
+  Nodes             0
+  Repair LPs        0
+  LP iterations     11541
+                    0 (strong br.)
+                    0 (separation)
+                    8195 (heuristics)
