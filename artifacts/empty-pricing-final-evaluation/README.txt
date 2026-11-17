@@ -1,0 +1,1 @@
+完了済み開発試作の圧縮原記録。空の作業ディレクトリでtar.gzを展開すると元artifacts以下の相対パスが復元される。bundles.jsonで圧縮SHA、relocation-ledger.jsonで展開payloadのSHAを照合。作成時に全payloadの展開SHAを確認済み。元ファイルと除外したELF/生成LPはローカル保持。ゼロ空列の価格付け省略FP433c14477b492b66を含む。LP oracle setup-failureはTypeErrorの検証script失敗で、修正後の全検査を正規記録へ保存した。全生データはローカル保持。
