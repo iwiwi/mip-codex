@@ -54,6 +54,9 @@ pub struct Limits {
     pub joint_infeasibility: bool,
     pub aggregate_infeasibility: bool,
     pub lp_diving: bool,
+    pub objective_lp_dive: bool,
+    pub objective_backtrack: bool,
+    pub objective_dive_repeat: bool,
     pub feasibility_pump: bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
@@ -124,6 +127,9 @@ impl Default for Limits {
             joint_infeasibility: true,
             aggregate_infeasibility: true,
             lp_diving: true,
+            objective_lp_dive: true,
+            objective_backtrack: true,
+            objective_dive_repeat: true,
             feasibility_pump: true,
             primal_probe: true,
             cover_cuts: true,
@@ -238,6 +244,7 @@ pub struct Result {
     pub root_lp_reused: bool,
     pub probe: ProbeStats,
     pub diving: DivingStats,
+    pub objective_diving: DivingStats,
     pub feasibility_pump_enabled: bool,
     pub pump: PumpStats,
     pub repair_calls: usize,
@@ -286,6 +293,7 @@ pub struct Result {
     pub lp_restoration_attempts: Option<usize>,
     pub lp_restoration_restarts: Option<usize>,
     pub lp_dual_refactor_retries: Option<usize>,
+    pub lp_singleton_crash_columns: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lp_restoration_extended_attempts: Option<usize>,
     pub lp_restoration_successes: Option<usize>,
@@ -1781,6 +1789,7 @@ fn solve_seeded_warm(
     });
     drop(early_repair);
     let mut diving = DivingStats::default();
+    let mut objective_diving=DivingStats::default();
     let mut pump = PumpStats::default();
     let mut probe = ProbeStats::default();
     let mut strong = StrongStats::default();
@@ -2432,6 +2441,18 @@ fn solve_seeded_warm(
                     lp_solves += diving.lp_solves - old_solves;
                     diving.seconds += started.elapsed().as_secs_f64();
                 }
+                if limits.objective_lp_dive && nodes==1 && branch.is_some() && node.bound<incumbent && incumbent.is_finite() && matches!(limits.engine,Engine::Revised) && Instant::now()<deadline {
+                    let started=Instant::now();let old_solves=objective_diving.lp_solves;
+                    let hard_end=deadline.min(started+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(if limits.objective_dive_repeat{1.}else{0.25})));
+                    for _ in 0..if limits.objective_dive_repeat{4}else{1} {
+                        let end=hard_end.min(Instant::now()+std::time::Duration::from_secs_f64(0.25));
+                        let Some(x)=improving_lp_dive(lp_model,&node,&original,incumbent,limits,end,&mut objective_diving,&mut lp_stats)else{break;};
+                        let value=sign*model.objective(&x);
+                        if value.is_finite() && value<incumbent && model.check(&x,true,1e-7).is_ok() && candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){objective_diving.improvements+=1;incumbent=value;best=Some(x);}else{break;}
+                        if Instant::now()>=hard_end{break;}
+                    }
+                    lp_solves+=objective_diving.lp_solves-old_solves;objective_diving.seconds+=started.elapsed().as_secs_f64();
+                }
                 if limits.primal_probe
                     && node.bound < incumbent
                     && nodes == 1
@@ -2456,6 +2477,7 @@ fn solve_seeded_warm(
                     probe_limits.primal_probe = false; // 再帰は一段で必ず止める。
                     probe_limits.primal_repair = false;
                     probe_limits.lp_diving = false;
+                    probe_limits.objective_lp_dive = false;
                     probe_limits.feasibility_pump = false;
                     probe_limits.search = search::Strategy::DepthFirst;
                     probe_limits.branching = branching::Rule::Pseudocost;
@@ -2551,6 +2573,7 @@ fn solve_seeded_warm(
                             local.primal_probe = false;
                             local.primal_repair = false;
                             local.lp_diving = false;
+            local.objective_lp_dive = false;
                             local.feasibility_pump = false;
                             local.strong_branching = false;
                             local.cover_cuts = false;
@@ -2781,6 +2804,7 @@ fn solve_seeded_warm(
             local.primal_probe = false;
             local.primal_repair = false;
             local.lp_diving = false;
+            local.objective_lp_dive = false;
             local.feasibility_pump = false;
             local.strong_branching = false;
             local.cover_cuts = false;
@@ -2958,6 +2982,7 @@ fn solve_seeded_warm(
         root_lp_reused,
         probe,
         diving,
+        objective_diving,
         feasibility_pump_enabled: limits.feasibility_pump,
         pump,
         repair_calls: repair_stats.calls,
@@ -3002,6 +3027,7 @@ fn solve_seeded_warm(
             .then_some(lp_stats.restoration_attempts),
         lp_restoration_restarts: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.restoration_restarts),
+        lp_singleton_crash_columns: matches!(limits.engine, Engine::Revised).then_some(lp_stats.singleton_crash_columns),
         lp_dual_refactor_retries: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.dual_refactor_retries),
         lp_restoration_extended_attempts: matches!(limits.engine, Engine::Revised)
@@ -3250,6 +3276,7 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         restoration_attempts: result.lp_restoration_attempts.unwrap_or(0),
         restoration_restarts: result.lp_restoration_restarts.unwrap_or(0),
         dual_refactor_retries: result.lp_dual_refactor_retries.unwrap_or(0),
+        singleton_crash_columns: result.lp_singleton_crash_columns.unwrap_or(0),
         restoration_extended_attempts: result.lp_restoration_extended_attempts.unwrap_or(0),
         restoration_successes: result.lp_restoration_successes.unwrap_or(0),
         restoration_infeasible_candidates: result.lp_restoration_infeasible_candidates.unwrap_or(0),
@@ -3476,6 +3503,218 @@ mod pump_tests {
         .unwrap();
         assert!(m.check(&candidate, true, 1e-6).is_ok());
         assert!(s.lp_solves > 0);
+    }
+}
+
+fn objective_dive_path(
+    model: &Model,
+    root: &Node,
+    point: &[f64],
+    limits: &Limits,
+    deadline: Instant,
+    stats: &mut DivingStats,
+    lp_stats: &mut revised::Stats,
+) -> Option<Vec<f64>> {
+    stats.calls += 1;
+    let mut current = root.clone();
+    let mut point = point.to_vec();
+    let checker = heuristic::Repair::new(model);
+    let first_solve = stats.lp_solves;
+    loop {
+        if Instant::now() >= deadline || stats.lp_solves - first_solve >= 256 {
+            stats.limited += 1;
+            return None;
+        }
+        // ほぼ整数の変数から順に近い側へ潜る。整数許容幅内の値は分枝しない。
+        let choice = model
+            .variables
+            .iter()
+            .enumerate()
+            .filter(|(j, v)| v.integer && (point[*j] - point[*j].round()).abs() > 1e-6)
+            .min_by(|(j, _), (k, _)| {
+                let distance = |i: usize| (point[i] - point[i].round()).abs();
+                distance(*j).total_cmp(&distance(*k)).then(j.cmp(k))
+            })
+            .map(|(j, _)| j);
+        let Some(j) = choice else {
+            // 整数を丸めた後に全元制約を検査。連続部分はそのまま保持する。
+            for (j, v) in model.variables.iter().enumerate() {
+                if v.integer {
+                    point[j] = point[j].round();
+                }
+            }
+            if checker.candidate_check(&point) {
+                stats.candidates += 1;
+                return Some(point);
+            }
+            return None;
+        };
+        let floor = point[j].floor();
+        let ceil = point[j].ceil();
+        let prefer_up = ceil - point[j] <= point[j] - floor;
+        let mut accepted = false;
+        // 局所LPが実行不能なら同じ親から反対側を一度だけ試す。
+        for reverse in [false, true] {
+            if Instant::now() >= deadline || stats.lp_solves - first_solve >= 256 {
+                stats.limited += 1;
+                return None;
+            }
+            if reverse {
+                stats.reversals += 1;
+            }
+            let mut child = current.clone();
+            if prefer_up != reverse {
+                child.lower[j] = Some(child.lower[j].map_or(ceil, |l| l.max(ceil)));
+            } else {
+                child.upper[j] = Some(child.upper[j].map_or(floor, |u| u.min(floor)));
+            }
+            let q = match standard_sparse(
+                model,
+                &child,
+                limits.dense_bytes,
+                false,
+                limits.fixed_columns,
+            ) {
+                Relaxation::Ready(q) => q,
+                Relaxation::Infeasible => {
+                    stats.infeasible += 1;
+                    continue;
+                }
+                Relaxation::ResourceLimit => {
+                    stats.limited += 1;
+                    return None;
+                }
+            };
+            let answer = revised::minimize_warm(
+                q.sparse.as_ref().unwrap(),
+                limits.pivots.min(4096),
+                Some(deadline),
+                if limits.warm_start {
+                    current.warm.as_deref()
+                } else {
+                    None
+                },
+            );
+            stats.lp_solves += 1;
+            lp_stats.add(&answer.stats);
+            match answer.outcome {
+                lp::Outcome::Optimal { x, .. } => {
+                    point = q
+                        .terms
+                        .iter()
+                        .enumerate()
+                        .map(|(j, t)| q.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
+                        .collect();
+                    if model.check(&point, false, 1e-6).is_err() {
+                        stats.numerical_errors += 1;
+                        return None;
+                    }
+                    child.warm = answer.warm;
+                    current = child;
+                    accepted = true;
+                    break;
+                }
+                lp::Outcome::Infeasible => stats.infeasible += 1,
+                lp::Outcome::IterationLimit | lp::Outcome::TimeLimit => {
+                    stats.limited += 1;
+                    return None;
+                }
+                _ => {
+                    stats.numerical_errors += 1;
+                    return None;
+                }
+            }
+        }
+        if !accepted {
+            return None;
+        }
+    }
+}
+
+fn objective_backtrack_path(base:&Model,work:&mut Model,root:&Node,seed:&[f64],incumbent:f64,limits:&Limits,deadline:Instant,stats:&mut DivingStats,lp_stats:&mut revised::Stats)->Option<Vec<f64>> {
+    stats.calls+=1;
+    let sign=if base.maximize{-1.}else{1.};let checker=heuristic::Repair::new(base);let first=stats.lp_solves;
+    let mut current=root.clone();let mut point=seed.to_vec();let mut deferred=std::collections::VecDeque::new();let mut best=None;let mut best_value=incumbent;
+    loop {
+        if Instant::now()>=deadline || stats.lp_solves-first>=512 {stats.limited+=1;return best;}
+        let choice=base.variables.iter().enumerate().filter(|(j,v)|v.integer&&(point[*j]-point[*j].round()).abs()>1e-6).min_by(|(j,_),(k,_)|(point[*j]-point[*j].round()).abs().total_cmp(&(point[*k]-point[*k].round()).abs()).then(j.cmp(k))).map(|(j,_)|j);
+        let mut next=if let Some(j)=choice {
+            let floor=point[j].floor();let ceil=point[j].ceil();let prefer_up=ceil-point[j]<=point[j]-floor;
+            let mut preferred=current.clone();let mut alternative=current.clone();
+            let tighten=|node:&mut Node,up:bool| {node.changed=Some(j);if up {node.lower[j]=Some(node.lower[j].map_or(ceil,|v|v.max(ceil)));}else{node.upper[j]=Some(node.upper[j].map_or(floor,|v|v.min(floor)));}};
+            tighten(&mut preferred,prefer_up);tighten(&mut alternative,!prefer_up);if deferred.len()==8 {deferred.pop_front();}deferred.push_back(alternative);Some(preferred)
+        }else{
+            for (j,v) in base.variables.iter().enumerate() {if v.integer {point[j]=point[j].round();}}
+            let value=base.objective(&point);
+            if checker.candidate_check(&point)&&checker.objective_reliable(&point,value) {
+                stats.candidates+=1;
+                if sign*value<best_value-4e-8*(1.+best_value.abs()) {
+                    best_value=sign*value;best=Some(point.clone());let rhs=best_value-8e-8*(1.+best_value.abs())-sign*base.offset;
+                    if !rhs.is_finite(){return best;}let cutoff=work.rows.last_mut().unwrap();cutoff.upper=Some(rhs);cutoff.upper_enclosure=Some([rhs;2]);
+                }
+            }
+            let node=deferred.pop_back();stats.reversals+=usize::from(node.is_some());node
+        };
+        loop {
+            let Some(mut node)=next else{return best;};
+            if Instant::now()>=deadline || stats.lp_solves-first>=512 {stats.limited+=1;return best;}
+            let q=match standard_sparse(work,&node,limits.dense_bytes,false,limits.fixed_columns) {
+                Relaxation::Ready(q)=>Some(q),Relaxation::Infeasible=>{stats.infeasible+=1;None},Relaxation::ResourceLimit=>{stats.limited+=1;return best;}
+            };
+            if let Some(q)=q {
+                let answer=revised::minimize_warm(q.sparse.as_ref().unwrap(),limits.pivots.min(4096),Some(deadline),if limits.warm_start {node.warm.as_deref()}else{None});stats.lp_solves+=1;lp_stats.add(&answer.stats);
+                match answer.outcome {
+                    lp::Outcome::Optimal{x,..}=>{
+                        let candidate:Vec<_>=q.terms.iter().enumerate().map(|(j,t)|q.shift[j]+t.iter().map(|&(k,s)|s*x[k]).sum::<f64>()).collect();
+                        if work.check(&candidate,false,1e-6).is_ok() {point=candidate;node.warm=answer.warm;current=node;break;}stats.numerical_errors+=1;
+                    },lp::Outcome::Infeasible=>stats.infeasible+=1,
+                    lp::Outcome::TimeLimit|lp::Outcome::IterationLimit=>{stats.limited+=1;return best;},_=>stats.numerical_errors+=1,
+                }
+            }
+            next=deferred.pop_back();stats.reversals+=usize::from(next.is_some());
+        }
+    }
+}
+
+fn improving_lp_dive(model:&Model,root:&Node,point:&[f64],incumbent:f64,limits:&Limits,deadline:Instant,stats:&mut DivingStats,lp_stats:&mut revised::Stats)->Option<Vec<f64>> {
+    if Instant::now()>=deadline || !incumbent.is_finite() || model.variables.len()>100_000 || point.len()!=model.variables.len() || model.rows.iter().fold(0usize,|n,r|n.saturating_add(r.coefficients.len()))>10_000_000 {return None;}
+    let sign=if model.maximize{-1.}else{1.};
+    let target=incumbent-8e-8*(1.+incumbent.abs());let rhs=target-sign*model.offset;
+    if !rhs.is_finite(){return None;}
+    let coefficients:Vec<_>=model.variables.iter().enumerate().filter(|(_,v)|v.objective!=0.).map(|(j,v)|(j,sign*v.objective)).collect();if coefficients.is_empty(){return None;}
+    let mut work=model.clone();work.rows.push(crate::model::Row{name:"internal_objective_lp_dive".into(),coefficients,lower:None,upper:Some(rhs),lower_enclosure:None,upper_enclosure:Some([rhs;2]),exact_integral:false,exact_coefficients:true,exact_coefficient_flags:vec![]});
+    let candidate=if limits.objective_backtrack {objective_backtrack_path(model,&mut work,root,point,incumbent,limits,deadline,stats,lp_stats)}else{objective_dive_path(&work,root,point,limits,deadline,stats,lp_stats)}?;
+    let checker=heuristic::Repair::new(model);let value=model.objective(&candidate);
+    (checker.candidate_check(&candidate)&&checker.objective_reliable(&candidate,value)&&sign*value<incumbent-4e-8*(1.+incumbent.abs())).then_some(candidate)
+}
+#[cfg(test)]
+mod objective_dive_tests {
+    use super::*;
+    fn example(maximize:bool,offset:f64)->(Model,Node){
+        let mut model=crate::mps::parse(std::io::Cursor::new("NAME improve\nROWS\n N obj\n G r\nCOLUMNS\n x obj 10\n x r 1\n y obj 2\n y r 1\n z obj 1\n z r 1\nRHS\n rhs r 1\nBOUNDS\n BV b x\n BV b y\n BV b z\nENDATA\n")).unwrap();model.maximize=maximize;model.offset=offset;model.offset_enclosure=Some([offset;2]);
+        let mut node=Node{certified_bound:None,lower:model.variables.iter().map(|v|v.lower).collect(),upper:model.variables.iter().map(|v|v.upper).collect(),bound:f64::NEG_INFINITY,warm:None,changed:None,edge:None};
+        let Relaxation::Ready(p)=standard_sparse(&model,&node,1<<24,false,true)else{panic!()};node.warm=revised::minimize_warm(p.sparse.as_ref().unwrap(),1000,None,None).warm;(model,node)
+    }
+    #[test]
+    fn improvement_can_change_an_integer_seed_without_mutating_its_parent() {
+        for maximize in [false,true]{for offset in [0.,100.]{
+            let(model,node)=example(maximize,offset);let lower=node.lower.clone();let upper=node.upper.clone();let parent=node.warm.clone().unwrap();let sign=if maximize{-1.}else{1.};let mut stats=DivingStats::default();let mut lp= revised::Stats::default();
+            let point=improving_lp_dive(&model,&node,&[0.5,0.5,0.],sign*(10.+offset),&Limits::default(),Instant::now()+std::time::Duration::from_secs(1),&mut stats,&mut lp).unwrap();
+            assert!(model.check(&point,true,0.).is_ok());assert_eq!(model.objective(&point),offset+if maximize{13.}else{1.});assert_eq!(point[2],1.);assert_eq!(node.lower,lower);assert_eq!(node.upper,upper);assert!(Arc::ptr_eq(node.warm.as_ref().unwrap(),&parent));assert_eq!(node.bound,f64::NEG_INFINITY);
+        }}
+    }
+    #[test]
+    fn expired_or_unattainable_improvement_does_not_become_a_global_claim() {
+        let(model,node)=example(false,0.);let mut stats=DivingStats::default();let mut lp=revised::Stats::default();assert!(improving_lp_dive(&model,&node,&[0.5,0.5,0.],10.,&Limits::default(),Instant::now(),&mut stats,&mut lp).is_none());assert_eq!(stats.lp_solves,0);
+        assert!(improving_lp_dive(&model,&node,&[0.5,0.5,0.],0.,&Limits::default(),Instant::now()+std::time::Duration::from_secs(1),&mut stats,&mut lp).is_none());assert_eq!(node.bound,f64::NEG_INFINITY);assert!(node.certified_bound.is_none());
+    }
+    #[test]
+    fn bounded_backtracking_retains_a_valid_best_point_after_local_failures() {
+        for (maximize,offset) in [(false,0.),(true,0.),(false,100.),(true,100.)] {
+            let(model,node)=example(maximize,offset);let parent=node.warm.clone();let mut stats=DivingStats::default();let mut lp=revised::Stats::default();let sign=if maximize{-1.}else{1.};
+            let candidate=improving_lp_dive(&model,&node,&[0.5,0.5,0.],sign*(10.+offset),&Limits{objective_backtrack:true,..Limits::default()},Instant::now()+std::time::Duration::from_secs(1),&mut stats,&mut lp).unwrap();
+            assert!(model.check(&candidate,true,1e-9).is_ok());assert!((model.objective(&candidate)-(if maximize{13.}else{1.})-offset).abs()<1e-9);assert!(stats.lp_solves<=256);assert!(stats.reversals>0);assert_eq!(node.bound,f64::NEG_INFINITY);assert!(node.certified_bound.is_none());assert!(std::sync::Arc::ptr_eq(parent.as_ref().unwrap(),node.warm.as_ref().unwrap()));
+        }
     }
 }
 

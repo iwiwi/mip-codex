@@ -1,0 +1,71 @@
+{
+  "name": "neos-3046615-murg.mps.gz",
+  "variant": "after",
+  "solver_status": "time_limit",
+  "input_sha256": "07d98d3032b201c023a7628a75974093c945987119a19803bcc69f0476956e19",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "aa13b6c13967a4f16387e43560dc9fa9139975f869af9b8088aa94204ec503c7"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 2182.999999999999,
+      "bound_violation": 0.0,
+      "row_violation": 4.547473508864641e-13,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 2182.999999999999,
+    "bound_violation": 0.0,
+    "row_violation": 5e-13,
+    "integer_violation": 0.0,
+    "objective_error": 2e-13,
+    "exact": {
+      "objective": "2728749999999999/1250000000000",
+      "bound_violation": "0",
+      "row_violation": "1/2000000000000",
+      "integer_violation": "0",
+      "objective_error": "1/5000000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "2729999999999999/125000000000000000000",
+      "absolute_error": "1/5000000000000",
+      "recomputed_exact": "2728749999999999/1250000000000",
+      "reported_token": "2182.999999999999"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3046615-murg.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/binary-equality-columns-v2-development-audit/neos-3046615-murg.mps.gz/after/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "0af18fe6fc36c7d83e8bad9036391489e2af549fa2da58bd3b3ce37865d555dc",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26639367500320077
+}
