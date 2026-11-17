@@ -165,6 +165,7 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_LP_WARM_START must be 0 or 1".into()),
             };
         }
+        if let Ok(v)=std::env::var("MIP_RESOURCE_PRIMAL"){limits.resource_primal=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_RESOURCE_PRIMAL must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_ROW_GENERATION_REPORT"){limits.row_generation_report=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROW_GENERATION_REPORT must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_ROW_GENERATION"){limits.row_generation=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ROW_GENERATION must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_SUBMIP_FIXED_COLUMNS"){limits.submip_fixed_columns=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_SUBMIP_FIXED_COLUMNS must be 0 or 1".into())};}

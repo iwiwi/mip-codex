@@ -11,6 +11,7 @@ pub enum Engine {
 
 #[derive(Clone)]
 pub struct Limits {
+    pub resource_primal:bool,
     pub row_generation: bool,
     pub row_generation_report: bool,
     pub submip_fixed_columns: bool,
@@ -87,10 +88,13 @@ pub struct Limits {
 }
 #[path="row_generation.rs"]
 mod row_generation;
+#[path="resource_primal.rs"]
+mod resource_primal;
 
 impl Default for Limits {
     fn default() -> Self {
         Self {
+            resource_primal:true,
             row_generation: true,
             row_generation_report: true,
             submip_fixed_columns: true,
@@ -169,6 +173,7 @@ impl Default for Limits {
 }
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
+    pub resource_primal:resource_primal::Stats,
     pub row_generation: row_generation::Stats,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parity_proof: Option<crate::parity::Proof>,
@@ -1803,6 +1808,7 @@ fn solve_seeded_warm(
     let mut stack = search::Queue::new(limits.search, |n: &Node| n.bound);
     stack.push(root);
     let mut costs = branching::Costs::new(model.variables.len());
+    let mut resource_primal_stats=resource_primal::Stats::default();
     let mut row_generation_state=None;
     let mut row_generation_stats=row_generation::Stats::default();
     let mut submip_fixed_columns=0usize;
@@ -1943,6 +1949,12 @@ fn solve_seeded_warm(
                 None,
             )
         };
+        if limits.resource_primal&&nodes==1&&best.is_none()&&matches!(relaxation,Relaxation::ResourceLimit)&&matches!(limits.engine,Engine::Revised){
+            let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.1).min(1.)));
+            if let Some(point)=resource_primal::search(model,&node,limits,requested_fixed_columns,end,&mut resource_primal_stats,&mut lp_stats,&mut lp_solves,&mut submip_fixed_columns){
+                let value=sign*model.objective(&point);if value.is_finite()&&value<incumbent&&model.check(&point,true,1e-7).is_ok()&&candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){resource_primal_stats.improvements+=1;incumbent=value;best=Some(point);first_primal_seconds.get_or_insert_with(||start.elapsed().as_secs_f64());}
+            }
+        }
         if limits.row_generation && matches!(limits.engine,Engine::Revised) && (row_generation_state.is_some() || matches!(relaxation,Relaxation::ResourceLimit)) {
             if let Some(cached)=row_generation::run(lp_model,&node,limits,deadline,&mut row_generation_state,&mut row_generation_stats,&mut lp_stats,&mut lp_solves,nodes==1&&prepared.model.is_none()) {
                 relaxation=Relaxation::Ready(cached.standard);cached_answer=Some(cached.answer);
@@ -2497,7 +2509,7 @@ fn solve_seeded_warm(
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
                     if limits.submip_fixed_columns{probe_limits.fixed_columns=requested_fixed_columns;}
-                    probe_limits.lp_dual_root=false;
+                    probe_limits.lp_dual_root=false;probe_limits.resource_primal=false;
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
                     probe_limits.gomory_cuts = false;
@@ -2604,7 +2616,7 @@ fn solve_seeded_warm(
                         if Instant::now() < local_deadline {
                             let mut local = limits.clone();
                             if limits.submip_fixed_columns{local.fixed_columns=requested_fixed_columns;}
-                            local.lp_dual_root=false;
+                            local.lp_dual_root=false;local.resource_primal=false;
                             local.rins = false;
                             local.objective_rounding = false;
                             local.objective_rounding_all = false;
@@ -2847,7 +2859,7 @@ fn solve_seeded_warm(
             }
             let mut local = limits.clone();
                             if limits.submip_fixed_columns{local.fixed_columns=requested_fixed_columns;}
-                            local.lp_dual_root=false;
+                            local.lp_dual_root=false;local.resource_primal=false;
             local.rins = false;
             local.objective_rounding = false;
             local.objective_rounding_all = false;
@@ -3059,6 +3071,7 @@ fn solve_seeded_warm(
         root_fixed_columns,
         submip_fixed_columns,
         row_generation:row_generation_stats,
+        resource_primal:resource_primal_stats,
         lp_scaled_columns: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.scaled_columns),
         lp_scaled_rows: matches!(limits.engine, Engine::Revised).then_some(lp_stats.scaled_rows),
