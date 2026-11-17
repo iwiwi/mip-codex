@@ -45,6 +45,8 @@ fn three_original_rows_improve_the_root_with_a_verified_integer_point() {
     limits.nodes = 100;
     let complete = solve(&model, &limits);
     assert_eq!(complete.status, "optimal");
+    assert!(complete.rational_primal_proof.is_some());
+    assert_eq!(complete.dual_bound,Some(-1.));
     assert_eq!(complete.objective, Some(-1.));
     let values = complete.values.unwrap();
     let point: Vec<_> = model.variables.iter().map(|v| values[&v.name]).collect();

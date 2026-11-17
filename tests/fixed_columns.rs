@@ -55,6 +55,7 @@ fn an_integer_singleton_is_proved_from_the_original_bound_intervals() {
     .unwrap();
     let r = solve(&model, &limits(Engine::Revised, true));
     assert_eq!(r.status, "optimal");
+    assert!(r.rational_primal_proof.is_some());
     assert_eq!(r.root_fixed_columns, 0);
 }
 #[test]

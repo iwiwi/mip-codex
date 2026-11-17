@@ -39,6 +39,7 @@ fn all_search_orders_match_binary_enumeration() {
         let model = Model {
             name: "enumerated".into(),
             maximize,
+            decimal_source: None,
             original_decimal: false,
             offset_enclosure: None,
             offset: 3.,
@@ -123,6 +124,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
     let model = Model {
         name: "parity".into(),
         maximize: false,
+        decimal_source: None,
         original_decimal: false,
         offset_enclosure: None,
         offset: 0.,

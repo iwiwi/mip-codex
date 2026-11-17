@@ -18,6 +18,7 @@ fn model(variables: Vec<Variable>, rows: Vec<Row>) -> Model {
     Model {
         name: "propagation".into(),
         maximize: false,
+        decimal_source: None,
         original_decimal: false,
         offset_enclosure: None,
         offset: 0.,

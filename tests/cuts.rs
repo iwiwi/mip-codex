@@ -272,6 +272,7 @@ fn fractional_coefficients_project_a_continuous_lower_bound_safely() {
         },
     );
     assert_eq!(result.status, "optimal");
+    assert!(result.rational_primal_proof.is_some());
     assert_eq!(result.objective, Some(-1.));
     assert!(result.cut_stats.interval > 0 && result.cut_stats.projected > 0);
     assert!(result.cut_proofs.iter().all(|cut| verify(&model, cut)));
@@ -476,6 +477,7 @@ fn mir_trial_can_finish_zero_objective_feasibility() {
     assert_eq!(before.objective, None);
     let after = solve(&m, &limits);
     assert_eq!(after.status, "optimal");
+    assert!(after.rational_primal_proof.is_some());
     assert_eq!(after.objective, Some(0.));
     assert_eq!(after.dual_bound, Some(0.));
     assert!(after.cut_stats.mir_added > 0);
