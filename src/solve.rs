@@ -94,7 +94,7 @@ mod resource_primal;
 impl Default for Limits {
     fn default() -> Self {
         Self {
-            resource_primal:false,
+            resource_primal:true,
             row_generation: true,
             row_generation_report: true,
             submip_fixed_columns: true,
