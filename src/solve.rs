@@ -19,6 +19,7 @@ pub struct Limits {
     pub engine: Engine,
     pub warm_start: bool,
     pub fixed_columns: bool,
+    pub zero_dominance: bool,
     pub propagation: bool,
     pub primal_repair: bool,
     pub box_primal: bool,
@@ -92,6 +93,7 @@ impl Default for Limits {
             engine: Engine::Revised,
             warm_start: true,
             fixed_columns: true,
+            zero_dominance: true,
             propagation: false,
             primal_repair: true,
             box_primal: true,
@@ -218,6 +220,7 @@ pub struct Result {
         serialize_with = "crate::model::serialize_optional_solution_number"
     )]
     pub objective_domain_bound: Option<f64>,
+    pub zero_dominance_proof: Option<crate::zero_dominance::Proof>,
     pub objective_box_proof: Option<crate::objective_bound::OriginalBoxProof>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub row_ray_proof: Option<crate::row_ray::Proof>,
@@ -1530,6 +1533,7 @@ fn solve_seeded_warm(
             }
         }
     }
+    let zero_dominance_proof=if limits.zero_dominance&&limits.fixed_columns{crate::zero_dominance::derive(model,(start+std::time::Duration::from_secs_f64(limits.seconds)).min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.25))))}else{None};
     let requested_fixed_columns = limits.fixed_columns;
     let root_fixed_columns = if requested_fixed_columns {
         model
@@ -1541,7 +1545,7 @@ fn solve_seeded_warm(
         0
     };
     let mut effective_limits = limits.clone();
-    effective_limits.fixed_columns = root_fixed_columns != 0;
+    effective_limits.fixed_columns = root_fixed_columns != 0||zero_dominance_proof.is_some();
     let limits = &effective_limits;
     let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
     let sign = if model.maximize { -1.0 } else { 1.0 };
@@ -1562,6 +1566,7 @@ fn solve_seeded_warm(
             upper[j] = upper[j].map(f64::floor);
         }
     }
+    if let Some(p)=&zero_dominance_proof{for f in &p.fixes{let value=f.value().unwrap();lower[f.variable]=Some(value);upper[f.variable]=Some(value);}}
     let mut root = Node {
         certified_bound: None,
         lower,
@@ -2469,6 +2474,7 @@ fn solve_seeded_warm(
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
                     probe_limits.gomory_cuts = false;
+                    probe_limits.zero_dominance = false;
                     probe_limits.objective_box_report = false;
                     probe_limits.three_row_cuts = false;
                     probe_limits.box_primal = false;
@@ -2585,6 +2591,7 @@ fn solve_seeded_warm(
                             // root MIR trials must not redirect its limited tree.
                             local.mir_cuts = false;
             local.gomory_cuts = false;
+            local.zero_dominance = false;
             local.objective_box_report = false;
                             local.three_row_cuts = false;
                             local.box_primal = false;
@@ -2824,6 +2831,7 @@ fn solve_seeded_warm(
             local.cover_cuts = false;
             local.mir_cuts = false;
             local.gomory_cuts = false;
+            local.zero_dominance = false;
             local.objective_box_report = false;
             local.three_row_cuts = false;
             local.box_primal = false;
@@ -2974,6 +2982,7 @@ fn solve_seeded_warm(
         objective_rounding_all: limits.objective_rounding_all,
         objective_grid,
         objective_domain_bound,
+        zero_dominance_proof,
         objective_box_proof,
         row_ray_proof,
         row_subgradient_proof,
