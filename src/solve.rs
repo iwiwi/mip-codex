@@ -91,7 +91,7 @@ impl Default for Limits {
             engine: Engine::Revised,
             warm_start: true,
             fixed_columns: true,
-            zero_dominance: false,
+            zero_dominance: true,
             propagation: false,
             primal_repair: true,
             box_primal: true,
