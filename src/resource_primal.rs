@@ -127,6 +127,7 @@ fn inner(
         if limits.resource_primal_compact{stats.compact_calls+=1;stats.compact_columns+=columns.len();stats.compact_removed+=model.variables.len()-columns.len();}
         let mut local = limits.clone();
         local.resource_primal = false;
+        local.adaptive_resource_repair=false;
         local.row_generation = false;
         local.row_generation_report = false;
         local.lp_dual_root = false;

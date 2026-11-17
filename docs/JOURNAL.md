@@ -805,3 +805,37 @@ PR119統合main4f5daba804 / 通常-library FP7f49a5e2b0e69aedを主作業木で�
 188対は主解4改善0悪化184同値、下界4改善2悪化170同値12比較不能。376証明/129点GMP・公式有効。実skipの主解改善gmu/graph20/joes、下界改善neos1445765/jarama。skip0のsp97/fast/seymour/sp98変化を直接効果としない。60秒3対もgmu/joes主解とneos1445765下界改善を維持、全6証明/6点有効。新native10秒3問も11点/3Rust証明有効、HiGHS/SCIPとの大きな差は残り、総合優位なし。詳細ZERO_PHASE_ONE_RESULTS.md。
 
 有利端点の同時固定4/8/16/32個のprimal試作は全候補なし、元問題の不能/下界に利用せず棄却。準備時間を含めない3秒loopの試作なのでmain同時間の比較とも扱わない。次は既知の境界点からLPを初期化する仮説を検討する。
+
+
+### 2026-11-17 資源制限後の適応的座標修復
+
+main120ベースの別ブランチadaptive-resource-repair。境界点LP初期化dc09版の188対/監査は凍結binで並行実行中。本研究では既存Repairを直接目的改善行へ適用した6試行は全移動0・候補なし。停滞時に違反行penaltyを増やす診断版はmap10/map16715-04で各3回0→-1、全6点GMP/公式有効。続行でmap10-2/-3、map167-2の3点も検査有効。準備込み2.45〜2.89秒、指定探索3秒/仕事量1億でありmain同時間比較ではない。
+
+既定無効の本体経路を追加し、既存324 Rust成功4ignored。ルートLP資源制限+主解あり時のみ、20%最大2秒/仕事量1億/既存workspace以下の作業見積りで適応修復。最大化/offset/局所停滞/期限・資源不足の3追加テストを含む再テスト中。共有targetはこのworktreeへ切替わるため、他worktreeの通常binを再利用せず、測定済み凍結ELFを保持する。
+
+適応修復62c5218b61 / bdb05dfd81635068: 327 Rust成功4ignored。一般800列挙/710親証明/5680改竄拒否/800GMP、binary400列挙/318親証明/2544改竄拒否/400GMP全有効。10秒map10/map167は0→-2、後者下界-475.4→-503.16悪化。60秒2対は両者0→-2/下界同値、全4証明4点有効。pilot監査は初回7件で先行終了したため全8件要求v2へ再実行し8証明8点有効。native10秒2問の6点/2Rust証明有効だがHS/SCIPの大幅な優位が残る。188対/監査進行中、既定無効・未採用。
+
+native全体21:00集計645/720完了、検査済最適HS132/SCIP108/GLPK23。集計のみ、complete JSONL prefix同一bytesをhash記録。own最終240は未起動。非稼働rawの重複70,784ファイル2,009,690,778bytesを全archive/loose SHA再照合後に削除し空き4.8GiB、全bundle/凍結ELF/diagnostic/追跡ファイル/run snapshot/baseline保持、異なるPR本文1件保持。完全な復元先ledgerを保存した。
+
+main120統合後のcreate-only zero-phase-one-final-20261117はconfig5fe60cd08a51db47bdf6de5b102f41437c916defd1271338e847c0389937e476、109snapshot/147共有lib全SHA一致、240ジョブ未起動。post記録182ファイル3,394,402bytes→713,387bytes全SHA保全、ELF4除外保持。receiptとpost archiveを引き継ぐ。
+
+別研究feasible-bound-startは不採用。dc09cc5465e2f90f、328 Rust成功4ignored、LP1000比較/3000点、一般800列挙/708親proof/5664改竄拒否/800GMP、binary400列挙/319親proof/2552改竄拒否/400GMP有効。188対主解1改善0悪化187同値・下界3改善0悪化173同値12比較不能、改善4件は全て初期化試行0。実採用map10/map167各1回は10/60秒とも主解・下界同値。全376出力証明検査/129点、60秒4出力/4点有効。生成pivot削減は実成果に結び付かず、LPコードはmainへ入れない。14,436ファイル515,705,968bytes→7分割67,418,353bytes全SHA保全、ELF6除外保持、研究ブランチを保存する。
+
+適応修復の最終候補はLimits.adaptive_resource_repair既定true/CLI0-1へ整理し、内部resource/probe/RINS/terminal MIPでは明示false。初期bdb05版の外側callsだけで内部呼出し0とは断定しない。書式誤認patchで一度コンパイル失敗後に修正し、library制御テストを含む328 Rust成功4ignored。初期188対測定完了（監査中）、最終候補は別fp/別凍結/別188対で判断する。
+
+中間26debb版の全188対監査完了、主解3改善0悪化185同値・下界1改善2悪化173同値12比較不能。全376出力/128GMP・公式点有効。初期bdb版も全376/128有効。直接呼出しmap10/map167以外の時限差を分けて記録する。単独採用はせず増分統合cb0ba03a版へ候補をまとめ、全生記録をarchiveして引き継ぐ。
+
+中間適応修復記録は26,533ファイル1,078,050,767bytes→15分割169,982,129bytes、全payload SHA一致、ELF6除外保持。単独版の性能/失敗/検査と増分診断・safe cleanup ledgerを保存し、統合候補のブランチへmetadataとして引き継ぐ。
+
+
+### 2026-11-17 違反行priorityの増分更新
+
+main候補26debb9be6dd0377の測定は凍結binで継続中。別branch incremental-adaptive-repair（base17866f5033）で、正の有限違反のBTreeSetとscreen違反数を入射行だけ更新する。最大同点行index順を維持、候補は全元行検査、局所不能/下界なし。Limits.adaptive_repair_incrementalはdefaultfalse、CLI0/1。行あたり見積り192bytes、通常/従来適応経路は128bytesのまま。診断2秒続行でmap10-16/map167-12、GMP/公式2点有効だが準備込み4.08/4.33秒でmain同時間比較でない。fixture名前欠落を修正後、重複行と100列挙モデルの新2テストを含む330 Rust成功4ignored。既定無効の実MIP比較をこれから行う。
+
+中間版26debbの後に増分版c1bd9de1が10秒main pilotで-2→map10-16/map167-12を示したため、main取り込み候補は両機能をまとめる。中間版は独立した研究証拠として保存し、最終combined版は増分既定trueかつadaptive全体flag0/1で直接比較する。未採用、現在のmainは3aac482bf2/70af40cd61d1003bのまま。
+
+統合候補cb0ba03a36c3f07eの全188対監査完了: 主解3改善2悪化183同値、下界2改善3悪化171同値12比較不能、全376出力/129GMP・公式点有効。呼出しmap10/map167のみで0→-16/-12を10秒/60秒再現、60秒下界同値だが10秒両下界悪化。h80/kasaiの呼出し0の悪化は追加3 clean対ずつで再現せず（参考h80初回28ms診断重複も含む全14出力/6点有効）。元188の悪化は差し引かない。生成1200出力/1028親proof/8224改竄拒否/1200GMP、330 Rust成功4ignored。nativeではHS/SCIPがなお大幅に良い。採用提案をまとめ、全記録をarchiveしてPRへ進む。
+
+別診断ブランチlp-input-validity-diagnosticでrd-rplusc-21の0pivot停止は、shifted RHS和の誤差1.05〜1.54e-9>1e-9を理由にNaNを作るためと確認。固定列/カット/整数前処理offでも同じ。基準は変更せず、現在の統合候補へ混ぜない。通常targetは診断ブランチに切り替わっているため、測定はcb0凍結binだけを使用する。
+
+統合修復最終記録は26,474ファイル1,007,582,734bytes→14分割160,940,386bytesで全SHA保全、ELF2除外保持。次はPRを作成し直前AI使用量付き結果コメント、採用後main再build/点検査/最終240 create-only更新へ進む。最終240はまだ起動しない。

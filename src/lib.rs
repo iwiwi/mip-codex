@@ -59,3 +59,5 @@ pub mod master_bound;
 pub mod integer_rows;
 
 mod primal_witness;
+
+pub mod adaptive_resource_repair;
