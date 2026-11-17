@@ -1,0 +1,60 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-dual-restoration/artifacts/smoke-20261117-051050-43r8ped9/map10.mps.gz/highs/options.txt
+MIP map10 has 328818 rows; 164547 cols; 549920 nonzeros; 146 integer variables (146 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+07]
+  Cost    [1e+00, 1e+00]
+  Bound   [1e+00, 1e+00] (continuous)
+  Bound   [1e+00, 1e+00] (non-continuous)
+  RHS     [1e+00, 9e+07]
+WARNING: Problem has some excessively large bounds on constraints
+WARNING:    Consider scaling the    bounds by 1e-2, or setting the user_bound_scale option to -7
+WARNING: Problem is badly scaled, which may compromise the speed, accuracy and reliability of solvers in HiGHS
+Presolving model
+328818 rows, 164547 cols, 549920 nonzeros 0s
+71338 rows, 37549 cols, 151723 nonzeros 0s
+39631 rows, 16354 cols, 85740 nonzeros 1s
+28644 rows, 13867 cols, 63765 nonzeros 1s
+28019 rows, 13522 cols, 62392 nonzeros 1s
+Presolve reductions: rows 28019(-300799); columns 13522(-151025); nonzeros 62392(-487528) 
+
+Solving MIP model with:
+   28019 rows
+   13522 cols (118 binary, 0 integer, 0 implied int., 13404 continuous, 0 domain fixed)
+   62392 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ J       0       0         0   0.00%   -inf            -98                Large        0      0      0         0     1.8s
+         0       0         0   0.00%   -602.0605946    -98              514.35%        0      0      0     21217     4.6s
+ C       0       0         0   0.00%   -588.1660419    -204             188.32%     1441     76      0     25875     8.9s
+         0       0         0   0.00%   -586.1927441    -204             187.35%     1941    132      0     27173    10.0s
+
+Solving report
+  Model             map10
+  Status            Time limit reached
+  Primal bound      -204
+  Dual bound        -586.192744066
+  Gap               187.35%
+  P-D integral      10.00
+  Solution status   feasible
+                    -204 (objective)
+  Timing            10.00
+                    1.53 (Presolve)
+                    8.47 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             0
+  Repair LPs        0
+  LP iterations     27173
+                    0 (strong br.)
+                    5956 (separation)
+                    0 (heuristics)

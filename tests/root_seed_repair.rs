@@ -22,6 +22,7 @@ fn model(equality: bool) -> mip_codex::model::Model {
 }
 fn limits() -> Limits {
     Limits {
+        objective_box_report: false,
         nodes: 0,
         seconds: 1.,
         root_seed_repair: true,
