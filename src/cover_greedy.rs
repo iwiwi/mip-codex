@@ -41,3 +41,93 @@ pub fn candidate_order(m:&Model,repair:&Repair<'_>,deadline:Instant,variant:u64)
  let x:Vec<_>=selected.iter().map(|&s|if s{1.}else{0.}).collect();let valid=remaining==0&&repair.candidate_check(&x)&&repair.objective_reliable(&x,m.objective(&x));
  if valid{stats.candidates=1;stats.first_seconds=Some(started.elapsed().as_secs_f64());}stats.seconds=started.elapsed().as_secs_f64();Some((valid.then_some(x),stats))
 }
+
+/// Add one column and greedily remove columns that become redundant.
+/// Every accepted exchange is feasible and strictly reduces the true cost.
+pub fn exchange(m: &Model, repair: &Repair<'_>, x: &[f64], deadline: Instant, budget: usize)
+    -> Option<(Vec<f64>, BoxStats)>
+{
+    let began = Instant::now();
+    let n = m.variables.len();
+    if began >= deadline || budget == 0 || n > 100_000 || m.rows.len() > 100_000
+        || m.rows.iter().fold(0usize,|sum,row|sum.saturating_add(row.coefficients.len())) > 10_000_000
+        || x.len() != n || m.maximize
+        || !m.variables.iter().all(|v| v.integer && v.lower == Some(0.) && v.upper == Some(1.) && v.objective.is_finite() && v.objective >= 0.)
+        || !m.rows.iter().all(|r| r.lower.is_some_and(|b| b > 0. && b <= 1.) && r.upper.is_none() && r.coefficients.iter().all(|&(j,a)| j < n && a == 1.))
+        || x.iter().any(|&v| v != 0. && v != 1.) || !repair.candidate_check(x)
+    { return None; }
+    let mut stats = BoxStats { calls: 1, ..BoxStats::default() };
+    let mut incidence = vec![Vec::new(); n];
+    let mut counts = vec![0usize; m.rows.len()];
+    let mut selected: Vec<_> = x.iter().map(|&v| v == 1.).collect();
+    for (i,row) in m.rows.iter().enumerate() {
+        if Instant::now()>=deadline {return None;}
+        for &(j,_) in &row.coefficients { incidence[j].push(i); counts[i] += usize::from(selected[j]); stats.work += 1; }
+    }
+    let mut chosen: Vec<_> = (0..n).filter(|&j| selected[j]).collect();
+    chosen.sort_by(|&j,&k| m.variables[k].objective.total_cmp(&m.variables[j].objective).then(j.cmp(&k)));
+    for j in chosen {
+        if Instant::now() >= deadline || stats.work >= budget { break; }
+        stats.work += incidence[j].len();
+        if incidence[j].iter().all(|&i| counts[i] > 1) {
+            selected[j] = false; stats.moves += 1;
+            for &i in &incidence[j] { counts[i] -= 1; }
+        }
+    }
+    let mut covered = vec![0usize; n];
+    for _ in 0..128 {
+        if Instant::now() >= deadline || stats.work >= budget { break; }
+        let mut unique = vec![0usize; n];
+        let mut owner = vec![usize::MAX; m.rows.len()];
+        for (i,row) in m.rows.iter().enumerate() {
+            stats.work += row.coefficients.len();
+            if counts[i] == 1 {
+                let j = row.coefficients.iter().find(|&&(j,_)| selected[j]).unwrap().0;
+                unique[j] += 1; owner[i] = j;
+            }
+        }
+        let mut improved = false;
+        for j in 0..n {
+            if selected[j] { continue; }
+            if Instant::now() >= deadline || stats.work >= budget { break; }
+            let mut touched = Vec::new();
+            for &i in &incidence[j] {
+                let k = owner[i];
+                if k != usize::MAX { if covered[k] == 0 { touched.push(k); } covered[k] += 1; }
+                stats.work += 1;
+            }
+            let mut removable: Vec<_> = touched.iter().copied().filter(|&k| covered[k] == unique[k]).collect();
+            for k in touched { covered[k] = 0; }
+            let saving: f64 = removable.iter().map(|&k| m.variables[k].objective).sum();
+            if saving <= m.variables[j].objective { continue; }
+            removable.sort_by(|&k,&l| m.variables[l].objective.total_cmp(&m.variables[k].objective).then(k.cmp(&l)));
+            for &i in &incidence[j] { counts[i] += 1; }
+            let mut removed = Vec::new();
+            for k in removable {
+                if Instant::now() >= deadline || stats.work >= budget { break; }
+                stats.work += incidence[k].len();
+                if incidence[k].iter().all(|&i| counts[i] > 1) {
+                    for &i in &incidence[k] { counts[i] -= 1; }
+                    removed.push(k);
+                }
+            }
+            let saving: f64 = removed.iter().map(|&k| m.variables[k].objective).sum();
+            let cost = m.variables[j].objective;
+            if saving - cost > 4e-8 * (1. + saving.abs().max(cost.abs())) {
+                selected[j] = true;
+                for &k in &removed { selected[k] = false; }
+                stats.moves += 1 + removed.len(); stats.improvements += 1; improved = true;
+                break;
+            }
+            for k in removed { for &i in &incidence[k] { counts[i] += 1; } }
+            for &i in &incidence[j] { counts[i] -= 1; }
+        }
+        if !improved { break; }
+    }
+    let result: Vec<_> = selected.iter().map(|&v| if v {1.} else {0.}).collect();
+    stats.seconds = began.elapsed().as_secs_f64();
+    if !repair.candidate_check(&result) || !repair.objective_reliable(&result,m.objective(&result))
+        || m.objective(&result) > m.objective(x) { return None; }
+    stats.candidates = 1;
+    Some((result,stats))
+}
