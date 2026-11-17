@@ -123,7 +123,7 @@ fn inner(
             variables.push(v);
         }
         let rows=indices.iter().map(|&i|{let mut row=model.rows[i].clone();if limits.resource_primal_compact{for(j,_)in &mut row.coefficients{*j=mapping[*j];}}row}).collect();
-        let subset=Model{name:String::new(),maximize:false,offset:0.,offset_enclosure:Some([0.;2]),original_decimal:model.original_decimal,variables,rows};
+        let subset=Model{decimal_source:None,name:String::new(),maximize:false,offset:0.,offset_enclosure:Some([0.;2]),original_decimal:model.original_decimal,variables,rows};
         if limits.resource_primal_compact{stats.compact_calls+=1;stats.compact_columns+=columns.len();stats.compact_removed+=model.variables.len()-columns.len();}
         let mut local = limits.clone();
         local.resource_primal = false;

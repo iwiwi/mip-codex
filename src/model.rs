@@ -41,6 +41,8 @@ pub struct Row {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Model {
+    #[serde(skip)]
+    pub decimal_source: Option<std::sync::Arc<crate::primal_witness::Source>>,
     #[serde(default)]
     pub original_decimal: bool,
     #[serde(default)]
@@ -209,6 +211,10 @@ fn serialized_in_domain(
     })
 }
 impl Model {
+    pub(crate) fn original_objective_uncertain(&self)->bool{
+        self.original_decimal && (self.offset_enclosure!=Some([self.offset;2])
+            || self.variables.iter().any(|v|v.objective_enclosure!=Some([v.objective;2])))
+    }
     /// 出力点の二進値を証拠として、元十進係数・境界の外側区間で実行可能か確認する。
     /// 区間が境界をまたぐ場合は違反の証明ではないが、最適性を保証できない。
     pub(crate) fn original_feasibility_uncertain(&self, x: &[f64]) -> bool {

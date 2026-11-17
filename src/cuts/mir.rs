@@ -297,6 +297,7 @@ mod tests {
             maximize: false,
             offset: 0.,
             offset_enclosure: Some([0.; 2]),
+            decimal_source: None,
             original_decimal: false,
             variables: (0..3)
                 .map(|j| Variable {integer_bounds:None,

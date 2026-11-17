@@ -56,6 +56,7 @@ pub(crate) fn certify(
         maximize: model.maximize,
         offset: model.offset,
         offset_enclosure: model.offset_enclosure,
+        decimal_source: None,
         original_decimal: model.original_decimal,
         variables: model.variables.clone(),
         rows: combined.keys().map(|&i| model.rows[i].clone()).collect(),

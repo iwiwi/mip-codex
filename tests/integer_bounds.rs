@@ -167,8 +167,7 @@ fn implied_integer_continuous_decimal_boundaries_withdraw_optimality() {
 fn exact_input_continuous_third_requires_a_rational_witness() {
     let m=mps::parse(Cursor::new("NAME third\nROWS\n N obj\n E r\nCOLUMNS\n y obj 1 r 3\nRHS\n rhs r 1\nENDATA\n")).unwrap();
     let r=solve(&m,&Limits::default());
-    assert_eq!(r.status,"numerical_error");
-    assert_eq!(r.dual_bound,None);
-    assert_eq!(r.gap,None);
+    assert_eq!(r.status,"optimal");
+    assert!(r.rational_primal_proof.is_some());
     assert!((r.objective.unwrap()-1./3.).abs()<1e-12);
 }

@@ -113,6 +113,7 @@ fn main() {
             maximize: model.maximize,
             offset: 0.,
             offset_enclosure: Some([0., 0.]),
+            decimal_source: None,
             original_decimal: model.original_decimal,
             variables: columns
                 .iter()

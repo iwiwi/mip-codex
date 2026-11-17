@@ -282,6 +282,11 @@ def verify_original_box(model_path,names,variables,objective,offset,result):
     return dict(valid=True,normalized_bound=str(Fraction.from_float(bound)),exact_original_box_minimum=str(minimum))
 
 def validate_cut_proofs(model_path,result):
+    if result.get('rational_primal_proof')is not None:
+        try:
+            from verify_primal_witness import verify
+            verify(model_path,result)
+        except Exception as error:return dict(valid=False,error=f'primal witness: {type(error).__name__}: {error}')
     cuts=result.get('cut_proofs',[])
     grid=result.get('objective_grid')
     graph=result.get('binary_graph')
