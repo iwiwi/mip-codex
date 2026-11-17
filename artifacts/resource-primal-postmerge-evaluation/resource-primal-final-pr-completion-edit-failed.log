@@ -1,0 +1,8 @@
+GraphQL: Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. (repository.pullRequest.projectCards)
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/artifacts/resource-primal-final-pr-comment.py", line 7, in <module>
+    p=r/'artifacts/resource-primal-final-pr-body.md';p.write_text(body);subprocess.run(['gh','pr','edit','114','--repo',repo,'--body-file',str(p)],check=True)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['gh', 'pr', 'edit', '114', '--repo', 'iwiwi/mip-codex', '--body-file', '/home/ubuntu/mip-codex/artifacts/resource-primal-final-pr-body.md']' returned non-zero exit status 1.
