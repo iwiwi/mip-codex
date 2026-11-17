@@ -380,6 +380,25 @@ struct Standard {
     shift: Vec<f64>,
     terms: Vec<Vec<(usize, f64)>>,
 }
+// 原変数の点を標準形の上下端へ写す。表現不能な点は初期化に使わない。
+fn initial_bound_mask(p:&Standard,point:&[f64],deadline:Instant)->Option<Vec<bool>> {
+    let sparse=p.sparse.as_ref()?;
+    if point.len()!=p.terms.len()||p.shift.len()!=point.len(){return None;}
+    let mut mask=vec![false;sparse.costs.len()];let mut seen=vec![false;mask.len()];
+    for (j,terms)in p.terms.iter().enumerate(){
+        if j%1024==0&&Instant::now()>=deadline{return None;}
+        let value=point[j];if !value.is_finite(){return None;}
+        if terms.is_empty(){if value!=p.shift[j]{return None;}continue;}
+        for &(k,_)in terms{if k>=mask.len()||seen[k]{return None;}seen[k]=true;}
+        if value==p.shift[j]{continue;}
+        let &[(k,sign)]=terms.as_slice() else{return None;};
+        if !sparse.upper[k].is_finite(){return None;}
+        let endpoint=crate::exact::dot_bounds([(p.shift[j],1.),(sparse.upper[k],sign)].into_iter())?;
+        if endpoint!=[value,value]{return None;}mask[k]=true;
+    }
+    if !seen.iter().all(|&v|v){return None;}
+    Some(mask)
+}
 enum Relaxation {
     Ready(Standard),
     Infeasible,
@@ -2003,7 +2022,7 @@ fn solve_seeded_warm(
             }
         }
         if limits.row_generation && matches!(limits.engine,Engine::Revised) && (row_generation_state.is_some() || matches!(relaxation,Relaxation::ResourceLimit)) {
-            if let Some(cached)=row_generation::run(lp_model,&node,limits,deadline,&mut row_generation_state,&mut row_generation_stats,&mut lp_stats,&mut lp_solves,nodes==1&&prepared.model.is_none()) {
+            if let Some(cached)=row_generation::run(lp_model,&node,limits,deadline,&mut row_generation_state,&mut row_generation_stats,&mut lp_stats,&mut lp_solves,nodes==1&&prepared.model.is_none(),if nodes==1{best.as_deref()}else{None}) {
                 relaxation=Relaxation::Ready(cached.standard);cached_answer=Some(cached.answer);
             }else{relaxation=Relaxation::ResourceLimit;cached_answer=None;}
         }
@@ -2032,6 +2051,9 @@ fn solve_seeded_warm(
             let answer = cached_answer.unwrap_or_else(|| {
                 if nodes==1 && limits.lp_dual_root && lp_stats.dual_form_attempts==0 {
                     crate::dual_form::solve_for_root(sparse,limits.pivots,Some(deadline),if limits.warm_start{node.warm.as_deref()}else{None},limits.warm_start)
+                } else if nodes==1 && std::env::var("MIP_LP_FEASIBLE_BOUND_START").is_ok_and(|v|v=="1")
+                    && let Some(mask)=best.as_deref().and_then(|point|initial_bound_mask(&p,point,deadline)) {
+                    revised::minimize_warm_with_bound_start(sparse,limits.pivots,Some(deadline),if limits.warm_start{node.warm.as_deref()}else{None},&mask)
                 } else if limits.warm_start {
                     revised::minimize_warm(sparse,limits.pivots,Some(deadline),node.warm.as_deref())
                 } else {revised::minimize(sparse,limits.pivots,Some(deadline))}
@@ -4035,4 +4057,17 @@ fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomo
   for maximize in [false,true]{let sign=if maximize{1}else{-1};let mut text=format!("NAME offset\nOBJSENSE\n {}\nROWS\n N c\n L r\n L s\n L t\nCOLUMNS\n x0 c {} r 1\n x0 t 1\n x1 c {} r 1\n x1 s 1\n x2 c {} s 1\n x2 t 1\n",if maximize{"MAX"}else{"MIN"},sign,sign,sign);for j in 3..20{text+=&format!(" x{j} c {}\n",2*sign);}text+="RHS\n rhs r 1 s 1\n rhs t 1 c -100\nBOUNDS\n";for j in 0..20{text+=&format!(" BV b x{j}\n");}text+="ENDATA\n";let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let mut seed=vec![1.;20];seed[..3].fill(0.);let limits=Limits{seconds:2.,nodes:1,primal_repair:false,box_primal:false,primal_probe:false,lp_diving:false,objective_lp_dive:false,feasibility_pump:false,rins:true,terminal_neighborhood:false,objective_rounding:false,objective_rounding_all:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,..Limits::default()};for enabled in [false,true]{let r=solve_seeded(&m,&Limits{submip_fixed_columns:enabled,..limits.clone()},Some(&seed));assert_eq!(r.submip_fixed_columns,if enabled{17}else{0});assert_eq!(r.objective,Some(100.+35.*sign as f64));let x:Vec<_>=m.variables.iter().map(|v|r.values.as_ref().unwrap()[&v.name]).collect();assert!(m.check(&x,true,1e-7).is_ok());}}
  }
 
+}
+
+#[cfg(test)]mod initial_bound_mask_tests {
+ use super::*;
+ #[test]fn shifted_reflected_fixed_and_free_variables_require_exact_endpoints(){
+  let p=Standard{row_sources:vec![],sparse:Some(revised::Problem{columns:vec![vec![];4],rhs:vec![],costs:vec![0.;4],upper:vec![2.,3.,f64::INFINITY,f64::INFINITY],equality:vec![],slack_upper:vec![]}),a:vec![],b:vec![],c:vec![],shift:vec![4.,-2.,7.,0.],terms:vec![vec![(0,1.)],vec![(1,-1.)],vec![],vec![(2,1.),(3,-1.)]]};
+  let end=Instant::now()+std::time::Duration::from_secs(2);
+  assert_eq!(initial_bound_mask(&p,&[6.,-5.,7.,0.],end),Some(vec![true,true,false,false]));
+  assert_eq!(initial_bound_mask(&p,&[4.,-2.,7.,0.],end),Some(vec![false;4]));
+  for point in [vec![5.,-5.,7.,0.],vec![6.,-5.,8.,0.],vec![6.,-5.,7.,1.],vec![6.,-5.,7.,f64::NAN]]{assert!(initial_bound_mask(&p,&point,end).is_none());}
+  assert!(initial_bound_mask(&p,&[6.,-5.,7.,0.],Instant::now()).is_none());
+  assert!(initial_bound_mask(&p,&[6.,-5.,7.],end).is_none());
+ }
 }

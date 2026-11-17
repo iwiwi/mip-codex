@@ -98,6 +98,7 @@ pub(super) fn run(
     lp_stats: &mut revised::Stats,
     lp_solves: &mut usize,
     report_root: bool,
+    seed: Option<&[f64]>,
 ) -> Option<CachedRoot> {
     let started = Instant::now();
     stats.calls += 1;
@@ -111,6 +112,7 @@ pub(super) fn run(
         lp_stats,
         lp_solves,
         report_root,
+        seed,
     );
     stats.seconds += started.elapsed().as_secs_f64();
     result
@@ -125,6 +127,7 @@ fn run_inner(
     lp_stats: &mut revised::Stats,
     lp_solves: &mut usize,
     report_root: bool,
+    seed: Option<&[f64]>,
 ) -> Option<CachedRoot> {
     let state = state.get_or_insert_with(|| State {
         indices: vec![],
@@ -190,16 +193,11 @@ fn run_inner(
                 );
             }
         }
-        let mut a = revised::minimize_warm(
-            q.sparse.as_ref().unwrap(),
-            limits.pivots.saturating_sub(used),
-            Some(deadline),
-            if limits.warm_start {
-                warm.as_deref()
-            } else {
-                None
-            },
-        );
+        let hint=if warm.is_none() && std::env::var("MIP_LP_FEASIBLE_BOUND_START").is_ok_and(|v|v=="1"){seed.and_then(|x|initial_bound_mask(&q,x,deadline))}else{None};
+        let parent=if limits.warm_start{warm.as_deref()}else{None};
+        let mut a=if let Some(mask)=hint {
+            revised::minimize_warm_with_bound_start(q.sparse.as_ref().unwrap(),limits.pivots.saturating_sub(used),Some(deadline),parent,&mask)
+        }else{revised::minimize_warm(q.sparse.as_ref().unwrap(),limits.pivots.saturating_sub(used),Some(deadline),parent)};
         stats.lp_solves += 1;
         *lp_solves += 1;
         used = used.saturating_add(a.stats.pivots.saturating_add(a.stats.flips));
@@ -324,6 +322,7 @@ mod tests {
             &mut lp,
             &mut solves,
             false,
+            None,
         )
         .unwrap();
         assert_eq!(stats.lp_solves, solves);
@@ -415,6 +414,7 @@ mod tests {
             &mut lp,
             &mut count,
             false,
+            None,
         )
         .unwrap();
         assert!(matches!(r.answer.outcome, lp::Outcome::TimeLimit));
@@ -522,6 +522,7 @@ mod mixed_domain_tests {
             &mut lp,
             &mut count,
             false,
+            None,
         )
         .unwrap();
         assert!(matches!(r.answer.outcome, lp::Outcome::IterationLimit));
@@ -562,6 +563,7 @@ mod report_tests {
                 &mut lp,
                 &mut count,
                 root,
+                None,
             )
             .unwrap();
             assert!(
