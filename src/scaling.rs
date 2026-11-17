@@ -588,3 +588,18 @@ mod saved_validation_diagnostic {
         }
     }
 }
+
+pub(crate) fn tableau_rows(p: &Problem, warm: &WarmStart, columns: &[usize], deadline: Instant)
+    -> Vec<(usize, Vec<f64>)>
+{
+    if Instant::now()>=deadline {return vec![];}
+    match scale(p) {
+        Ok(None)=>warm.tableau_rows_raw(p,columns,deadline),
+        Ok(Some((q,factors,rows)))=>warm.tableau_rows_raw(&q,columns,deadline).into_iter()
+            .filter_map(|(column,mut weights)| {
+                for (w,&scale) in weights.iter_mut().zip(&rows) {*w=(*w/scale)/factors[column];}
+                weights.iter().all(|v|v.is_finite()).then_some((column,weights))
+            }).collect(),
+        Err(())=>vec![],
+    }
+}

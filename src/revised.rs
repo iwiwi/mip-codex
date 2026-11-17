@@ -250,6 +250,21 @@ impl WarmStart {
             },
         })
     }
+    pub(crate) fn tableau_rows_raw(&self, p: &Problem, columns: &[usize], deadline: Instant)
+        -> Vec<(usize, Vec<f64>)>
+    {
+        if !self.compatible(p) { return vec![]; }
+        let mut result=Vec::new();
+        for &column in columns.iter().take(16) {
+            if Instant::now()>=deadline {break;}
+            if column>=p.columns.len() {continue;}
+            let Some(row)=self.basis.iter().position(|&j|j==column) else {continue;};
+            let mut unit=vec![0.;p.rhs.len()];unit[row]=1.;
+            let weights=self.factor.backward(&unit);
+            if weights.iter().all(|v|v.is_finite()) {result.push((column,weights));}
+        }
+        result
+    }
     fn compatible(&self, p: &Problem) -> bool {
         let a = &self.structure;
         a.costs.len() == p.costs.len()
@@ -1895,5 +1910,24 @@ mod pricing_budget_tests {
         assert_eq!(a.stats.feasibility_pricing_calls, 0);
         assert_eq!(a.stats.pricing_cutoffs, 0);
         assert_eq!(a.stats.pricing_fallbacks, 0);
+    }
+}
+
+/// Approximate tableau rows for cut proposal only; validity requires separate proof.
+pub fn tableau_rows(p: &Problem, warm: &WarmStart, columns: &[usize], deadline: Instant)
+    -> Vec<(usize, Vec<f64>)>
+{ crate::scaling::tableau_rows(p,warm,columns,deadline) }
+#[cfg(test)]
+mod tableau_row_tests {
+    use super::*;
+    #[test]
+    fn tableau_rows_return_original_units_after_column_and_row_scaling() {
+        let large=2f64.powi(20);
+        let p=Problem {columns:vec![vec![(0,large),(1,1.)],vec![(0,large),(1,2.)]],rhs:vec![large,1.5],costs:vec![1.,2.],upper:vec![f64::INFINITY;2],equality:vec![true;2],slack_upper:vec![0.;2]};
+        let a=minimize_warm(&p,1000,None,None);assert!(matches!(a.outcome,Outcome::Optimal{..}));let warm=a.warm.unwrap();
+        let rows=tableau_rows(&p,&warm,&[0,1],Instant::now()+std::time::Duration::from_secs(1));assert_eq!(rows.len(),2);
+        for (k,w) in rows {for j in 0..2 {let value:f64=p.columns[j].iter().map(|&(i,a)|a*w[i]).sum();assert!((value-if j==k{1.}else{0.}).abs()<1e-12);}}
+        assert!(tableau_rows(&p,&warm,&[0,1],Instant::now()).is_empty());
+        let mut changed=p.clone();changed.columns[0][0].1*=2.;assert!(tableau_rows(&changed,&warm,&[0],Instant::now()+std::time::Duration::from_secs(1)).is_empty());
     }
 }

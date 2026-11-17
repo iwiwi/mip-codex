@@ -165,6 +165,45 @@ def verify_mir_exact(names,variables,source,cut):
     actual=[(j,Fraction(a))for j,a in row['coefficients']]
     if actual!=coeff or row['lower']is not None or Fraction(row['upper'])!=rhs or row.get('exact_integral')is not True:raise AssertionError('MIR inequality mismatch')
 
+def verify_gomory_exact(names,variables,rows,cut):
+    p=cut['proof'];proof=p['gomory'];row=cut['row'];terms=proof['terms'];upper=proof['upper_bounds'];pivot=proof['pivot'];n=len(names)
+    if p.get('mir')is not None or p.get('clique')or p.get('aggregation')or p.get('divisor')is not None or p['cover']:raise AssertionError('Gomory mixed proof kinds')
+    if not all(v['integer']for v in variables.values())or not 0<n<=100000:raise AssertionError('Gomory requires pure integer model')
+    if type(pivot)is not int or not 0<=pivot<n or not isinstance(terms,list)or not 0<len(terms)<=1024:raise AssertionError('Gomory shape')
+    if not isinstance(upper,list)or any(type(j)is not int or not 0<=j<n for j in upper)or upper!=sorted(set(upper)):raise AssertionError('Gomory complements')
+    anchors=[];directions=[]
+    for j,name in enumerate(names):
+        d=-1 if j in upper else 1;b=variables[name]['upper'if d==-1 else'lower']
+        if b is None or b.denominator!=1 or abs(b)>2**52:raise AssertionError('Gomory bound must be exact integer')
+        anchors.append(int(b));directions.append(d)
+    A=[0]*n;B=0;equations=[];previous=None;work=0
+    for t in terms:
+        i=t['row'];side=t['upper'];weight=t['weight']
+        if type(i)is not int or not 0<=i<len(rows)or type(side)is not bool or type(weight)is not int or not -2**63<=weight<2**63 or weight==0:raise AssertionError('Gomory term')
+        key=(i,side)
+        if previous is not None and key<=previous:raise AssertionError('Gomory term order')
+        previous=key;source=rows[i];sign=1 if side else-1;b=source['upper'if side else'lower'];work+=len(source['coefficients'])
+        if b is None or b.denominator!=1 or abs(b)>2**52 or work>1000000:raise AssertionError('Gomory source bound/work')
+        coefficients={names.index(name):int(v)*sign for name,v in source['coefficients'].items()if v}
+        if any(v.denominator!=1 or abs(v)>2**52 for v in source['coefficients'].values()):raise AssertionError('Gomory source coefficients')
+        for j,v in coefficients.items():A[j]+=weight*v
+        B+=weight*sign*int(b);equations.append((coefficients,sign*int(b),weight))
+    orientation=-1 if A[pivot]<0 else 1;A=[v*orientation for v in A];B*=orientation;M=A[pivot]
+    if M<=0:raise AssertionError('Gomory zero pivot')
+    shifted=B-sum(v*t for v,t in zip(A,anchors));R0=shifted%M
+    if R0==0:raise AssertionError('Gomory integral rhs')
+    C=[d*((d*v)%M)for d,v in zip(directions,A)];rhs=R0+sum(v*t for v,t in zip(C,anchors))
+    for coefficients,b,w in equations:
+        rem=(w*orientation)%M;rhs-=rem*b
+        for j,v in coefficients.items():C[j]-=rem*v
+    common=math.gcd(rhs,*C)
+    if common>1:C=[v//common for v in C];rhs//=common
+    expected=[(j,Fraction(v))for j,v in enumerate(C)if v]
+    if not expected or abs(rhs)>2**52 or any(abs(v)>2**52 for v in C):raise AssertionError('Gomory exact float range')
+    actual=[(j,Fraction(str(v)))for j,v in row['coefficients']]
+    if actual!=expected or row['upper']is not None or Fraction(str(row['lower']))!=rhs:raise AssertionError('Gomory cut mismatch')
+    if row.get('lower_enclosure')!=[rhs,rhs]or row.get('upper_enclosure')is not None or row.get('exact_integral')is not True or row.get('exact_coefficients')is not True or row.get('exact_coefficient_flags'):raise AssertionError('Gomory row metadata')
+
 def verify_clique_exact(names,variables,rows,cut):
     proof=cut['proof'];pairs=proof['clique'];row=cut['row']
     if proof.get('aggregation',[]) or proof.get('divisor') is not None:raise AssertionError('clique cannot combine other proof kinds')
@@ -322,6 +361,11 @@ def validate_cut_proofs(model_path,result):
             selected={names[j] for j in cover};sign=1 if side else -1
             bound=source['upper' if side else 'lower']
             if bound is None:raise AssertionError('source side missing')
+            if proof.get('gomory') is not None:
+                verify_gomory_exact(names,variables,rows,cut)
+                metadata['checked']+=1
+                metadata['gomory_checked']=metadata.get('gomory_checked',0)+1
+                continue
             if proof.get('mir') is not None:
                 verify_mir_exact(names,variables,source,cut)
                 metadata['checked']+=1
