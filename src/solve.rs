@@ -86,7 +86,7 @@ pub struct Limits {
 impl Default for Limits {
     fn default() -> Self {
         Self {
-            submip_fixed_columns: false,
+            submip_fixed_columns: true,
             lp_dual_root: true,
             seconds: 60.0,
             nodes: usize::MAX,
@@ -3933,4 +3933,8 @@ fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomo
  #[test]fn a_neighborhood_rechecks_fixed_columns_without_overriding_an_explicit_opt_out(){
   let mut text=String::from("NAME subfix\nROWS\n N c\n L r\n L s\n L t\nCOLUMNS\n x0 c -1 r 1\n x0 t 1\n x1 c -1 r 1\n x1 s 1\n x2 c -1 s 1\n x2 t 1\n");for j in 3..20{text+=&format!(" x{j} c 1\n");}text+="RHS\n rhs r 1 s 1\n rhs t 1\nBOUNDS\n";for j in 0..20{text+=&format!(" BV b x{j}\n");}text+="ENDATA\n";let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let base=Limits{seconds:2.,nodes:1,primal_repair:false,box_primal:false,primal_probe:false,lp_diving:false,objective_lp_dive:false,feasibility_pump:false,rins:true,terminal_neighborhood:false,objective_rounding:false,objective_rounding_all:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,..Limits::default()};for(enabled,requested,columns)in [(false,true,0),(true,true,17),(true,false,0)]{let r=solve_seeded(&m,&Limits{submip_fixed_columns:enabled,fixed_columns:requested,..base.clone()},Some(&[0.;20]));assert_eq!(r.rins.calls,1);assert_eq!(r.root_fixed_columns,0);assert_eq!(r.submip_fixed_columns,columns);assert_eq!(r.objective,Some(-1.));let x:Vec<_>=m.variables.iter().map(|v|r.values.as_ref().unwrap()[&v.name]).collect();assert!(m.check(&x,true,1e-7).is_ok());assert_eq!(m.variables[3].upper,Some(1.));}
  }
+ #[test]fn nonzero_fixed_objective_constants_are_preserved_for_both_senses(){
+  for maximize in [false,true]{let sign=if maximize{1}else{-1};let mut text=format!("NAME offset\nOBJSENSE\n {}\nROWS\n N c\n L r\n L s\n L t\nCOLUMNS\n x0 c {} r 1\n x0 t 1\n x1 c {} r 1\n x1 s 1\n x2 c {} s 1\n x2 t 1\n",if maximize{"MAX"}else{"MIN"},sign,sign,sign);for j in 3..20{text+=&format!(" x{j} c {}\n",2*sign);}text+="RHS\n rhs r 1 s 1\n rhs t 1 c -100\nBOUNDS\n";for j in 0..20{text+=&format!(" BV b x{j}\n");}text+="ENDATA\n";let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let mut seed=vec![1.;20];seed[..3].fill(0.);let limits=Limits{seconds:2.,nodes:1,primal_repair:false,box_primal:false,primal_probe:false,lp_diving:false,objective_lp_dive:false,feasibility_pump:false,rins:true,terminal_neighborhood:false,objective_rounding:false,objective_rounding_all:false,binary_graph:false,cover_cuts:false,mir_cuts:false,gomory_cuts:false,aggregate_cuts:false,clique_cuts:false,three_row_cuts:false,rounding_cuts:false,..Limits::default()};for enabled in [false,true]{let r=solve_seeded(&m,&Limits{submip_fixed_columns:enabled,..limits.clone()},Some(&seed));assert_eq!(r.submip_fixed_columns,if enabled{17}else{0});assert_eq!(r.objective,Some(100.+35.*sign as f64));let x:Vec<_>=m.variables.iter().map(|v|r.values.as_ref().unwrap()[&v.name]).collect();assert!(m.check(&x,true,1e-7).is_ok());}}
+ }
+
 }
