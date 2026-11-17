@@ -73,18 +73,22 @@ impl<'a> Repair<'a> {
         budget: usize,
         seed: u64,
     ) -> Option<Vec<f64>> {
-        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.,false)
+        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.,false,false)
     }
     /// 費用を正規化した修復順位を診断する。実行可能性判定は元のguardを使う。
     pub fn search_priced(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64)->Option<Vec<f64>> {
         if !weight.is_finite()||weight<0.||!scale.is_finite()||scale<=0.{return None;}
-        self.search_impl(point,lower,upper,deadline,budget,seed,weight,scale,false)
+        self.search_impl(point,lower,upper,deadline,budget,seed,weight,scale,false,false)
     }
     /// 局所停滞時に違反中の行の重みを増やす主解専用探索。
     pub fn search_adaptive(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64)->Option<Vec<f64>>{
-        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.,true)
+        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.,true,false)
     }
-    fn search_impl(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64,adaptive:bool)->Option<Vec<f64>> {
+    /// 正の違反行だけを増分更新する適応修復。最終受理は元行検査を保持する。
+    pub fn search_adaptive_incremental(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64)->Option<Vec<f64>>{
+        self.search_impl(point,lower,upper,deadline,budget,seed,0.,1.,true,true)
+    }
+    fn search_impl(&mut self,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],deadline:Instant,budget:usize,seed:u64,weight:f64,scale:f64,adaptive:bool,incremental:bool)->Option<Vec<f64>> {
         self.stats.calls += 1;
         let mut rng = seed.wrapping_add(0x9e3779b97f4a7c15);
         let mut work = 0usize;
@@ -130,6 +134,14 @@ impl<'a> Repair<'a> {
                     .map(|r| r.coefficients.len() + 1)
                     .sum::<usize>(),
             );
+            // 正の有限f64ではbitsの順序が数値順序に一致する。同点は最大行index。
+            let mut priorities=std::collections::BTreeSet::new();
+            let bad=|i:usize,a:f64|a.is_finite()&&(self.model.rows[i].lower.is_some_and(|l|a<l-1e-6)||self.model.rows[i].upper.is_some_and(|u|a>u+1e-6));
+            let mut screen_bad=0usize;
+            if incremental{
+                screen_bad=activities.iter().enumerate().filter(|&(i,&a)|bad(i,a)).count();
+                for(i,&a)in activities.iter().enumerate(){let v=self.violation(i,a);if v.is_finite()&&v>0.{priorities.insert((v.to_bits(),i));}}
+            }
             loop {
                 if Instant::now() >= deadline || work >= budget {
                     break;
@@ -137,23 +149,23 @@ impl<'a> Repair<'a> {
                 // 許容誤差の境界から少し内側で候補を受理し、独立検査も別途行う。
                 // 活動値は候補受理の証明には使わず、明白な違反時の全検査だけ省く。
                 // 丸め誤差による探索取り逃しを抑えるため、受理閾値より広い余裕を使う。
-                let plausible = !screen || activities.iter().enumerate().all(|(i, &a)| {
+                let plausible = !screen || if incremental{screen_bad==0}else{activities.iter().enumerate().all(|(i, &a)| {
                     let row = &self.model.rows[i];
                     !a.is_finite() || (row.lower.is_none_or(|l| a >= l - 1e-6)
                         && row.upper.is_none_or(|u| a <= u + 1e-6))
-                });
+                })};
                 if plausible && self.candidate_check(&x) {
                     self.stats.candidates += 1;
                     self.stats.work += work;
                     return Some(x);
                 }
-                let worst = activities
+                let worst = if incremental{priorities.last().map(|&(bits,i)|(i,f64::from_bits(bits)))}else{activities
                     .iter()
                     .enumerate()
                     .map(|(i, &a)| (i, self.violation(i, a)))
                     .filter(|(_, v)| v.is_finite() && *v > 0.)
-                    .max_by(|a, b| a.1.total_cmp(&b.1));
-                work = work.saturating_add(self.model.rows.len() + 1);
+                    .max_by(|a, b| a.1.total_cmp(&b.1))};
+                work = work.saturating_add(if incremental{1}else{self.model.rows.len() + 1});
                 let Some((i, _)) = worst else {
                     break;
                 };
@@ -213,18 +225,31 @@ impl<'a> Repair<'a> {
                 let Some((j, value, _, _)) = best else {
                     if !adaptive{break;}
                     let mut changed=false;
+                    if incremental{
+                        let violated:Vec<_>=priorities.iter().copied().collect();
+                        for (bits,r)in &violated{
+                            if f64::from_bits(*bits)>1e-12&&self.weights[*r]<1e12{
+                                priorities.remove(&(*bits,*r));self.weights[*r]*=2.;self.stats.penalty_updates+=1;changed=true;
+                                let v=self.violation(*r,activities[*r]);if v.is_finite()&&v>0.{priorities.insert((v.to_bits(),*r));}
+                            }
+                        }
+                        work=work.saturating_add(violated.len());
+                    }else{
                     for (r,&activity)in activities.iter().enumerate(){
                         if self.violation(r,activity)>1e-12&&self.weights[r]<1e12{
                             self.weights[r]*=2.;self.stats.penalty_updates+=1;changed=true;
                         }
                     }
                     work=work.saturating_add(activities.len());
+                    }
                     if changed{continue;}else{break;}
                 };
                 let delta = value - x[j];
                 x[j] = value;
                 for &(r, c) in &self.incidence[j] {
+                    if incremental{let old=self.violation(r,activities[r]);if old.is_finite()&&old>0.{priorities.remove(&(old.to_bits(),r));}screen_bad-=usize::from(bad(r,activities[r]));}
                     activities[r] += c * delta;
+                    if incremental{screen_bad+=usize::from(bad(r,activities[r]));let next=self.violation(r,activities[r]);if next.is_finite()&&next>0.{priorities.insert((next.to_bits(),r));}}
                 }
                 self.stats.moves += 1;
             }

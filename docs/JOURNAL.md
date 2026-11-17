@@ -822,3 +822,8 @@ main120統合後のcreate-only zero-phase-one-final-20261117はconfig5fe60cd08a5
 別研究feasible-bound-startは不採用。dc09cc5465e2f90f、328 Rust成功4ignored、LP1000比較/3000点、一般800列挙/708親proof/5664改竄拒否/800GMP、binary400列挙/319親proof/2552改竄拒否/400GMP有効。188対主解1改善0悪化187同値・下界3改善0悪化173同値12比較不能、改善4件は全て初期化試行0。実採用map10/map167各1回は10/60秒とも主解・下界同値。全376出力証明検査/129点、60秒4出力/4点有効。生成pivot削減は実成果に結び付かず、LPコードはmainへ入れない。14,436ファイル515,705,968bytes→7分割67,418,353bytes全SHA保全、ELF6除外保持、研究ブランチを保存する。
 
 適応修復の最終候補はLimits.adaptive_resource_repair既定true/CLI0-1へ整理し、内部resource/probe/RINS/terminal MIPでは明示false。初期bdb05版の外側callsだけで内部呼出し0とは断定しない。書式誤認patchで一度コンパイル失敗後に修正し、library制御テストを含む328 Rust成功4ignored。初期188対測定完了（監査中）、最終候補は別fp/別凍結/別188対で判断する。
+
+
+### 2026-11-17 違反行priorityの増分更新
+
+main候補26debb9be6dd0377の測定は凍結binで継続中。別branch incremental-adaptive-repair（base17866f5033）で、正の有限違反のBTreeSetとscreen違反数を入射行だけ更新する。最大同点行index順を維持、候補は全元行検査、局所不能/下界なし。Limits.adaptive_repair_incrementalはdefaultfalse、CLI0/1。行あたり見積り192bytes、通常/従来適応経路は128bytesのまま。診断2秒続行でmap10-16/map167-12、GMP/公式2点有効だが準備込み4.08/4.33秒でmain同時間比較でない。fixture名前欠落を修正後、重複行と100列挙モデルの新2テストを含む330 Rust成功4ignored。既定無効の実MIP比較をこれから行う。
