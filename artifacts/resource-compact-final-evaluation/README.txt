@@ -1,0 +1,1 @@
+完了済み開発試作の圧縮原記録。空の作業ディレクトリでtar.gzを展開すると元artifacts以下の相対パスが復元される。bundles.jsonで圧縮SHA、relocation-ledger.jsonで展開payloadのSHAを照合。作成時に全payloadの展開SHAを確認済み。元ファイルと除外したELF/生成LPはローカル保持。局所の目的0実行可能性MIPの列圧縮FP30859e006f1e0445を含む。整数初期点の回帰検査失敗と修正後全検査を保全した。局所状態は大域へ移さない。
