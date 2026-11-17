@@ -823,6 +823,10 @@ main120統合後のcreate-only zero-phase-one-final-20261117はconfig5fe60cd08a5
 
 適応修復の最終候補はLimits.adaptive_resource_repair既定true/CLI0-1へ整理し、内部resource/probe/RINS/terminal MIPでは明示false。初期bdb05版の外側callsだけで内部呼出し0とは断定しない。書式誤認patchで一度コンパイル失敗後に修正し、library制御テストを含む328 Rust成功4ignored。初期188対測定完了（監査中）、最終候補は別fp/別凍結/別188対で判断する。
 
+中間26debb版の全188対監査完了、主解3改善0悪化185同値・下界1改善2悪化173同値12比較不能。全376出力/128GMP・公式点有効。初期bdb版も全376/128有効。直接呼出しmap10/map167以外の時限差を分けて記録する。単独採用はせず増分統合cb0ba03a版へ候補をまとめ、全生記録をarchiveして引き継ぐ。
+
+中間適応修復記録は26,533ファイル1,078,050,767bytes→15分割169,982,129bytes、全payload SHA一致、ELF6除外保持。単独版の性能/失敗/検査と増分診断・safe cleanup ledgerを保存し、統合候補のブランチへmetadataとして引き継ぐ。
+
 
 ### 2026-11-17 違反行priorityの増分更新
 
