@@ -4,6 +4,7 @@ use mip_codex::{
 };
 fn limits() -> Limits {
     Limits {
+        objective_box_report: false,
         nodes: 0,
         seconds: 1.,
         objective_domain_report: true,

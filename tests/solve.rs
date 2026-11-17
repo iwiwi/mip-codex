@@ -55,6 +55,7 @@ fn limits_do_not_claim_infeasibility() {
     for (limits, status) in [
         (
             Limits {
+                objective_box_report: false,
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
@@ -67,6 +68,7 @@ fn limits_do_not_claim_infeasibility() {
         ),
         (
             Limits {
+                objective_box_report: false,
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,
@@ -79,6 +81,7 @@ fn limits_do_not_claim_infeasibility() {
         ),
         (
             Limits {
+                objective_box_report: false,
                 rins: false,
                 strong_branching: false,
                 cover_cuts: false,

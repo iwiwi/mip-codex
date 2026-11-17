@@ -260,6 +260,27 @@ def verify_clique_exact(names,variables,rows,cut):
     return len(pairs)
 
 
+def verify_original_box(model_path,names,variables,objective,offset,result):
+    proof=result.get('objective_box_proof')
+    if proof is None:return None
+    if not isinstance(proof,dict)or set(proof)!=set(['normalized_bound_bits']):raise ValueError('invalid objective box proof')
+    text=proof['normalized_bound_bits']
+    if not isinstance(text,str)or len(text)!=16:raise ValueError('invalid box bound bits')
+    import struct
+    bound=struct.unpack('>d',bytes.fromhex(text))[0]
+    if not math.isfinite(bound):raise ValueError('nonfinite objective box bound')
+    from verify_binary_graph import maximize_sense
+    sign=-1 if maximize_sense(model_path)else 1
+    minimum=sign*offset
+    for name,c in objective.items():
+        c*=sign
+        if not c:continue
+        v=variables[name];b=v['lower']if c>0 else v['upper']
+        if b is None:raise ValueError('unbounded original objective box')
+        minimum+=c*b
+    if Fraction.from_float(bound)>minimum:raise ValueError('objective box bound exceeds exact original minimum')
+    return dict(valid=True,normalized_bound=str(Fraction.from_float(bound)),exact_original_box_minimum=str(minimum))
+
 def validate_cut_proofs(model_path,result):
     cuts=result.get('cut_proofs',[])
     grid=result.get('objective_grid')
@@ -271,11 +292,12 @@ def validate_cut_proofs(model_path,result):
     gomory_bound=result.get('gomory_bound_proof')
     metadata=dict(valid=None,checked=0,arithmetic='Python Fraction from original MPS tokens',checker_sha256=sha256(Path(__file__)))
     if not isinstance(cuts,list):return dict(metadata,valid=False,error='cut_proofs must be a list')
-    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None and gomory_bound is None:return dict(metadata,valid=True)
+    if not cuts and grid is None and graph is None and domain_bound is None and ray is None and packing is None and subgradient is None and gomory_bound is None and result.get("objective_box_proof")is None:return dict(metadata,valid=True)
     try:names,variables,rows,objective,offset=exact_model(model_path,True)
     except Exception as error:return dict(metadata,error=f'cannot read exact MPS: {type(error).__name__}: {error}')
     indices={name:j for j,name in enumerate(names)}
     try:
+        metadata["objective_box"]=verify_original_box(model_path,names,variables,objective,offset,result)
         if graph is not None:
             from verify_binary_graph import verify
             metadata['binary_graph']=verify(model_path,result,(names,variables,rows,objective,offset))

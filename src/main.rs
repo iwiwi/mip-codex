@@ -172,6 +172,7 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_FIXED_COLUMNS must be 0 or 1".into()),
             };
         }
+        if let Ok(v)=std::env::var("MIP_OBJECTIVE_BOX_REPORT"){limits.objective_box_report=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_OBJECTIVE_BOX_REPORT must be 0 or 1".into())};}
         if let Ok(v) = std::env::var("MIP_OBJECTIVE_DOMAIN_REPORT") {
             limits.objective_domain_report = match v.as_str() {
                 "0" => false,
