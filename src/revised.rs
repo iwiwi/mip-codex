@@ -39,6 +39,7 @@ pub struct Stats {
     pub dual_pivots: usize,
     pub dual_flips: usize,
     pub dual_refactor_retries: usize,
+    pub singleton_crash_columns: usize,
     pub scaled_columns: usize,
     pub scaled_rows: usize,
     pub multiplier_cache_hits: usize,
@@ -1155,6 +1156,7 @@ impl Stats {
         self.dual_pivots += other.dual_pivots;
         self.dual_flips += other.dual_flips;
         self.dual_refactor_retries += other.dual_refactor_retries;
+        self.singleton_crash_columns += other.singleton_crash_columns;
         self.scaled_columns += other.scaled_columns;
         self.scaled_rows += other.scaled_rows;
         self.multiplier_cache_hits += other.multiplier_cache_hits;
@@ -1215,6 +1217,9 @@ fn cold_priced(
     retain: bool,
     normalized: bool,
 ) -> Answer {
+    cold_crashed(p,limit,deadline,retain,normalized,std::env::var("MIP_LP_SINGLETON_CRASH").map_or(true,|v|v=="1"))
+}
+fn cold_crashed(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool)->Answer {
     let m = p.rhs.len();
     let n = p.costs.len();
     let mut s = Simplex {
@@ -1238,6 +1243,17 @@ fn cold_priced(
         witness: None,
         witness_point: None,
     };
+    let mut singleton=if crash {vec![[None,None];m]}else{vec![]};
+    if crash {
+        for (j,column) in p.columns.iter().enumerate() {
+            if j%1024==0 && deadline.is_some_and(|d|Instant::now()>=d) {break;}
+            if p.costs[j]!=0. || column.len()!=1 {continue;}
+            let (row,a)=column[0];let magnitude=a.abs();
+            if !(2f64.powi(-30)..=2f64.powi(30)).contains(&magnitude) || magnitude.to_bits()&((1u64<<52)-1)!=0 {continue;}
+            let side=usize::from(a<0.);let old:Option<(usize,f64)>=singleton[row][side];
+            if old.is_none_or(|(k,b)|magnitude*p.upper[j]>b.abs()*p.upper[k]) {singleton[row][side]=Some((j,a));}
+        }
+    }
     let mut diagonal = vec![];
     for i in 0..m {
         let mut slack = None;
@@ -1260,9 +1276,15 @@ fn cold_priced(
             s.at_upper[j] = slack_value != 0.0;
         }
         let residual = p.rhs[i] - if slack.is_some() { slack_value } else { 0.0 };
-        let j = if residual >= 0.0 && p.rhs[i] <= p.slack_upper[i] && slack.is_some() {
+        let natural=if crash {singleton[i].iter().flatten().find_map(|&(j,a)| {
+            let x=residual/a;
+            (x.is_finite() && x>=0. && x<=p.upper[j] && a*x==residual).then_some((j,a,x))
+        })}else{None};
+        let (j,value) = if residual >= 0.0 && p.rhs[i] <= p.slack_upper[i] && slack.is_some() {
             diagonal.push(1.0);
-            slack.unwrap()
+            (slack.unwrap(),residual.abs())
+        } else if let Some((j,a,x))=natural {
+            diagonal.push(a);s.stats.singleton_crash_columns+=1;(j,x)
         } else {
             let j = s.columns.len();
             let sign = if residual < 0.0 { -1.0 } else { 1.0 };
@@ -1273,15 +1295,16 @@ fn cold_priced(
             s.at_upper.push(false);
             s.x.push(0.0);
             s.artificial.push(j);
-            j
+            (j,residual.abs())
         };
         s.basis.push(j);
         s.basic[j] = true;
-        s.x[j] = residual.abs();
+        s.x[j] = value;
     }
     s.factor.factor = Arc::new(Factor::Diagonal(diagonal));
     s.factor.multiplier_cache = None;
     let outcome = (|| {
+        if s.stats.singleton_crash_columns>0 {s.recompute()?;}
         if !s.artificial.is_empty() {
             s.stats.feasibility_pricing_calls += usize::from(normalized);
             let mut c = vec![0.0; s.columns.len()];
@@ -1999,5 +2022,30 @@ mod tableau_row_tests {
   if !std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1"){return;}
   for scale in [1.,1e8,1e-8]{let p=Problem{columns:vec![vec![(0,scale)]],rhs:vec![scale],costs:vec![-1.],upper:vec![2.],equality:vec![false],slack_upper:vec![f64::INFINITY]};let a=minimize_warm(&p,0,None,None);assert!(matches!(a.outcome,Outcome::IterationLimit));assert_eq!(a.limited_point,Some(vec![0.]));assert!(a.dual.is_none());let opt=minimize_warm(&p,100,None,None);let a=minimize_warm(&p,0,None,opt.warm.as_deref());assert!(matches!(a.outcome,Outcome::IterationLimit));assert_eq!(a.limited_point,Some(vec![1.]));assert!(a.dual.is_none());}
   let p=Problem{columns:vec![vec![(0,1.)]],rhs:vec![1.],costs:vec![-1.],upper:vec![2.],equality:vec![true],slack_upper:vec![0.]};let a=minimize_warm(&p,0,None,None);assert!(matches!(a.outcome,Outcome::IterationLimit));assert!(a.limited_point.is_none());
+ }
+}
+#[cfg(test)]mod singleton_crash_tests {
+ use super::*;
+ fn equality(rhs:f64,a:f64,upper:f64)->Problem{Problem{columns:vec![vec![(0,2.)],vec![(0,a)]],rhs:vec![rhs],costs:vec![1.,0.],upper:vec![f64::INFINITY,upper],equality:vec![true],slack_upper:vec![0.]}}
+ #[test]fn feasible_zero_cost_singleton_avoids_artificial_pivots_and_keeps_warm_reusable(){
+  let p=equality(4.,1.,f64::INFINITY);let old=cold_crashed(&p,1000,None,true,false,false);let new=cold_crashed(&p,1000,None,true,false,true);assert_eq!(new.stats.singleton_crash_columns,1);assert!(new.stats.pivots<old.stats.pivots);assert!(matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.]));let warm=new.warm.unwrap();
+  let mut q=p.clone();q.rhs[0]=5.;let next=minimize_warm(&q,1000,None,Some(&warm));assert!(matches!(next.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==5.));
+  let parent=minimize_warm(&p,1000,None,Some(&warm));assert!(matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==4.));
+  let mut extended=p.clone();extended.columns[0].push((1,1.));extended.rhs.push(1.);extended.equality.push(false);extended.slack_upper.push(f64::INFINITY);let row=minimize_warm(&extended,1000,None,Some(&warm));assert!(matches!(row.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(row.stats.warm_row_extensions,1);
+ }
+ #[test]fn negative_sign_and_ranged_slack_are_checked_against_actual_bounds(){
+  let p=equality(-1.,-1.,2.);let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,1);assert!(matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==1.));
+  let p=equality(-1.,-1.,0.5);let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,0);assert!(matches!(new.outcome,Outcome::Infeasible));
+  let mut p=equality(5.,1.,2.);p.equality[0]=false;p.slack_upper[0]=4.;let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,1);assert!(matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]>=1.&&x[1]<=2.));
+ }
+ #[test]fn non_power_of_two_and_expired_budget_do_not_force_a_crash(){
+  let p=equality(4.,3.,f64::INFINITY);let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,0);assert!(matches!(new.outcome,Outcome::Optimal{objective,..}if objective==0.));let p=equality(4.,1.,f64::INFINITY);let expired=cold_crashed(&p,1000,Some(Instant::now()),false,false,true);assert!(matches!(expired.outcome,Outcome::TimeLimit));assert_eq!(expired.stats.singleton_crash_columns,0);
+ }
+}
+
+#[cfg(test)]mod singleton_extension_tests{
+ use super::*;
+ #[test]fn a_new_row_can_touch_the_original_singleton_basic_column(){
+  let p=Problem{columns:vec![vec![(0,2.)],vec![(0,1.)]],rhs:vec![4.],costs:vec![1.,0.],upper:vec![f64::INFINITY;2],equality:vec![true],slack_upper:vec![0.]};let a=cold_crashed(&p,1000,None,true,false,true);assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(a.stats.singleton_crash_columns,1);let w=a.warm.unwrap();let mut q=p.clone();q.columns[1].push((1,1.));q.rhs.push(3.);q.equality.push(false);q.slack_upper.push(f64::INFINITY);let b=minimize_warm(&q,1000,None,Some(&w));let c=minimize(&q,1000,None);assert_eq!(b.stats.warm_row_extensions,1);assert!(matches!(b.outcome,Outcome::Optimal{objective,x}if objective==0.5&&x==vec![0.5,3.]));assert!(matches!(c.outcome,Outcome::Optimal{objective,..}if objective==0.5));let parent=minimize_warm(&p,1000,None,Some(&w));assert!(matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.]));
  }
 }

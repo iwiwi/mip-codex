@@ -292,6 +292,7 @@ pub struct Result {
     pub lp_restoration_attempts: Option<usize>,
     pub lp_restoration_restarts: Option<usize>,
     pub lp_dual_refactor_retries: Option<usize>,
+    pub lp_singleton_crash_columns: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lp_restoration_extended_attempts: Option<usize>,
     pub lp_restoration_successes: Option<usize>,
@@ -3034,6 +3035,7 @@ fn solve_seeded_warm(
             .then_some(lp_stats.restoration_attempts),
         lp_restoration_restarts: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.restoration_restarts),
+        lp_singleton_crash_columns: matches!(limits.engine, Engine::Revised).then_some(lp_stats.singleton_crash_columns),
         lp_dual_refactor_retries: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.dual_refactor_retries),
         lp_restoration_extended_attempts: matches!(limits.engine, Engine::Revised)
@@ -3282,6 +3284,7 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         restoration_attempts: result.lp_restoration_attempts.unwrap_or(0),
         restoration_restarts: result.lp_restoration_restarts.unwrap_or(0),
         dual_refactor_retries: result.lp_dual_refactor_retries.unwrap_or(0),
+        singleton_crash_columns: result.lp_singleton_crash_columns.unwrap_or(0),
         restoration_extended_attempts: result.lp_restoration_extended_attempts.unwrap_or(0),
         restoration_successes: result.lp_restoration_successes.unwrap_or(0),
         restoration_infeasible_candidates: result.lp_restoration_infeasible_candidates.unwrap_or(0),
