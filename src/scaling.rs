@@ -544,6 +544,7 @@ mod saved_validation_diagnostic {
                 maximize: false,
                 offset: 0.,
                 offset_enclosure: Some([0., 0.]),
+                decimal_source: None,
                 original_decimal: false,
                 variables,
                 rows,

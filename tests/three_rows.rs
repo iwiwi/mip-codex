@@ -44,11 +44,9 @@ fn three_original_rows_improve_the_root_with_a_verified_integer_point() {
     );
     limits.nodes = 100;
     let complete = solve(&model, &limits);
-    // 連続点の微小な残差を許容する点検査と、最適性の承認を分離する。
-    assert_eq!(complete.status, "numerical_error");
-    assert!(complete.optimal_original_conflict);
-    assert_eq!(complete.dual_bound,None);
-    assert_eq!(complete.gap,None);
+    assert_eq!(complete.status, "optimal");
+    assert!(complete.rational_primal_proof.is_some());
+    assert_eq!(complete.dual_bound,Some(-1.));
     assert_eq!(complete.objective, Some(-1.));
     let values = complete.values.unwrap();
     let point: Vec<_> = model.variables.iter().map(|v| values[&v.name]).collect();

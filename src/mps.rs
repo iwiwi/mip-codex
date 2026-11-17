@@ -75,7 +75,7 @@ fn exact_integer(token: &str) -> Option<i64> {
     Some(if negative { -value } else { value })
 }
 // 重複項だけは元の十進値を合計する。通常の単独項で多倍長演算は行わない。
-fn decimal_parts(token: &str) -> Option<(BigInt, i32)> {
+pub(crate) fn decimal_parts(token: &str) -> Option<(BigInt, i32)> {
     let (negative, token) = if let Some(s) = token.strip_prefix('-') {
         (true, s)
     } else {
@@ -160,7 +160,7 @@ pub(crate) fn compare_float_sum_token(token: &str, values: &[f64]) -> Option<std
 }
 fn decimal_sum_metadata<'a>(
     entries: impl Iterator<Item = (f64, Option<&'a str>)>,
-) -> Result<(f64, bool), String> {
+) -> Result<(f64, bool, String), String> {
     let mut parts = Vec::new();
     for (value, token) in entries {
         let pair = if let Some(token) = token {
@@ -191,6 +191,7 @@ fn decimal_sum_metadata<'a>(
     Ok((
         value,
         exact_float_token(&format!("{sum}e{exponent}"), value),
+        format!("{sum}e{exponent}"),
     ))
 }
 // 元十進数の和のfloor/ceil。f64への変換や変数shiftより前に決める。
@@ -285,6 +286,7 @@ pub fn read(path: impl AsRef<Path>) -> Result<Model, String> {
 }
 pub fn parse(reader: impl BufRead) -> Result<Model, String> {
     let mut model = Model {
+        decimal_source: None,
         original_decimal: true,
         offset_enclosure: Some([0., 0.]),
         name: String::new(),
@@ -293,6 +295,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
         variables: vec![],
         rows: vec![],
     };
+    let mut source=crate::primal_witness::Source::default();
     let mut row_names = HashMap::new();
     let mut columns = HashMap::new();
     let mut kinds = vec![];
@@ -578,7 +581,15 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             .as_deref()
             .is_none_or(|t| exact_float_token(t, -model.offset)),
     );
+    if model.offset_enclosure != Some([model.offset;2]) {
+        source.offset=rhs_tokens[objective].as_deref().map(negate_token);
+    }
     for (j, v) in model.variables.iter_mut().enumerate() {
+        for (side,(bound,enclosure)) in [(v.lower,v.lower_enclosure),(v.upper,v.upper_enclosure)].into_iter().enumerate(){
+            if bound.is_some_and(|b|enclosure!=Some([b,b])) {
+                source.variable_bounds.insert((j,side),bound_tokens[j][side].clone().ok_or("missing original bound token")?);
+            }
+        }
         if v.integer && !explicit_bound[j] {
             v.upper = Some(1.0);
             v.upper_enclosure = Some([1., 1.]);
@@ -628,17 +639,22 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             while end < entries.len() && entries[end].0 == j {
                 end += 1;
             }
-            let (value, exact_coefficient) = if end == first + 1 {
+            let (value, exact_coefficient, exact_token) = if end == first + 1 {
                 (
                     entries[first].1,
                     entries[first]
                         .2
                         .as_deref()
                         .is_none_or(|t| exact_float_token(t, entries[first].1)),
+                    entries[first].2.clone().unwrap_or_else(||format!("{:.0}",entries[first].1)),
                 )
             } else {
                 decimal_sum_metadata(entries[first..end].iter().map(|p| (p.1, p.2.as_deref())))?
             };
+            if !exact_coefficient {
+                if i==objective {source.objective.insert(j,exact_token);}
+                else if kinds[i]!="N" {source.coefficients.insert((model.rows.len(),j),exact_token);}
+            }
             row.exact_coefficients &= exact_coefficient;
             row.exact_integral &= value.abs() <= (1u64 << 52) as f64 && value.fract() == 0.;
             if i == objective {
@@ -665,6 +681,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             continue;
         }
         let b = rhs[i];
+        let mut endpoint_tokens=[rhs_tokens[i].clone(),rhs_tokens[i].clone()];
         let enclosure = enclose(
             b,
             rhs_tokens[i]
@@ -698,7 +715,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             let token = range_tokens.get(&i).and_then(|s| s.as_deref());
             let negated = if flip { token.map(negate_token) } else { None };
             let range_token = if flip { negated.as_deref() } else { token };
-            let (value, exact_endpoint) = decimal_sum_metadata(
+            let (value, exact_endpoint, exact_token) = decimal_sum_metadata(
                 [
                     (b, rhs_tokens[i].as_deref()),
                     (if flip { -r } else { r }, range_token),
@@ -706,6 +723,8 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 .into_iter(),
             )?;
             let enclosure = enclose(value, exact_endpoint);
+            let side=match kinds[i].as_str(){"L"=>0,"G"=>1,"E" if r>=0. =>1,"E"=>0,_=>unreachable!()};
+            endpoint_tokens[side]=Some(exact_token);
             match kinds[i].as_str() {
                 "L" => {
                     row.lower = Some(value);
@@ -760,8 +779,15 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 range_token.as_ref().map(|(r, t)| (*r, t.as_str())),
             );
         }
+        for (side,(bound,enclosure)) in [(row.lower,row.lower_enclosure),(row.upper,row.upper_enclosure)].into_iter().enumerate(){
+            if bound.is_some_and(|b|enclosure!=Some([b,b])) {
+                source.row_bounds.insert((model.rows.len(),side),endpoint_tokens[side].clone().ok_or("missing original row endpoint")?);
+            }
+        }
         model.rows.push(row);
     }
+    source.seal(&model);
+    model.decimal_source=Some(std::sync::Arc::new(source));
     Ok(model)
 }
 fn sense(s: &str) -> Result<bool, String> {

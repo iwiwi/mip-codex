@@ -41,6 +41,8 @@ pub struct Row {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Model {
+    #[serde(skip)]
+    pub decimal_source: Option<std::sync::Arc<crate::primal_witness::Source>>,
     #[serde(default)]
     pub original_decimal: bool,
     #[serde(default)]

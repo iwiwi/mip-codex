@@ -177,6 +177,8 @@ impl Default for Limits {
 }
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub rational_primal_proof:Option<crate::primal_witness::Proof>,
     pub optimal_original_conflict:bool,
     pub integer_row_proof: Option<crate::integer_rows::Proof>,
     pub resource_primal:resource_primal::Stats,
@@ -1469,8 +1471,11 @@ fn reject_original_optimal_conflict(model:&Model,mut result:Result)->Result{
         if let Some(values)=&result.values{
             let point:Option<Vec<f64>>=model.variables.iter().map(|v|values.get(&v.name).copied()).collect();
             if point.as_ref().is_some_and(|x|model.original_point_conflict(x) || model.original_feasibility_uncertain(x)){
-                // 点は従来の絶対許容幅を通っているが、最適性・下界は撤回する。
-                result.status="numerical_error".into();result.dual_bound=None;result.gap=None;result.optimal_original_conflict=true;
+                let proof=point.as_ref().and_then(|x|result.objective.and_then(|obj|crate::primal_witness::certify(model,x,obj)));
+                if let Some(proof)=proof{result.rational_primal_proof=Some(proof);}else{
+                    // 元制約を厳密に満たす近傍点も保証できない場合は最適性を撤回する。
+                    result.status="numerical_error".into();result.dual_bound=None;result.gap=None;result.optimal_original_conflict=true;
+                }
             }
         }
         result.seconds+=start.elapsed().as_secs_f64();
@@ -3111,6 +3116,7 @@ fn solve_seeded_warm(
         row_generation:row_generation_stats,
         resource_primal:resource_primal_stats,
         integer_row_proof:None,
+        rational_primal_proof:None,
         optimal_original_conflict:false,
         lp_scaled_columns: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.scaled_columns),
