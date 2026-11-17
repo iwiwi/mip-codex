@@ -12,6 +12,7 @@ pub enum Engine {
 #[derive(Clone)]
 pub struct Limits {
     pub resource_primal:bool,
+    pub resource_primal_compact:bool,
     pub row_generation: bool,
     pub row_generation_report: bool,
     pub submip_fixed_columns: bool,
@@ -95,6 +96,7 @@ impl Default for Limits {
     fn default() -> Self {
         Self {
             resource_primal:true,
+            resource_primal_compact:true,
             row_generation: true,
             row_generation_report: true,
             submip_fixed_columns: true,
