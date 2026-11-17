@@ -723,3 +723,9 @@ native10秒3モデル12点3自作証明全有効。fast0507はRust276/154.9928�
 main PR91/c5edb3c3e/FPeb58f7ae33131dafはprimary5点5証明全有効。全240create-only snapshot priced-row-subgradient-final-20261116をSHA照合し本ジョブ未開始。184一次ファイル8767692bytes保存。全体優位・新記録は未達。
 
 一様費用の追加診断はseymour1 359→388.492171/glass-sc 8→11.277948（0.1秒）など6件が独立有理数検査有効、cygnetは既存170を超えず予算超過も保存。別branch uniform-row-subgradient/基点PR91で実験flagを追加し測定FP25ed2389c349655eを実行前固定。既存243 Rust後3試験成功、元MPS oracle200全有効/142新証明/568改変拒否、選択10/60秒対照中。修復portfolioの未採用コードは初期対照へ混ぜていない。まだ未採用。
+
+## 2026-11-17 09:28 UTC 子MIP固定列設定の再評価
+
+main PR111上の54d55c3b0fe41dcaは全291 Rust検査/4無視、開発188対×10秒を完了。主解2改善0悪化186同値、下界0改善1悪化175同値12比較不能、有限176双方、終了状態同数。376証明124整数点が独立有効。blp-ic98/nu25-pr12の主解改善は60秒と新指紋でも持続、native比較と全失敗をSUBMIP_FIXED_COLUMNS_RESULTSへ記録した。seymour1は変更処理0回の時限下界悪化を10/60秒とも保持する。旧親8問試作のswath時間差はRINS改善に帰属しない。記録を圧縮SHA/全payload SHAで検証し、PRへAI使用量と比較を添付して採用判断する。
+
+RENS strict/release/conflict/一般整数domain拡張は小規模合成で独立検査成功だが、選択した実問題で新しい主解なし。拡張はrococoで33変数を戻しても局所不能、30nは38変数を戻しても不能、coは3回目の拡張なし。未採用を維持し、原データは別branchへ保全する。全240最終Rustキャンペーンは未開始、baseline720は継続。11月19日UTC目安の本実行を守り、総合優位・新記録は未達成。
