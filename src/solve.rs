@@ -986,7 +986,7 @@ fn prepare_cuts(
             || (limits.rounding_cuts && cuts::rounding_applicable(model))
             || (limits.aggregate_cuts && cuts::aggregate_applicable(model))
             || (limits.clique_cuts && cuts::applicable(model))
-            || (limits.gomory_cuts && model.variables.iter().all(|v|v.integer))
+            || (limits.gomory_cuts && model.variables.iter().any(|v|v.integer))
             || (limits.mir_cuts && cuts::mir_applicable(model))
             || (limits.three_row_cuts && cuts::aggregate_applicable(model)))
         || limits.nodes == 0
@@ -1102,9 +1102,6 @@ fn prepare_cuts(
             .extend(generated.iter().map(|cut| cut.row.clone()));
         prepared.cuts.extend(generated);
     }
-    if limits.gomory_cuts && global_first {
-        improve_with_gomory(model,root,limits,cut_deadline,lp_stats,&mut work,&mut pool,&mut prepared);
-    }
     if limits.mir_cuts && global_first {
         improve_with_mir(
             model,
@@ -1136,7 +1133,7 @@ fn prepare_cuts(
             &mut three_pool,
             &mut prepared,
         );
-        if prepared.cuts.len() > old_cuts
+        if prepared.primal_root.is_none() && prepared.cuts.len() > old_cuts
             && let Some(warm) = old_warm
         {
             let mut primal_model = work.clone();
@@ -1153,6 +1150,15 @@ fn prepare_cuts(
         pool.stats.added += three_pool.stats.added;
         pool.stats.candidates += three_pool.stats.candidates;
         pool.stats.rejected += three_pool.stats.rejected;
+    }
+    if limits.gomory_cuts && global_first {
+        let gomory_deadline=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(1.0)));
+        let old_rows=work.rows.len();let old_cuts=prepared.cuts.len();
+        let old_warm=if limits.primal_probe&&limits.warm_start {prepared.cached.as_ref().and_then(|c|c.answer.warm.clone())}else{None};
+        improve_with_gomory(model,root,limits,gomory_deadline,lp_stats,&mut work,&mut pool,&mut prepared);
+        if prepared.primal_root.is_none() && prepared.cuts.len()>old_cuts && let Some(warm)=old_warm {
+            let mut primal_model=work.clone();primal_model.rows.truncate(old_rows);prepared.primal_root=Some((primal_model,warm));
+        }
     }
     if !prepared.cuts.is_empty() {
         prepared.model = Some(work);
@@ -2387,6 +2393,7 @@ fn solve_seeded_warm(
                     let mut probe_limits = limits.clone();
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
+                    probe_limits.gomory_cuts = false;
                     probe_limits.three_row_cuts = false;
                     probe_limits.box_primal = false;
                     probe_limits.rounding_cuts = false;
@@ -2498,6 +2505,7 @@ fn solve_seeded_warm(
                             // This neighborhood search seeks a quick incumbent;
                             // root MIR trials must not redirect its limited tree.
                             local.mir_cuts = false;
+            local.gomory_cuts = false;
                             local.three_row_cuts = false;
                             local.box_primal = false;
                             local.rounding_cuts = false;
@@ -2723,6 +2731,7 @@ fn solve_seeded_warm(
             local.strong_branching = false;
             local.cover_cuts = false;
             local.mir_cuts = false;
+            local.gomory_cuts = false;
             local.three_row_cuts = false;
             local.box_primal = false;
             local.rounding_cuts = false;
@@ -3508,7 +3517,7 @@ fn improve_with_gomory(
 fn gomory_proposals(model: &Model, standard: &Standard, answer: &revised::Answer, point: &[f64], deadline: Instant) -> Vec<crate::gomory::Proof> {
     let Some(warm)=answer.warm.as_deref()else{return vec![];};
     let Some(problem)=standard.sparse.as_ref()else{return vec![];};
-    if !model.variables.iter().all(|v|v.integer) {return vec![];}
+    if !model.variables.iter().any(|v|v.integer) {return vec![];}
     let mut upper_bounds=Vec::new();
     for (j,v) in model.variables.iter().enumerate() {
         let exact=|bound:Option<f64>,enclosure:Option<[f64;2]>|bound.filter(|b|b.is_finite()&&b.fract()==0.&&b.abs()<=(1u64<<52)as f64&&enclosure==Some([*b;2]));
@@ -3519,7 +3528,7 @@ fn gomory_proposals(model: &Model, standard: &Standard, answer: &revised::Answer
         }
     }
     let mut ranking:Vec<_>=model.variables.iter().enumerate().filter_map(|(j,_)| {
-        let t=&standard.terms[j];if t.len()!=1{return None;}
+        let t=&standard.terms[j];if !model.variables[j].integer || t.len()!=1{return None;}
         let fraction=(point[j]-point[j].round()).abs();(fraction>1e-6).then_some((fraction,j,t[0].0))
     }).collect();ranking.sort_by(|a,b|b.0.total_cmp(&a.0).then(a.1.cmp(&b.1)));ranking.truncate(16);
     let columns:Vec<_>=ranking.iter().map(|v|v.2).collect();let mut result=Vec::new();
@@ -3534,7 +3543,7 @@ fn gomory_proposals(model: &Model, standard: &Standard, answer: &revised::Answer
             if value!=0. {terms.push(crate::gomory::Term{row,upper:sign>0.,weight:value as i64});}
         }
         terms.sort_by_key(|t|(t.row,t.upper));
-        if valid && !terms.is_empty() {result.push(crate::gomory::Proof{terms,pivot,upper_bounds:upper_bounds.clone()});}
+        if valid && !terms.is_empty() {result.push(crate::gomory::Proof{normalized:true,mixed:true,terms,pivot,upper_bounds:upper_bounds.clone()});}
     }
     result
 }

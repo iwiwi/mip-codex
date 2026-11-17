@@ -342,6 +342,7 @@ pub fn verify(model: &Model, cut: &Cut) -> bool {
 
 #[derive(Default)]
 pub struct Pool {
+    gomory_seen: HashSet<(Vec<(usize,u64)>,u64)>,
     seen: HashSet<(Vec<(usize, i64)>, i64)>,
     pub stats: Stats,
 }
@@ -730,15 +731,15 @@ impl Pool {
             let violation=row.lower.unwrap()-activity;
             let norm=row.coefficients.iter().map(|&(_,a)|a*a).sum::<f64>().sqrt();
             if !violation.is_finite() || violation<=1e-6*(1.+row.lower.unwrap().abs()) || !norm.is_finite() || norm==0. {continue;}
-            let first=&proof.terms[0];row.name=format!("__gomory_{}",self.seen.len()+candidates.len());
+            let first=&proof.terms[0];row.name=format!("__gomory_{}",self.gomory_seen.len()+candidates.len());
             let cut=Cut {row,proof:Proof {gomory:Some(proof.clone()),mir:None,clique:vec![],aggregation:vec![],divisor:None,source_row:first.row,source_name:model.rows[first.row].name.clone(),upper_side:first.upper,cover:vec![]}};
             if verify(model,&cut) {candidates.push((violation/norm,cut));}
         }
         candidates.sort_by(|a,b|b.0.total_cmp(&a.0));let mut result=Vec::new();
         for (_,cut) in candidates {
             if result.len()>=limit || Instant::now()>=deadline {break;}
-            let key=(cut.row.coefficients.iter().map(|&(j,a)|(j,-a as i64)).collect(),-cut.row.lower.unwrap() as i64);
-            if self.seen.insert(key) {self.stats.gomory_added+=1;self.stats.added+=1;result.push(cut);}
+            let key=(cut.row.coefficients.iter().map(|&(j,a)|(j,a.to_bits())).collect(),cut.row.lower.unwrap().to_bits());
+            if self.gomory_seen.insert(key) {self.stats.gomory_added+=1;self.stats.added+=1;result.push(cut);}
         }
         self.stats.gomory_seconds+=began.elapsed().as_secs_f64();result
     }

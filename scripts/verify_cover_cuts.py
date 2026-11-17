@@ -168,9 +168,12 @@ def verify_mir_exact(names,variables,source,cut):
 def verify_gomory_exact(names,variables,rows,cut):
     p=cut['proof'];proof=p['gomory'];row=cut['row'];terms=proof['terms'];upper=proof['upper_bounds'];pivot=proof['pivot'];n=len(names)
     if p.get('mir')is not None or p.get('clique')or p.get('aggregation')or p.get('divisor')is not None or p['cover']:raise AssertionError('Gomory mixed proof kinds')
-    if not all(v['integer']for v in variables.values())or not 0<n<=100000:raise AssertionError('Gomory requires pure integer model')
+    mixed=proof.get('mixed',False);normalized=proof.get('normalized',False)
+    if type(normalized)is not bool:raise AssertionError('Gomory normalization flag')
+    if type(mixed)is not bool or (not mixed and not all(v['integer']for v in variables.values()))or not 0<n<=100000:raise AssertionError('Gomory integer flags')
     if type(pivot)is not int or not 0<=pivot<n or not isinstance(terms,list)or not 0<len(terms)<=1024:raise AssertionError('Gomory shape')
     if not isinstance(upper,list)or any(type(j)is not int or not 0<=j<n for j in upper)or upper!=sorted(set(upper)):raise AssertionError('Gomory complements')
+    if not variables[names[pivot]]['integer']:raise AssertionError('Gomory pivot must be integer')
     anchors=[];directions=[]
     for j,name in enumerate(names):
         d=-1 if j in upper else 1;b=variables[name]['upper'if d==-1 else'lower']
@@ -187,22 +190,30 @@ def verify_gomory_exact(names,variables,rows,cut):
         coefficients={names.index(name):int(v)*sign for name,v in source['coefficients'].items()if v}
         if any(v.denominator!=1 or abs(v)>2**52 for v in source['coefficients'].values()):raise AssertionError('Gomory source coefficients')
         for j,v in coefficients.items():A[j]+=weight*v
-        B+=weight*sign*int(b);equations.append((coefficients,sign*int(b),weight))
+        B+=weight*sign*int(b);equations.append((coefficients,sign*int(b),weight,all(variables[names[j]]['integer']for j in coefficients)))
     orientation=-1 if A[pivot]<0 else 1;A=[v*orientation for v in A];B*=orientation;M=A[pivot]
     if M<=0:raise AssertionError('Gomory zero pivot')
     shifted=B-sum(v*t for v,t in zip(A,anchors));R0=shifted%M
     if R0==0:raise AssertionError('Gomory integral rhs')
-    C=[d*((d*v)%M)for d,v in zip(directions,A)];rhs=R0+sum(v*t for v,t in zip(C,anchors))
-    for coefficients,b,w in equations:
-        rem=(w*orientation)%M;rhs-=rem*b
+    h=M-R0
+    def coefficient(v,integer):
+        if not mixed:return v%M
+        if not integer:return v*h if v>=0 else -R0*v
+        rem=v%M
+        return rem*h if rem<=R0 else R0*(M-rem)
+    C=[d*coefficient(d*v,variables[name]['integer'])for d,v,name in zip(directions,A,names)];rhs=(R0*h if mixed else R0)+sum(v*t for v,t in zip(C,anchors))
+    for coefficients,b,w,slack_integer in equations:
+        rem=coefficient(w*orientation,slack_integer);rhs-=rem*b
         for j,v in coefficients.items():C[j]-=rem*v
     common=math.gcd(rhs,*C)
     if common>1:C=[v//common for v in C];rhs//=common
-    expected=[(j,Fraction(v))for j,v in enumerate(C)if v]
+    largest=max(abs(rhs),*(abs(v)for v in C));scale=1<<(largest.bit_length()-1)if normalized and largest>16384 else 1
+    expected=[(j,Fraction(v,scale))for j,v in enumerate(C)if v]
     if not expected or abs(rhs)>2**52 or any(abs(v)>2**52 for v in C):raise AssertionError('Gomory exact float range')
-    actual=[(j,Fraction(str(v)))for j,v in row['coefficients']]
-    if actual!=expected or row['upper']is not None or Fraction(str(row['lower']))!=rhs:raise AssertionError('Gomory cut mismatch')
-    if row.get('lower_enclosure')!=[rhs,rhs]or row.get('upper_enclosure')is not None or row.get('exact_integral')is not True or row.get('exact_coefficients')is not True or row.get('exact_coefficient_flags'):raise AssertionError('Gomory row metadata')
+    rhs=Fraction(rhs,scale);exact_float=lambda v:Fraction.from_float(v)if type(v)is float else Fraction(v)
+    actual=[(j,exact_float(v))for j,v in row['coefficients']];integral=rhs.denominator==1 and all(v.denominator==1 for j,v in expected)
+    if actual!=expected or row['upper']is not None or exact_float(row['lower'])!=rhs:raise AssertionError('Gomory cut mismatch')
+    if row.get('lower_enclosure')!=[rhs,rhs]or row.get('upper_enclosure')is not None or row.get('exact_integral')is not integral or row.get('exact_coefficients')is not True or row.get('exact_coefficient_flags'):raise AssertionError('Gomory row metadata')
 
 def verify_clique_exact(names,variables,rows,cut):
     proof=cut['proof'];pairs=proof['clique'];row=cut['row']
