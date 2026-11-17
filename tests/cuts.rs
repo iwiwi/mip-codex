@@ -463,7 +463,7 @@ fn mir_only_limits() -> mip_codex::solve::Limits {
 #[test]
 fn mir_trial_can_finish_zero_objective_feasibility() {
     use mip_codex::solve::{Limits, solve};
-    let m=mps::parse(std::io::Cursor::new("NAME feasibility\nROWS\n N c\n E r\nCOLUMNS\n x r 3\n t r 1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n")).unwrap();
+    let m=mps::parse(std::io::Cursor::new("NAME feasibility\nROWS\n N c\n E r\nCOLUMNS\n x r 3\n t r 3\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n")).unwrap();
     let limits = mir_only_limits();
     let before = solve(
         &m,
@@ -486,7 +486,7 @@ fn rejected_mir_trials_preserve_the_original_root_bound_and_status() {
     use mip_codex::solve::{Limits, solve};
     for (coefficient, rhs) in [("1", "0.5"), ("2", "1")] {
         let text = format!(
-            "NAME rollback\nROWS\n N c\n E r\n E s\nCOLUMNS\n x r 3\n t r 1\n z s {coefficient}\nRHS\n rhs r 1 s {rhs}\nBOUNDS\n LI b x 0\n BV b z\nENDATA\n"
+            "NAME rollback\nROWS\n N c\n E r\n E s\nCOLUMNS\n x r 3\n t r 3\n z s {coefficient}\nRHS\n rhs r 1 s {rhs}\nBOUNDS\n LI b x 0\n BV b z\nENDATA\n"
         );
         let m = mps::parse(std::io::Cursor::new(text)).unwrap();
         let limits = mir_only_limits();
