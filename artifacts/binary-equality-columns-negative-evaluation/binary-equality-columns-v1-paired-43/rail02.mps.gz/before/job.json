@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/ubuntu/mip-codex/artifacts/binary-equality-columns-v1-paired-43/rail02.mps.gz/before/resource.log",
+    "/home/ubuntu/mip-codex/artifacts/binary-equality-columns-v1-diagnostic/bin/mip-codex",
+    "solve",
+    "/home/ubuntu/mip-codex/data/raw/benchmark/rail02.mps.gz",
+    "10"
+  ],
+  "input_sha256": "6b63d7eba78d4d189f82ffdd90fa709594ee8e8345f5154f7ff5e5f6d1cd511b",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "MIP_ROW_RAY_REPORT": "1",
+    "MIP_BINARY_EQUALITY_COLUMNS": "0"
+  },
+  "cpu": 43,
+  "seconds": 10
+}
