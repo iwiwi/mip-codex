@@ -1252,7 +1252,7 @@ fn cold_priced(
     cold_crashed(p,limit,deadline,retain,normalized,std::env::var("MIP_LP_SINGLETON_CRASH").map_or(true,|v|v=="1"))
 }
 fn cold_crashed(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool)->Answer {
-    cold_initialized(p,limit,deadline,retain,normalized,crash,std::env::var("MIP_LP_ZERO_PHASE_ONE").is_ok_and(|v|v=="1"))
+    cold_initialized(p,limit,deadline,retain,normalized,crash,std::env::var("MIP_LP_ZERO_PHASE_ONE").map_or(true,|v|v=="1"))
 }
 fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool,skip_zero:bool)->Answer {
     let m = p.rhs.len();
