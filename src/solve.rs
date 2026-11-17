@@ -291,6 +291,9 @@ pub struct Result {
     pub lp_restoration_restarts: Option<usize>,
     pub lp_dual_refactor_retries: Option<usize>,
     pub lp_singleton_crash_columns: Option<usize>,
+    pub lp_dual_form_attempts: Option<usize>,
+    pub lp_dual_form_successes: Option<usize>,
+    pub lp_dual_form_fallbacks: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lp_restoration_extended_attempts: Option<usize>,
     pub lp_restoration_successes: Option<usize>,
@@ -3018,6 +3021,9 @@ fn solve_seeded_warm(
             .then_some(lp_stats.restoration_attempts),
         lp_restoration_restarts: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.restoration_restarts),
+        lp_dual_form_attempts: Some(lp_stats.dual_form_attempts),
+        lp_dual_form_successes: Some(lp_stats.dual_form_successes),
+        lp_dual_form_fallbacks: Some(lp_stats.dual_form_fallbacks),
         lp_singleton_crash_columns: matches!(limits.engine, Engine::Revised).then_some(lp_stats.singleton_crash_columns),
         lp_dual_refactor_retries: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.dual_refactor_retries),
@@ -3267,6 +3273,9 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         restoration_attempts: result.lp_restoration_attempts.unwrap_or(0),
         restoration_restarts: result.lp_restoration_restarts.unwrap_or(0),
         dual_refactor_retries: result.lp_dual_refactor_retries.unwrap_or(0),
+        dual_form_attempts: result.lp_dual_form_attempts.unwrap_or(0),
+        dual_form_successes: result.lp_dual_form_successes.unwrap_or(0),
+        dual_form_fallbacks: result.lp_dual_form_fallbacks.unwrap_or(0),
         singleton_crash_columns: result.lp_singleton_crash_columns.unwrap_or(0),
         restoration_extended_attempts: result.lp_restoration_extended_attempts.unwrap_or(0),
         restoration_successes: result.lp_restoration_successes.unwrap_or(0),

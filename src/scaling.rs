@@ -235,7 +235,7 @@ fn projected_bound_point(p:&Problem,x:&[f64],y:&[f64])->Option<(Vec<f64>,f64,f64
     let (objective,dual)=primal_dual(p,&projected,y)?;
     Some((projected,objective,dual))
 }
-fn primal_dual(p: &Problem, x: &[f64], y: &[f64]) -> Option<(f64, f64)> {
+pub(crate) fn primal_dual(p: &Problem, x: &[f64], y: &[f64]) -> Option<(f64, f64)> {
     if !point_valid(p, x) || y.len() != p.rhs.len() || y.iter().any(|v| !v.is_finite()) {
         return None;
     }
