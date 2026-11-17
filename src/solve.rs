@@ -11,6 +11,7 @@ pub enum Engine {
 
 #[derive(Clone)]
 pub struct Limits {
+    pub lp_dual_root: bool,
     pub seconds: f64,
     pub nodes: usize,
     pub pivots: usize,
@@ -84,6 +85,7 @@ pub struct Limits {
 impl Default for Limits {
     fn default() -> Self {
         Self {
+            lp_dual_root: true,
             seconds: 60.0,
             nodes: usize::MAX,
             pivots: usize::MAX,
@@ -296,6 +298,9 @@ pub struct Result {
     pub lp_restoration_restarts: Option<usize>,
     pub lp_dual_refactor_retries: Option<usize>,
     pub lp_singleton_crash_columns: Option<usize>,
+    pub lp_dual_form_attempts: Option<usize>,
+    pub lp_dual_form_successes: Option<usize>,
+    pub lp_dual_form_fallbacks: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lp_restoration_extended_attempts: Option<usize>,
     pub lp_restoration_successes: Option<usize>,
@@ -1047,7 +1052,9 @@ fn prepare_cuts(
             break;
         };
         let lp_started = Instant::now();
-        let answer = revised::minimize_warm(
+        let root_solve = round==0 && global_first && limits.lp_dual_root;
+        let solver=if root_solve{crate::dual_form::solve_for_root}else{crate::scaling::solve};
+        let answer = solver(
             q.sparse.as_ref().unwrap(),
             limits.pivots,
             Some(solve_deadline),
@@ -1056,6 +1063,7 @@ fn prepare_cuts(
             } else {
                 None
             },
+            true,
         );
         if round == 0 && global_first {
             prepared.initial_lp_seconds = lp_started.elapsed().as_secs_f64();
@@ -1937,16 +1945,11 @@ fn solve_seeded_warm(
         let mut next_warm = None;
         let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
             let answer = cached_answer.unwrap_or_else(|| {
-                if limits.warm_start {
-                    revised::minimize_warm(
-                        sparse,
-                        limits.pivots,
-                        Some(deadline),
-                        node.warm.as_deref(),
-                    )
-                } else {
-                    revised::minimize(sparse, limits.pivots, Some(deadline))
-                }
+                if nodes==1 && limits.lp_dual_root && lp_stats.dual_form_attempts==0 {
+                    crate::dual_form::solve_for_root(sparse,limits.pivots,Some(deadline),if limits.warm_start{node.warm.as_deref()}else{None},limits.warm_start)
+                } else if limits.warm_start {
+                    revised::minimize_warm(sparse,limits.pivots,Some(deadline),node.warm.as_deref())
+                } else {revised::minimize(sparse,limits.pivots,Some(deadline))}
             });
             if !reused_root {
                 lp_stats.add(&answer.stats);
@@ -2467,6 +2470,7 @@ fn solve_seeded_warm(
                 {
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
+                    probe_limits.lp_dual_root=false;
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
                     probe_limits.gomory_cuts = false;
@@ -2572,6 +2576,7 @@ fn solve_seeded_warm(
                         rins.eligible = neighborhood.eligible;
                         if Instant::now() < local_deadline {
                             let mut local = limits.clone();
+                            local.lp_dual_root=false;
                             local.rins = false;
                             local.objective_rounding = false;
                             local.objective_rounding_all = false;
@@ -2813,6 +2818,7 @@ fn solve_seeded_warm(
                 break;
             }
             let mut local = limits.clone();
+                            local.lp_dual_root=false;
             local.rins = false;
             local.objective_rounding = false;
             local.objective_rounding_all = false;
@@ -3044,6 +3050,9 @@ fn solve_seeded_warm(
             .then_some(lp_stats.restoration_attempts),
         lp_restoration_restarts: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.restoration_restarts),
+        lp_dual_form_attempts: Some(lp_stats.dual_form_attempts),
+        lp_dual_form_successes: Some(lp_stats.dual_form_successes),
+        lp_dual_form_fallbacks: Some(lp_stats.dual_form_fallbacks),
         lp_singleton_crash_columns: matches!(limits.engine, Engine::Revised).then_some(lp_stats.singleton_crash_columns),
         lp_dual_refactor_retries: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.dual_refactor_retries),
@@ -3293,6 +3302,9 @@ fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
         restoration_attempts: result.lp_restoration_attempts.unwrap_or(0),
         restoration_restarts: result.lp_restoration_restarts.unwrap_or(0),
         dual_refactor_retries: result.lp_dual_refactor_retries.unwrap_or(0),
+        dual_form_attempts: result.lp_dual_form_attempts.unwrap_or(0),
+        dual_form_successes: result.lp_dual_form_successes.unwrap_or(0),
+        dual_form_fallbacks: result.lp_dual_form_fallbacks.unwrap_or(0),
         singleton_crash_columns: result.lp_singleton_crash_columns.unwrap_or(0),
         restoration_extended_attempts: result.lp_restoration_extended_attempts.unwrap_or(0),
         restoration_successes: result.lp_restoration_successes.unwrap_or(0),

@@ -40,6 +40,9 @@ pub struct Stats {
     pub dual_flips: usize,
     pub dual_refactor_retries: usize,
     pub singleton_crash_columns: usize,
+    pub dual_form_attempts: usize,
+    pub dual_form_successes: usize,
+    pub dual_form_fallbacks: usize,
     pub scaled_columns: usize,
     pub scaled_rows: usize,
     pub multiplier_cache_hits: usize,
@@ -1157,6 +1160,9 @@ impl Stats {
         self.dual_flips += other.dual_flips;
         self.dual_refactor_retries += other.dual_refactor_retries;
         self.singleton_crash_columns += other.singleton_crash_columns;
+        self.dual_form_attempts += other.dual_form_attempts;
+        self.dual_form_successes += other.dual_form_successes;
+        self.dual_form_fallbacks += other.dual_form_fallbacks;
         self.scaled_columns += other.scaled_columns;
         self.scaled_rows += other.scaled_rows;
         self.multiplier_cache_hits += other.multiplier_cache_hits;
