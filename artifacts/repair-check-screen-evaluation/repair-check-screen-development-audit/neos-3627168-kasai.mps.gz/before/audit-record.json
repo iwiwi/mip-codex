@@ -1,0 +1,71 @@
+{
+  "name": "neos-3627168-kasai.mps.gz",
+  "variant": "before",
+  "solver_status": "time_limit",
+  "input_sha256": "adf4a013825ad2932531128132c387eab68470ca087e23ea5cca4d2930954d7e",
+  "cut_validation": {
+    "valid": true,
+    "checked": 0,
+    "arithmetic": "Python Fraction from original MPS tokens",
+    "checker_sha256": "2c20dca976068849d8a23fbf20cc5f081f2f38004f8c220624218960150c6040"
+  },
+  "strict": {
+    "valid": true,
+    "float_diagnostics": {
+      "valid": true,
+      "objective": 1072846.6299999994,
+      "bound_violation": 4.996003610813204e-13,
+      "row_violation": 5.743467923480239e-10,
+      "integer_violation": 0.0,
+      "objective_error": 0.0,
+      "feasibility_tolerance": 1e-06,
+      "integrality_tolerance": 1e-06,
+      "reader": "HiGHS 1.16.0"
+    },
+    "arithmetic": "GMP rational; absolute feasibility/integrality, relative objective",
+    "feasibility_tolerance": 1e-06,
+    "integrality_tolerance": 1e-06,
+    "checker_sha256": "fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6",
+    "objective": 1072846.6299999994,
+    "bound_violation": 4.996003610813204e-13,
+    "row_violation": 5.489328170688007e-10,
+    "integer_violation": 0.0,
+    "objective_error": 9e-11,
+    "exact": {
+      "objective": "107284662999999949/100000000000",
+      "bound_violation": "1249000902703301/2500000000000000000000000000",
+      "row_violation": "17154150533400022137/31250000000000000000000000000",
+      "integer_violation": "0",
+      "objective_error": "9/100000000000"
+    },
+    "objective_evaluation": {
+      "criterion": "relative",
+      "relative_tolerance": "1/100000000",
+      "absolute_tolerance_at_point": "107284762999999949/10000000000000000000",
+      "absolute_error": "9/100000000000",
+      "recomputed_exact": "107284662999999949/100000000000",
+      "reported_token": "1072846.6299999994"
+    }
+  },
+  "official": {
+    "valid": true,
+    "exit_code": 0,
+    "command": [
+      "/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker",
+      "/home/ubuntu/mip-codex/data/raw/benchmark/neos-3627168-kasai.mps.gz",
+      "/home/ubuntu/mip-codex/artifacts/repair-check-screen-development-audit/neos-3627168-kasai.mps.gz/before/solution.sol",
+      "1e-6",
+      "1e-6"
+    ],
+    "checker_sha256": "df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0",
+    "linear_tolerance": 1e-06,
+    "integer_tolerance": 1e-06,
+    "arithmetic": "GMP rational; official MIPLIB relative linear/bound scaling",
+    "integrality": true,
+    "constraints": true,
+    "objective": true
+  },
+  "result_sha256": "3b3acf27dac6c1539b2662a3b355cd50c2153a516b0ca4af5a1e650acd64d9b5",
+  "validation_exit_code": 0,
+  "validation_wall_seconds": 0.26597116800257936
+}
