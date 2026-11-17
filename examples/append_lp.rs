@@ -27,6 +27,7 @@ fn answer(a: &revised::Answer) -> Value {
     }
 }
 fn main() {
+    if std::env::args().nth(1).is_some_and(|v|v=="build-info"){println!("{}",json!({"source_directory":env!("CARGO_MANIFEST_DIR"),"source_fingerprint":mip_codex::BUILD_SOURCE_FINGERPRINT,"library_source_directory":mip_codex::BUILD_SOURCE_DIRECTORY,"library_source_fingerprint":mip_codex::BUILD_SOURCE_FINGERPRINT}));return;}
     let mut input = String::new();
     io::stdin().read_to_string(&mut input).unwrap();
     let cases: Vec<Input> = serde_json::from_str(&input).unwrap();
@@ -67,7 +68,7 @@ fn main() {
             let cold_seconds = begin.elapsed().as_secs_f64();
             println!(
                 "{}",
-                json!({"case":case,"step":step,"warm":answer(&warm),"cold":answer(&cold),"warm_seconds":warm_seconds,"cold_seconds":cold_seconds,"warm_pivots":warm.stats.pivots,"cold_pivots":cold.stats.pivots,"warm_row_extensions":warm.stats.warm_row_extensions,"warm_successes":warm.stats.warm_successes,"warm_fallbacks":warm.stats.warm_fallbacks})
+                json!({"case":case,"step":step,"warm":answer(&warm),"cold":answer(&cold),"warm_seconds":warm_seconds,"cold_seconds":cold_seconds,"warm_pivots":warm.stats.pivots,"warm_dual_refactor_retries":warm.stats.dual_refactor_retries,"cold_pivots":cold.stats.pivots,"warm_row_extensions":warm.stats.warm_row_extensions,"warm_successes":warm.stats.warm_successes,"warm_fallbacks":warm.stats.warm_fallbacks})
             );
             state = warm.warm;
         }

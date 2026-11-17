@@ -1,0 +1,33 @@
+{
+  "source_fingerprint": "d0037665831f6fd6",
+  "flag": "MIP_DUAL_REFACTOR_RETRY",
+  "helpers": "artifacts/dual-refactor-retry-helpers/experiment.json",
+  "threads": 1,
+  "jobs": [
+    {
+      "cpu": 39,
+      "flag": 0,
+      "kind": "row",
+      "name": "row-before"
+    },
+    {
+      "cpu": 40,
+      "flag": 1,
+      "kind": "row",
+      "name": "row-after"
+    },
+    {
+      "cpu": 41,
+      "flag": 0,
+      "kind": "cost",
+      "name": "cost-before"
+    },
+    {
+      "cpu": 45,
+      "flag": 1,
+      "kind": "cost",
+      "name": "cost-after"
+    }
+  ],
+  "purpose": "independent LP diagnostics, observational timings"
+}
