@@ -1076,3 +1076,45 @@ mod aggregate_box_tests {
         }
     }
 }
+
+#[derive(Clone,Debug,Serialize,Deserialize)]
+pub struct OriginalBoxProof { pub normalized_bound_bits:String }
+impl OriginalBoxProof {
+    pub fn bound(&self)->Option<f64> {let value=f64::from_bits(u64::from_str_radix(&self.normalized_bound_bits,16).ok()?);value.is_finite().then_some(value)}
+}
+/// Original objective/bounds only. This certificate is for result reporting.
+pub fn original_box_bound(model:&Model,skip_integer_domain:bool,deadline:std::time::Instant)->Option<OriginalBoxProof> {
+    if std::time::Instant::now()>=deadline{return None;}
+    let sign=if model.maximize{-1.}else{1.};
+    if skip_integer_domain && model.variables.iter().all(|v|v.objective==0.||v.integer) && domain(model,sign as i64).is_some() {return None;}
+    let mut value=I::metadata(model.offset,model.offset_enclosure)?.mul(I::point(sign)?)?;
+    for (j,v) in model.variables.iter().enumerate() {
+        if j%1024==0 && std::time::Instant::now()>=deadline{return None;}
+        let cost=I::metadata(v.objective,v.objective_enclosure)?.mul(I::point(sign)?)?;
+        if cost.zero(){continue;}
+        let lower=match v.lower {Some(x)=>Some(I::metadata(x,v.lower_enclosure)?.lo),None=>None};
+        let upper=match v.upper {Some(x)=>Some(I::metadata(x,v.upper_enclosure)?.hi),None=>None};
+        let minimum=match(lower,upper) {
+            (Some(l),Some(u))=>{if l>u{return None;}cost.mul(I::point(l)?)?.lo.min(cost.mul(I::point(u)?)?.lo)},
+            (Some(l),None)if cost.lo>=0.=>cost.mul(I::point(l)?)?.lo,
+            (None,Some(u))if cost.hi<=0.=>cost.mul(I::point(u)?)?.lo,
+            _=>return None,
+        };
+        value=value.add(I::point(minimum)?)?;
+    }
+    Some(OriginalBoxProof{normalized_bound_bits:format!("{:016x}",value.lo.to_bits())})
+}
+#[cfg(test)]mod original_box_tests {
+ use super::*;
+ #[test]fn original_decimal_box_encloses_min_max_values_with_negative_domains(){
+  let text="NAME box\nROWS\n N c\nCOLUMNS\n x c 0.1\n y c -0.2\nRHS\n rhs c -0.3\nBOUNDS\n LO b x -2\n UP b x 3\n LO b y -1\n UP b y 4\nENDATA\n";
+  let mut m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+  for max in [false,true] {m.maximize=max;let p=original_box_bound(&m,false,std::time::Instant::now()+std::time::Duration::from_secs(1)).unwrap();let b=p.bound().unwrap();for x in -2..=3{for y in -1..=4{let obj=m.objective(&[x as f64,y as f64])*(if max{-1.}else{1.});assert!(b<=obj+1e-14);}}}
+ }
+ #[test]fn uncertain_zero_cost_without_a_required_bound_is_not_a_finite_box(){
+  let text="NAME tiny\nROWS\n N c\nCOLUMNS\n x c 0\nRHS\nENDATA\n";let mut m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();m.variables[0].objective_enclosure=Some([-f64::from_bits(1),0.]);assert!(original_box_bound(&m,false,std::time::Instant::now()+std::time::Duration::from_secs(1)).is_none());assert!(original_box_bound(&m,false,std::time::Instant::now()).is_none());
+ }
+ #[test]fn constant_objective_is_reported_without_claiming_feasibility(){
+  let text="NAME zero\nROWS\n N c\n E impossible\nCOLUMNS\n x c 0 impossible 0\nRHS\n rhs impossible 1 c -7\nBOUNDS\n FR b x\nENDATA\n";let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let p=original_box_bound(&m,false,std::time::Instant::now()+std::time::Duration::from_secs(1)).unwrap();assert_eq!(p.bound(),Some(7.));
+ }
+}
