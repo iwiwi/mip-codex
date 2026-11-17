@@ -12,3 +12,10 @@ fn input(coefficient:&str,maximize:bool,free:bool)->String{
 #[test]fn unbounded_boxes_do_not_accept_unverified_original_duals(){
  let m=mps::parse(std::io::Cursor::new(input("0.99999999999999999999",false,true))).unwrap();let r=solve(&m,&Limits::default());assert!(r.dual_bound.is_none_or(|b|b< -1.));if r.original_coefficient_bound_successes==0{assert_ne!(r.status,"optimal");}
 }
+#[test]fn uncertified_free_leaf_keeps_its_point_and_withdraws_optimality(){
+ let text="NAME correlated\nROWS\n N c\n E r\nCOLUMNS\n x c -1.00000000000000000001 r 1.00000000000000000001\n y c 1 r -1\nRHS\n rhs r 0\nBOUNDS\n FR b x\n FR b y\nENDATA\n";
+ let m=mps::parse(std::io::Cursor::new(text)).unwrap();
+ let r=solve(&m,&Limits{zero_dominance:false,objective_box_report:false,..Limits::default()});
+ assert_eq!(r.status,"numerical_error","{r:?}");assert_eq!(r.objective,Some(0.));assert!(r.values.is_some());
+ assert!(r.original_coefficient_bound_checks>0);assert_eq!(r.original_coefficient_bound_successes,0);assert!(r.dual_bound.is_none_or(|b|b<=0.));
+}

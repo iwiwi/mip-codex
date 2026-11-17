@@ -1857,6 +1857,7 @@ fn solve_seeded_warm(
     let original_coefficient_certifier=if original_coefficient_bounds&&
         (lp_model.rows.iter().map(|r|r.coefficients.len()as u128).sum::<u128>()+lp_model.rows.len()as u128+lp_model.variables.len()as u128)*64<=limits.dense_bytes as u128{Certifier::with_implied_bounds(lp_model)}else{None};
     let mut original_coefficient_bound_checks=0;let mut original_coefficient_bound_successes=0;
+    let mut uncertified_coefficient_leaves=0usize;
 
     let check_original_infeasibility = lp_model.needs_original_feasibility_check();
     let mut infeasibility_certifier = None;
@@ -2253,6 +2254,7 @@ fn solve_seeded_warm(
                 if let Some(edge) = node.edge {
                     costs.observe(edge, objective);
                 }
+                let mut coefficient_bound_verified=true;
                 let bound = if original_coefficient_bounds{
                     original_coefficient_bound_checks+=1;
                     let mut checked=None;
@@ -2273,10 +2275,12 @@ fn solve_seeded_warm(
                             }
                         }
                     }
-                    let Some(value)=checked else{
-                        stack.push(node);status="numerical_error".into();break;
-                    };
-                    original_coefficient_bound_successes+=1;value.min(objective)
+                    if let Some(value)=checked{
+                        original_coefficient_bound_successes+=1;value.min(objective)
+                    }else{
+                        // 未証明のLP下界を使わず、証明済みの親下界で主解探索を継続する。
+                        coefficient_bound_verified=false;node.bound
+                    }
                 }else if let Some(dual) = relaxation_dual {
                     let value = crate::exact::dot_lower(
                         std::iter::once((dual, 1.))
@@ -2867,6 +2871,7 @@ fn solve_seeded_warm(
                         status = "numerical_error".into();
                         break;
                     }
+                    if !coefficient_bound_verified{uncertified_coefficient_leaves+=1;}
                     terminal_bound = terminal_bound.min(node.bound.min(value));
                     if value < incumbent {
                         incumbent = value;
@@ -2900,6 +2905,7 @@ fn solve_seeded_warm(
         }
     }
     deferred.prune(incumbent);
+    if status=="optimal"&&uncertified_coefficient_leaves>0{status="numerical_error".into();}
     let lp_search_termination = Some(if status == "optimal" {
         "active_search_complete".into()
     } else {
