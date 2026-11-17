@@ -3,6 +3,12 @@ use crate::{lp::Outcome,revised::{Problem,Answer,WarmStart}};
 use std::time::Instant;
 pub(crate) fn solve(p:&Problem,limit:usize,deadline:Option<Instant>,warm:Option<&WarmStart>,retain:bool)->Answer{
  let enabled=std::env::var("MIP_LP_DUAL_FORM").is_ok_and(|v|v=="1");
+ solve_enabled(p,limit,deadline,warm,retain,enabled)
+}
+pub(crate) fn solve_for_root(p:&Problem,limit:usize,deadline:Option<Instant>,warm:Option<&WarmStart>,retain:bool)->Answer{
+ if std::env::var("MIP_LP_DUAL_ROOT").is_ok_and(|v|v=="1"){solve_enabled(p,limit,deadline,warm,retain,true)}else{solve(p,limit,deadline,warm,retain)}
+}
+fn solve_enabled(p:&Problem,limit:usize,deadline:Option<Instant>,warm:Option<&WarmStart>,retain:bool,enabled:bool)->Answer{
  if !enabled||warm.is_some()||!crate::revised::valid(p)||p.rhs.len()<32||p.rhs.len()<=4*p.costs.len()||p.costs.is_empty()||p.costs.len()>10000{return crate::scaling::solve(p,limit,deadline,warm,retain);}
  let Some((q,positive,negative))=transform(p,deadline)else{return crate::scaling::solve(p,limit,deadline,warm,retain)};
  let mut a=crate::scaling::solve(&q,limit,deadline,None,false);a.stats.dual_form_attempts+=1;

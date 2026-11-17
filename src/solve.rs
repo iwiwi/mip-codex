@@ -1045,7 +1045,9 @@ fn prepare_cuts(
             break;
         };
         let lp_started = Instant::now();
-        let answer = revised::minimize_warm(
+        let root_solve = round==0 && global_first;
+        let solver=if root_solve{crate::dual_form::solve_for_root}else{crate::dual_form::solve};
+        let answer = solver(
             q.sparse.as_ref().unwrap(),
             limits.pivots,
             Some(solve_deadline),
@@ -1054,6 +1056,7 @@ fn prepare_cuts(
             } else {
                 None
             },
+            true,
         );
         if round == 0 && global_first {
             prepared.initial_lp_seconds = lp_started.elapsed().as_secs_f64();
@@ -1931,16 +1934,11 @@ fn solve_seeded_warm(
         let mut next_warm = None;
         let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
             let answer = cached_answer.unwrap_or_else(|| {
-                if limits.warm_start {
-                    revised::minimize_warm(
-                        sparse,
-                        limits.pivots,
-                        Some(deadline),
-                        node.warm.as_deref(),
-                    )
-                } else {
-                    revised::minimize(sparse, limits.pivots, Some(deadline))
-                }
+                if nodes==1 {
+                    crate::dual_form::solve_for_root(sparse,limits.pivots,Some(deadline),if limits.warm_start{node.warm.as_deref()}else{None},limits.warm_start)
+                } else if limits.warm_start {
+                    revised::minimize_warm(sparse,limits.pivots,Some(deadline),node.warm.as_deref())
+                } else {revised::minimize(sparse,limits.pivots,Some(deadline))}
             });
             if !reused_root {
                 lp_stats.add(&answer.stats);
