@@ -2385,7 +2385,7 @@ fn solve_seeded_warm(
                     diving.seconds += started.elapsed().as_secs_f64();
                 }
                 if limits.objective_lp_dive && nodes==1 && branch.is_some() && node.bound<incumbent && incumbent.is_finite() && matches!(limits.engine,Engine::Revised) && Instant::now()<deadline {
-                    let started=Instant::now();let end=deadline.min(started+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(1.0)));let old_solves=objective_diving.lp_solves;
+                    let started=Instant::now();let end=deadline.min(started+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.25)));let old_solves=objective_diving.lp_solves;
                     if let Some(x)=improving_lp_dive(lp_model,&node,&original,incumbent,limits,end,&mut objective_diving,&mut lp_stats){
                         let value=sign*model.objective(&x);
                         if value.is_finite() && value<incumbent && model.check(&x,true,1e-7).is_ok() && candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){objective_diving.improvements+=1;incumbent=value;best=Some(x);}
