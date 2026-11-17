@@ -24,6 +24,7 @@ pub struct Limits {
     pub root_seed_repair: bool,
     pub pure_cover_greedy: bool,
     pub pure_cover_portfolio: bool,
+    pub pure_cover_exchange: bool,
     pub root_priced_repair: bool,
     pub root_priced_objective: bool,
     pub root_priced_continue: bool,
@@ -90,6 +91,7 @@ impl Default for Limits {
             root_seed_repair: true,
             pure_cover_greedy: true,
             pure_cover_portfolio: true,
+            pure_cover_exchange: true,
             root_priced_repair: true,
             root_priced_objective: true,
             root_priced_continue: true,
@@ -1676,7 +1678,15 @@ fn solve_seeded_warm(
     if limits.pure_cover_greedy && limits.primal_repair && Instant::now()<deadline {
         if let Some(repair)=early_repair.as_ref(){
             let offset=start.elapsed().as_secs_f64();let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(0.5)));
-            if let Some((candidate,mut stats))=crate::cover_greedy::candidate_portfolio(model,repair,end,limits.pure_cover_portfolio){
+            let greedy_end=if limits.pure_cover_exchange {Instant::now()+(end.saturating_duration_since(Instant::now()))/2}else{end};
+            if let Some((mut candidate,mut stats))=crate::cover_greedy::candidate_portfolio(model,repair,greedy_end,limits.pure_cover_portfolio){
+                if limits.pure_cover_exchange {
+                    if let Some(point)=candidate.as_ref() {
+                        if let Some((next,extra))=crate::cover_greedy::exchange(model,repair,point,end,100_000_000usize.saturating_sub(stats.work)) {
+                            candidate=Some(next); stats.calls+=extra.calls; stats.candidates+=extra.candidates; stats.moves+=extra.moves; stats.work+=extra.work; stats.seconds+=extra.seconds;
+                        }
+                    }
+                }
                 if let Some(point)=candidate{
                     let value=model.objective(&point);
                     if box_candidate.as_ref().is_none_or(|old|value<model.objective(old)-4e-8*(1.+value.abs().max(model.objective(old).abs()))){box_candidate=Some(point);stats.improvements=1;}

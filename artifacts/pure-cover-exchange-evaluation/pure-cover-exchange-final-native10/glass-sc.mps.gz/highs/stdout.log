@@ -1,0 +1,61 @@
+Running HiGHS 1.16.0 (git hash: f3f113d): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+Writing the option values to /home/ubuntu/mip-objective-repair/artifacts/smoke-20261117-022125-ftqebqka/glass-sc.mps.gz/highs/options.txt
+MIP glass-sc has 6119 rows; 214 cols; 63918 nonzeros; 214 integer variables (214 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+00, 1e+00]
+  Bound   [1e+00, 1e+00]
+  RHS     [1e+00, 1e+00]
+Presolving model
+6119 rows, 214 cols, 63918 nonzeros 0s
+6119 rows, 208 cols, 63891 nonzeros 0s
+Presolve reductions: rows 6119(-0); columns 208(-6); nonzeros 63891(-27) 
+Objective function is integral with scale 1
+
+Solving MIP model with:
+   6119 rows
+   208 cols (208 binary, 0 integer, 0 implied int., 0 continuous, 0 domain fixed)
+   63891 nonzeros
+   Thread count: 1 available cores, 64 logical processors, using up to 1 workers across 1 threads.
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+ u       0       0         0   0.00%   -inf            208                Large        0      0      0         0     0.1s
+ J       0       0         0   0.00%   -inf            23                 Large        0      0      0         0     0.2s
+         0       0         0   0.00%   14.08029586     23                38.78%        0      0      2       516     0.3s
+         0       0         0   0.00%   14.26870948     23                37.96%     9281     19      4     12761     7.5s
+         1       1         1   0.00%   14.26870948     23                37.96%     8615     19      4     17126    10.0s
+
+Solving report
+  Model             glass-sc
+  Status            Time limit reached
+  Primal bound      23
+  Dual bound        15
+  Gap               34.78%
+  P-D integral      3.99
+  Solution status   feasible
+                    23 (objective)
+  Timing            10.00
+                    0.59 (Presolve)
+                        MIP    time [calls] = 0.06 [1]
+                        subMIP time [calls] = 0.53 [17]
+                    9.42 (Solve)
+                        MIP    time [calls] = 2.76 [1]
+                        subMIP time [calls] = 6.65 [17]
+                    0.00 (Postsolve)
+                        MIP    time [calls] = 0.00 [1]
+                        subMIP time [calls] = 0.00 [17]
+  Max sub-MIP depth 8
+  Nodes             1
+  Repair LPs        0
+  LP iterations     17126
+                    0 (strong br.)
+                    1720 (separation)
+                    14890 (heuristics)

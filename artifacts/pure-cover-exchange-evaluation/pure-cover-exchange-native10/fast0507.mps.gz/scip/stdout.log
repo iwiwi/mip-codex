@@ -1,0 +1,60 @@
+SCIP version 10.0.2 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: SoPlex 8.0.2] [GitHash: NoGitInfo]
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB)
+External libraries: 
+  SoPlex 8.0.2         Linear programming solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: NoGitInf]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.11          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  TinyCThread 1.2      small portable implementation of the C11 threads API (tinycthread.github.io)
+  AMPL/MP 4.0.4        AMPL .nl file reader library (github.com/ampl/mp)
+  Nauty 2.8.8          Computing Graph Automorphism Groups by Brendan D. McKay (users.cecs.anu.edu.au/~bdm/nauty)
+  sassy 2.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.19        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+original problem has 63009 variables (63009 bin, 0 int, 0 cont) and 507 constraints
+feasible solution found by trivial heuristic after 0.1 seconds, objective value 1.224250e+05
+presolving:
+(round 1, fast)       7 del vars, 16 del conss, 0 add conss, 7 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 1 clqs, 0 implints
+(round 2, fast)       9 del vars, 19 del conss, 0 add conss, 7 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 0 implints
+(round 3, fast)       10 del vars, 20 del conss, 0 add conss, 7 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 0 implints
+(round 4, exhaustive) 10 del vars, 35 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs, 0 implints
+(round 5, exhaustive) 12 del vars, 35 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 0 chg coeffs, 472 upgd conss, 0 impls, 0 clqs, 0 implints
+(round 6, exhaustive) 23 del vars, 37 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 11 chg coeffs, 472 upgd conss, 0 impls, 1 clqs, 0 implints
+(round 7, fast)       27 del vars, 38 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 11 chg coeffs, 472 upgd conss, 0 impls, 0 clqs, 0 implints
+(round 8, fast)       28 del vars, 40 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 13 chg coeffs, 472 upgd conss, 0 impls, 1 clqs, 0 implints
+(round 9, exhaustive) 29 del vars, 41 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 13 chg coeffs, 472 upgd conss, 0 impls, 1 clqs, 0 implints
+(round 10, exhaustive) 36763 del vars, 41 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 13 chg coeffs, 472 upgd conss, 0 impls, 1 clqs, 0 implints
+(round 11, fast)       36763 del vars, 41 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 235090 chg coeffs, 472 upgd conss, 0 impls, 4 clqs, 0 implints
+(round 12, exhaustive) 36763 del vars, 65 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 235090 chg coeffs, 472 upgd conss, 0 impls, 4 clqs, 0 implints
+(round 13, exhaustive) 42137 del vars, 65 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 235102 chg coeffs, 472 upgd conss, 0 impls, 4 clqs, 0 implints
+(round 14, fast)       42137 del vars, 65 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 264840 chg coeffs, 472 upgd conss, 0 impls, 5 clqs, 0 implints
+(round 15, exhaustive) 42138 del vars, 67 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 264841 chg coeffs, 472 upgd conss, 0 impls, 5 clqs, 0 implints
+(round 16, exhaustive) 42333 del vars, 67 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 264841 chg coeffs, 472 upgd conss, 0 impls, 5 clqs, 0 implints
+(round 17, fast)       42333 del vars, 67 del conss, 0 add conss, 7 chg bounds, 10 chg sides, 265778 chg coeffs, 472 upgd conss, 0 impls, 5 clqs, 0 implints
+   (1.2s) probing: 51/20676 (0.2%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (1.2s) probing aborted: 50/50 successive totally useless probings
+   (1.3s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (1.3s) no symmetry present (symcode time: 0.00)
+presolving (18 rounds: 18 fast, 10 medium, 10 exhaustive):
+ 42333 deleted vars, 67 deleted constraints, 0 added constraints, 7 tightened bounds, 0 added holes, 10 changed sides, 265778 changed coefficients
+ 0 implications, 5 cliques, 0 implied integral variables (0 bin, 0 int, 0 cont)
+presolved problem has 20676 variables (20676 bin, 0 int, 0 cont) and 440 constraints
+    440 constraints of type <logicor>
+transformed objective value is always integral (scale: 1)
+Presolving Time: 1.18
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+t 1.3s|     1 |     0 |     0 |     - | trivial|   0 |  20k| 440 |   0 |   0 |  0 |   0 |   0 | 1.600000e+01 | 4.014600e+04 |  Large | unknown
+p 1.4s|     1 |     0 |     0 |     - |   locks|   0 |  20k| 440 | 440 |   0 |  0 |   0 |   0 | 1.600000e+01 | 2.270000e+02 |1318.75%| unknown
+i 1.4s|     1 |     0 |     0 |     - |  oneopt|   0 |  20k| 440 | 440 |   0 |  0 |   0 |   0 | 1.600000e+01 | 2.230000e+02 |1293.75%| unknown
+  4.9s|     1 |     0 | 12119 |     - |   335M |   0 |  20k| 440 | 440 |   0 |  0 |   0 |   0 | 1.721456e+02 | 2.230000e+02 |  29.54%| unknown
+  5.1s|     1 |     0 | 12414 |     - |   346M |   0 |  20k| 440 | 444 |   4 |  1 |   0 |   0 | 1.722237e+02 | 2.230000e+02 |  29.48%| unknown
+  5.2s|     1 |     0 | 12416 |     - |   346M |   0 |  20k| 440 | 445 |   5 |  2 |   0 |   0 | 1.722237e+02 | 2.230000e+02 |  29.48%| unknown
+  5.2s|     1 |     0 | 12419 |     - |   348M |   0 |  20k| 440 | 446 |   6 |  3 |   0 |   0 | 1.722237e+02 | 2.230000e+02 |  29.48%| unknown
+L10.0s|     1 |     0 | 22570 |     - |    rens|   0 |  20k| 440 | 446 |   6 |  4 |   0 |   0 | 1.722237e+02 | 1.800000e+02 |   4.52%| unknown
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 10.01
+Solving Nodes      : 1
+Primal Bound       : +1.80000000000000e+02 (131 solutions)
+Dual Bound         : +1.72223747155301e+02
+Gap                : 4.52 %
+wrote parameter settings to file /home/ubuntu/mip-objective-repair/artifacts/smoke-20261117-014152-ddxmur1x/fast0507.mps.gz/scip/options.txt
