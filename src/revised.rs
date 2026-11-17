@@ -807,7 +807,7 @@ impl Simplex {
         self.run_priced::<false>(c)
     }
     fn run_priced<const NORMALIZED: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
-        let enabled=c.len()>=1024&&std::env::var("MIP_LP_EMPTY_PRICING").is_ok_and(|v|v=="1");
+        let enabled=c.len()>=1024&&std::env::var("MIP_LP_EMPTY_PRICING").map_or(true,|v|v=="1");
         self.run_priced_mode::<NORMALIZED>(c,enabled)
     }
     fn run_priced_mode<const NORMALIZED:bool>(&mut self,c:&[f64],enabled:bool)->Result<(f64,f64),Outcome>{
