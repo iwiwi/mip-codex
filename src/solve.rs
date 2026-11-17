@@ -11,6 +11,7 @@ pub enum Engine {
 
 #[derive(Clone)]
 pub struct Limits {
+    pub lp_dual_root: bool,
     pub seconds: f64,
     pub nodes: usize,
     pub pivots: usize,
@@ -83,6 +84,7 @@ pub struct Limits {
 impl Default for Limits {
     fn default() -> Self {
         Self {
+            lp_dual_root: false,
             seconds: 60.0,
             nodes: usize::MAX,
             pivots: usize::MAX,
@@ -1045,7 +1047,7 @@ fn prepare_cuts(
             break;
         };
         let lp_started = Instant::now();
-        let root_solve = round==0 && global_first;
+        let root_solve = round==0 && global_first && limits.lp_dual_root;
         let solver=if root_solve{crate::dual_form::solve_for_root}else{crate::dual_form::solve};
         let answer = solver(
             q.sparse.as_ref().unwrap(),
@@ -1934,7 +1936,7 @@ fn solve_seeded_warm(
         let mut next_warm = None;
         let (answer, relaxation_dual, relaxation_witness) = if let Some(sparse) = &p.sparse {
             let answer = cached_answer.unwrap_or_else(|| {
-                if nodes==1 {
+                if nodes==1 && limits.lp_dual_root && lp_stats.dual_form_attempts==0 {
                     crate::dual_form::solve_for_root(sparse,limits.pivots,Some(deadline),if limits.warm_start{node.warm.as_deref()}else{None},limits.warm_start)
                 } else if limits.warm_start {
                     revised::minimize_warm(sparse,limits.pivots,Some(deadline),node.warm.as_deref())
@@ -2458,6 +2460,7 @@ fn solve_seeded_warm(
                 {
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
+                    probe_limits.lp_dual_root=false;
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
                     probe_limits.gomory_cuts = false;
@@ -2562,6 +2565,7 @@ fn solve_seeded_warm(
                         rins.eligible = neighborhood.eligible;
                         if Instant::now() < local_deadline {
                             let mut local = limits.clone();
+                            local.lp_dual_root=false;
                             local.rins = false;
                             local.objective_rounding = false;
                             local.objective_rounding_all = false;
@@ -2792,6 +2796,7 @@ fn solve_seeded_warm(
                 break;
             }
             let mut local = limits.clone();
+                            local.lp_dual_root=false;
             local.rins = false;
             local.objective_rounding = false;
             local.objective_rounding_all = false;

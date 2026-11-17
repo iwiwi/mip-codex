@@ -6,7 +6,7 @@ pub(crate) fn solve(p:&Problem,limit:usize,deadline:Option<Instant>,warm:Option<
  solve_enabled(p,limit,deadline,warm,retain,enabled)
 }
 pub(crate) fn solve_for_root(p:&Problem,limit:usize,deadline:Option<Instant>,warm:Option<&WarmStart>,retain:bool)->Answer{
- if std::env::var("MIP_LP_DUAL_ROOT").is_ok_and(|v|v=="1"){solve_enabled(p,limit,deadline,warm,retain,true)}else{solve(p,limit,deadline,warm,retain)}
+ solve_enabled(p,limit,deadline,warm,retain,true)
 }
 fn solve_enabled(p:&Problem,limit:usize,deadline:Option<Instant>,warm:Option<&WarmStart>,retain:bool,enabled:bool)->Answer{
  if !enabled||warm.is_some()||!crate::revised::valid(p)||p.rhs.len()<32||p.rhs.len()<=4*p.costs.len()||p.costs.is_empty()||p.costs.len()>10000{return crate::scaling::solve(p,limit,deadline,warm,retain);}
