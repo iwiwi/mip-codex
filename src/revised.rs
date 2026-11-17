@@ -23,7 +23,9 @@ pub struct Problem {
 }
 #[derive(Default, Clone, Debug)]
 pub struct Stats {
-    pub zero_phase_one_skips:usize,
+    pub initial_bound_start_attempts: usize,
+    pub initial_bound_start_successes: usize,
+    pub zero_phase_one_skips: usize,
     pub pivots: usize,
     pub feasibility_pricing_calls: usize,
     pub pricing_cutoffs: usize,
@@ -260,18 +262,32 @@ impl WarmStart {
             },
         })
     }
-    pub(crate) fn tableau_rows_raw(&self, p: &Problem, columns: &[usize], deadline: Instant)
-        -> Vec<(usize, Vec<f64>)>
-    {
-        if !self.compatible(p) { return vec![]; }
-        let mut result=Vec::new();
+    pub(crate) fn tableau_rows_raw(
+        &self,
+        p: &Problem,
+        columns: &[usize],
+        deadline: Instant,
+    ) -> Vec<(usize, Vec<f64>)> {
+        if !self.compatible(p) {
+            return vec![];
+        }
+        let mut result = Vec::new();
         for &column in columns.iter().take(16) {
-            if Instant::now()>=deadline {break;}
-            if column>=p.columns.len() {continue;}
-            let Some(row)=self.basis.iter().position(|&j|j==column) else {continue;};
-            let mut unit=vec![0.;p.rhs.len()];unit[row]=1.;
-            let weights=self.factor.backward(&unit);
-            if weights.iter().all(|v|v.is_finite()) {result.push((column,weights));}
+            if Instant::now() >= deadline {
+                break;
+            }
+            if column >= p.columns.len() {
+                continue;
+            }
+            let Some(row) = self.basis.iter().position(|&j| j == column) else {
+                continue;
+            };
+            let mut unit = vec![0.; p.rhs.len()];
+            unit[row] = 1.;
+            let weights = self.factor.backward(&unit);
+            if weights.iter().all(|v| v.is_finite()) {
+                result.push((column, weights));
+            }
         }
         result
     }
@@ -595,14 +611,19 @@ impl Simplex {
     }
     /// 有界変数のdual simplex。有限幅を使い切る候補をまとめてflipする。
     fn dual_run<const RESTORATION: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
-        self.dual_run_retry::<RESTORATION>(c,
-            std::env::var("MIP_DUAL_REFACTOR_RETRY").map_or(true, |v| v == "1"))
+        self.dual_run_retry::<RESTORATION>(
+            c,
+            std::env::var("MIP_DUAL_REFACTOR_RETRY").map_or(true, |v| v == "1"),
+        )
     }
     fn dual_run_retry<const RESTORATION: bool>(
-        &mut self, c: &[f64], retry: bool,
+        &mut self,
+        c: &[f64],
+        retry: bool,
     ) -> Result<(f64, f64), Outcome> {
         let result = self.dual_run_mode::<RESTORATION, false>(c);
-        if retry && matches!(result, Err(Outcome::NumericalError))
+        if retry
+            && matches!(result, Err(Outcome::NumericalError))
             && !self.factor.updates.is_empty()
             && self.deadline.is_none_or(|d| Instant::now() < d)
             && self.stats.pivots + self.stats.flips < self.limit
@@ -612,7 +633,9 @@ impl Simplex {
             self.witness = None;
             self.witness_point = None;
             self.dual_run_mode::<RESTORATION, false>(c)
-        } else { result }
+        } else {
+            result
+        }
     }
     fn dual_run_mode<const RESTORATION: bool, const STABLE: bool>(
         &mut self,
@@ -808,12 +831,17 @@ impl Simplex {
         self.run_priced::<false>(c)
     }
     fn run_priced<const NORMALIZED: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
-        let enabled=c.len()>=1024&&std::env::var("MIP_LP_EMPTY_PRICING").map_or(true,|v|v=="1");
-        self.run_priced_mode::<NORMALIZED>(c,enabled)
+        let enabled =
+            c.len() >= 1024 && std::env::var("MIP_LP_EMPTY_PRICING").map_or(true, |v| v == "1");
+        self.run_priced_mode::<NORMALIZED>(c, enabled)
     }
-    fn run_priced_mode<const NORMALIZED:bool>(&mut self,c:&[f64],enabled:bool)->Result<(f64,f64),Outcome>{
-        let eligible=pricing_columns(&self.columns,c,enabled);
-        self.stats.empty_pricing_calls+=usize::from(eligible.is_some());
+    fn run_priced_mode<const NORMALIZED: bool>(
+        &mut self,
+        c: &[f64],
+        enabled: bool,
+    ) -> Result<(f64, f64), Outcome> {
+        let eligible = pricing_columns(&self.columns, c, enabled);
+        self.stats.empty_pricing_calls += usize::from(eligible.is_some());
         let weights: Vec<f64> = if NORMALIZED {
             self.columns
                 .iter()
@@ -890,12 +918,24 @@ impl Simplex {
                 }
                 false
             };
-            let skipped=if let Some(indices)=&eligible{
-                let mut stopped=None;
-                for (position,&j) in indices.iter().enumerate(){if visit(j){stopped=Some(j-position);break;}}
-                stopped.unwrap_or(c.len()-indices.len())
-            }else{for j in 0..c.len(){if visit(j){break;}}0};
-            self.stats.empty_pricing_skips=self.stats.empty_pricing_skips.saturating_add(skipped);
+            let skipped = if let Some(indices) = &eligible {
+                let mut stopped = None;
+                for (position, &j) in indices.iter().enumerate() {
+                    if visit(j) {
+                        stopped = Some(j - position);
+                        break;
+                    }
+                }
+                stopped.unwrap_or(c.len() - indices.len())
+            } else {
+                for j in 0..c.len() {
+                    if visit(j) {
+                        break;
+                    }
+                }
+                0
+            };
+            self.stats.empty_pricing_skips = self.stats.empty_pricing_skips.saturating_add(skipped);
 
             let Some((j, direction)) = entering else {
                 // A fresh factorization is required before declaring convergence.
@@ -1106,7 +1146,13 @@ fn warm_impl(
             s.dual_run::<false>(&c)
         }
     });
-    let limited_point = if matches!(&outcome,Err(Outcome::TimeLimit|Outcome::IterationLimit)) && std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1") {Some(s.x[..s.original].to_vec())}else{None};
+    let limited_point = if matches!(&outcome, Err(Outcome::TimeLimit | Outcome::IterationLimit))
+        && std::env::var("MIP_LP_LIMIT_POINT").map_or(true, |v| v == "1")
+    {
+        Some(s.x[..s.original].to_vec())
+    } else {
+        None
+    };
     match outcome {
         Ok((objective, dual)) => {
             s.stats.warm_successes = 1;
@@ -1158,20 +1204,38 @@ fn warm_impl(
         }
     }
 }
-fn pricing_columns(columns:&[Vec<(usize,f64)>],costs:&[f64],enabled:bool)->Option<Vec<usize>>{
- if !enabled||costs.len()<1024{return None;}
- let skipped=costs.iter().enumerate().filter(|&(j,c)|*c==0.&&columns[j].is_empty()).count();
- if skipped<costs.len()/2{return None;}
- Some((0..costs.len()).filter(|&j|costs[j]!=0.||!columns[j].is_empty()).collect())
+fn pricing_columns(
+    columns: &[Vec<(usize, f64)>],
+    costs: &[f64],
+    enabled: bool,
+) -> Option<Vec<usize>> {
+    if !enabled || costs.len() < 1024 {
+        return None;
+    }
+    let skipped = costs
+        .iter()
+        .enumerate()
+        .filter(|&(j, c)| *c == 0. && columns[j].is_empty())
+        .count();
+    if skipped < costs.len() / 2 {
+        return None;
+    }
+    Some(
+        (0..costs.len())
+            .filter(|&j| costs[j] != 0. || !columns[j].is_empty())
+            .collect(),
+    )
 }
 impl Stats {
     pub fn add(&mut self, other: &Self) {
         self.pivots += other.pivots;
         self.feasibility_pricing_calls += other.feasibility_pricing_calls;
         self.pricing_cutoffs += other.pricing_cutoffs;
-        self.zero_phase_one_skips+=other.zero_phase_one_skips;
-        self.empty_pricing_calls+=other.empty_pricing_calls;
-        self.empty_pricing_skips+=other.empty_pricing_skips;
+        self.zero_phase_one_skips += other.zero_phase_one_skips;
+        self.initial_bound_start_attempts += other.initial_bound_start_attempts;
+        self.initial_bound_start_successes += other.initial_bound_start_successes;
+        self.empty_pricing_calls += other.empty_pricing_calls;
+        self.empty_pricing_skips += other.empty_pricing_skips;
         self.pricing_fallbacks += other.pricing_fallbacks;
         self.flips += other.flips;
         self.refactors += other.refactors;
@@ -1249,12 +1313,106 @@ fn cold_priced(
     retain: bool,
     normalized: bool,
 ) -> Answer {
-    cold_crashed(p,limit,deadline,retain,normalized,std::env::var("MIP_LP_SINGLETON_CRASH").map_or(true,|v|v=="1"))
+    cold_crashed(
+        p,
+        limit,
+        deadline,
+        retain,
+        normalized,
+        std::env::var("MIP_LP_SINGLETON_CRASH").map_or(true, |v| v == "1"),
+    )
 }
-fn cold_crashed(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool)->Answer {
-    cold_initialized(p,limit,deadline,retain,normalized,crash,std::env::var("MIP_LP_ZERO_PHASE_ONE").map_or(true,|v|v=="1"))
+fn cold_crashed(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    retain: bool,
+    normalized: bool,
+    crash: bool,
+) -> Answer {
+    cold_initialized(
+        p,
+        limit,
+        deadline,
+        retain,
+        normalized,
+        crash,
+        std::env::var("MIP_LP_ZERO_PHASE_ONE").map_or(true, |v| v == "1"),
+    )
 }
-fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,normalized:bool,crash:bool,skip_zero:bool)->Answer {
+// 初期点の存在を示すだけで、LPの係数/RHS/境界は変更しない。
+fn bound_start_residual(
+    p: &Problem,
+    at_upper: &[bool],
+    deadline: Option<Instant>,
+) -> Option<Vec<f64>> {
+    if !valid(p) || at_upper.len() != p.costs.len() || !at_upper.iter().any(|&v| v) {
+        return None;
+    }
+    let mut lower = p.rhs.clone();
+    let mut upper = p.rhs.clone();
+    for (j, &high) in at_upper.iter().enumerate() {
+        if j % 1024 == 0 && deadline.is_some_and(|d| Instant::now() >= d) {
+            return None;
+        }
+        if !high {
+            continue;
+        }
+        let value = p.upper[j];
+        if !value.is_finite() {
+            return None;
+        }
+        for &(i, a) in &p.columns[j] {
+            let [lo, hi] = crate::exact::dot_bounds(std::iter::once((a, value)))?;
+            lower[i] = crate::exact::dot_bounds([(lower[i], 1.), (-hi, 1.)].into_iter())?[0];
+            upper[i] = crate::exact::dot_bounds([(upper[i], 1.), (-lo, 1.)].into_iter())?[1];
+        }
+    }
+    for i in 0..p.rhs.len() {
+        // 全中間計算が正確な点区間となる場合だけ初期基底へ渡す。
+        if lower[i] != upper[i] || !lower[i].is_finite() {
+            return None;
+        }
+        if p.equality[i] {
+            if lower[i] != 0. {
+                return None;
+            }
+        } else if lower[i] < 0. || lower[i] > p.slack_upper[i] {
+            return None;
+        }
+    }
+    Some(lower)
+}
+fn cold_initialized(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    retain: bool,
+    normalized: bool,
+    crash: bool,
+    skip_zero: bool,
+) -> Answer {
+    cold_initialized_with_start(
+        p, limit, deadline, retain, normalized, crash, skip_zero, None,
+    )
+}
+fn cold_initialized_with_start(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    retain: bool,
+    normalized: bool,
+    crash: bool,
+    skip_zero: bool,
+    start: Option<&[bool]>,
+) -> Answer {
+    let residual = start.and_then(|mask| bound_start_residual(p, mask, deadline));
+    if start.is_some() && residual.is_none() {
+        let mut a = cold(p, limit, deadline, retain);
+        a.stats.initial_bound_start_attempts += 1;
+        return a;
+    }
+    let crash = crash && residual.is_none();
     let m = p.rhs.len();
     let n = p.costs.len();
     let mut s = Simplex {
@@ -1278,19 +1436,41 @@ fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,
         witness: None,
         witness_point: None,
     };
-    let mut singleton=if crash {vec![[None,None];m]}else{vec![]};
+    s.stats.initial_bound_start_attempts = usize::from(start.is_some());
+    if residual.is_some() {
+        let mask = start.unwrap();
+        for j in 0..n {
+            s.at_upper[j] = mask[j];
+            s.x[j] = if mask[j] { p.upper[j] } else { 0. };
+        }
+        s.stats.initial_bound_start_successes = 1;
+    }
+    let mut singleton = if crash { vec![[None, None]; m] } else { vec![] };
     if crash {
-        for (j,column) in p.columns.iter().enumerate() {
-            if j%1024==0 && deadline.is_some_and(|d|Instant::now()>=d) {break;}
-            if p.costs[j]!=0. || column.len()!=1 {continue;}
-            let (row,a)=column[0];let magnitude=a.abs();
-            if !(2f64.powi(-30)..=2f64.powi(30)).contains(&magnitude) || magnitude.to_bits()&((1u64<<52)-1)!=0 {continue;}
-            let side=usize::from(a<0.);let old:Option<(usize,f64)>=singleton[row][side];
-            if old.is_none_or(|(k,b)|magnitude*p.upper[j]>b.abs()*p.upper[k]) {singleton[row][side]=Some((j,a));}
+        for (j, column) in p.columns.iter().enumerate() {
+            if j % 1024 == 0 && deadline.is_some_and(|d| Instant::now() >= d) {
+                break;
+            }
+            if p.costs[j] != 0. || column.len() != 1 {
+                continue;
+            }
+            let (row, a) = column[0];
+            let magnitude = a.abs();
+            if !(2f64.powi(-30)..=2f64.powi(30)).contains(&magnitude)
+                || magnitude.to_bits() & ((1u64 << 52) - 1) != 0
+            {
+                continue;
+            }
+            let side = usize::from(a < 0.);
+            let old: Option<(usize, f64)> = singleton[row][side];
+            if old.is_none_or(|(k, b)| magnitude * p.upper[j] > b.abs() * p.upper[k]) {
+                singleton[row][side] = Some((j, a));
+            }
         }
     }
     let mut diagonal = vec![];
     for i in 0..m {
+        let initial_rhs = residual.as_ref().map_or(p.rhs[i], |r| r[i]);
         let mut slack = None;
         if !p.equality[i] {
             let j = s.columns.len();
@@ -1301,7 +1481,7 @@ fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,
             s.x.push(0.0);
             slack = Some(j);
         }
-        let slack_value = if p.rhs[i] > p.slack_upper[i] {
+        let slack_value = if initial_rhs > p.slack_upper[i] {
             p.slack_upper[i]
         } else {
             0.0
@@ -1310,16 +1490,23 @@ fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,
             s.x[j] = slack_value;
             s.at_upper[j] = slack_value != 0.0;
         }
-        let residual = p.rhs[i] - if slack.is_some() { slack_value } else { 0.0 };
-        let natural=if crash {singleton[i].iter().flatten().find_map(|&(j,a)| {
-            let x=residual/a;
-            (x.is_finite() && x>=0. && x<=p.upper[j] && a*x==residual).then_some((j,a,x))
-        })}else{None};
-        let (j,value) = if residual >= 0.0 && p.rhs[i] <= p.slack_upper[i] && slack.is_some() {
+        let residual = initial_rhs - if slack.is_some() { slack_value } else { 0.0 };
+        let natural = if crash {
+            singleton[i].iter().flatten().find_map(|&(j, a)| {
+                let x = residual / a;
+                (x.is_finite() && x >= 0. && x <= p.upper[j] && a * x == residual)
+                    .then_some((j, a, x))
+            })
+        } else {
+            None
+        };
+        let (j, value) = if residual >= 0.0 && initial_rhs <= p.slack_upper[i] && slack.is_some() {
             diagonal.push(1.0);
-            (slack.unwrap(),residual.abs())
-        } else if let Some((j,a,x))=natural {
-            diagonal.push(a);s.stats.singleton_crash_columns+=1;(j,x)
+            (slack.unwrap(), residual.abs())
+        } else if let Some((j, a, x)) = natural {
+            diagonal.push(a);
+            s.stats.singleton_crash_columns += 1;
+            (j, x)
         } else {
             let j = s.columns.len();
             let sign = if residual < 0.0 { -1.0 } else { 1.0 };
@@ -1339,7 +1526,9 @@ fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,
     s.factor.factor = Arc::new(Factor::Diagonal(diagonal));
     s.factor.multiplier_cache = None;
     let outcome = (|| {
-        if s.stats.singleton_crash_columns>0 {s.recompute()?;}
+        if s.stats.singleton_crash_columns > 0 || residual.is_some() {
+            s.recompute()?;
+        }
         if !s.artificial.is_empty() {
             // Phase Iは非負人工変数の和。初期値が全て厳密0なら最小値0が既知。
             // 正の微小値を0とみなす許容幅は使わず、既存Phase II/証明へ進む。
@@ -1387,7 +1576,13 @@ fn cold_initialized(p:&Problem,limit:usize,deadline:Option<Instant>,retain:bool,
         answer.stats.pricing_fallbacks += 1;
         return answer;
     }
-    let limited_point = if matches!(&outcome,Err(Outcome::TimeLimit|Outcome::IterationLimit)) && std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1") {Some(s.x[..s.original].to_vec())}else{None};
+    let limited_point = if matches!(&outcome, Err(Outcome::TimeLimit | Outcome::IterationLimit))
+        && std::env::var("MIP_LP_LIMIT_POINT").map_or(true, |v| v == "1")
+    {
+        Some(s.x[..s.original].to_vec())
+    } else {
+        None
+    };
     match outcome {
         Ok((objective, dual)) => Answer {
             warm: retain.then(|| snapshot(p, &s, None)),
@@ -1607,6 +1802,49 @@ pub fn minimize_warm(
 ) -> Answer {
     crate::scaling::solve(p, limit, deadline, warm, true)
 }
+/// 同じLPの境界点hintを使う。warmを優先し、scaling後も元単位で通常の検査を行う。
+pub fn minimize_warm_with_bound_start(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+    at_upper: &[bool],
+) -> Answer {
+    crate::scaling::solve_with_bound_start(p, limit, deadline, warm, true, Some(at_upper))
+}
+pub(crate) fn raw_with_bound_start(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+    retain: bool,
+    start: Option<&[bool]>,
+) -> Answer {
+    if warm.is_some() || start.is_none() {
+        return raw(p, limit, deadline, warm, retain);
+    }
+    let mut answer = cold_initialized_with_start(
+        p,
+        limit,
+        deadline,
+        retain,
+        false,
+        std::env::var("MIP_LP_SINGLETON_CRASH").map_or(true, |v| v == "1"),
+        std::env::var("MIP_LP_ZERO_PHASE_ONE").map_or(true, |v| v == "1"),
+        start,
+    );
+    if matches!(answer.outcome, Outcome::NumericalError)
+        && deadline.is_none_or(|d| Instant::now() < d)
+    {
+        let remaining = limit.saturating_sub(answer.stats.pivots + answer.stats.flips);
+        if remaining > 0 {
+            let previous = answer.stats;
+            answer = cold(p, remaining, deadline, retain);
+            answer.stats.add(&previous);
+        }
+    }
+    answer
+}
 pub(crate) fn raw(
     p: &Problem,
     limit: usize,
@@ -1724,7 +1962,9 @@ mod restoration_tests {
         // Simulate a badly inaccurate accumulated inverse. Rebuilding the
         // actual basis [1] must restore the original LP, not clip its bounds.
         s.factor.updates.push(Arc::new(Eta {
-            row: 0, column: vec![(0, -1.)], pivot: -1.,
+            row: 0,
+            column: vec![(0, -1.)],
+            pivot: -1.,
         }));
         s
     }
@@ -1732,7 +1972,10 @@ mod restoration_tests {
     fn dual_retry_rebuilds_an_inaccurate_inverse_and_checks_the_original_lp() {
         let costs = [1., 2., 0.];
         let mut off = inaccurate_updated_basis();
-        assert!(matches!(off.dual_run_retry::<false>(&costs, false), Err(Outcome::NumericalError)));
+        assert!(matches!(
+            off.dual_run_retry::<false>(&costs, false),
+            Err(Outcome::NumericalError)
+        ));
         let mut on = inaccurate_updated_basis();
         let (primal, dual) = on.dual_run_retry::<false>(&costs, true).unwrap();
         assert_eq!((primal, dual), (0., 0.));
@@ -1745,11 +1988,17 @@ mod restoration_tests {
     fn dual_retry_preserves_deadlines_and_work_limits() {
         let mut expired = inaccurate_updated_basis();
         expired.deadline = Some(Instant::now());
-        assert!(matches!(expired.dual_run_retry::<false>(&[1., 2., 0.], true), Err(Outcome::TimeLimit)));
+        assert!(matches!(
+            expired.dual_run_retry::<false>(&[1., 2., 0.], true),
+            Err(Outcome::TimeLimit)
+        ));
         assert_eq!(expired.stats.dual_refactor_retries, 0);
         let mut limited = inaccurate_updated_basis();
         limited.limit = 0;
-        assert!(matches!(limited.dual_run_retry::<false>(&[1., 2., 0.], true), Err(Outcome::IterationLimit)));
+        assert!(matches!(
+            limited.dual_run_retry::<false>(&[1., 2., 0.], true),
+            Err(Outcome::IterationLimit)
+        ));
         assert_eq!(limited.stats.dual_refactor_retries, 0);
     }
     #[test]
@@ -2039,76 +2288,470 @@ mod pricing_budget_tests {
 }
 
 /// Approximate tableau rows for cut proposal only; validity requires separate proof.
-pub fn tableau_rows(p: &Problem, warm: &WarmStart, columns: &[usize], deadline: Instant)
-    -> Vec<(usize, Vec<f64>)>
-{ crate::scaling::tableau_rows(p,warm,columns,deadline) }
+pub fn tableau_rows(
+    p: &Problem,
+    warm: &WarmStart,
+    columns: &[usize],
+    deadline: Instant,
+) -> Vec<(usize, Vec<f64>)> {
+    crate::scaling::tableau_rows(p, warm, columns, deadline)
+}
 #[cfg(test)]
 mod tableau_row_tests {
     use super::*;
     #[test]
     fn tableau_rows_return_original_units_after_column_and_row_scaling() {
-        let large=2f64.powi(20);
-        let p=Problem {columns:vec![vec![(0,large),(1,1.)],vec![(0,large),(1,2.)]],rhs:vec![large,1.5],costs:vec![1.,2.],upper:vec![f64::INFINITY;2],equality:vec![true;2],slack_upper:vec![0.;2]};
-        let a=minimize_warm(&p,1000,None,None);assert!(matches!(a.outcome,Outcome::Optimal{..}));let warm=a.warm.unwrap();
-        let rows=tableau_rows(&p,&warm,&[0,1],Instant::now()+std::time::Duration::from_secs(1));assert_eq!(rows.len(),2);
-        for (k,w) in rows {for j in 0..2 {let value:f64=p.columns[j].iter().map(|&(i,a)|a*w[i]).sum();assert!((value-if j==k{1.}else{0.}).abs()<1e-12);}}
-        assert!(tableau_rows(&p,&warm,&[0,1],Instant::now()).is_empty());
-        let mut changed=p.clone();changed.columns[0][0].1*=2.;assert!(tableau_rows(&changed,&warm,&[0],Instant::now()+std::time::Duration::from_secs(1)).is_empty());
+        let large = 2f64.powi(20);
+        let p = Problem {
+            columns: vec![vec![(0, large), (1, 1.)], vec![(0, large), (1, 2.)]],
+            rhs: vec![large, 1.5],
+            costs: vec![1., 2.],
+            upper: vec![f64::INFINITY; 2],
+            equality: vec![true; 2],
+            slack_upper: vec![0.; 2],
+        };
+        let a = minimize_warm(&p, 1000, None, None);
+        assert!(matches!(a.outcome, Outcome::Optimal { .. }));
+        let warm = a.warm.unwrap();
+        let rows = tableau_rows(
+            &p,
+            &warm,
+            &[0, 1],
+            Instant::now() + std::time::Duration::from_secs(1),
+        );
+        assert_eq!(rows.len(), 2);
+        for (k, w) in rows {
+            for j in 0..2 {
+                let value: f64 = p.columns[j].iter().map(|&(i, a)| a * w[i]).sum();
+                assert!((value - if j == k { 1. } else { 0. }).abs() < 1e-12);
+            }
+        }
+        assert!(tableau_rows(&p, &warm, &[0, 1], Instant::now()).is_empty());
+        let mut changed = p.clone();
+        changed.columns[0][0].1 *= 2.;
+        assert!(
+            tableau_rows(
+                &changed,
+                &warm,
+                &[0],
+                Instant::now() + std::time::Duration::from_secs(1)
+            )
+            .is_empty()
+        );
     }
 }
 
-#[cfg(test)]mod limited_point_tests{
- use super::*;
- #[test]fn limited_points_are_candidates_only_and_validated_in_original_scaled_units(){
-  if !std::env::var("MIP_LP_LIMIT_POINT").map_or(true,|v|v=="1"){return;}
-  for scale in [1.,1e8,1e-8]{let p=Problem{columns:vec![vec![(0,scale)]],rhs:vec![scale],costs:vec![-1.],upper:vec![2.],equality:vec![false],slack_upper:vec![f64::INFINITY]};let a=minimize_warm(&p,0,None,None);assert!(matches!(a.outcome,Outcome::IterationLimit));assert_eq!(a.limited_point,Some(vec![0.]));assert!(a.dual.is_none());let opt=minimize_warm(&p,100,None,None);let a=minimize_warm(&p,0,None,opt.warm.as_deref());assert!(matches!(a.outcome,Outcome::IterationLimit));assert_eq!(a.limited_point,Some(vec![1.]));assert!(a.dual.is_none());}
-  let p=Problem{columns:vec![vec![(0,1.)]],rhs:vec![1.],costs:vec![-1.],upper:vec![2.],equality:vec![true],slack_upper:vec![0.]};let a=minimize_warm(&p,0,None,None);assert!(matches!(a.outcome,Outcome::IterationLimit));assert!(a.limited_point.is_none());
- }
-}
-#[cfg(test)]mod singleton_crash_tests {
- use super::*;
- fn equality(rhs:f64,a:f64,upper:f64)->Problem{Problem{columns:vec![vec![(0,2.)],vec![(0,a)]],rhs:vec![rhs],costs:vec![1.,0.],upper:vec![f64::INFINITY,upper],equality:vec![true],slack_upper:vec![0.]}}
- #[test]fn feasible_zero_cost_singleton_avoids_artificial_pivots_and_keeps_warm_reusable(){
-  let p=equality(4.,1.,f64::INFINITY);let old=cold_crashed(&p,1000,None,true,false,false);let new=cold_crashed(&p,1000,None,true,false,true);assert_eq!(new.stats.singleton_crash_columns,1);assert!(new.stats.pivots<old.stats.pivots);assert!(matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.]));let warm=new.warm.unwrap();
-  let mut q=p.clone();q.rhs[0]=5.;let next=minimize_warm(&q,1000,None,Some(&warm));assert!(matches!(next.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==5.));
-  let parent=minimize_warm(&p,1000,None,Some(&warm));assert!(matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==4.));
-  let mut extended=p.clone();extended.columns[0].push((1,1.));extended.rhs.push(1.);extended.equality.push(false);extended.slack_upper.push(f64::INFINITY);let row=minimize_warm(&extended,1000,None,Some(&warm));assert!(matches!(row.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(row.stats.warm_row_extensions,1);
- }
- #[test]fn negative_sign_and_ranged_slack_are_checked_against_actual_bounds(){
-  let p=equality(-1.,-1.,2.);let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,1);assert!(matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==1.));
-  let p=equality(-1.,-1.,0.5);let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,0);assert!(matches!(new.outcome,Outcome::Infeasible));
-  let mut p=equality(5.,1.,2.);p.equality[0]=false;p.slack_upper[0]=4.;let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,1);assert!(matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]>=1.&&x[1]<=2.));
- }
- #[test]fn non_power_of_two_and_expired_budget_do_not_force_a_crash(){
-  let p=equality(4.,3.,f64::INFINITY);let new=cold_crashed(&p,1000,None,false,false,true);assert_eq!(new.stats.singleton_crash_columns,0);assert!(matches!(new.outcome,Outcome::Optimal{objective,..}if objective==0.));let p=equality(4.,1.,f64::INFINITY);let expired=cold_crashed(&p,1000,Some(Instant::now()),false,false,true);assert!(matches!(expired.outcome,Outcome::TimeLimit));assert_eq!(expired.stats.singleton_crash_columns,0);
- }
-}
-
-#[cfg(test)]mod singleton_extension_tests{
- use super::*;
- #[test]fn a_new_row_can_touch_the_original_singleton_basic_column(){
-  let p=Problem{columns:vec![vec![(0,2.)],vec![(0,1.)]],rhs:vec![4.],costs:vec![1.,0.],upper:vec![f64::INFINITY;2],equality:vec![true],slack_upper:vec![0.]};let a=cold_crashed(&p,1000,None,true,false,true);assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(a.stats.singleton_crash_columns,1);let w=a.warm.unwrap();let mut q=p.clone();q.columns[1].push((1,1.));q.rhs.push(3.);q.equality.push(false);q.slack_upper.push(f64::INFINITY);let b=minimize_warm(&q,1000,None,Some(&w));let c=minimize(&q,1000,None);assert_eq!(b.stats.warm_row_extensions,1);assert!(matches!(b.outcome,Outcome::Optimal{objective,x}if objective==0.5&&x==vec![0.5,3.]));assert!(matches!(c.outcome,Outcome::Optimal{objective,..}if objective==0.5));let parent=minimize_warm(&p,1000,None,Some(&w));assert!(matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.]));
- }
-}
-#[cfg(test)]mod empty_pricing_tests{
- use super::*;
- fn initial()->Simplex{let n=1300;let mut columns=vec![vec![];n];columns[0]=vec![(0,1.)];columns.push(vec![(0,1.)]);let mut basic=vec![false;n+1];basic[n]=true;let mut x=vec![0.;n+1];x[n]=1.;let mut upper=vec![3.;n+1];upper[n]=f64::INFINITY;Simplex{columns:Arc::new(columns),rhs:vec![1.],upper,basis:vec![n],basic,at_upper:vec![false;n+1],x,factor:Basis{factor:Arc::new(Factor::Diagonal(vec![1.])),updates:vec![],multiplier_cache:None},stats:Stats::default(),limit:1000,deadline:None,artificial:vec![],original:n,witness:None,witness_point:None}}
- #[test]fn skipped_columns_preserve_all_pivots_points_and_certificates(){for normalized in [false,true]{let mut old=initial();let mut new=old.clone();let mut c=vec![0.;old.columns.len()];c[0]=-1.;let(a,b)=if normalized{(old.run_priced_mode::<true>(&c,false),new.run_priced_mode::<true>(&c,true))}else{(old.run_priced_mode::<false>(&c,false),new.run_priced_mode::<false>(&c,true))};assert_eq!(a.unwrap(),b.unwrap());assert_eq!(old.x,new.x);assert_eq!(old.basis,new.basis);assert_eq!(old.stats.pivots,new.stats.pivots);assert_eq!(old.stats.flips,new.stats.flips);assert_eq!(new.stats.empty_pricing_calls,1);assert!(new.stats.empty_pricing_skips>=1299);assert_eq!(new.certificate(&c).unwrap(),(-1.,-1.));}}
- #[test]fn nonzero_empty_columns_keep_bound_flips_and_tiny_unbounded_objectives(){for cost in [-2.,-1e-19]{for finite in [false,true]{let mut old=initial();let mut new=old.clone();old.upper[1]=if finite{3.}else{f64::INFINITY};new.upper[1]=old.upper[1];let mut c=vec![0.;old.columns.len()];c[1]=cost;let a=old.run_priced_mode::<false>(&c,false);let b=new.run_priced_mode::<false>(&c,true);if finite{assert_eq!(a.unwrap(),b.unwrap());assert_eq!(old.x,new.x);assert_eq!(new.x[1],3.);}else{assert!(matches!(a,Err(Outcome::Unbounded)));assert!(matches!(b,Err(Outcome::Unbounded)));}}}}
- #[test]fn cost_and_matrix_changes_rebuild_the_candidate_set(){let mut s=initial();let mut c=vec![0.;s.columns.len()];assert!(!pricing_columns(&s.columns,&c,true).unwrap().contains(&5));s.run_priced_mode::<false>(&c,true).unwrap();c[5]=-2.;assert!(pricing_columns(&s.columns,&c,true).unwrap().contains(&5));assert_eq!(s.run_priced_mode::<false>(&c,true).unwrap(),(-6.,-6.));let mut columns=(*s.columns).clone();columns[6].push((1,1.));assert!(pricing_columns(&columns,&c,true).unwrap().contains(&6));assert!(s.columns[6].is_empty());}
+#[cfg(test)]
+mod limited_point_tests {
+    use super::*;
+    #[test]
+    fn limited_points_are_candidates_only_and_validated_in_original_scaled_units() {
+        if !std::env::var("MIP_LP_LIMIT_POINT").map_or(true, |v| v == "1") {
+            return;
+        }
+        for scale in [1., 1e8, 1e-8] {
+            let p = Problem {
+                columns: vec![vec![(0, scale)]],
+                rhs: vec![scale],
+                costs: vec![-1.],
+                upper: vec![2.],
+                equality: vec![false],
+                slack_upper: vec![f64::INFINITY],
+            };
+            let a = minimize_warm(&p, 0, None, None);
+            assert!(matches!(a.outcome, Outcome::IterationLimit));
+            assert_eq!(a.limited_point, Some(vec![0.]));
+            assert!(a.dual.is_none());
+            let opt = minimize_warm(&p, 100, None, None);
+            let a = minimize_warm(&p, 0, None, opt.warm.as_deref());
+            assert!(matches!(a.outcome, Outcome::IterationLimit));
+            assert_eq!(a.limited_point, Some(vec![1.]));
+            assert!(a.dual.is_none());
+        }
+        let p = Problem {
+            columns: vec![vec![(0, 1.)]],
+            rhs: vec![1.],
+            costs: vec![-1.],
+            upper: vec![2.],
+            equality: vec![true],
+            slack_upper: vec![0.],
+        };
+        let a = minimize_warm(&p, 0, None, None);
+        assert!(matches!(a.outcome, Outcome::IterationLimit));
+        assert!(a.limited_point.is_none());
+    }
 }
 #[cfg(test)]
-mod zero_phase_one_tests{
- use super::*;
- fn cycle()->Problem{let n=16;Problem{columns:(0..n).map(|j|vec![(j,2.),((j+n-1)%n,-1.)]).collect(),rhs:vec![0.;n],costs:vec![0.;n],upper:vec![4.;n],equality:vec![true;n],slack_upper:vec![0.;n]}}
- #[test]
- fn zero_artificial_objective_skips_only_phase_one_and_keeps_a_reusable_parent(){
-  let p=cycle();let old=cold_initialized(&p,10000,None,true,true,true,false);let new=cold_initialized(&p,10000,None,true,true,true,true);assert!(matches!(old.outcome,Outcome::Optimal{objective,..}if objective==0.));assert!(matches!(new.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(new.stats.zero_phase_one_skips,1);assert_eq!(new.stats.feasibility_pricing_calls,0);assert!(old.stats.feasibility_pricing_calls>0);assert!(new.stats.pivots<old.stats.pivots);
-  let parent=new.warm.unwrap();let mut changed=p.clone();changed.costs[0]=-1.;let a=minimize_warm(&changed,10000,None,Some(&parent));assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));let b=minimize_warm(&p,10000,None,Some(&parent));assert!(matches!(b.outcome,Outcome::Optimal{objective,..}if objective==0.));
-  let mut extended=p.clone();let row=extended.rhs.len();extended.rhs.push(0.);extended.equality.push(false);extended.slack_upper.push(f64::INFINITY);extended.columns[0].push((row,-1.));let e=minimize_warm(&extended,10000,None,Some(&parent));assert!(matches!(e.outcome,Outcome::Optimal{objective,..}if objective==0.));assert!(e.stats.warm_row_extensions>0);
- }
- #[test]
- fn tiny_positive_phase_one_values_never_use_the_zero_shortcut(){let mut p=cycle();p.rhs[0]=1e-16;let r=cold_initialized(&p,10000,None,true,true,true,true);assert_eq!(r.stats.zero_phase_one_skips,0);assert_eq!(r.stats.feasibility_pricing_calls,1);}
- #[test]
- fn deadline_and_pivot_budget_remain_in_force(){let p=cycle();let r=cold_initialized(&p,10000,Some(Instant::now()),true,true,true,true);assert!(matches!(r.outcome,Outcome::TimeLimit));let r=cold_initialized(&p,0,None,true,true,true,true);assert!(matches!(r.outcome,Outcome::IterationLimit));}
+mod singleton_crash_tests {
+    use super::*;
+    fn equality(rhs: f64, a: f64, upper: f64) -> Problem {
+        Problem {
+            columns: vec![vec![(0, 2.)], vec![(0, a)]],
+            rhs: vec![rhs],
+            costs: vec![1., 0.],
+            upper: vec![f64::INFINITY, upper],
+            equality: vec![true],
+            slack_upper: vec![0.],
+        }
+    }
+    #[test]
+    fn feasible_zero_cost_singleton_avoids_artificial_pivots_and_keeps_warm_reusable() {
+        let p = equality(4., 1., f64::INFINITY);
+        let old = cold_crashed(&p, 1000, None, true, false, false);
+        let new = cold_crashed(&p, 1000, None, true, false, true);
+        assert_eq!(new.stats.singleton_crash_columns, 1);
+        assert!(new.stats.pivots < old.stats.pivots);
+        assert!(
+            matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.])
+        );
+        let warm = new.warm.unwrap();
+        let mut q = p.clone();
+        q.rhs[0] = 5.;
+        let next = minimize_warm(&q, 1000, None, Some(&warm));
+        assert!(matches!(next.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==5.));
+        let parent = minimize_warm(&p, 1000, None, Some(&warm));
+        assert!(matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==4.));
+        let mut extended = p.clone();
+        extended.columns[0].push((1, 1.));
+        extended.rhs.push(1.);
+        extended.equality.push(false);
+        extended.slack_upper.push(f64::INFINITY);
+        let row = minimize_warm(&extended, 1000, None, Some(&warm));
+        assert!(matches!(row.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        assert_eq!(row.stats.warm_row_extensions, 1);
+    }
+    #[test]
+    fn negative_sign_and_ranged_slack_are_checked_against_actual_bounds() {
+        let p = equality(-1., -1., 2.);
+        let new = cold_crashed(&p, 1000, None, false, false, true);
+        assert_eq!(new.stats.singleton_crash_columns, 1);
+        assert!(matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]==1.));
+        let p = equality(-1., -1., 0.5);
+        let new = cold_crashed(&p, 1000, None, false, false, true);
+        assert_eq!(new.stats.singleton_crash_columns, 0);
+        assert!(matches!(new.outcome, Outcome::Infeasible));
+        let mut p = equality(5., 1., 2.);
+        p.equality[0] = false;
+        p.slack_upper[0] = 4.;
+        let new = cold_crashed(&p, 1000, None, false, false, true);
+        assert_eq!(new.stats.singleton_crash_columns, 1);
+        assert!(
+            matches!(new.outcome,Outcome::Optimal{objective,x}if objective==0.&&x[1]>=1.&&x[1]<=2.)
+        );
+    }
+    #[test]
+    fn non_power_of_two_and_expired_budget_do_not_force_a_crash() {
+        let p = equality(4., 3., f64::INFINITY);
+        let new = cold_crashed(&p, 1000, None, false, false, true);
+        assert_eq!(new.stats.singleton_crash_columns, 0);
+        assert!(matches!(new.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        let p = equality(4., 1., f64::INFINITY);
+        let expired = cold_crashed(&p, 1000, Some(Instant::now()), false, false, true);
+        assert!(matches!(expired.outcome, Outcome::TimeLimit));
+        assert_eq!(expired.stats.singleton_crash_columns, 0);
+    }
+}
+
+#[cfg(test)]
+mod singleton_extension_tests {
+    use super::*;
+    #[test]
+    fn a_new_row_can_touch_the_original_singleton_basic_column() {
+        let p = Problem {
+            columns: vec![vec![(0, 2.)], vec![(0, 1.)]],
+            rhs: vec![4.],
+            costs: vec![1., 0.],
+            upper: vec![f64::INFINITY; 2],
+            equality: vec![true],
+            slack_upper: vec![0.],
+        };
+        let a = cold_crashed(&p, 1000, None, true, false, true);
+        assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        assert_eq!(a.stats.singleton_crash_columns, 1);
+        let w = a.warm.unwrap();
+        let mut q = p.clone();
+        q.columns[1].push((1, 1.));
+        q.rhs.push(3.);
+        q.equality.push(false);
+        q.slack_upper.push(f64::INFINITY);
+        let b = minimize_warm(&q, 1000, None, Some(&w));
+        let c = minimize(&q, 1000, None);
+        assert_eq!(b.stats.warm_row_extensions, 1);
+        assert!(
+            matches!(b.outcome,Outcome::Optimal{objective,x}if objective==0.5&&x==vec![0.5,3.])
+        );
+        assert!(matches!(c.outcome,Outcome::Optimal{objective,..}if objective==0.5));
+        let parent = minimize_warm(&p, 1000, None, Some(&w));
+        assert!(
+            matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.])
+        );
+    }
+}
+#[cfg(test)]
+mod empty_pricing_tests {
+    use super::*;
+    fn initial() -> Simplex {
+        let n = 1300;
+        let mut columns = vec![vec![]; n];
+        columns[0] = vec![(0, 1.)];
+        columns.push(vec![(0, 1.)]);
+        let mut basic = vec![false; n + 1];
+        basic[n] = true;
+        let mut x = vec![0.; n + 1];
+        x[n] = 1.;
+        let mut upper = vec![3.; n + 1];
+        upper[n] = f64::INFINITY;
+        Simplex {
+            columns: Arc::new(columns),
+            rhs: vec![1.],
+            upper,
+            basis: vec![n],
+            basic,
+            at_upper: vec![false; n + 1],
+            x,
+            factor: Basis {
+                factor: Arc::new(Factor::Diagonal(vec![1.])),
+                updates: vec![],
+                multiplier_cache: None,
+            },
+            stats: Stats::default(),
+            limit: 1000,
+            deadline: None,
+            artificial: vec![],
+            original: n,
+            witness: None,
+            witness_point: None,
+        }
+    }
+    #[test]
+    fn skipped_columns_preserve_all_pivots_points_and_certificates() {
+        for normalized in [false, true] {
+            let mut old = initial();
+            let mut new = old.clone();
+            let mut c = vec![0.; old.columns.len()];
+            c[0] = -1.;
+            let (a, b) = if normalized {
+                (
+                    old.run_priced_mode::<true>(&c, false),
+                    new.run_priced_mode::<true>(&c, true),
+                )
+            } else {
+                (
+                    old.run_priced_mode::<false>(&c, false),
+                    new.run_priced_mode::<false>(&c, true),
+                )
+            };
+            assert_eq!(a.unwrap(), b.unwrap());
+            assert_eq!(old.x, new.x);
+            assert_eq!(old.basis, new.basis);
+            assert_eq!(old.stats.pivots, new.stats.pivots);
+            assert_eq!(old.stats.flips, new.stats.flips);
+            assert_eq!(new.stats.empty_pricing_calls, 1);
+            assert!(new.stats.empty_pricing_skips >= 1299);
+            assert_eq!(new.certificate(&c).unwrap(), (-1., -1.));
+        }
+    }
+    #[test]
+    fn nonzero_empty_columns_keep_bound_flips_and_tiny_unbounded_objectives() {
+        for cost in [-2., -1e-19] {
+            for finite in [false, true] {
+                let mut old = initial();
+                let mut new = old.clone();
+                old.upper[1] = if finite { 3. } else { f64::INFINITY };
+                new.upper[1] = old.upper[1];
+                let mut c = vec![0.; old.columns.len()];
+                c[1] = cost;
+                let a = old.run_priced_mode::<false>(&c, false);
+                let b = new.run_priced_mode::<false>(&c, true);
+                if finite {
+                    assert_eq!(a.unwrap(), b.unwrap());
+                    assert_eq!(old.x, new.x);
+                    assert_eq!(new.x[1], 3.);
+                } else {
+                    assert!(matches!(a, Err(Outcome::Unbounded)));
+                    assert!(matches!(b, Err(Outcome::Unbounded)));
+                }
+            }
+        }
+    }
+    #[test]
+    fn cost_and_matrix_changes_rebuild_the_candidate_set() {
+        let mut s = initial();
+        let mut c = vec![0.; s.columns.len()];
+        assert!(!pricing_columns(&s.columns, &c, true).unwrap().contains(&5));
+        s.run_priced_mode::<false>(&c, true).unwrap();
+        c[5] = -2.;
+        assert!(pricing_columns(&s.columns, &c, true).unwrap().contains(&5));
+        assert_eq!(s.run_priced_mode::<false>(&c, true).unwrap(), (-6., -6.));
+        let mut columns = (*s.columns).clone();
+        columns[6].push((1, 1.));
+        assert!(pricing_columns(&columns, &c, true).unwrap().contains(&6));
+        assert!(s.columns[6].is_empty());
+    }
+}
+#[cfg(test)]
+mod zero_phase_one_tests {
+    use super::*;
+    fn cycle() -> Problem {
+        let n = 16;
+        Problem {
+            columns: (0..n)
+                .map(|j| vec![(j, 2.), ((j + n - 1) % n, -1.)])
+                .collect(),
+            rhs: vec![0.; n],
+            costs: vec![0.; n],
+            upper: vec![4.; n],
+            equality: vec![true; n],
+            slack_upper: vec![0.; n],
+        }
+    }
+    #[test]
+    fn zero_artificial_objective_skips_only_phase_one_and_keeps_a_reusable_parent() {
+        let p = cycle();
+        let old = cold_initialized(&p, 10000, None, true, true, true, false);
+        let new = cold_initialized(&p, 10000, None, true, true, true, true);
+        assert!(matches!(old.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        assert!(matches!(new.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        assert_eq!(new.stats.zero_phase_one_skips, 1);
+        assert_eq!(new.stats.feasibility_pricing_calls, 0);
+        assert!(old.stats.feasibility_pricing_calls > 0);
+        assert!(new.stats.pivots < old.stats.pivots);
+        let parent = new.warm.unwrap();
+        let mut changed = p.clone();
+        changed.costs[0] = -1.;
+        let a = minimize_warm(&changed, 10000, None, Some(&parent));
+        assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        let b = minimize_warm(&p, 10000, None, Some(&parent));
+        assert!(matches!(b.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        let mut extended = p.clone();
+        let row = extended.rhs.len();
+        extended.rhs.push(0.);
+        extended.equality.push(false);
+        extended.slack_upper.push(f64::INFINITY);
+        extended.columns[0].push((row, -1.));
+        let e = minimize_warm(&extended, 10000, None, Some(&parent));
+        assert!(matches!(e.outcome,Outcome::Optimal{objective,..}if objective==0.));
+        assert!(e.stats.warm_row_extensions > 0);
+    }
+    #[test]
+    fn tiny_positive_phase_one_values_never_use_the_zero_shortcut() {
+        let mut p = cycle();
+        p.rhs[0] = 1e-16;
+        let r = cold_initialized(&p, 10000, None, true, true, true, true);
+        assert_eq!(r.stats.zero_phase_one_skips, 0);
+        assert_eq!(r.stats.feasibility_pricing_calls, 1);
+    }
+    #[test]
+    fn deadline_and_pivot_budget_remain_in_force() {
+        let p = cycle();
+        let r = cold_initialized(&p, 10000, Some(Instant::now()), true, true, true, true);
+        assert!(matches!(r.outcome, Outcome::TimeLimit));
+        let r = cold_initialized(&p, 0, None, true, true, true, true);
+        assert!(matches!(r.outcome, Outcome::IterationLimit));
+    }
+}
+
+#[cfg(test)]
+mod initial_bound_start_tests {
+    use super::*;
+    fn solve_start(p: &Problem, mask: &[bool]) -> Answer {
+        cold_initialized_with_start(p, 10000, None, true, false, true, true, Some(mask))
+    }
+    fn point(a: &Answer) -> Vec<f64> {
+        match &a.outcome {
+            Outcome::Optimal { x, .. } => x.clone(),
+            x => panic!("{x:?}"),
+        }
+    }
+    #[test]
+    fn upper_endpoint_uses_original_matrix_and_skips_positive_phase_one() {
+        let p = Problem {
+            columns: vec![vec![(0, 1.)], vec![(0, 1.)]],
+            rhs: vec![1.],
+            costs: vec![-1., 0.],
+            upper: vec![1., 1.],
+            equality: vec![true],
+            slack_upper: vec![f64::INFINITY],
+        };
+        let saved = format!("{p:?}");
+        let old = cold_initialized(&p, 10000, None, true, false, false, true);
+        let a = solve_start(&p, &[true, false]);
+        assert_eq!(point(&a), vec![1., 0.]);
+        assert_eq!(a.stats.initial_bound_start_successes, 1);
+        assert_eq!(a.stats.zero_phase_one_skips, 1);
+        assert_eq!(a.stats.pivots, 0);
+        assert!(old.stats.pivots > 0);
+        assert_eq!(format!("{p:?}"), saved);
+        let warm = a.warm.unwrap();
+        let parent = format!("{warm:?}");
+        let mut q = p.clone();
+        q.costs = vec![0., -1.];
+        let b = warm_impl(&q, 10000, None, Some(&warm));
+        assert_eq!(point(&b), vec![0., 1.]);
+        assert_eq!(format!("{warm:?}"), parent);
+        let mut q = p.clone();
+        q.columns[1].push((1, 1.));
+        q.rhs.push(0.);
+        q.equality.push(false);
+        q.slack_upper.push(f64::INFINITY);
+        let c = warm_impl(&q, 10000, None, Some(&warm));
+        assert_eq!(point(&c), vec![1., 0.]);
+        assert_eq!(format!("{warm:?}"), parent);
+    }
+    #[test]
+    fn negative_rhs_and_ranged_slacks_keep_the_same_feasible_set() {
+        for (a, rhs, slack_upper) in [(-1., -1., f64::INFINITY), (1., 1., 0.5)] {
+            let p = Problem {
+                columns: vec![vec![(0, a)]],
+                rhs: vec![rhs],
+                costs: vec![-1.],
+                upper: vec![1.],
+                equality: vec![false],
+                slack_upper: vec![slack_upper],
+            };
+            let answer = solve_start(&p, &[true]);
+            assert_eq!(point(&answer), vec![1.]);
+            assert_eq!(answer.stats.initial_bound_start_successes, 1);
+            let mut q = p.clone();
+            q.upper[0] = 2.;
+            let warm = answer.warm.unwrap();
+            let w = warm_impl(&q, 10000, None, Some(&warm));
+            let cold = cold_initialized(&q, 10000, None, true, false, true, true);
+            assert_eq!(point(&w), point(&cold));
+        }
+    }
+    #[test]
+    fn invalid_interior_and_tiny_residuals_fall_back_without_tolerance() {
+        let mut p = Problem {
+            columns: vec![vec![(0, 1.)]],
+            rhs: vec![1e-16],
+            costs: vec![1.],
+            upper: vec![1.],
+            equality: vec![true],
+            slack_upper: vec![f64::INFINITY],
+        };
+        for mask in [&[][..], &[false][..], &[true][..]] {
+            assert!(bound_start_residual(&p, mask, None).is_none());
+            let a = solve_start(&p, mask);
+            assert_eq!(a.stats.initial_bound_start_successes, 0);
+        }
+        p.rhs[0] = 1.;
+        p.upper[0] = f64::INFINITY;
+        assert!(bound_start_residual(&p, &[true], None).is_none());
+        p.upper[0] = 1.;
+        assert!(bound_start_residual(&p, &[true], Some(Instant::now())).is_none());
+        let a = cold_initialized_with_start(&p, 0, None, true, false, true, true, Some(&[true]));
+        assert!(matches!(a.outcome, Outcome::IterationLimit));
+        let a = cold_initialized_with_start(
+            &p,
+            10000,
+            Some(Instant::now()),
+            true,
+            false,
+            true,
+            true,
+            Some(&[true]),
+        );
+        assert!(matches!(a.outcome, Outcome::TimeLimit));
+    }
 }

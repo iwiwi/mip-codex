@@ -229,12 +229,20 @@ fn point_valid(p: &Problem, x: &[f64]) -> bool {
     }
     true
 }
-fn projected_bound_point(p:&Problem,x:&[f64],y:&[f64])->Option<(Vec<f64>,f64,f64)>{
-    if x.len()!=p.upper.len()||x.iter().any(|v|!v.is_finite()){return None;}
-    let projected:Vec<_>=x.iter().zip(&p.upper).map(|(&v,&upper)|v.max(0.).min(upper)).collect();
-    if projected==x{return None;}
-    let (objective,dual)=primal_dual(p,&projected,y)?;
-    Some((projected,objective,dual))
+fn projected_bound_point(p: &Problem, x: &[f64], y: &[f64]) -> Option<(Vec<f64>, f64, f64)> {
+    if x.len() != p.upper.len() || x.iter().any(|v| !v.is_finite()) {
+        return None;
+    }
+    let projected: Vec<_> = x
+        .iter()
+        .zip(&p.upper)
+        .map(|(&v, &upper)| v.max(0.).min(upper))
+        .collect();
+    if projected == x {
+        return None;
+    }
+    let (objective, dual) = primal_dual(p, &projected, y)?;
+    Some((projected, objective, dual))
 }
 pub(crate) fn primal_dual(p: &Problem, x: &[f64], y: &[f64]) -> Option<(f64, f64)> {
     if !point_valid(p, x) || y.len() != p.rhs.len() || y.iter().any(|v| !v.is_finite()) {
@@ -309,6 +317,16 @@ pub(crate) fn solve(
     warm: Option<&WarmStart>,
     retain: bool,
 ) -> Answer {
+    solve_with_bound_start(p, limit, deadline, warm, retain, None)
+}
+pub(crate) fn solve_with_bound_start(
+    p: &Problem,
+    limit: usize,
+    deadline: Option<Instant>,
+    warm: Option<&WarmStart>,
+    retain: bool,
+    start: Option<&[bool]>,
+) -> Answer {
     if !revised::valid(p) {
         return error();
     }
@@ -317,7 +335,7 @@ pub(crate) fn solve(
         Err(()) => return error(),
     };
     let Some((q, factors, rows)) = normalized else {
-        let mut answer = revised::raw(p, limit, deadline, warm, retain);
+        let mut answer = revised::raw_with_bound_start(p, limit, deadline, warm, retain, start);
         if matches!(answer.outcome, Outcome::Unbounded)
             && !(answer
                 .witness
@@ -334,10 +352,10 @@ pub(crate) fn solve(
             answer.witness = None;
             answer.witness_point = None;
         }
-        answer.limited_point = answer.limited_point.take().filter(|x|point_valid(p,x));
+        answer.limited_point = answer.limited_point.take().filter(|x| point_valid(p, x));
         return answer;
     };
-    let mut answer = revised::raw(&q, limit, deadline, warm, retain);
+    let mut answer = revised::raw_with_bound_start(&q, limit, deadline, warm, retain, start);
     if matches!(answer.outcome, Outcome::NumericalError) {
         validation_diagnostic(p, &answer, "raw_scaled");
     }
@@ -353,8 +371,12 @@ pub(crate) fn solve(
             }
         }
     }
-    if let Some(x)=answer.limited_point.as_mut(){for(v,&factor)in x.iter_mut().zip(&factors){*v/=factor;}}
-    answer.limited_point=answer.limited_point.take().filter(|x|point_valid(p,x));
+    if let Some(x) = answer.limited_point.as_mut() {
+        for (v, &factor) in x.iter_mut().zip(&factors) {
+            *v /= factor;
+        }
+    }
+    answer.limited_point = answer.limited_point.take().filter(|x| point_valid(p, x));
     let valid = match &mut answer.outcome {
         Outcome::Optimal { objective, x } => {
             for (v, &s) in x.iter_mut().zip(&factors) {
@@ -365,11 +387,24 @@ pub(crate) fn solve(
                 *objective = obj;
                 answer.dual = Some(dual);
                 true
-            } else if std::env::var("MIP_LP_BOUND_POINT_REPAIR").map_or(true,|v|v=="1") && x.len()==p.upper.len() && x.iter().all(|v|v.is_finite()) {
-                answer.stats.bound_point_trials+=1;
-                if let Some((projected,obj,dual))=answer.witness.as_deref().and_then(|y|projected_bound_point(p,x,y)){
-                    *x=projected;*objective=obj;answer.dual=Some(dual);answer.stats.bound_point_repairs+=1;true
-                }else{false}
+            } else if std::env::var("MIP_LP_BOUND_POINT_REPAIR").map_or(true, |v| v == "1")
+                && x.len() == p.upper.len()
+                && x.iter().all(|v| v.is_finite())
+            {
+                answer.stats.bound_point_trials += 1;
+                if let Some((projected, obj, dual)) = answer
+                    .witness
+                    .as_deref()
+                    .and_then(|y| projected_bound_point(p, x, y))
+                {
+                    *x = projected;
+                    *objective = obj;
+                    answer.dual = Some(dual);
+                    answer.stats.bound_point_repairs += 1;
+                    true
+                } else {
+                    false
+                }
             } else {
                 false
             }
@@ -449,13 +484,28 @@ pub(crate) fn solve(
 mod saved_validation_diagnostic {
     use super::*;
     #[test]
-    fn scaled_bound_projection_still_requires_original_rows_and_dual_gap(){
-        let upper=1073741824f64;let coefficient=1./upper;
-        let mut p=Problem{columns:vec![vec![(0,coefficient)]],rhs:vec![1.],costs:vec![coefficient],upper:vec![upper],equality:vec![true],slack_upper:vec![f64::INFINITY]};
-        let outside=[upper.next_up()];assert!(!point_valid(&p,&outside));let(x,value,dual)=projected_bound_point(&p,&outside,&[1.]).unwrap();assert_eq!(x,[upper]);assert_eq!(value,1.);assert_eq!(dual,1.);
-        assert!(projected_bound_point(&p,&outside,&[0.]).is_none());
-        p.rhs[0]=1.000002;assert!(projected_bound_point(&p,&outside,&[1.]).is_none());
-        assert!(projected_bound_point(&p,&[f64::NAN],&[1.]).is_none());assert!(projected_bound_point(&p,&[],&[1.]).is_none());
+    fn scaled_bound_projection_still_requires_original_rows_and_dual_gap() {
+        let upper = 1073741824f64;
+        let coefficient = 1. / upper;
+        let mut p = Problem {
+            columns: vec![vec![(0, coefficient)]],
+            rhs: vec![1.],
+            costs: vec![coefficient],
+            upper: vec![upper],
+            equality: vec![true],
+            slack_upper: vec![f64::INFINITY],
+        };
+        let outside = [upper.next_up()];
+        assert!(!point_valid(&p, &outside));
+        let (x, value, dual) = projected_bound_point(&p, &outside, &[1.]).unwrap();
+        assert_eq!(x, [upper]);
+        assert_eq!(value, 1.);
+        assert_eq!(dual, 1.);
+        assert!(projected_bound_point(&p, &outside, &[0.]).is_none());
+        p.rhs[0] = 1.000002;
+        assert!(projected_bound_point(&p, &outside, &[1.]).is_none());
+        assert!(projected_bound_point(&p, &[f64::NAN], &[1.]).is_none());
+        assert!(projected_bound_point(&p, &[], &[1.]).is_none());
     }
     #[test]
     fn integer_candidate_cancels_an_unbounded_flow_column_and_rejects_feasible_rhs() {
@@ -493,7 +543,8 @@ mod saved_validation_diagnostic {
             let variables = upper
                 .iter()
                 .enumerate()
-                .map(|(j, &u)| Variable {integer_bounds:None,
+                .map(|(j, &u)| Variable {
+                    integer_bounds: None,
                     name: format!("x{j}"),
                     lower: Some(0.),
                     upper: u,
@@ -521,7 +572,8 @@ mod saved_validation_diagnostic {
                     } else {
                         (None, None)
                     };
-                    Row {integer_bounds:None,
+                    Row {
+                        integer_bounds: None,
                         name: format!("r{i}"),
                         lower,
                         upper: Some(b),
@@ -594,17 +646,30 @@ mod saved_validation_diagnostic {
     }
 }
 
-pub(crate) fn tableau_rows(p: &Problem, warm: &WarmStart, columns: &[usize], deadline: Instant)
-    -> Vec<(usize, Vec<f64>)>
-{
-    if Instant::now()>=deadline {return vec![];}
+pub(crate) fn tableau_rows(
+    p: &Problem,
+    warm: &WarmStart,
+    columns: &[usize],
+    deadline: Instant,
+) -> Vec<(usize, Vec<f64>)> {
+    if Instant::now() >= deadline {
+        return vec![];
+    }
     match scale(p) {
-        Ok(None)=>warm.tableau_rows_raw(p,columns,deadline),
-        Ok(Some((q,factors,rows)))=>warm.tableau_rows_raw(&q,columns,deadline).into_iter()
-            .filter_map(|(column,mut weights)| {
-                for (w,&scale) in weights.iter_mut().zip(&rows) {*w=(*w/scale)/factors[column];}
-                weights.iter().all(|v|v.is_finite()).then_some((column,weights))
-            }).collect(),
-        Err(())=>vec![],
+        Ok(None) => warm.tableau_rows_raw(p, columns, deadline),
+        Ok(Some((q, factors, rows))) => warm
+            .tableau_rows_raw(&q, columns, deadline)
+            .into_iter()
+            .filter_map(|(column, mut weights)| {
+                for (w, &scale) in weights.iter_mut().zip(&rows) {
+                    *w = (*w / scale) / factors[column];
+                }
+                weights
+                    .iter()
+                    .all(|v| v.is_finite())
+                    .then_some((column, weights))
+            })
+            .collect(),
+        Err(()) => vec![],
     }
 }
