@@ -1,0 +1,12 @@
+NAME fixed
+ROWS
+ N obj
+COLUMNS
+ mark0 'MARKER' 'INTORG'
+ x obj 1
+ mark1 'MARKER' 'INTEND'
+RHS
+ rhs obj 0
+BOUNDS
+ FX b x 1.00000000000000001
+ENDATA

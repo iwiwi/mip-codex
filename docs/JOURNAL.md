@@ -779,3 +779,5 @@ main5860b176f58f5e599be816f5eb4ca4b28736e608/FP30859e006f1e0445でmap2問の60�
 最終188対は主解0改善0悪化188同値、下界2改善2悪化172同値12比較不能。全376出力証明/128点GMP・公式が有効。4下界変化は全て新処理なしの時限差。実際の丸めはbab2/bab6で動き、60秒も点なし/下界同値。native同CPU10秒2問は4者とも点なし/時間制限。詳細INTEGER_BOUND_SAFETY_RESULTS.md。23,408原ファイル798,955,147 bytes→100,836,834 bytes、全payload SHA照合、ELF等15除外。
 
 冷dualは厳密版が合成LP1200比較/4800点、MIP800出力/800点GMPで正しくても、実問題6問169試行に成功0でfallback時間だけを使うため棄却。12実点/証明有効、15,756原ファイル243,630,672 bytes→31,624,910 bytesを全SHA保全し研究srcを採用しない。別branchの局所目的改善prototypeはmap10の0→−1→−2→−3を得て3点GMP有効（各試行3秒、読込/準備は別でmain同時間の改善ではない）。有利な端点の保持は−2止まりの負信号。安全性の採用を先に完了し、以後に汎用main経路を検査する。最終240は未起動、11月19日UTC目安と11月22日14:59 UTCの期限を維持する。
+
+PR117統合後、primary main4b9cf54aa7056e2b24557193db2467792ea805f6で通常/library FPcdfc159e435d9194一致。19境界例は期待通り、15点GMP有効。bab2/bab6の60秒は点なし/下界同値、出力証明2件有効。PR117コメント6952765797に直前AI資源量と記録した。新create-only snapshot integer-bound-safety-final-20261117はconfig SHA08c9843112b030542e234fadbad3cfb2e8aa63b82d008af17169a31295fc1c7f、107 source/snapshotと147共有lib照合、240ジョブ未起動。postmerge263ファイル1,598,421 bytesを全SHA保全、ELF等4除外。旧誤答版snapshotも未起動のまま保持する。
