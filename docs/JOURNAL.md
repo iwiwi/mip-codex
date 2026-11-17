@@ -822,3 +822,7 @@ main120統合後のcreate-only zero-phase-one-final-20261117はconfig5fe60cd08a5
 別研究feasible-bound-startは不採用。dc09cc5465e2f90f、328 Rust成功4ignored、LP1000比較/3000点、一般800列挙/708親proof/5664改竄拒否/800GMP、binary400列挙/319親proof/2552改竄拒否/400GMP有効。188対主解1改善0悪化187同値・下界3改善0悪化173同値12比較不能、改善4件は全て初期化試行0。実採用map10/map167各1回は10/60秒とも主解・下界同値。全376出力証明検査/129点、60秒4出力/4点有効。生成pivot削減は実成果に結び付かず、LPコードはmainへ入れない。14,436ファイル515,705,968bytes→7分割67,418,353bytes全SHA保全、ELF6除外保持、研究ブランチを保存する。
 
 適応修復の最終候補はLimits.adaptive_resource_repair既定true/CLI0-1へ整理し、内部resource/probe/RINS/terminal MIPでは明示false。初期bdb05版の外側callsだけで内部呼出し0とは断定しない。書式誤認patchで一度コンパイル失敗後に修正し、library制御テストを含む328 Rust成功4ignored。初期188対測定完了（監査中）、最終候補は別fp/別凍結/別188対で判断する。
+
+中間26debb版の全188対監査完了、主解3改善0悪化185同値・下界1改善2悪化173同値12比較不能。全376出力/128GMP・公式点有効。初期bdb版も全376/128有効。直接呼出しmap10/map167以外の時限差を分けて記録する。単独採用はせず増分統合cb0ba03a版へ候補をまとめ、全生記録をarchiveして引き継ぐ。
+
+中間適応修復記録は26,533ファイル1,078,050,767bytes→15分割169,982,129bytes、全payload SHA一致、ELF6除外保持。単独版の性能/失敗/検査と増分診断・safe cleanup ledgerを保存し、統合候補のブランチへmetadataとして引き継ぐ。
