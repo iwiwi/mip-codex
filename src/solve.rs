@@ -11,6 +11,7 @@ pub enum Engine {
 
 #[derive(Clone)]
 pub struct Limits {
+    pub integer_row_rounding: bool,
     pub resource_primal:bool,
     pub resource_primal_compact:bool,
     pub row_generation: bool,
@@ -95,6 +96,7 @@ mod resource_primal;
 impl Default for Limits {
     fn default() -> Self {
         Self {
+            integer_row_rounding: true,
             resource_primal:true,
             resource_primal_compact:true,
             row_generation: true,
@@ -175,6 +177,8 @@ impl Default for Limits {
 }
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
+    pub optimal_original_conflict:bool,
+    pub integer_row_proof: Option<crate::integer_rows::Proof>,
     pub resource_primal:resource_primal::Stats,
     pub row_generation: row_generation::Stats,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1439,7 +1443,39 @@ fn improve_with_three(
     prepared.cached = Some(baseline);
 }
 pub fn solve(model: &Model, limits: &Limits) -> Result {
-    solve_seeded(model, limits, None)
+    if !limits.integer_row_rounding || limits.seconds <= 0. || !limits.seconds.is_finite() {
+        return reject_original_optimal_conflict(model,solve_seeded(model, limits, None));
+    }
+    let start = Instant::now();
+    let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
+    let prepared = crate::integer_rows::prepare(model, deadline);
+    let elapsed = start.elapsed().as_secs_f64();
+    let mut local = limits.clone();
+    local.seconds = (limits.seconds - elapsed).max(0.);
+    let mut result = solve_seeded(prepared.as_ref().map_or(model, |p| &p.0), &local, None);
+    result.seconds = start.elapsed().as_secs_f64();
+    if let Some(t) = &mut result.first_primal_seconds {
+        *t += elapsed;
+    }
+    if let Some(t) = &mut result.box_primal.first_seconds {
+        *t += elapsed;
+    }
+    result.integer_row_proof = prepared.map(|p| p.1);
+    reject_original_optimal_conflict(model,result)
+}
+fn reject_original_optimal_conflict(model:&Model,mut result:Result)->Result{
+    if result.status=="optimal" && model.original_decimal{
+        let start=Instant::now();
+        if let Some(values)=&result.values{
+            let point:Option<Vec<f64>>=model.variables.iter().map(|v|values.get(&v.name).copied()).collect();
+            if point.as_ref().is_some_and(|x|model.original_point_conflict(x)){
+                // 点は従来の絶対許容幅を通っているが、最適性・下界は撤回する。
+                result.status="numerical_error".into();result.dual_bound=None;result.gap=None;result.optimal_original_conflict=true;
+            }
+        }
+        result.seconds+=start.elapsed().as_secs_f64();
+    }
+    result
 }
 fn solve_seeded(model: &Model, limits: &Limits, seed: Option<&[f64]>) -> Result {
     solve_seeded_warm(model, limits, seed, None)
@@ -3074,6 +3110,8 @@ fn solve_seeded_warm(
         submip_fixed_columns,
         row_generation:row_generation_stats,
         resource_primal:resource_primal_stats,
+        integer_row_proof:None,
+        optimal_original_conflict:false,
         lp_scaled_columns: matches!(limits.engine, Engine::Revised)
             .then_some(lp_stats.scaled_columns),
         lp_scaled_rows: matches!(limits.engine, Engine::Revised).then_some(lp_stats.scaled_rows),
@@ -3470,6 +3508,7 @@ mod pump_tests {
     fn local_probe_reuses_root_warm_without_changing_parent_or_bound() {
         let (m, node, p, _) = prepare(FRACTIONAL);
         let limits = Limits {
+            integer_row_rounding:false,
             binary_graph: false,
             box_primal: false,
             cover_cuts: false,
@@ -3762,7 +3801,7 @@ fn improving_lp_dive(model:&Model,root:&Node,point:&[f64],incumbent:f64,limits:&
     let target=incumbent-8e-8*(1.+incumbent.abs());let rhs=target-sign*model.offset;
     if !rhs.is_finite(){return None;}
     let coefficients:Vec<_>=model.variables.iter().enumerate().filter(|(_,v)|v.objective!=0.).map(|(j,v)|(j,sign*v.objective)).collect();if coefficients.is_empty(){return None;}
-    let mut work=model.clone();work.rows.push(crate::model::Row{name:"internal_objective_lp_dive".into(),coefficients,lower:None,upper:Some(rhs),lower_enclosure:None,upper_enclosure:Some([rhs;2]),exact_integral:false,exact_coefficients:true,exact_coefficient_flags:vec![]});
+    let mut work=model.clone();work.rows.push(crate::model::Row {integer_bounds:None,name:"internal_objective_lp_dive".into(),coefficients,lower:None,upper:Some(rhs),lower_enclosure:None,upper_enclosure:Some([rhs;2]),exact_integral:false,exact_coefficients:true,exact_coefficient_flags:vec![]});
     let candidate=if limits.objective_backtrack {objective_backtrack_path(model,&mut work,root,point,incumbent,limits,deadline,stats,lp_stats)}else{objective_dive_path(&work,root,point,limits,deadline,stats,lp_stats)}?;
     let checker=heuristic::Repair::new(model);let value=model.objective(&candidate);
     (checker.candidate_check(&candidate)&&checker.objective_reliable(&candidate,value)&&sign*value<incumbent-4e-8*(1.+incumbent.abs())).then_some(candidate)

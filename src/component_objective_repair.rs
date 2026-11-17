@@ -29,7 +29,7 @@ pub fn improve_shared(model:&Model,original:&Repair<'_>,point:&[f64],lower:&[Opt
   for(k,&j)in columns.iter().enumerate(){inverse[j]=k;}
   let mut sub=Model{name:format!("internal-component-{root}"),maximize:false,offset:0.,offset_enclosure:Some([0.,0.]),original_decimal:model.original_decimal,variables:columns.iter().map(|&j|model.variables[j].clone()).collect(),rows:rows[&root].iter().map(|&i|{let mut row=model.rows[i].clone();row.coefficients=row.coefficients.iter().map(|&(j,a)|(inverse[j],a)).collect();row}).collect()};
   let lo:Vec<_>=columns.iter().map(|&j|lower[j]).collect();let hi:Vec<_>=columns.iter().map(|&j|upper[j]).collect();let mut local:Vec<_>=columns.iter().map(|&j|x[j]).collect();let original_local=Repair::new(&sub);if !original_local.candidate_check(&local){return None;}
-  sub.rows.push(Row{name:"internal_component_objective_cut".into(),lower:None,upper:None,coefficients:(0..columns.len()).map(|j|(j,1.)).collect(),exact_integral:true,exact_coefficients:true,exact_coefficient_flags:Vec::new(),lower_enclosure:None,upper_enclosure:None});
+  sub.rows.push(Row {integer_bounds:None,name:"internal_component_objective_cut".into(),lower:None,upper:None,coefficients:(0..columns.len()).map(|j|(j,1.)).collect(),exact_integral:true,exact_coefficients:true,exact_coefficient_flags:Vec::new(),lower_enclosure:None,upper_enclosure:None});
   for seed in 0..10000u64{
    if Instant::now()>=local_end||stats.work>=local_work_end{break;}
    let target=local.iter().sum::<f64>()-1.;let row=sub.rows.last_mut().unwrap();row.upper=Some(target);row.upper_enclosure=Some([target,target]);

@@ -193,6 +193,72 @@ fn decimal_sum_metadata<'a>(
         exact_float_token(&format!("{sum}e{exponent}"), value),
     ))
 }
+// 元十進数の和のfloor/ceil。f64への変換や変数shiftより前に決める。
+fn decimal_lattice(tokens: &[&str]) -> Option<(f64, f64)> {
+    let mut parts = Vec::new();
+    for &token in tokens {
+        parts.push(decimal_parts(token)?);
+    }
+    let exponent = parts.iter().map(|p| p.1).min()?;
+    let mut sum = BigInt::from(0);
+    for (value, e) in parts {
+        sum += value * BigInt::from(10u8).pow((e - exponent) as u32);
+    }
+    let denominator = if exponent < 0 {
+        BigInt::from(10u8).pow((-exponent) as u32)
+    } else {
+        sum *= BigInt::from(10u8).pow(exponent as u32);
+        BigInt::from(1)
+    };
+    let quotient = &sum / &denominator;
+    let remainder = &sum % &denominator;
+    let zero = BigInt::from(0);
+    let floor = if remainder < zero {
+        &quotient - BigInt::from(1)
+    } else {
+        quotient.clone()
+    };
+    let ceil = if remainder > zero {
+        quotient + BigInt::from(1)
+    } else {
+        quotient
+    };
+    let floor = floor.to_string().parse::<i64>().ok()?;
+    let ceil = ceil.to_string().parse::<i64>().ok()?;
+    (floor.unsigned_abs() <= (1u64 << 52) && ceil.unsigned_abs() <= (1u64 << 52))
+        .then_some((floor as f64, ceil as f64))
+}
+fn row_integer_bounds(
+    kind: &str,
+    rhs: &str,
+    range: Option<(f64, &str)>,
+) -> Option<[Option<f64>; 2]> {
+    let (floor, ceil) = decimal_lattice(&[rhs])?;
+    let mut result = match kind {
+        "L" => [None, Some(floor)],
+        "G" => [Some(ceil), None],
+        "E" => [Some(ceil), Some(floor)],
+        _ => return None,
+    };
+    if let Some((r, token)) = range {
+        let flip = match kind {
+            "L" => r >= 0.,
+            "G" => r < 0.,
+            _ => false,
+        };
+        let negated = flip.then(|| negate_token(token));
+        let adjusted = negated.as_deref().unwrap_or(token);
+        let (floor, ceil) = decimal_lattice(&[rhs, adjusted])?;
+        match kind {
+            "L" => result[0] = Some(ceil),
+            "G" => result[1] = Some(floor),
+            "E" if r >= 0. => result[1] = Some(floor),
+            "E" => result[0] = Some(ceil),
+            _ => return None,
+        }
+    }
+    Some(result)
+}
 fn enclose(value: f64, exact: bool) -> Option<[f64; 2]> {
     let bounds = if exact {
         [value, value]
@@ -235,6 +301,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
     let mut range_tokens: HashMap<usize, Option<String>> = HashMap::new();
     let mut ranges = HashMap::new();
     let mut explicit_bound = vec![];
+    let mut bound_tokens: Vec<[Option<String>; 2]> = vec![];
     let mut raw_rows: Vec<Row> = vec![];
     let mut raw_lexical: Vec<Vec<Option<String>>> = vec![];
     let mut section = String::new();
@@ -306,6 +373,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 rhs_tokens.push(None);
                 raw_lexical.push(Vec::new());
                 raw_rows.push(Row {
+                    integer_bounds: None,
                     lower_enclosure: None,
                     upper_enclosure: None,
                     exact_coefficients: true,
@@ -335,6 +403,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                     let j = model.variables.len();
                     columns.insert(t[0].to_string(), j);
                     model.variables.push(Variable {
+                        integer_bounds: None,
                         objective_enclosure: Some([0., 0.]),
                         lower_enclosure: Some([0., 0.]),
                         upper_enclosure: None,
@@ -345,6 +414,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                         objective: 0.0,
                     });
                     explicit_bound.push(false);
+                    bound_tokens.push([None, None]);
                     j
                 };
                 if integer {
@@ -415,11 +485,17 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 } else {
                     None
                 };
+                let token = if t.len() == 4 && exact_integer(t[3]).is_none() {
+                    Some(t[3].to_string())
+                } else {
+                    None
+                };
                 let enclosure = value.and_then(|x| enclose(x, exact_float_token(t[3], x)));
                 match t[0] {
                     "LO" | "LI" => {
                         v.lower = Some(value.ok_or_else(|| fail("missing bound value".into()))?);
                         v.lower_enclosure = enclosure;
+                        bound_tokens[j][0] = token.clone();
                         if t[0] == "LI" {
                             v.integer = true;
                         }
@@ -430,9 +506,11 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                         if b < 0.0 && !explicit_bound[j] {
                             v.lower = None;
                             v.lower_enclosure = None;
+                            bound_tokens[j][0] = None;
                         }
                         v.upper = Some(b);
                         v.upper_enclosure = enclosure;
+                        bound_tokens[j][1] = token.clone();
                         if t[0] == "UI" {
                             v.integer = true;
                         }
@@ -441,24 +519,31 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                         let b = value.ok_or_else(|| fail("missing bound value".into()))?;
                         v.lower = Some(b);
                         v.lower_enclosure = enclosure;
+                        bound_tokens[j][0] = token.clone();
                         v.upper = Some(b);
                         v.upper_enclosure = enclosure;
+                        bound_tokens[j][1] = token.clone();
                     }
                     "FR" => {
                         v.lower = None;
                         v.lower_enclosure = None;
+                        bound_tokens[j][0] = None;
                         v.upper = None;
                         v.upper_enclosure = None;
+                        bound_tokens[j][1] = None;
                     }
                     "MI" => {
                         v.lower = None;
                         v.lower_enclosure = None;
+                        bound_tokens[j][0] = None;
                     }
                     "PL" => {
                         v.upper = None;
                         v.upper_enclosure = None;
+                        bound_tokens[j][1] = None;
                     }
                     "BV" => {
+                        bound_tokens[j] = [None, None];
                         v.lower = Some(0.0);
                         v.lower_enclosure = Some([0., 0.]);
                         v.upper = Some(1.0);
@@ -497,6 +582,33 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
         if v.integer && !explicit_bound[j] {
             v.upper = Some(1.0);
             v.upper_enclosure = Some([1., 1.]);
+        }
+        if v.integer
+            && (bound_tokens[j].iter().any(Option::is_some)
+                || v.lower.into_iter().chain(v.upper).any(|b| b.fract() != 0.))
+        {
+            let mut rounded = [None, None];
+            let mut supported = true;
+            for (side, (bound, enclosure)) in
+                [(v.lower, v.lower_enclosure), (v.upper, v.upper_enclosure)]
+                    .into_iter()
+                    .enumerate()
+            {
+                if let Some(b) = bound {
+                    rounded[side] = if let Some(token) = bound_tokens[j][side].as_deref() {
+                        decimal_lattice(&[token])
+                            .map(|(floor, ceil)| if side == 0 { ceil } else { floor })
+                    } else if enclosure == Some([b, b]) && b.abs() <= (1u64 << 52) as f64 {
+                        Some(if side == 0 { b.ceil() } else { b.floor() })
+                    } else {
+                        None
+                    };
+                    supported &= rounded[side].is_some();
+                }
+            }
+            if supported {
+                v.integer_bounds = Some(rounded);
+            }
         }
     }
     for (i, (mut row, lexical)) in raw_rows.into_iter().zip(raw_lexical).enumerate() {
@@ -621,6 +733,32 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
             .any(|v| !v.is_finite())
         {
             return Err("range overflow".into());
+        }
+        let exact_integer_endpoints = row
+            .lower
+            .is_none_or(|v| v.fract() == 0. && row.lower_enclosure == Some([v; 2]))
+            && row
+                .upper
+                .is_none_or(|v| v.fract() == 0. && row.upper_enclosure == Some([v; 2]));
+        if !exact_integer_endpoints {
+            // Noneのtokenはパーサが確認済みの小さい整数（未指定RHSは0）。
+            let rhs_token = rhs_tokens[i]
+                .clone()
+                .unwrap_or_else(|| format!("{:.0}", rhs[i]));
+            let range_token = ranges.get(&i).map(|&r| {
+                (
+                    r,
+                    range_tokens
+                        .get(&i)
+                        .and_then(|t| t.clone())
+                        .unwrap_or_else(|| format!("{r:.0}")),
+                )
+            });
+            row.integer_bounds = row_integer_bounds(
+                &kinds[i],
+                &rhs_token,
+                range_token.as_ref().map(|(r, t)| (*r, t.as_str())),
+            );
         }
         model.rows.push(row);
     }

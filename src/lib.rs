@@ -55,3 +55,5 @@ pub(crate) mod dual_form;
 pub mod zero_dominance;
 
 pub mod master_bound;
+
+pub mod integer_rows;

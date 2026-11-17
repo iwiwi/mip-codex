@@ -41,7 +41,7 @@ pub fn improve(
     let mut x = point.to_vec();
     let mut stats = BoxStats::default();
     let mut work = model.clone();
-    work.rows.push(Row {
+    work.rows.push(Row {integer_bounds:None,
         name: "internal_objective_repair_cut".into(),
         lower: None,
         upper: None,

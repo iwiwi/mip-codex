@@ -489,7 +489,10 @@ fn rejected_mir_trials_preserve_the_original_root_bound_and_status() {
             "NAME rollback\nROWS\n N c\n E r\n E s\nCOLUMNS\n x r 3\n t r 3\n z s {coefficient}\nRHS\n rhs r 1 s {rhs}\nBOUNDS\n LI b x 0\n BV b z\nENDATA\n"
         );
         let m = mps::parse(std::io::Cursor::new(text)).unwrap();
-        let limits = mir_only_limits();
+        let limits = Limits {
+            integer_row_rounding: false,
+            ..mir_only_limits()
+        };
         let before = solve(
             &m,
             &Limits {

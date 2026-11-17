@@ -29,6 +29,8 @@ fn incumbent_does_not_change_open_node_lower_bound() {
     let cold = solve(
         &model,
         &Limits {
+            // 分枝・候補生成の経路を前処理から独立して検査する。
+            integer_row_rounding: false,
             box_primal: false,
             binary_graph: false,
             objective_rounding: false,
@@ -48,6 +50,8 @@ fn incumbent_does_not_change_open_node_lower_bound() {
     let repair = solve(
         &model,
         &Limits {
+            // 分枝・候補生成の経路を前処理から独立して検査する。
+            integer_row_rounding: false,
             box_primal: false,
             binary_graph: false,
             objective_rounding: false,
@@ -101,6 +105,8 @@ fn fixed_integer_lp_repairs_linked_continuous_variables() {
     let result = solve(
         &model,
         &Limits {
+            // 分枝・候補生成の経路を前処理から独立して検査する。
+            integer_row_rounding: false,
             box_primal: false,
             binary_graph: false,
             objective_rounding: false,

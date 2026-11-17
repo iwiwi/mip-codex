@@ -7,7 +7,9 @@ fn run(text: &str, enabled: bool, nodes: usize) -> mip_codex::solve::Result {
     let result = solve(
         &model,
         &Limits {
-        gomory_cuts: false,
+            // 探索機構の回帰なので整数境界の前処理を無効にする。
+            integer_row_rounding: false,
+            gomory_cuts: false,
             box_primal: false,
             binary_graph: false,
             objective_rounding: false,

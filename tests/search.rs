@@ -45,7 +45,7 @@ fn all_search_orders_match_binary_enumeration() {
             variables: costs
                 .iter()
                 .enumerate()
-                .map(|(j, c)| Variable {
+                .map(|(j, c)| Variable {integer_bounds:None,
                     lower_enclosure: None,
                     upper_enclosure: None,
                     name: format!("x{j}"),
@@ -60,7 +60,7 @@ fn all_search_orders_match_binary_enumeration() {
                 .iter()
                 .zip(&rhs)
                 .enumerate()
-                .map(|(i, (a, b))| Row {
+                .map(|(i, (a, b))| Row {integer_bounds:None,
                     lower_enclosure: None,
                     upper_enclosure: None,
                     exact_coefficients: false,
@@ -127,7 +127,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
         offset_enclosure: None,
         offset: 0.,
         variables: (0..70)
-            .map(|j| Variable {
+            .map(|j| Variable {integer_bounds:None,
                 lower_enclosure: None,
                 upper_enclosure: None,
                 name: format!("x{j}"),
@@ -138,7 +138,7 @@ fn interruption_keeps_all_pending_nodes_in_global_bound() {
                 objective: 0.,
             })
             .collect(),
-        rows: vec![Row {
+        rows: vec![Row {integer_bounds:None,
             lower_enclosure: None,
             upper_enclosure: None,
             exact_coefficients: false,

@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 /// None denotes an absent bound, never a NaN or a sentinel magnitude.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Variable {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub integer_bounds: Option<[Option<f64>; 2]>,
     #[serde(default)]
     pub objective_enclosure: Option<[f64; 2]>,
     /// 元入力の境界定数を外側から囲む有限区間。Noneは証明情報なし。
@@ -18,6 +20,8 @@ pub struct Variable {
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Row {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub integer_bounds: Option<[Option<f64>; 2]>,
     #[serde(default)]
     pub exact_coefficients: bool,
     #[serde(default)]
@@ -205,6 +209,23 @@ fn serialized_in_domain(
     })
 }
 impl Model {
+    /// 許容幅で受理された点でも、元十進モデルに明白な違反があれば最適とは言わない。
+    /// 外側区間で違反が確定した場合だけtrue。区間が重なる場合は断定しない。
+    pub(crate) fn original_point_conflict(&self,x:&[f64])->bool {
+        if !self.original_decimal || x.len()!=self.variables.len(){return false;}
+        for(v,&value)in self.variables.iter().zip(x){
+            let [lo,hi]=if point_error(value)==0.{[value,value]}else{[value.next_down(),value.next_up()]};
+            if v.lower_enclosure.is_some_and(|b|hi<b[0]) || v.upper_enclosure.is_some_and(|b|lo>b[1]){return true;}
+        }
+        for row in &self.rows {
+            let Some([mut lo,mut hi])=crate::exact::dot_bounds(row.coefficients.iter().map(|&(j,a)|(a,x[j])))else{continue;};
+            let error=row.activity_error(x);
+            if !error.is_finite(){continue;}
+            if error!=0.{lo=(lo-error).next_down();hi=(hi+error).next_up();}
+            if row.lower_enclosure.is_some_and(|b|hi<b[0]) || row.upper_enclosure.is_some_and(|b|lo>b[1]){return true;}
+        }
+        false
+    }
     pub(crate) fn needs_original_feasibility_check(&self) -> bool {
         self.original_decimal
             && (self.rows.iter().any(|r| {
@@ -248,6 +269,13 @@ impl Model {
             return Err("invalid solution dimension or nonfinite value".into());
         }
         for (v, &value) in self.variables.iter().zip(x) {
+            if integer && v.integer {
+                if let Some([lower, upper]) = v.integer_bounds {
+                    if lower.is_some_and(|b| value < b) || upper.is_some_and(|b| value > b) {
+                        return Err(format!("variable {} violates exact integer bounds", v.name));
+                    }
+                }
+            }
             let (lower, upper) = if self.original_decimal {
                 let lower = match v.lower {
                     Some(_) => Some(
@@ -286,6 +314,40 @@ impl Model {
             }
         }
         for row in &self.rows {
+            if integer
+                && row.exact_coefficients
+                && row
+                    .coefficients
+                    .iter()
+                    .all(|&(j, _)| self.variables[j].integer)
+            {
+                if let Some([lower, upper]) = row.integer_bounds {
+                    let mut total = Some(0i128);
+                    for &(j, a) in &row.coefficients {
+                        let v = x[j];
+                        if !a.is_finite()
+                            || a.fract() != 0.
+                            || a.abs() > (1u64 << 52) as f64
+                            || v.fract() != 0.
+                            || v.abs() > (1u64 << 52) as f64
+                        {
+                            total = None;
+                            break;
+                        }
+                        total = total.and_then(|sum| {
+                            (a as i128)
+                                .checked_mul(v as i128)
+                                .and_then(|t| sum.checked_add(t))
+                        });
+                    }
+                    if let Some(total) = total.filter(|n| n.unsigned_abs() <= 1u128 << 52) {
+                        let value = total as f64;
+                        if lower.is_some_and(|b| value < b) || upper.is_some_and(|b| value > b) {
+                            return Err(format!("row {} violates exact integer bounds", row.name));
+                        }
+                    }
+                }
+            }
             let error = if self.original_decimal {
                 row.activity_error(x)
             } else {
@@ -382,6 +444,7 @@ mod activity_error_tests {
             }
             flags.truncate(case % (n + 1));
             let row = Row {
+                integer_bounds: None,
                 exact_coefficients: case % 7 == 0,
                 exact_integral: case % 11 == 0,
                 exact_coefficient_flags: flags,

@@ -3,7 +3,7 @@ use mip_codex::{
     propagate::{Propagator, Status},
 };
 fn variable(name: &str, lower: Option<f64>, upper: Option<f64>, integer: bool) -> Variable {
-    Variable {
+    Variable {integer_bounds:None,
         lower_enclosure: None,
         upper_enclosure: None,
         name: name.into(),
@@ -26,7 +26,7 @@ fn model(variables: Vec<Variable>, rows: Vec<Row>) -> Model {
     }
 }
 fn row(lower: Option<f64>, upper: Option<f64>, coefficients: Vec<(usize, f64)>) -> Row {
-    Row {
+    Row {integer_bounds:None,
         lower_enclosure: None,
         upper_enclosure: None,
         exact_coefficients: false,
