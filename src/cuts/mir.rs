@@ -96,7 +96,7 @@ fn derive(model: &Model, source: &Row, upper: bool, d: i64, complements: &[usize
     if rhs.abs() > 1i128 << 52 || coefficients.is_empty() {
         return None;
     }
-    Some(Row {
+    Some(Row {integer_bounds:None,
         name: String::new(),
         coefficients,
         lower: None,
@@ -299,7 +299,7 @@ mod tests {
             offset_enclosure: Some([0.; 2]),
             original_decimal: false,
             variables: (0..3)
-                .map(|j| Variable {
+                .map(|j| Variable {integer_bounds:None,
                     name: format!("x{j}"),
                     objective: 0.,
                     objective_enclosure: Some([0.; 2]),
@@ -310,7 +310,7 @@ mod tests {
                     upper_enclosure: Some([3.; 2]),
                 })
                 .collect(),
-            rows: vec![Row {
+            rows: vec![Row {integer_bounds:None,
                 name: "r".into(),
                 coefficients: a
                     .into_iter()

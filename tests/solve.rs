@@ -40,8 +40,15 @@ fn integer_infeasible_from_domain() {
 }
 #[test]
 fn unbounded_relaxation_is_not_mip_claim() {
-    let r = run(
+    let m = mps::parse(std::io::Cursor::new(
         "NAME unbounded\nROWS\n N c\n E r\nCOLUMNS\n x c -1\n y r 1\nRHS\n rhs r 0.5\nBOUNDS\n LI b y 0\nENDATA\n",
+    )).unwrap();
+    let r = solve(
+        &m,
+        &Limits {
+            integer_row_rounding: false,
+            ..Limits::default()
+        },
     );
     assert_eq!(r.status, "unbounded_relaxation");
     assert_eq!(r.objective, None);

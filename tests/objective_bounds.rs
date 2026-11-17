@@ -100,6 +100,7 @@ fn a_tiny_negative_reduced_cost_on_an_unbounded_column_is_not_a_bound() {
 }
 fn optimization_limits() -> mip_codex::solve::Limits {
     mip_codex::solve::Limits {
+        integer_row_rounding: false,
         gomory_cuts: false,
         box_primal: false,
         binary_graph: false,

@@ -76,7 +76,7 @@ pub fn derive(model: &Model, proof: &Proof) -> Option<Row> {
     let coefficients:Vec<_>=coefficients.into_iter().map(|(j,v)|(j,v/scale)).collect();
     let rhs=rhs as f64/scale;
     let integral=rhs.fract()==0. && coefficients.iter().all(|&(_,v)|v.fract()==0.);
-    Some(Row{name:String::new(),coefficients,lower:Some(rhs),upper:None,lower_enclosure:Some([rhs;2]),upper_enclosure:None,exact_integral:integral,exact_coefficients:true,exact_coefficient_flags:vec![]})
+    Some(Row {integer_bounds:None,name:String::new(),coefficients,lower:Some(rhs),upper:None,lower_enclosure:Some([rhs;2]),upper_enclosure:None,exact_integral:integral,exact_coefficients:true,exact_coefficient_flags:vec![]})
 }
 pub fn verify(model: &Model, proof: &Proof, row: &Row) -> bool {
     derive(model,proof).is_some_and(|r|r.coefficients==row.coefficients && r.lower==row.lower && row.upper.is_none()

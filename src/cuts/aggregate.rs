@@ -67,7 +67,7 @@ pub(super) fn source(model: &Model, terms: &[RowWeight]) -> Option<Row> {
     if rhs.abs() > 1i128 << 52 || coefficients.values().any(|a| a.abs() > 1i128 << 52) {
         return None;
     }
-    Some(Row {
+    Some(Row {integer_bounds:None,
         name: String::new(),
         coefficients: coefficients
             .into_iter()

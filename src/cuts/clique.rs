@@ -101,7 +101,7 @@ fn verify_until(model: &Model, cut: &Cut, deadline: Option<Instant>) -> bool {
         // Reuse the original single-row cover proof checker, not the graph's
         // approximate candidate selection or its cached capacity.
         let pair_cut = Cut {
-            row: Row {
+            row: Row {integer_bounds:None,
                 name: String::new(),
                 coefficients: vec![(a, coefficients[&a]), (b, coefficients[&b])],
                 lower: None,
@@ -293,7 +293,7 @@ impl Pool {
             }
             let first = &pairs[0];
             let cut = Cut {
-                row: Row {
+                row: Row {integer_bounds:None,
                     name: format!("clique_{}", self.seen.len()),
                     coefficients,
                     lower: None,

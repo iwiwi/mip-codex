@@ -493,7 +493,7 @@ mod saved_validation_diagnostic {
             let variables = upper
                 .iter()
                 .enumerate()
-                .map(|(j, &u)| Variable {
+                .map(|(j, &u)| Variable {integer_bounds:None,
                     name: format!("x{j}"),
                     lower: Some(0.),
                     upper: u,
@@ -521,7 +521,7 @@ mod saved_validation_diagnostic {
                     } else {
                         (None, None)
                     };
-                    Row {
+                    Row {integer_bounds:None,
                         name: format!("r{i}"),
                         lower,
                         upper: Some(b),
