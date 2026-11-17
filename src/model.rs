@@ -209,6 +209,55 @@ fn serialized_in_domain(
     })
 }
 impl Model {
+    /// 出力点の二進値を証拠として、元十進係数・境界の外側区間で実行可能か確認する。
+    /// 区間が境界をまたぐ場合は違反の証明ではないが、最適性を保証できない。
+    pub(crate) fn original_feasibility_uncertain(&self, x: &[f64]) -> bool {
+        if !self.original_decimal || x.len() != self.variables.len() { return false; }
+        for (v, &value) in self.variables.iter().zip(x) {
+            if v.integer && value.fract()!=0. { return true; }
+            if value.is_finite() && value.fract()==0. && value.abs()<=(1u64<<52)as f64 {
+                if let Some([lower,upper])=v.integer_bounds {
+                    if (v.lower.is_none() || lower.is_some_and(|b|value>=b))
+                        && (v.upper.is_none() || upper.is_some_and(|b|value<=b)) { continue; }
+                }
+            }
+            if !value.is_finite()
+                || v.lower.is_some() && v.lower_enclosure.is_none_or(|e|value<e[1])
+                || v.upper.is_some() && v.upper_enclosure.is_none_or(|e|value>e[0]) {
+                return true;
+            }
+        }
+        for row in &self.rows {
+            // 宣言上の整数性でなく、実際の点の厳密な整数和を証明できれば
+            // 元十進境界のceil/floorで区間の重なりを解消できる。
+            if row.exact_coefficients {
+                if let Some([lower,upper]) = row.integer_bounds {
+                    let total = row.coefficients.iter().try_fold(0i128, |sum,&(j,a)| {
+                        let v=x[j];
+                        if !a.is_finite() || a.fract()!=0. || a.abs()>(1u64<<52)as f64
+                            || !v.is_finite() || v.fract()!=0. || v.abs()>(1u64<<52)as f64 { return None; }
+                        (a as i128).checked_mul(v as i128).and_then(|t|sum.checked_add(t))
+                    });
+                    if let Some(total)=total.filter(|n|n.unsigned_abs()<=1u128<<52) {
+                        let value=total as f64;
+                        if (row.lower.is_none() || lower.is_some_and(|b|value>=b))
+                            && (row.upper.is_none() || upper.is_some_and(|b|value<=b)) { continue; }
+                    }
+                }
+            }
+            let Some([mut lo,mut hi]) = crate::exact::dot_bounds(row.coefficients.iter().map(|&(j,a)|(a,x[j]))) else { return true; };
+            let mut error=0.;
+            for (index,&(j,a)) in row.coefficients.iter().enumerate() {
+                let dc=row.coefficient_error(index,a);
+                if dc!=0. && x[j]!=0. { add_error(&mut error,(dc*x[j].abs()).next_up()); }
+            }
+            if !error.is_finite() { return true; }
+            if error != 0. { lo = (lo-error).next_down(); hi = (hi+error).next_up(); }
+            if row.lower.is_some() && row.lower_enclosure.is_none_or(|e| lo < e[1])
+                || row.upper.is_some() && row.upper_enclosure.is_none_or(|e| hi > e[0]) { return true; }
+        }
+        false
+    }
     /// 許容幅で受理された点でも、元十進モデルに明白な違反があれば最適とは言わない。
     /// 外側区間で違反が確定した場合だけtrue。区間が重なる場合は断定しない。
     pub(crate) fn original_point_conflict(&self,x:&[f64])->bool {

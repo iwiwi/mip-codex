@@ -54,7 +54,10 @@ fn an_integer_singleton_is_proved_from_the_original_bound_intervals() {
     ))
     .unwrap();
     let r = solve(&model, &limits(Engine::Revised, true));
-    assert_eq!(r.status, "optimal");
+    // 非二進十進固定値は外側区間だけでは厳密な点を証明できない。
+    assert_eq!(r.status, "numerical_error");
+    assert_eq!(r.dual_bound,None);
+    assert_eq!(r.gap,None);
     assert_eq!(r.root_fixed_columns, 0);
 }
 #[test]
