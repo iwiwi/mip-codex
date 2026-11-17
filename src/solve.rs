@@ -1468,7 +1468,7 @@ fn reject_original_optimal_conflict(model:&Model,mut result:Result)->Result{
         let start=Instant::now();
         if let Some(values)=&result.values{
             let point:Option<Vec<f64>>=model.variables.iter().map(|v|values.get(&v.name).copied()).collect();
-            if point.as_ref().is_some_and(|x|model.original_point_conflict(x)){
+            if point.as_ref().is_some_and(|x|model.original_point_conflict(x) || model.original_feasibility_uncertain(x)){
                 // 点は従来の絶対許容幅を通っているが、最適性・下界は撤回する。
                 result.status="numerical_error".into();result.dual_bound=None;result.gap=None;result.optimal_original_conflict=true;
             }

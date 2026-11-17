@@ -141,3 +141,34 @@ fn nonintegral_or_large_coefficients_cannot_claim_tolerance_only_optimality(){
 fn a_pure_lp_also_withdraws_a_definitely_infeasible_optimal_point(){
  let text="NAME purelp\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1 r 1e-16\nRHS\n rhs r -1e-16\nBOUNDS\n LO b x -2\n UP b x 0\nENDATA\n";let m=mps::parse(Cursor::new(text)).unwrap();let r=solve(&m,&Limits::default());assert!(r.status!="optimal"||r.objective==Some(1.));if r.optimal_original_conflict{assert!(r.dual_bound.is_none()&&r.gap.is_none());}
 }
+
+#[test]
+fn implied_integer_continuous_decimal_boundaries_withdraw_optimality() {
+    for (a,b,rhs,c) in [
+        ("1","-1","0.9999999999999999999999","1"),
+        ("3","-4","0.7499999999999999999999","1"),
+        ("1","-3","0.3333333333333333333332","1"),
+        ("1","-2","0.049999999999999999999999","0.1"),
+        ("1.0000000000000002220446049250313080847263336181640625","-2","0.5","1"),
+    ] {
+        for rounding in [false,true] {
+            let text=format!("NAME implied\nROWS\n N obj\n E link\n L cap\nCOLUMNS\n x obj -1 link {a}\n y link {b} cap {c}\nRHS\n rhs link 0 cap {rhs}\nBOUNDS\n LI b x 0\n UI b x 2\n LO b y 0\n UP b y 2\nENDATA\n");
+            let m=mps::parse(Cursor::new(text)).unwrap();
+            let r=solve(&m,&Limits{seconds:2.,integer_row_rounding:rounding,..Limits::default()});
+            assert_eq!(r.status,"numerical_error","{a} {b} {rhs}");
+            assert!(r.optimal_original_conflict);
+            assert_eq!(r.dual_bound,None);
+            assert_eq!(r.gap,None);
+        }
+    }
+}
+
+#[test]
+fn exact_input_continuous_third_requires_a_rational_witness() {
+    let m=mps::parse(Cursor::new("NAME third\nROWS\n N obj\n E r\nCOLUMNS\n y obj 1 r 3\nRHS\n rhs r 1\nENDATA\n")).unwrap();
+    let r=solve(&m,&Limits::default());
+    assert_eq!(r.status,"numerical_error");
+    assert_eq!(r.dual_bound,None);
+    assert_eq!(r.gap,None);
+    assert!((r.objective.unwrap()-1./3.).abs()<1e-12);
+}

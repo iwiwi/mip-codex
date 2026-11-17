@@ -271,7 +271,12 @@ fn fractional_coefficients_project_a_continuous_lower_bound_safely() {
             ..Limits::default()
         },
     );
-    assert_eq!(result.status, "optimal");
+    // z=.1 は元十進下限の外側区間に接する。cutと目的値は検証するが、
+    // 元入力の厳密な点証拠がない間は最適性を保守的に撤回する。
+    assert_eq!(result.status, "numerical_error");
+    assert_eq!(result.dual_bound, None);
+    assert_eq!(result.gap, None);
+    assert!(result.optimal_original_conflict);
     assert_eq!(result.objective, Some(-1.));
     assert!(result.cut_stats.interval > 0 && result.cut_stats.projected > 0);
     assert!(result.cut_proofs.iter().all(|cut| verify(&model, cut)));
@@ -475,9 +480,12 @@ fn mir_trial_can_finish_zero_objective_feasibility() {
     assert_eq!(before.status, "node_limit");
     assert_eq!(before.objective, None);
     let after = solve(&m, &limits);
-    assert_eq!(after.status, "optimal");
+    // 連続変数1/3の厳密な有理点証拠がないため最適性は撤回する。
+    assert_eq!(after.status, "numerical_error");
+    assert!(after.optimal_original_conflict);
+    assert_eq!(after.gap,None);
     assert_eq!(after.objective, Some(0.));
-    assert_eq!(after.dual_bound, Some(0.));
+    assert_eq!(after.dual_bound, None);
     assert!(after.cut_stats.mir_added > 0);
     assert!(after.cut_proofs.iter().all(|c| verify(&m, c)));
 }
