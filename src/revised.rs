@@ -26,6 +26,8 @@ pub struct Stats {
     pub pivots: usize,
     pub feasibility_pricing_calls: usize,
     pub pricing_cutoffs: usize,
+    pub empty_pricing_calls:usize,
+    pub empty_pricing_skips:usize,
     pub pricing_fallbacks: usize,
     pub flips: usize,
     pub refactors: usize,
@@ -805,6 +807,12 @@ impl Simplex {
         self.run_priced::<false>(c)
     }
     fn run_priced<const NORMALIZED: bool>(&mut self, c: &[f64]) -> Result<(f64, f64), Outcome> {
+        let enabled=c.len()>=1024&&std::env::var("MIP_LP_EMPTY_PRICING").is_ok_and(|v|v=="1");
+        self.run_priced_mode::<NORMALIZED>(c,enabled)
+    }
+    fn run_priced_mode<const NORMALIZED:bool>(&mut self,c:&[f64],enabled:bool)->Result<(f64,f64),Outcome>{
+        let eligible=pricing_columns(&self.columns,c,enabled);
+        self.stats.empty_pricing_calls+=usize::from(eligible.is_some());
         let weights: Vec<f64> = if NORMALIZED {
             self.columns
                 .iter()
@@ -854,9 +862,9 @@ impl Simplex {
             }
             let mut entering = None;
             let mut most_negative = 0.0;
-            for j in 0..c.len() {
+            let mut visit = |j:usize| -> bool {
                 if self.basic[j] || self.upper[j] == 0.0 {
-                    continue;
+                    return false;
                 }
                 let direction = if self.at_upper[j] { -1.0 } else { 1.0 };
                 let (raw, tolerance) = self.reduced_with_tolerance(c, &y, j);
@@ -876,10 +884,18 @@ impl Simplex {
                     most_negative = score;
                     entering = Some((j, direction));
                     if degenerate > 25 {
-                        break;
+                        return true;
                     }
                 }
-            }
+                false
+            };
+            let skipped=if let Some(indices)=&eligible{
+                let mut stopped=None;
+                for (position,&j) in indices.iter().enumerate(){if visit(j){stopped=Some(j-position);break;}}
+                stopped.unwrap_or(c.len()-indices.len())
+            }else{for j in 0..c.len(){if visit(j){break;}}0};
+            self.stats.empty_pricing_skips=self.stats.empty_pricing_skips.saturating_add(skipped);
+
             let Some((j, direction)) = entering else {
                 // A fresh factorization is required before declaring convergence.
                 if !verified && !self.factor.updates.is_empty() {
@@ -1141,11 +1157,19 @@ fn warm_impl(
         }
     }
 }
+fn pricing_columns(columns:&[Vec<(usize,f64)>],costs:&[f64],enabled:bool)->Option<Vec<usize>>{
+ if !enabled||costs.len()<1024{return None;}
+ let skipped=costs.iter().enumerate().filter(|&(j,c)|*c==0.&&columns[j].is_empty()).count();
+ if skipped<costs.len()/2{return None;}
+ Some((0..costs.len()).filter(|&j|costs[j]!=0.||!columns[j].is_empty()).collect())
+}
 impl Stats {
     pub fn add(&mut self, other: &Self) {
         self.pivots += other.pivots;
         self.feasibility_pricing_calls += other.feasibility_pricing_calls;
         self.pricing_cutoffs += other.pricing_cutoffs;
+        self.empty_pricing_calls+=other.empty_pricing_calls;
+        self.empty_pricing_skips+=other.empty_pricing_skips;
         self.pricing_fallbacks += other.pricing_fallbacks;
         self.flips += other.flips;
         self.refactors += other.refactors;
@@ -2054,4 +2078,11 @@ mod tableau_row_tests {
  #[test]fn a_new_row_can_touch_the_original_singleton_basic_column(){
   let p=Problem{columns:vec![vec![(0,2.)],vec![(0,1.)]],rhs:vec![4.],costs:vec![1.,0.],upper:vec![f64::INFINITY;2],equality:vec![true],slack_upper:vec![0.]};let a=cold_crashed(&p,1000,None,true,false,true);assert!(matches!(a.outcome,Outcome::Optimal{objective,..}if objective==0.));assert_eq!(a.stats.singleton_crash_columns,1);let w=a.warm.unwrap();let mut q=p.clone();q.columns[1].push((1,1.));q.rhs.push(3.);q.equality.push(false);q.slack_upper.push(f64::INFINITY);let b=minimize_warm(&q,1000,None,Some(&w));let c=minimize(&q,1000,None);assert_eq!(b.stats.warm_row_extensions,1);assert!(matches!(b.outcome,Outcome::Optimal{objective,x}if objective==0.5&&x==vec![0.5,3.]));assert!(matches!(c.outcome,Outcome::Optimal{objective,..}if objective==0.5));let parent=minimize_warm(&p,1000,None,Some(&w));assert!(matches!(parent.outcome,Outcome::Optimal{objective,x}if objective==0.&&x==vec![0.,4.]));
  }
+}
+#[cfg(test)]mod empty_pricing_tests{
+ use super::*;
+ fn initial()->Simplex{let n=1300;let mut columns=vec![vec![];n];columns[0]=vec![(0,1.)];columns.push(vec![(0,1.)]);let mut basic=vec![false;n+1];basic[n]=true;let mut x=vec![0.;n+1];x[n]=1.;let mut upper=vec![3.;n+1];upper[n]=f64::INFINITY;Simplex{columns:Arc::new(columns),rhs:vec![1.],upper,basis:vec![n],basic,at_upper:vec![false;n+1],x,factor:Basis{factor:Arc::new(Factor::Diagonal(vec![1.])),updates:vec![],multiplier_cache:None},stats:Stats::default(),limit:1000,deadline:None,artificial:vec![],original:n,witness:None,witness_point:None}}
+ #[test]fn skipped_columns_preserve_all_pivots_points_and_certificates(){for normalized in [false,true]{let mut old=initial();let mut new=old.clone();let mut c=vec![0.;old.columns.len()];c[0]=-1.;let(a,b)=if normalized{(old.run_priced_mode::<true>(&c,false),new.run_priced_mode::<true>(&c,true))}else{(old.run_priced_mode::<false>(&c,false),new.run_priced_mode::<false>(&c,true))};assert_eq!(a.unwrap(),b.unwrap());assert_eq!(old.x,new.x);assert_eq!(old.basis,new.basis);assert_eq!(old.stats.pivots,new.stats.pivots);assert_eq!(old.stats.flips,new.stats.flips);assert_eq!(new.stats.empty_pricing_calls,1);assert!(new.stats.empty_pricing_skips>=1299);assert_eq!(new.certificate(&c).unwrap(),(-1.,-1.));}}
+ #[test]fn nonzero_empty_columns_keep_bound_flips_and_tiny_unbounded_objectives(){for cost in [-2.,-1e-19]{for finite in [false,true]{let mut old=initial();let mut new=old.clone();old.upper[1]=if finite{3.}else{f64::INFINITY};new.upper[1]=old.upper[1];let mut c=vec![0.;old.columns.len()];c[1]=cost;let a=old.run_priced_mode::<false>(&c,false);let b=new.run_priced_mode::<false>(&c,true);if finite{assert_eq!(a.unwrap(),b.unwrap());assert_eq!(old.x,new.x);assert_eq!(new.x[1],3.);}else{assert!(matches!(a,Err(Outcome::Unbounded)));assert!(matches!(b,Err(Outcome::Unbounded)));}}}}
+ #[test]fn cost_and_matrix_changes_rebuild_the_candidate_set(){let mut s=initial();let mut c=vec![0.;s.columns.len()];assert!(!pricing_columns(&s.columns,&c,true).unwrap().contains(&5));s.run_priced_mode::<false>(&c,true).unwrap();c[5]=-2.;assert!(pricing_columns(&s.columns,&c,true).unwrap().contains(&5));assert_eq!(s.run_priced_mode::<false>(&c,true).unwrap(),(-6.,-6.));let mut columns=(*s.columns).clone();columns[6].push((1,1.));assert!(pricing_columns(&columns,&c,true).unwrap().contains(&6));assert!(s.columns[6].is_empty());}
 }
