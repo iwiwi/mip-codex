@@ -228,3 +228,7 @@ main PR98/4d7a097006、core FPdf956573d8109960。有限幅dual行選択は全188
 main PR99/9c2cd2ea38/core d211f60a3e29c658。primary300秒Cygnet211/170とenlight37、2点2証明有効、PR99コメント6933361823。最終240/3600秒スナップショットはrepair-check-screen-final-20261117 create-only、config SHA ed92de257dd4a4e1a2ef7d4b7ff9d24da3bd9850b57058d4c281e426e903ca70。まだ本ジョブ未開始、11月19日UTC目安を維持。native全件420/720、新たな142-glpk watchdog3660秒/−9/結果欠落はerrorとして保持。
 
 純被覆貪欲法の全188対は主解2改善0悪化・下界4悪化、376証明120点すべて有効。fast230→209、glass26→25を10/60秒で確認。未対応モデルの60秒対照は同値/seymour微増、短期差は未帰属として保存。既定on最終FP0722aa10b34775e6/252Rust成功4ignored/最終点証明とnative比較すべて有効でPR準備。次はprimary再現・全240create-only照合、一般被覆の主解改善を継続する。別branch区間ゲートは正確な計算でも追加費用でCygnet/SP97が悪化し不採用、監査後に負例を保存する。
+
+## 2026-11-17 03:24 UTC 再開点
+
+mainはPR104/FPfe86f0e5dcd70176。純被覆交換まで採用、全体優位・新記録未達。最終Rust240/3600秒は未開始、11月19日UTC目安で開始する方針を維持。native全720の比較はCPU8..15で継続。safe-gomory branchはGMI行列版v6・報告版・Box版を原問題で検証したが、Box全188は主解0改善1悪化（nw04）、双対14改善2悪化、122点376証明全有効で未採用。走査量制限版のテスト中。priced treeのobjective-lp-diveはFP62e97a1216270da0凍結で全188対10秒/元MPS監査をCPU3..7/38、選択60秒CPU42で開始。200混合小例400実行全最適・400点有効、新探索89回/11局所改善。全260Rust成功4ignored。凍結ELFとraw artifactはprimary/artifactsに保存。両試作はまだmainへ採用していない。

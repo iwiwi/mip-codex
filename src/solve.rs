@@ -1161,7 +1161,10 @@ fn prepare_cuts(
         pool.stats.candidates += three_pool.stats.candidates;
         pool.stats.rejected += three_pool.stats.rejected;
     }
-    if limits.gomory_cuts && global_first {
+    if limits.gomory_cuts && global_first
+        && work.variables.len().saturating_mul(16) <= 1_000_000
+        && work.rows.iter().fold(0usize, |n, r| n.saturating_add(r.coefficients.len())) <= 1_000_000
+    {
         let gomory_deadline=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.05).min(1.0)));
         let backup=limits.gomory_report_only.then(||(work.clone(),prepared.cached.clone(),root.warm.clone()));
         let old_rows=work.rows.len();let old_cuts=prepared.cuts.len();
