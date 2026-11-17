@@ -2269,7 +2269,7 @@ fn solve_seeded_warm(
                             }).collect();
                             for factor in [1.,1.-2f64.powi(-40),1.+2f64.powi(-40)]{
                                 let weights:Vec<_>=original_y.iter().map(|v|v*factor).collect();
-                                if let Some(value)=certifier.bound(&lower,&upper,&weights){checked=Some(checked.map_or(value,|old:f64|old.max(value)));}
+                                if let Some(value)=certifier.bound(&lower,&upper,&weights){checked=Some(value);break;}
                             }
                         }
                     }
