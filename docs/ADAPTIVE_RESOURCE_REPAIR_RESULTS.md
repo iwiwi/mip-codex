@@ -21,3 +21,9 @@ CPU46・10秒・1thread・16GiBのnative比較は全8実行time_limit。map10の
 継続診断のみ: 成功後に仕事量枠を更新し同じ2秒期限を共有するとmap10-3/map167-2、全2点GMP/公式有効。MPS読み込み等を含むwall4.33〜4.41秒でありmainの2秒制限と同じ比較ではない。本体の仕事量上限は変更していない。
 
 ディスク確保: 完全なアーカイブSHAと全payload/loose fileのSHAを再照合し、primaryの非稼働・未追跡の重複70,784ファイル2,009,690,778bytesのみ削除。26,338+45,219アーカイブpayloadは全有効、SHAが違うPR本文1件は保持。全bundle/追跡ファイル/凍結diagnostic/ELF/全run snapshot/native baselineは保持した。復元先は既存manifestのpath/bundleで特定できる。ledger verified-archive-cleanup-20261117.json、空き約4.8GiB。
+
+## 最終候補の設定整理
+
+初期bdb05版は環境変数をsolve内部で直接参照していた。最終候補はLimits.adaptive_resource_repair（既定true）とCLIの0/1設定へ移し、resource primal/probe/RINS/terminal neighborhoodの内部MIPではfalseを明示する。従って初期版の外側calls0だけをもって内部呼出しまで0だったと断定しない。初期版188対は測定完了・監査中、最終版を別名で再測定する。
+
+設定追加の初回patchは書式を誤認して停止し、新テストのLimits項目が未追加でコンパイル失敗した。直接修正後、全328 Rust成功4ignored。新たなlibrary設定テストで、既存資源ガードに達した同じモデルについて有効時のみ主解7→6、無効時7保持、元モデル保持を確認した。

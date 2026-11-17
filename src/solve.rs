@@ -13,6 +13,7 @@ pub enum Engine {
 pub struct Limits {
     pub integer_row_rounding: bool,
     pub resource_primal:bool,
+    pub adaptive_resource_repair:bool,
     pub resource_primal_compact:bool,
     pub row_generation: bool,
     pub row_generation_report: bool,
@@ -98,6 +99,7 @@ impl Default for Limits {
         Self {
             integer_row_rounding: true,
             resource_primal:true,
+            adaptive_resource_repair:true,
             resource_primal_compact:true,
             row_generation: true,
             row_generation_report: true,
@@ -2002,7 +2004,7 @@ fn solve_seeded_warm(
                 let value=sign*model.objective(&point);if value.is_finite()&&value<incumbent&&model.check(&point,true,1e-7).is_ok()&&candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){resource_primal_stats.improvements+=1;incumbent=value;best=Some(point);first_primal_seconds.get_or_insert_with(||start.elapsed().as_secs_f64());}
             }
         }
-        if nodes==1&&matches!(relaxation,Relaxation::ResourceLimit)&&std::env::var("MIP_ADAPTIVE_RESOURCE_REPAIR").is_ok_and(|v|v=="1")&&let Some(seed)=best.as_deref(){
+        if nodes==1&&matches!(relaxation,Relaxation::ResourceLimit)&&limits.adaptive_resource_repair&&let Some(seed)=best.as_deref(){
             let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.2).min(2.)));
             if let Some(point)=crate::adaptive_resource_repair::search(model,seed,&node.lower,&node.upper,end,limits.dense_bytes,&mut adaptive_resource_repair_stats){
                 let value=sign*model.objective(&point);
@@ -2563,7 +2565,7 @@ fn solve_seeded_warm(
                     let probe_started = Instant::now();
                     let mut probe_limits = limits.clone();
                     if limits.submip_fixed_columns{probe_limits.fixed_columns=requested_fixed_columns;}
-                    probe_limits.lp_dual_root=false;probe_limits.resource_primal=false;
+                    probe_limits.lp_dual_root=false;probe_limits.resource_primal=false;probe_limits.adaptive_resource_repair=false;
                     probe_limits.cover_cuts = false;
                     probe_limits.mir_cuts = false;
                     probe_limits.gomory_cuts = false;
@@ -2670,7 +2672,7 @@ fn solve_seeded_warm(
                         if Instant::now() < local_deadline {
                             let mut local = limits.clone();
                             if limits.submip_fixed_columns{local.fixed_columns=requested_fixed_columns;}
-                            local.lp_dual_root=false;local.resource_primal=false;
+                            local.lp_dual_root=false;local.resource_primal=false;local.adaptive_resource_repair=false;
                             local.rins = false;
                             local.objective_rounding = false;
                             local.objective_rounding_all = false;
@@ -2913,7 +2915,7 @@ fn solve_seeded_warm(
             }
             let mut local = limits.clone();
                             if limits.submip_fixed_columns{local.fixed_columns=requested_fixed_columns;}
-                            local.lp_dual_root=false;local.resource_primal=false;
+                            local.lp_dual_root=false;local.resource_primal=false;local.adaptive_resource_repair=false;
             local.rins = false;
             local.objective_rounding = false;
             local.objective_rounding_all = false;

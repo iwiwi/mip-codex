@@ -820,3 +820,5 @@ native全体21:00集計645/720完了、検査済最適HS132/SCIP108/GLPK23。集
 main120統合後のcreate-only zero-phase-one-final-20261117はconfig5fe60cd08a51db47bdf6de5b102f41437c916defd1271338e847c0389937e476、109snapshot/147共有lib全SHA一致、240ジョブ未起動。post記録182ファイル3,394,402bytes→713,387bytes全SHA保全、ELF4除外保持。receiptとpost archiveを引き継ぐ。
 
 別研究feasible-bound-startは不採用。dc09cc5465e2f90f、328 Rust成功4ignored、LP1000比較/3000点、一般800列挙/708親proof/5664改竄拒否/800GMP、binary400列挙/319親proof/2552改竄拒否/400GMP有効。188対主解1改善0悪化187同値・下界3改善0悪化173同値12比較不能、改善4件は全て初期化試行0。実採用map10/map167各1回は10/60秒とも主解・下界同値。全376出力証明検査/129点、60秒4出力/4点有効。生成pivot削減は実成果に結び付かず、LPコードはmainへ入れない。14,436ファイル515,705,968bytes→7分割67,418,353bytes全SHA保全、ELF6除外保持、研究ブランチを保存する。
+
+適応修復の最終候補はLimits.adaptive_resource_repair既定true/CLI0-1へ整理し、内部resource/probe/RINS/terminal MIPでは明示false。初期bdb05版の外側callsだけで内部呼出し0とは断定しない。書式誤認patchで一度コンパイル失敗後に修正し、library制御テストを含む328 Rust成功4ignored。初期188対測定完了（監査中）、最終候補は別fp/別凍結/別188対で判断する。

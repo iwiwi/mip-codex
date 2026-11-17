@@ -18,3 +18,11 @@ fn linked(maximize:bool)->Model{
  for (deadline,workspace)in [(Instant::now(),1<<20),(Instant::now()+Duration::from_secs(1),1)]{let mut stats=Stats::default();assert!(adaptive_resource_repair::search(&m,&seed,&lo,&up,deadline,workspace,&mut stats).is_none());assert_eq!(stats.trials,0);assert_eq!(stats.improvements,0);}
  let mut stats=Stats::default();assert!(adaptive_resource_repair::search(&m,&[f64::NAN,0.],&lo,&up,Instant::now()+Duration::from_secs(1),1<<20,&mut stats).is_none());
 }
+#[test]fn library_flag_controls_only_primal_search_after_the_resource_guard(){
+ use mip_codex::solve::{solve,Limits};
+ let mut m=linked(false);for j in 0..1500{let mut v=m.variables[1].clone();v.name=format!("pad{j}");v.integer=false;m.variables.push(v);}
+ for j in 0..800{m.rows.push(serde_json::from_value(serde_json::json!({"name":format!("padrow{j}"),"upper":1000.,"coefficients":[[0,1.]],"upper_enclosure":[1000.,1000.],"exact_coefficients":true})).unwrap());}
+ let limits=Limits{seconds:0.5,dense_bytes:1<<20,box_primal:false,primal_repair:false,primal_probe:false,binary_graph:false,cover_cuts:false,mir_cuts:false,clique_cuts:false,aggregate_cuts:false,three_row_cuts:false,gomory_cuts:false,rounding_cuts:false,zero_dominance:false,objective_rounding:false,row_generation:false,..Limits::default()};
+ let before=serde_json::to_string(&m).unwrap();
+ for enabled in [false,true]{let result=solve(&m,&Limits{adaptive_resource_repair:enabled,..limits.clone()});let stats=result.adaptive_resource_repair.unwrap();assert_eq!(stats.calls,usize::from(enabled));assert_eq!(result.objective,Some(if enabled{6.}else{7.}));let values=result.values.unwrap();let x:Vec<_>=m.variables.iter().map(|v|values[&v.name]).collect();assert!(m.check(&x,true,0.).is_ok());assert_eq!(serde_json::to_string(&m).unwrap(),before);}
+}
