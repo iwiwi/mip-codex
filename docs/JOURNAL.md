@@ -839,3 +839,7 @@ main候補26debb9be6dd0377の測定は凍結binで継続中。別branch incremen
 別診断ブランチlp-input-validity-diagnosticでrd-rplusc-21の0pivot停止は、shifted RHS和の誤差1.05〜1.54e-9>1e-9を理由にNaNを作るためと確認。固定列/カット/整数前処理offでも同じ。基準は変更せず、現在の統合候補へ混ぜない。通常targetは診断ブランチに切り替わっているため、測定はcb0凍結binだけを使用する。
 
 統合修復最終記録は26,474ファイル1,007,582,734bytes→14分割160,940,386bytesで全SHA保全、ELF2除外保持。次はPRを作成し直前AI使用量付き結果コメント、採用後main再build/点検査/最終240 create-only更新へ進む。最終240はまだ起動しない。
+
+PR121は2026-11-17 22:05:20UTCにmain d11f3c9b231c32427dcc631edde9de28bc763cd5へ統合。通常/library cb0ba03a36c3f07eを主作業木で再build確認し、同一未追跡5ファイルは全バイト比較後/tmp退避してpullをゲートした。既定設定のmap10-16/下界-786.313117875、map167-12/-503.157523748、neos1440/-24591をCPU47×10秒で再確認、全3点GMP・公式/3出力証明検査有効。直前usage付き最終コメント6962283621/統合後6962487986。
+
+新create-only incremental-adaptive-final-20261117はconfig7f77b18e2c74d475b3b2f634befeb79e81fd1b8d9ea3ef12b672dc616a1dcad6、110snapshot/147lib全SHA一致、240 cgroup空、3600秒1thread16GiB/CPU8..15、未起動。旧zero-phaseタグも未起動のままOBSOLETE追記。準備/検証CPU43、共有libは前snapshotと一致し変更なし。post記録194ファイル18,940,599bytes→2,632,114bytes全SHA保全、ELF4除外保持。native集計22:10は655/720、検査済最適HS132/SCIP108/GLPK23、holdout個別結果は見ない。own240はNov19UTC目安、期限Nov22 14:59UTCまで自律継続。

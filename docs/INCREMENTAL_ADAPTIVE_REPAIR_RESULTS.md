@@ -40,3 +40,7 @@ supportcase12の主解改善、fast0507/seymour1の下界改善、sp98arの下�
 新たに調査した既存数値エラー5件のうちrd-rplusc-21は、shifted RHSのbinary和の誤差1.05〜1.54e-9が内部基準1e-9を超えてNaNとなることを診断ブランチで確認。基準は緩めず、本PRのコードへ診断変更や数値回避を混ぜない。別途、保守的な外向き変換を研究する。
 
 最終archiveは26,474ファイル1,007,582,734bytes→14分割160,940,386bytes、全payload SHA一致。ELF2件は除外・保持。初期/統合の全生成、188、反復、native、60秒と検査・失敗ログ・cleanup ledgerを含む。
+
+## main統合後
+
+PR121を2026-11-17 22:05:20UTCにmain d11f3c9b231へ統合。主作業木の通常/library cb0ba03a一致、既定設定3問の全点GMP・公式/出力証明検査有効。最終240の新snapshotはincremental-adaptive-final-20261117、config7f77b18e2c74d475b3b2f634befeb79e81fd1b8d9ea3ef12b672dc616a1dcad6、110ファイル/147lib全SHA、240 cgroup空・未起動。post archive194ファイル18,940,599bytes→2,632,114bytes全SHA保存（ELF4除外保持）。詳細receiptはexperiments/incremental-adaptive-snapshot-20261117.json。総合優位・新記録の主張はない。
