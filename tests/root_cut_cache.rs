@@ -7,6 +7,7 @@ fn model(rhs: &str) -> mip_codex::model::Model {
 }
 fn limits() -> Limits {
     Limits {
+        gomory_cuts: false,
         binary_graph: false,
         box_primal: false,
         primal_repair: false,

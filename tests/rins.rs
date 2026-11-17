@@ -8,6 +8,7 @@ fn model() -> mip_codex::model::Model {
 }
 fn limits() -> Limits {
     Limits {
+        gomory_cuts: false,
         box_primal: false,
         binary_graph: false,
         objective_rounding: false,

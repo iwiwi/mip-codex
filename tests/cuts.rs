@@ -137,6 +137,7 @@ fn cover_changes_root_bound_without_excluding_integer_optimum() {
     use mip_codex::solve::{Limits, solve};
     let model = read("2", "3");
     let limits = Limits {
+        gomory_cuts: false,
         box_primal: false,
         binary_graph: false,
         objective_rounding: false,
@@ -404,6 +405,7 @@ fn mir_alone_strengthens_a_mixed_integer_root_and_has_an_original_row_proof() {
     use mip_codex::solve::{Limits, solve};
     let model=mps::parse(std::io::Cursor::new("NAME mixed\nROWS\n N c\n L r\nCOLUMNS\n x c -1 r 3\n t c 1 r -1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\nENDATA\n")).unwrap();
     let limits = Limits {
+        gomory_cuts: false,
         cover_cuts: false,
         clique_cuts: false,
         aggregate_cuts: false,

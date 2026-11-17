@@ -232,3 +232,13 @@ main PR99/9c2cd2ea38/core d211f60a3e29c658。primary300秒Cygnet211/170とenligh
 ## 2026-11-17 03:24 UTC 再開点
 
 mainはPR104/FPfe86f0e5dcd70176。純被覆交換まで採用、全体優位・新記録未達。最終Rust240/3600秒は未開始、11月19日UTC目安で開始する方針を維持。native全720の比較はCPU8..15で継続。safe-gomory branchはGMI行列版v6・報告版・Box版を原問題で検証したが、Box全188は主解0改善1悪化（nw04）、双対14改善2悪化、122点376証明全有効で未採用。走査量制限版のテスト中。priced treeのobjective-lp-diveはFP62e97a1216270da0凍結で全188対10秒/元MPS監査をCPU3..7/38、選択60秒CPU42で開始。200混合小例400実行全最適・400点有効、新探索89回/11局所改善。全260Rust成功4ignored。凍結ELFとraw artifactはprimary/artifactsに保存。両試作はまだmainへ採用していない。
+
+## 2026-11-17 04:00 UTC 再開点
+
+mainはPR104/FPfe86f0e5dcd70176。最終Rust全240/3600秒は未開始、11月19日UTC目安の開始を維持する。native比較は466/720、検査済み最適報告199、error/invalid 25、CPU8..15で継続。
+
+safe-gomory branchの報告専用最終FP04a5bfb314092d16は269Rust/4ignored有効無効成功、全188対13dual改善/1悪化のうち12件がGMI独立証明に由来する。122点376証明全有効。初期行列版/報告版/Box版/走査制限版の39685ファイル908190418bytesをsafe-gmi-research-evaluationへSHA照合保存（ELF等16本はローカル参照）。最終10秒14点14証明とnative10秒7点2証明有効、60秒最終対照と追加SGタイマー対照を監査してPR準備中。まだmain未採用。
+
+priced treeのobjective-lp-dive v2 FPb601b6f6fe6ac2d0（0.25秒上限）は全188対/監査終盤、1主解改善0悪化の途中結果。exp60秒は主解179115→164767、Binkar/ranの初版悪化はv2で再現なし。初回exp60には短期監査とのCPU重複を記録し、CPU45の独立再試行で改善を再現。
+
+objective treeのbinary-equality-columns branchは初版d1cdから等式乗数復元版87b98へ進行。全263Rust/4ignored、生成400出力の全最適値/点/証明一致・400改ざん棄却。nu25は下界52975を復元したが主解54375→54620が60秒も残り、既定無効。全188対は先行objective v2の各CPU終了後に順次開始するmanagerが待機。強分枝子基底4260案は800小例と選択10/60秒/固定1万nodesで改善が小さく、主系統採用を見送る。全体優位・新記録は未達。
