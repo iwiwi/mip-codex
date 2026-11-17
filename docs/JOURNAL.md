@@ -812,3 +812,11 @@ PR119統合main4f5daba804 / 通常-library FP7f49a5e2b0e69aedを主作業木で�
 main120ベースの別ブランチadaptive-resource-repair。境界点LP初期化dc09版の188対/監査は凍結binで並行実行中。本研究では既存Repairを直接目的改善行へ適用した6試行は全移動0・候補なし。停滞時に違反行penaltyを増やす診断版はmap10/map16715-04で各3回0→-1、全6点GMP/公式有効。続行でmap10-2/-3、map167-2の3点も検査有効。準備込み2.45〜2.89秒、指定探索3秒/仕事量1億でありmain同時間比較ではない。
 
 既定無効の本体経路を追加し、既存324 Rust成功4ignored。ルートLP資源制限+主解あり時のみ、20%最大2秒/仕事量1億/既存workspace以下の作業見積りで適応修復。最大化/offset/局所停滞/期限・資源不足の3追加テストを含む再テスト中。共有targetはこのworktreeへ切替わるため、他worktreeの通常binを再利用せず、測定済み凍結ELFを保持する。
+
+適応修復62c5218b61 / bdb05dfd81635068: 327 Rust成功4ignored。一般800列挙/710親証明/5680改竄拒否/800GMP、binary400列挙/318親証明/2544改竄拒否/400GMP全有効。10秒map10/map167は0→-2、後者下界-475.4→-503.16悪化。60秒2対は両者0→-2/下界同値、全4証明4点有効。pilot監査は初回7件で先行終了したため全8件要求v2へ再実行し8証明8点有効。native10秒2問の6点/2Rust証明有効だがHS/SCIPの大幅な優位が残る。188対/監査進行中、既定無効・未採用。
+
+native全体21:00集計645/720完了、検査済最適HS132/SCIP108/GLPK23。集計のみ、complete JSONL prefix同一bytesをhash記録。own最終240は未起動。非稼働rawの重複70,784ファイル2,009,690,778bytesを全archive/loose SHA再照合後に削除し空き4.8GiB、全bundle/凍結ELF/diagnostic/追跡ファイル/run snapshot/baseline保持、異なるPR本文1件保持。完全な復元先ledgerを保存した。
+
+main120統合後のcreate-only zero-phase-one-final-20261117はconfig5fe60cd08a51db47bdf6de5b102f41437c916defd1271338e847c0389937e476、109snapshot/147共有lib全SHA一致、240ジョブ未起動。post記録182ファイル3,394,402bytes→713,387bytes全SHA保全、ELF4除外保持。receiptとpost archiveを引き継ぐ。
+
+別研究feasible-bound-startは不採用。dc09cc5465e2f90f、328 Rust成功4ignored、LP1000比較/3000点、一般800列挙/708親proof/5664改竄拒否/800GMP、binary400列挙/319親proof/2552改竄拒否/400GMP有効。188対主解1改善0悪化187同値・下界3改善0悪化173同値12比較不能、改善4件は全て初期化試行0。実採用map10/map167各1回は10/60秒とも主解・下界同値。全376出力証明検査/129点、60秒4出力/4点有効。生成pivot削減は実成果に結び付かず、LPコードはmainへ入れない。14,436ファイル515,705,968bytes→7分割67,418,353bytes全SHA保全、ELF6除外保持、研究ブランチを保存する。
