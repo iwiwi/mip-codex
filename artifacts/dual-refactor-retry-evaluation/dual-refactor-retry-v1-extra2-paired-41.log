@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/mip-codex/artifacts/dual-refactor-retry-v1-extra-paired.py", line 7, in <module>
+    out=root/f'artifacts/dual-refactor-retry-v1-extra-paired-{cpu}';out.mkdir(exist_ok=False);manifest={r['name']:r for r in json.loads((root/'data/manifest.json').read_text())['instances']}
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1313, in mkdir
+    os.mkdir(self, mode)
+FileExistsError: [Errno 17] File exists: '/home/ubuntu/mip-codex/artifacts/dual-refactor-retry-v1-extra-paired-41'
