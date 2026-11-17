@@ -656,7 +656,7 @@ pub fn parse(reader: impl BufRead) -> Result<Model, String> {
                 else if kinds[i]!="N" {source.coefficients.insert((model.rows.len(),j),exact_token);}
             }
             row.exact_coefficients &= exact_coefficient;
-            row.exact_integral &= value.abs() <= (1u64 << 52) as f64 && value.fract() == 0.;
+            row.exact_integral &= exact_coefficient && value.abs() <= (1u64 << 52) as f64 && value.fract() == 0.;
             if i == objective {
                 model.variables[j].objective_enclosure = enclose(value, exact_coefficient);
             }
