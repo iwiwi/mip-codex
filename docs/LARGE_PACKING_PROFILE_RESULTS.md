@@ -11,3 +11,5 @@
 空き領域確保では過去評価27032ファイル1,113,894,664バイトをprimaryの作業ツリーからのみsparse除外。全実体のSHA1 Git blob/SHA256と保持Git objectの型・サイズを照合し、baseline設定不変、untracked証拠と凍結ELF不変を確認した。証拠はGitに全保持。台帳large-packing-space-sparse.json。
 
 公式[z26詳細](https://miplib.zib.de/instance_details_z26.html)を2026-11-18 UTCに参照し、掲載bestは−1198（2025-02-05登録）、openであることを確認。ここまでの−1184/−1181は新記録ではない。解のリンクは開かず、公式解・native解をoptimizerへ渡していない。公開bestは結果比較の文書だけに保持し探索の目標・停止には使わない。
+
+300秒の共通seed継続は、single−1190（300.003840秒、1round、12,633,135反復）、reseed−1190（300.004131秒、7round）。元MPSのGMPは両方valid。全5候補点はすべてvalidで、新記録には未到達。容量移植候補はgraph-large-capacity別ブランチ（既定OFF）で本体の348Rust/4ignored、200小規模1200出力/7410tampers、40大規模解析例/GMP/証明と160tampersの検査を進め、開発188問を実行中。private結果から直接mainへ性能を帰属しない。

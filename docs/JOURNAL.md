@@ -923,3 +923,7 @@ native完了は直近718/720（個別holdout結果は未閲覧）。全720 termi
 main126/E5は不変。private上限65535例示ビルド、5000pairで解析最適−2500/GMP valid。240外z26は60秒single−1184/reseed−1181、両GMP valid、両1roundのため再始動比較不能。共通自作seedから300秒連続/2M再始動を事前固定して継続。境界・最適性・新記録の主張なし。詳細LARGE_PACKING_PROFILE_RESULTS.md。過去証拠27032ファイルのsparse除外は全SHA/Git保持検査済み、baseline設定不変。
 
 記録作成の初回スクリプトはJOURNAL.mdをrootにあると誤認してFileNotFoundErrorとなり、set-eのないshellで後続の証拠7ファイルだけが7bf92b9c60としてcommit/pushされた。optimizer実行や結果への変更なし。実際のdocs/JOURNAL.mdを追記し結果文書と合わせて追加commitする。
+
+### 大規模packing私的継続の終了
+
+共通自作seedから300秒single/reseedはともに−1190、元MPS GMP valid。reseed7round。新記録でなく、private全5点validの証拠を保存。別候補graph-large-capacityで本体容量を検証中。次のprivate仮説はcover選択の全頂点scanを同順位indexed heapへ替え、厳密選択一致と固定反復軌跡を先に確認する。
