@@ -885,3 +885,13 @@ main63bb38b830 / FP9b884c5d9667c934でMIN/MAX生成例2件と主解1件を独立
 ## 2026-11-18 修復索引の再利用
 
 目標拡大と失敗後retryは診断で棄却。係数不変の索引を移動し重みを初期化、16→128試行にする候補86f04a4091d4a4aeはdevelopment188で主解2改善/0悪化、全376監査/128点合格。実際の10/60秒メイン比較と直接生成400点も合格。回帰1200出力/1028証明/8224改ざん拒否/1200GMP合格。詳細はREUSABLE_ADAPTIVE_REPAIR_RESULTS.md。既定有効化後の検証中、採用・最終240起動は未実施。比較全体の優越は未達成。
+
+## 2026-11-18 03:55 UTC 被覆再始動の採用とmain確認
+
+PR125を91f82c6275へ統合。主作業木で通常/library FP3403747faafd1f58一致、PR headからsrc/Cargo/build差分なし。既定設定CPU47でsorrell3 optimal-16/-16・6042153nodes・19.259883秒、sorrell7（Benchmark v2外）180秒はtime_limit-198/-241・restart1。全2点GMP・公式、根/残余prefix/分数被覆/点の出力検査合格。全探索木の独立再生ではなく、cut proof実数0。公開最良と同値で新記録・総合優位は未達成。
+
+最終188では主解187同等/1悪化。対象外blp-ic98の悪化は0.5秒RINS106→105 nodesと進行差があり、交互順3組6実行では全て従来値10015.4491968へ一致、全点/出力合格。最初の悪化は消さず全証拠保存。342 Rust/4ignore、graph1200出力GMP/全列挙/証明/7410改ざん拒否が合格。初回ENOSPCと、63284 tracked files/1.943GBを全Git blob照合後に過去3フォルダだけsparse除外した記録を保存、Gitに全内容を保持しbaseline領域/未追跡ELFは不変。
+
+新create-only cover-portfolio-final-20261118、config faae57bdeaea22cb60f3d046c53a83681acd4a14f47895c94f7b3f35b8d4f007、111snapshot/147lib/240空cgroup、全SHA確認。240件3600秒・1thread・16GiB・CPU8..15は未起動、旧reusable-repairタグも未起動でobsolete。nativeは03:54UTC集計712/720、個別holdout結果を調整に使用しない。Rust本評価は11月19日UTC目安、native終了/core解放後に開始。採用後archive173 files/2512257 bytes→547990 bytes、全SHA照合、4ELFは元snapshotに保持。PRコメント6968523151に直前AI使用量を保存。
+
+次は分数被覆候補の安価な分散生成を隔離例で診断。先頭bit版12実行は全証明/GMP有効だが利益なし。内部順序が競合次数昇順なので末尾bit版を比較中。production srcはmain125のまま、採用判断前に整数被覆証明を元MPSのFractionで厳密検査する。
