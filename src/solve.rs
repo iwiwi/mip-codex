@@ -691,28 +691,14 @@ fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows
     let sources=sparse_source_rows(model,selected);
     let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").map_or(true,|v|v=="1");
-    let mut paired_rhs=std::collections::BTreeMap::new();
     let mut pair_source_valid=None;
-    if pairs && interval_enabled {
-        for (i,row) in sources.clone() {
-            if model.original_decimal && !model.decimal_source.as_ref().is_some_and(|s|s.contains_original_row(i)) {continue;}
-            if row.lower.zip(row.upper).is_none_or(|(l,u)|!l.is_finite()||!u.is_finite()||l>u) {continue;}
-            if shifted_bound(row,&shift,true,model.original_decimal,exact_shift).is_finite()
-                && shifted_bound(row,&shift,false,model.original_decimal,exact_shift).is_finite() {continue;}
-            let valid=*pair_source_valid.get_or_insert_with(||!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.matches_original_prefix(model)));
-            if !valid {continue;}
-            if let (Some(upper),Some(lower))=(interval_shifted_side(model,i,row,&shift,true),interval_shifted_side(model,i,row,&shift,false)) {
-                paired_rhs.insert(i,[upper,lower]);
-            }
-        }
-    }
     let nonzeros = sources.clone()
-        .map(|(i,r)| r.coefficients.len() as u128 * if paired_rhs.contains_key(&i)||split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2 } else { 1 })
+        .map(|(i,r)| r.coefficients.len() as u128 * if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2 } else { 1 })
         .sum::<u128>();
     let rows = sources.clone()
-        .map(|(i,r)| if paired_rhs.contains_key(&i)||split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2u128 } else { 1 })
+        .map(|(i,r)| if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2u128 } else { 1 })
         .sum::<u128>();
-    let estimate = nonzeros * 48 + rows * 2048 + (costs.len() as u128) * 128;
+    let mut estimate = nonzeros * 48 + rows * 2048 + (costs.len() as u128) * 128;
     if estimate > limit as u128 {
         return Relaxation::ResourceLimit;
     }
@@ -733,7 +719,23 @@ fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows
         if row.lower.zip(row.upper).is_some_and(|(l, u)| l > u) {
             return Relaxation::Infeasible;
         }
-        let split = paired_rhs.contains_key(&source)||split_range(row)||selected.is_some()&&row.lower.zip(row.upper).is_some_and(|(l,u)|l<u);
+        let base_split = split_range(row)||selected.is_some()&&row.lower.zip(row.upper).is_some_and(|(l,u)|l<u);
+        let first_bound=shifted_bound(row,&shift,row.upper.is_some(),model.original_decimal,exact_shift);
+        let mut pair=None;
+        // 元の変換が失敗した行でだけ、対の区間と元行の由来を調べる。
+        if pairs && interval_enabled && !first_bound.is_finite()
+            && row.lower.zip(row.upper).is_some_and(|(l,u)|l.is_finite()&&u.is_finite()&&l<=u)
+            && (!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.contains_original_row(source))) {
+            let valid=*pair_source_valid.get_or_insert_with(||!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.matches_original_prefix(model)));
+            if valid && let (Some(upper),Some(lower))=(interval_shifted_side(model,source,row,&shift,true),interval_shifted_side(model,source,row,&shift,false)) {
+                pair=Some([upper,lower]);
+                if !base_split {
+                    estimate+=row.coefficients.len() as u128*48+2048;
+                    if estimate>limit as u128{return Relaxation::ResourceLimit;}
+                }
+            }
+        }
+        let split=base_split||pair.is_some();
         let orientations: &[f64] = if split {
             &[1., -1.]
         } else if row.upper.is_some() {
@@ -748,15 +750,9 @@ fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows
                     columns[k].push((i, row_sign * a * s));
                 }
             }
-            let mut bound = shifted_bound(
-                row,
-                &shift,
-                row_sign > 0.,
-                model.original_decimal,
-                exact_shift,
-            );
+            let mut bound=if row_sign>0. || row.upper.is_none(){first_bound}else{shifted_bound(row,&shift,false,model.original_decimal,exact_shift)};
             let mut interval_applied=false;
-            if let Some(pair)=paired_rhs.get(&source) {bound=pair[usize::from(row_sign<0.)];interval_applied=true;}
+            if let Some(pair)=pair {bound=pair[usize::from(row_sign<0.)];interval_applied=true;}
             if !bound.is_finite()&&interval_enabled{
                 let valid=*interval_source_valid.get_or_insert_with(||!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.matches(model)));
                 if valid&&let Some(value)=interval_shifted_bound(model,source,row,&shift,row_sign>0.){
@@ -764,13 +760,13 @@ fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows
                 }
             }
             if interval_applied {
-                    if row_sign>0. && paired_rhs.contains_key(&source){RHS_PAIR_COUNT.with(|n|n.set(n.get().saturating_add(1)));}
+                    if row_sign>0. && pair.is_some(){RHS_PAIR_COUNT.with(|n|n.set(n.get().saturating_add(1)));}
                     RHS_INTERVAL_COUNT.with(|n|n.set(n.get().saturating_add(1)));
                     if let Some((path,limit))=&interval_dump&&RHS_INTERVAL_COUNT.with(|n|n.get())<=*limit{
                         use std::io::Write;
                         if let Ok(mut file)=std::fs::OpenOptions::new().create(true).append(true).open(path){
                             let shifts:Vec<_>=shift.iter().enumerate().filter(|&(_,&v)|v!=0.).map(|(j,v)|(j,format!("{:016x}",v.to_bits()))).collect();
-                            let _=writeln!(file,"{}",serde_json::json!({"paired":paired_rhs.contains_key(&source),"source_row":source,"source_name":row.name,"upper":row_sign>0.,"rhs_bits":format!("{:016x}",bound.to_bits()),"shift_bits":shifts}));
+                            let _=writeln!(file,"{}",serde_json::json!({"paired":pair.is_some(),"source_row":source,"source_name":row.name,"upper":row_sign>0.,"rhs_bits":format!("{:016x}",bound.to_bits()),"shift_bits":shifts}));
                         }
                     }
             }
