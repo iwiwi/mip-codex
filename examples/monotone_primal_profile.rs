@@ -87,6 +87,7 @@ fn main() {
         ..Limits::default()
     };
     let r = solve(&subset, &limits);
+    std::fs::write(format!("{}.subset.json",args[3]),serde_json::to_vec_pretty(&r).unwrap()).unwrap();
     let Some(values) = r.values else {
         println!(
             "{}",
