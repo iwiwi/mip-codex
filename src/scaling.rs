@@ -401,10 +401,11 @@ pub(crate) fn solve(
                     true
                 } else {
                     let mut repaired = None;
-                    if std::env::var("MIP_LP_FARKAS_ROW_PROJECT").is_ok_and(|v|v=="1") {
+                    if std::env::var("MIP_LP_FARKAS_ROW_PROJECT").map_or(true,|v|v=="1") {
                         for sign in [1.,-1.] {
                             if deadline.is_some_and(|d|Instant::now()>=d){break;}
                             answer.stats.farkas_row_projection_trials+=1;
+                            answer.stats.certificate_repair_trials+=1;
                             let oriented:Vec<_>=y.iter().map(|v|sign*v).collect();
                             if let Some(candidate)=projected_row_certificate(p,&oriented){repaired=Some(candidate);answer.stats.farkas_row_projections+=1;break;}
                         }
