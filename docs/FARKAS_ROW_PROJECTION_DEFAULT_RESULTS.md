@@ -1,0 +1,11 @@
+# 既定ON候補の最終対照
+
+source4b4a07199b53ba232233e10749b1b65c0b7c71f1、FPb180426ba9745d9f、CLId4885b911fae91432402bd94c06312fa865d5f5750b734b9ea943f58412f8541。同じ凍結CLIの明示OFFと環境変数なし既定ON、開発188問だけを10秒・1thread・16GiB・5workerで比較した。376証明検査、136返却点のGMP・公式検査すべて合格。
+
+主解187同等・1改善、dual172同等・3改善・13比較不能、今回のprimal/dual悪化0。双方175有限dual、2optimal。OFF182time_limit/4numerical_error→ON183time_limit/3numerical_error。実作動はglass4の4投影とcrnaの59投影だけ。crna早期数値停止解消を確認したが、同10秒の主解なし・dual0は同じで、解品質向上は主張しない。
+
+非作動のsupportcase12 primal−12→−13、savsched1 dual28.8→31.1、seymour1 dual394.3881163707635→394.44044501357257、sp97ar dual592005695.175724→595791964.3983499も全件保持し、新手法の因果的効果とは数えない。初期defaultOFF coreのn3div36 dual悪化も削除・置換しない。初期対照・追加3組は別アーカイブに保持した。
+
+採用理由は、同じ厳密な証拠条件を維持したまま早期の数値停止を回避し、元MPS側の証拠検査を保ち、既定設定で全Rust363件と1000合成oracle、mixedの既存5件以外を通過し、開発群で新しい悪化がないことである。元の5mixed数値停止と3件の開発数値停止は未解決として残す。300秒crnaでは主解がなく、HiGHS1.810748/SCIP5.679548に劣り、GLPK同様に点なし、全dual0。全体優位・新記録は未達。
+
+主solverのmerge後はsource/CLIを再確認し、create-onlyの旧final240 config46ffdbd56ef5e38d1a493a96b39f23bc0333dd4c08b2960047dcbf836c9609e9を外部receiptでsuperseded扱いにして、未起動の新snapshotを作る。旧configと成果物は変更しない。正式240問の起動はまだ行わず、検証群の個別成績は見ない。
