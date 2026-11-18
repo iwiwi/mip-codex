@@ -31,6 +31,7 @@ pub struct Stats {
     pub upper: usize,
     pub best: usize,
     pub complete: bool,
+    pub depth_limit_hit: bool,
     pub root_colors: Vec<usize>,
     pub root_prefix_colorings: Vec<Vec<usize>>,
     pub root_search_order: Vec<usize>,
@@ -145,9 +146,10 @@ fn row_vertices(model: &Model, row: &crate::model::Row) -> Option<Vec<usize>> {
     }
     (hi < smallest[0] + smallest[1]).then_some(vertices)
 }
-fn recognize(model: &Model, memory: usize, deadline: Instant) -> Option<Graph> {
+fn recognize(model: &Model, memory: usize, deadline: Instant, large: bool) -> Option<Graph> {
     let n = model.variables.len();
-    if n == 0 || n > 4096 {
+    // Weighted cover stores vertex indices in u16. Keep index65535 unused.
+    if n == 0 || n > if large { u16::MAX as usize } else { 4096 } {
         return None;
     }
     let sign = if model.maximize { -1. } else { 1. };
@@ -288,6 +290,13 @@ impl Search<'_> {
             self.stats
                 .first_seconds
                 .get_or_insert_with(|| self.started.elapsed().as_secs_f64());
+        }
+        // Bound recursion stack for the newly admitted large graphs. A partial
+        // branch retains the original safe root/prefix upper bound.
+        if self.graph.n > 4096 && clique.len() >= 512 {
+            self.stats.depth_limit_hit = true;
+            self.interrupted = true;
+            return;
         }
         if Instant::now() >= self.deadline || self.stats.nodes >= self.limit {
             self.interrupted = true;
@@ -519,9 +528,17 @@ pub fn solve_with_spectral(
     input_cover:bool,
     spectral:bool,
 ) -> Option<Answer> {
+    solve_with_capacity(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,input_cover,spectral,false)
+}
+pub fn solve_with_capacity(
+    model: &Model, memory: usize, deadline: Instant, limit: usize,
+    local: bool, stronger_root: bool, preserve_order: bool, diversify: bool,
+    adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
+    input_cover: bool, spectral: bool, large: bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
-    let graph = recognize(model, memory, deadline)?;
+    let graph = recognize(model, memory, deadline, large)?;
     let mut all = vec![u64::MAX; graph.words];
     if graph.n % 64 != 0 {
         all[graph.words - 1] = (1 << (graph.n % 64)) - 1;
@@ -713,6 +730,8 @@ pub fn solve_with_spectral(
     }
     let status = if search.stats.complete {
         "optimal"
+    } else if search.stats.depth_limit_hit {
+        "depth_limit"
     } else if search.stats.nodes >= limit {
         "node_limit"
     } else {

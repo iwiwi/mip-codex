@@ -1,0 +1,7 @@
+# 大規模binary packing認識の候補
+
+main126/E5から、容量以外の認識条件・厳密な原点/符号/係数検査・pair10M上限・bitsetメモリ検査・期限を保ち、候補flag MIP_GRAPH_LARGE_CAPACITY=1だけ頂点上限4096→65535とする。既存public APIは4096のまま新wrapperを通し、新APIだけlarge引数を受ける。既定OFFで比較し、有効性と正しさを検査してから採否を判断する。
+
+private exampleのz26 60秒−1184/GMP validは動機であり、本体性能ではない。元MPS入力以外の解や目的値targetを本体に渡さない。本体の元点GMP・color/prefix/strict fraction/spectral証明検査を行い、生成pair5000の解析的最適解と0node bound、容量上限・メモリ不足・期限切れを検査する。全ソースを凍結後に開発188問の既定OFF/ON比較、悪化も保存する。holdout52の個別結果は見ない。
+
+u16頂点番号は最大65534、edge番号u32は既存memory/pairguard内。整数演算は64bitusizeの本環境で最大n²<2^32。spectral既存4096上限はそのまま、認識されないモデルは従来LP経路へ戻る。時間/メモリ超過や再帰探索についても生成例・実モデルで計測し、単なる容量変更で誤った最適性や境界を出さないことを確認する。

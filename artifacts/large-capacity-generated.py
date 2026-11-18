@@ -1,0 +1,16 @@
+from pathlib import Path
+import os,sys,json,subprocess,random,resource
+root=Path.cwd();os.sched_setaffinity(0,{41});resource.setrlimit(resource.RLIMIT_AS,(16*1024**3,)*2);os.environ.update(OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MIP_ABSOLUTE_CHECKER='/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker-absolute');sys.path.insert(0,'scripts');from benchmark_common import atomic_json,sha256;from validate_solution import validate;from verify_cover_cuts import validate_cut_proofs
+binary=root/'artifacts/large-capacity-frozen/bin/mip-codex';origin=json.load(open('artifacts/large-capacity-origin.json'));assert sha256(binary)==origin['binary_sha256'];out=root/'artifacts/large-capacity-generated';out.mkdir();atomic_json(out/'experiment.json',dict(cpu=41,threads=1,memory_bytes=16*1024**3,origin=origin,purpose='40 original large disjoint-clique models with analytically exact independent cardinality; no optimizer targets',seed=202611180635));rng=random.Random(202611180635);records=[]
+for case in range(20):
+ n=4097+case*73;groups=[];k=0
+ while k<n:
+  size=min(n-k,rng.randrange(1,10));groups.append(list(range(k,k+size)));k+=size
+ mapping={v:j for j,g in enumerate(groups)for v in g};weights=[rng.randrange(2,4)for _ in range(n)]
+ for maximize in [False,True]:
+  d=out/f'{case:02d}-{int(maximize)}';d.mkdir();model=d/'model.mps';lines=['NAME LARGE','OBJSENSE',' MAX'if maximize else' MIN','ROWS',' N obj']+[f' {"G"if case%2 else"L"} r{j}'for j,g in enumerate(groups)if len(g)>1]+['COLUMNS'];sign=-1 if case%2 else 1
+  for v in range(n):
+   lines.append(f' x{v} obj {3 if maximize else -3}')
+   if len(groups[mapping[v]])>1:lines.append(f' x{v} r{mapping[v]} {sign*weights[v]}')
+  lines+=['RHS',' rhs obj -7']+[f' rhs r{j} {sign*3}'for j,g in enumerate(groups)if len(g)>1]+['BOUNDS']+[f' BV b x{v}'for v in range(n)]+['ENDATA'];model.write_text('\n'.join(lines)+'\n');env={k:v for k,v in os.environ.items()if not k.startswith('MIP_')};env.update(MIP_GRAPH_LARGE_CAPACITY='1',MIP_NODE_LIMIT='0');cmd=[str(binary),'solve',str(model),'10'];atomic_json(d/'job.json',dict(command=cmd,input_sha256=sha256(model),environment={k:v for k,v in env.items()if k.startswith('MIP_')},analytic_cardinality=len(groups)));run=subprocess.run(cmd,capture_output=True,text=True,env=env,timeout=70);(d/'stdout.log').write_text(run.stdout);(d/'stderr.log').write_text(run.stderr);assert run.returncode==0,run.stderr;r=json.loads(run.stdout);atomic_json(d/'result.json',r);assert r['status']=='optimal'and r['binary_graph']is not None;assert sum(r['values'].values())==len(groups);expected=7+(3 if maximize else -3)*len(groups);assert r['objective']==expected and r['dual_bound']==expected,(r['objective'],r['dual_bound'],expected);v=validate(model,r);atomic_json(d/'point-validation.json',v);assert v['valid'];p=validate_cut_proofs(model,r);atomic_json(d/'proof-validation.json',p);assert p['valid'];records.append(dict(case=case,maximize=maximize,n=n,components=len(groups),objective=r['objective'],seconds=r['seconds'],gmp_valid=True,proof_valid=True));atomic_json(out/'records.json',records);print(json.dumps(records[-1]),flush=True)
+atomic_json(out/'summary.json',dict(outputs=len(records),gmp_valid=len(records),proof_valid=len(records),analytic_optimum_matches=len(records)))

@@ -27,7 +27,7 @@ def maximize_sense(path):
 def verify(model_path,result,exact):
  names,variables,rows,cost,offset=exact;stats=result['binary_graph'];n=len(names)
  assert result['binary_graph_enabled']is True and result['lp_engine']=='BinaryGraph'
- assert stats['vertices']==n and 0<n<=4096
+ assert stats['vertices']==n and 0<n<=65535
  assert sorted(stats['order'])==list(range(n))
  maximize=maximize_sense(model_path);coeff=[cost.get(name,Fraction(0))for name in names]
  assert all(c==coeff[0]and c.denominator==1 and abs(c)<=2**52 for c in coeff)
@@ -127,7 +127,8 @@ def verify(model_path,result,exact):
  assert set(point)==set(names)and len(chosen)==best and all(Fraction(v)in [0,1]for v in point.values())
  assert all(not(a in chosen and b in chosen)for a,b in edges)
  if complete:assert result['status']=='optimal'
- else:assert result['status']in ['node_limit','time_limit']
+ else:assert result['status']in ['node_limit','time_limit','depth_limit']
+ if result['status']=='depth_limit':assert stats.get('depth_limit_hit')is True and n>4096
  spectral_stats=spectral.get('stats')or{}
  assert result['lp_solves']==spectral_stats.get('lp_solves',0)
  if result['lp_solves']:
