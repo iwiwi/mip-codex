@@ -9,3 +9,5 @@
 次の事前固定実験は、検証済みの最良自作点を共通seedとして各300秒。singleは100M反復上限、reseedは2Mごとに構築から再実行して乱数系列を変える。既知目的値や停止値は渡さず、全出力を元MPSのGMPで検査する。改善があれば本体機能への移植を別ソースで検討し、生成例・資源guard・開発188問の検査を行う。
 
 空き領域確保では過去評価27032ファイル1,113,894,664バイトをprimaryの作業ツリーからのみsparse除外。全実体のSHA1 Git blob/SHA256と保持Git objectの型・サイズを照合し、baseline設定不変、untracked証拠と凍結ELF不変を確認した。証拠はGitに全保持。台帳large-packing-space-sparse.json。
+
+公式[z26詳細](https://miplib.zib.de/instance_details_z26.html)を2026-11-18 UTCに参照し、掲載bestは−1198（2025-02-05登録）、openであることを確認。ここまでの−1184/−1181は新記録ではない。解のリンクは開かず、公式解・native解をoptimizerへ渡していない。公開bestは結果比較の文書だけに保持し探索の目標・停止には使わない。
