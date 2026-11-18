@@ -865,3 +865,7 @@ main121統合後metadataだけを6cd2a0963fとしてcherry-pickし、Journal競�
 分散監査は208既存+168新規で全376、checker SHA/入力出力SHAを照合し重複なし。旧serialを302件でSIGTERM、実プロセス不在・superseded終了を記録。first版は343+33分散全376/126点、serialも全376完了。中間全結果はRESULTSに整理。最終native swath1/glass4全8点GMP・公式/Rust2出力2カット有効。比較他社がなお大幅に良い。native全体23:31集計666/720、最適HS134/SCIP109/GLPK23。元係数で非保守的下界を防ぐ必須の正しさ修正として採用し、性能損失1改善4悪化もそのまま報告する。次は全証拠archive/PR、main再buildとcreate-only更新。新記録・総合優位は未達成。
 
 最終証拠archiveは64,315ファイル1,476,246,982bytes→16束224,467,455bytes、全payload SHA成功、ELF4除外保持して実体SHA再確認。live archive stdoutの入力混入を初回で検出し停止、初回script/log/再試行理由を保存して再実行成功。raw・frozen・既存評価を変更せず保持。次はown repo PRと直前AI使用量コメント、統合後main再build/元点検査/create-only更新。
+
+
+遅延構築は不採用。105f9f28b1/1ef2f93be87fa2fe、334テスト・両LP216/864点・混合200・1200列挙/親proof1028/改竄8224/GMP1200・188対376出力/128点有効。主解188同値、下界3改善1悪化171同値13比較不能、有限175→175、前後182time/1opt/5numeric。改善3問は構築対象外、悪化sp98arは342非binary係数で対象。16,133ファイル382,411,209bytes→5束58,548,737bytes全SHA、ELF2保持、remote6aa4f1c519。コードを入れずarchive/結果/仮説だけをRHS branchへ引継ぎ。main122統合後208ファイル1,509,329bytes archiveとconfig322a...receiptも保存。初回metadata importはexperiments親dir不足で停止し、作成して修正。main27791c8fa5/8b579cacb175412d、最終240未起動、総合優位・新記録未達成。
+RHS候補9b884c5d9667c934は既定有効の実験版でmain未採用。先行867版の全55193RHS/337テスト、200生成MILP400出力の厳密opt/dual/infと290GMP（前131/後159）、436RHS全有効、最適7→103。新9bで再検証中。新default pilotとoracleは内部CPU45で一部重複したので性能比較に使わず、別CPUでdumpなし測定する。補助main122連続境界丸め2例は既存guardがnumeric/dualNoneへ撤回し安全。独立GMPが省略RHS構文を拒否したため、元MPSは保持し、明示ゼロRHS追加モデルとFraction全モデル同値を照合して2点GMP成功、初回失敗も保存。
