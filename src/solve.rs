@@ -55,6 +55,7 @@ pub struct Limits {
     pub graph_cover_local: bool,
     pub graph_cover_restarts:bool,
     pub graph_input_cover:bool,
+    pub graph_spectral_bound:bool,
     pub aggregate_cuts: bool,
     pub clique_cuts: bool,
     pub mir_cuts: bool,
@@ -145,6 +146,7 @@ impl Default for Limits {
             graph_cover_local: true,
             graph_cover_restarts:true,
             graph_input_cover:false,
+            graph_spectral_bound:false,
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
@@ -1597,7 +1599,7 @@ fn solve_seeded_warm(
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
-            if let Some(answer) = crate::binary_graph::solve_with_input_cover(
+            if let Some(answer) = crate::binary_graph::solve_with_spectral(
                 model,
                 limits.dense_bytes,
                 deadline,
@@ -1611,6 +1613,7 @@ fn solve_seeded_warm(
                 limits.graph_fractional_cover,
                 limits.graph_cover_restarts,
                 limits.graph_input_cover,
+                limits.graph_spectral_bound,
             ) {
                 let sign = if model.maximize { -1. } else { 1. };
                 let objective = model.objective(&answer.point);
@@ -1638,6 +1641,9 @@ fn solve_seeded_warm(
                     mir_cuts_enabled: limits.mir_cuts,
                     three_row_cuts_enabled: limits.three_row_cuts,
                     graph_fractional_cover_enabled: limits.graph_fractional_cover,
+                    lp_solves: answer.stats.spectral_bound.as_ref().map_or(0,|r|r.stats.lp_solves),
+                    lp_pivots: answer.stats.spectral_bound.as_ref().filter(|r|r.stats.lp_solves>0).map(|r|r.stats.lp_pivots),
+                    lp_refactors: answer.stats.spectral_bound.as_ref().filter(|r|r.stats.lp_solves>0).map(|r|r.stats.lp_refactors),
                     nodes: answer.stats.nodes,
                     first_primal_seconds: answer.stats.first_seconds,
                     binary_graph: Some(answer.stats),

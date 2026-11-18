@@ -223,3 +223,25 @@ fn input_row_cover_certifies_the_odd_cycle_root_without_search() {
     assert_eq!(result.status,"optimal");
     assert_eq!(graph.nodes,0);
 }
+
+#[test]
+fn integer_spectrum_certifies_a_packing_optimum_without_search_in_both_senses() {
+    let n=16usize;
+    let edges:Vec<_>=(0..n).flat_map(|a|(a+1..n).filter_map(move|b|((a^b).count_ones()<=2).then_some((a,b)))).collect();
+    let optimum=(0usize..1<<n).filter(|&mask|edges.iter().all(|&(a,b)|mask&(1<<a)==0||mask&(1<<b)==0)).map(|m|m.count_ones()).max().unwrap();
+    assert_eq!(optimum,2);
+    for maximize in [false,true] {
+        let model=model(n,&edges,maximize);
+        let result=solve(&model,&Limits{seconds:2.,nodes:0,graph_spectral_bound:true,..Limits::default()});
+        assert_eq!(result.status,"optimal");
+        assert_eq!(result.objective,Some(if maximize{13.}else{1.}));
+        assert_eq!(result.dual_bound,result.objective);
+        assert_eq!(result.nodes,0);
+        assert_eq!(result.lp_solves,1);
+        let graph=result.binary_graph.as_ref().unwrap();
+        let spectral=graph.spectral_bound.as_ref().unwrap();
+        assert_eq!(spectral.certificate.as_ref().unwrap().upper,2);
+        assert_eq!(spectral.stats.validation_failures,0);
+        assert_eq!(result.lp_pivots,Some(spectral.stats.lp_pivots));
+    }
+}

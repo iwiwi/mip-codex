@@ -3,6 +3,8 @@
 use crate::model::Model;
 use std::time::Instant;
 mod fractional_cover;
+mod spectral;
+pub use spectral::Outcome as SpectralBound;
 mod weighted_cover;
 pub use fractional_cover::Outcome as FractionalCover;
 pub use weighted_cover::Stats as CoverStats;
@@ -11,6 +13,7 @@ pub struct Stats {
     pub local: Option<LocalStats>,
     pub cover_local: Option<CoverStats>,
     pub fractional_cover: Option<FractionalCover>,
+    pub spectral_bound: Option<SpectralBound>,
     pub root_coloring_upper: Option<usize>,
     pub root_initial_upper: usize,
     pub root_variants: usize,
@@ -498,6 +501,24 @@ pub fn solve_with_input_cover(
     portfolio:bool,
     input_cover:bool,
 ) -> Option<Answer> {
+    solve_with_spectral(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,input_cover,false)
+}
+pub fn solve_with_spectral(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+    adaptive: bool,
+    cover: bool,
+    fractional: bool,
+    portfolio:bool,
+    input_cover:bool,
+    spectral:bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
@@ -592,6 +613,21 @@ pub fn solve_with_input_cover(
             root = Some((order, bounds));
         }
     }
+    if spectral && root.is_some() && search.best.len()<search.stats.root_upper {
+        let allocation=(deadline.saturating_duration_since(started).as_secs_f64()*0.02).min(0.25);
+        let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64(allocation));
+        let result=spectral::improve(&graph,memory/4,end,search.best.len());
+        if let Some(certificate)=&result.certificate {
+            search.stats.root_coloring_upper=Some(search.stats.root_upper);
+            if let Some((order,bounds))=root.as_mut(){
+                if search.stats.root_prefix_colorings.is_empty(){search.stats.root_prefix_colorings=vec![search.stats.root_colors.clone()];search.stats.root_search_order=order.iter().map(|&v|graph.order[v]).collect();}
+                for bound in bounds {*bound=(*bound).min(certificate.upper);}
+            }
+            search.stats.root_upper=search.stats.root_upper.min(certificate.upper);
+            search.stats.remaining_upper=search.stats.root_upper;
+        }
+        search.stats.spectral_bound=Some(result);
+    }
     if local
         && root.is_some()
         && search.best.len() < search.stats.root_upper
@@ -625,7 +661,7 @@ pub fn solve_with_input_cover(
         }
     }
     if fractional && root.is_some() && search.best.len() < search.stats.root_upper {
-        search.stats.root_coloring_upper = Some(search.stats.root_upper);
+        search.stats.root_coloring_upper.get_or_insert(search.stats.root_upper);
         let allocation =
             (deadline.saturating_duration_since(started).as_secs_f64() * 0.02).min(0.5);
         let end = deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
