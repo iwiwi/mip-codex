@@ -7,3 +7,5 @@ base main129/3a774900/FP602。新flag `MIP_GRAPH_COVER_LONG_ROUNDS` は初期def
 初期/最終各353テスト、1200全列挙/GMP/proofとtamper、large disconnected coreの厳密oracle、開発188/独立監査、評価外z26/CDCの60/300/必要なら900秒で比較する。全損失/誤答/未検証を保持し、主解改善だけで最適性を宣言しない。点/証明は元MPSへ独立検査し、比較nativeの点は与えない。正式自作240は未起動のまま、holdout個別結果は使わない。
 
 100Mは状態を100M回安全に反復する上限で、新しい数値許容は導入しない。実heapのn≤65535からE≤n(n−1)/2。各辺重みは初期1から1stepにつき最大1だけ増え、forgettingでは縮むため≤100M+1。scoreの保守的な一時幅2(n−1)(100M+1)はi64内、全重みとその2倍はu64内、9roundのweight-increase総計9E100Mもu64/64bit usize内。forgettingの3倍中間値もu32内。独立Python整数計算をexperimentsに保存する。32bitでは新modeを適用しない。
+
+初期188問比較完了: 376 fresh proof/128点fresh GMP公式valid。primal185同等/3改善、dual174同等/1悪化/13比較不能。新mode使用0件のため改善を新機能に帰属しない。n3div36 dual111675.17133008162→111478.90476012451の悪化も保持。300秒z26 primal−1188→−1193/dual−1575→−1578、CDC primal−285同等/dual−442→−438。全13controls元GMP/proof valid。1時間比較は実行中で採用判断は保留。
