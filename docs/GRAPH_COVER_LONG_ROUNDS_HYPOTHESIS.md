@@ -9,3 +9,5 @@ base main129/3a774900/FP602。新flag `MIP_GRAPH_COVER_LONG_ROUNDS` は初期def
 100Mは状態を100M回安全に反復する上限で、新しい数値許容は導入しない。実heapのn≤65535からE≤n(n−1)/2。各辺重みは初期1から1stepにつき最大1だけ増え、forgettingでは縮むため≤100M+1。scoreの保守的な一時幅2(n−1)(100M+1)はi64内、全重みとその2倍はu64内、9roundのweight-increase総計9E100Mもu64/64bit usize内。forgettingの3倍中間値もu32内。独立Python整数計算をexperimentsに保存する。32bitでは新modeを適用しない。
 
 初期188問比較完了: 376 fresh proof/128点fresh GMP公式valid。primal185同等/3改善、dual174同等/1悪化/13比較不能。新mode使用0件のため改善を新機能に帰属しない。n3div36 dual111675.17133008162→111478.90476012451の悪化も保持。300秒z26 primal−1188→−1193/dual−1575→−1578、CDC primal−285同等/dual−442→−438。全13controls元GMP/proof valid。1時間比較は実行中で採用判断は保留。
+
+1時間比較の前半とnative3完了: 同一CLI3222/CPU46のOFFは−1188/LB−1578、3,491,073nodes、3600.042092849秒、weighted8M反復46.044641313秒/3restarts、元GMP/proof valid。HS1.16.0(CPU51)は−1147/LB−2114/3600.046329737秒、SCIP10.0.2(CPU52)は−1070/LB−1533.4885270508491/3600.006063秒、両点元GMP valid。自作OFFの主解は良いがSCIPの下界が強い。GLPK5(CPU53)は3660.012435156秒のwhole-process-group watchdog、rc−9、時間内受理点なし、該当group生存processなしを確認。超過失敗は保持。全1thread/16GiB、外部点はRustへ渡さない。ONは2026-11-18 11:05:57UTC開始で実行中。
