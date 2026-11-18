@@ -81,6 +81,7 @@ fn main() {
     let seconds: f64 = args[2].parse().unwrap();
     let limits = Limits {
         seconds,
+        lp_dual_root:false,
         adaptive_resource_repair: false,
         resource_primal: false,
         terminal_neighborhood: false,

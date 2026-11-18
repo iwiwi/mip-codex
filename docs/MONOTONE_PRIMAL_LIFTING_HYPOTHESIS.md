@@ -9,3 +9,7 @@ rd-rplusc-21の入力読込のみの構造調査では、自由連続変数が11
 ## 最初の診断結果
 
 10秒・60秒とも主解なし。全118801行の分離はできたが、残る7098行の根LPが60秒で1,393,779 pivot、27,875 refactor、1 node / 1 LP solveの時間制限となった。部分問題のdual0は親へ転送していない。liftingそのものの点検証へは到達しておらず、まだ採用できない。次はLPの退化・反復挙動を診断し、必要なら一般的なcycling対策を検討する。生成モデルでlifting点構成を検証する作業も未実施。
+
+10秒traceでは最初のdual-form根LPが619行/8405列、目的0のまま約23万pivot全て退化。4096 pivotごとの58標本には基底ハッシュの反復は見られず、循環と断定しない。その後7098行のprimalへfallbackするが残時間不足。次は目的0の実行可能性問題でdual rootを無効化する診断を行う。これは既存Limitsの変更であり、LP数学・許容差は変えない。
+
+退化対策の参考としてRobert G. Bland (1977), “New Finite Pivoting Rules for the Simplex Method”, Mathematics of Operations Research 2(2),103–107, DOI10.1287/moor.2.2.103を確認（原論文 https://people.ohio.edu/melkonia/math4620/bland.pdf 、出版社 https://pubsonline.informs.org/doi/abs/10.1287/moor.2.2.103 ）。最小番号のenteringと最小比同率内の最小番号leavingを組み合わせる方法。現コードは退化後enteringを最小番号に寄せる一方、ratioは安定性を優先するHarris型であり、同じ規則ではない。実数算術の有限性を浮動小数点・有界変数実装へ無条件に主張しない。論文のコードを複製せず、まだpivot規則の変更もしていない。
