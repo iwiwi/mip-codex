@@ -41,3 +41,10 @@ supportcase12追加3交互pairsは両−13/LB−537783.5007328897の6点、全GM
 ## CDC native300秒の完了
 
 CPU46/16GiB/1thread、HiGHS1.16.0は−280/LB−1111（306.7299885749817秒）、SCIP10.0.2は−237/LB−11744（300.005887秒）、両GMP valid。時間超過も保持。GLPK5は420.007275108秒でprocess group watchdog、rc−9、時間内出力点なし。群全体kill後、対応するlive processなしを別receiptに保存。初期候補ON−285/LB−429は両者より主解・下界が強いが、単一評価外入力の研究結果で、全体優位ではない。defaultON源の再測定は別途進行中。
+
+
+## defaultON源939230/FP6021621d57155bb7（再検証途中）
+
+凍結CLI35849e98ea20f9b65ac21dbd74ce98b50996eb75be9ab37a3015cf96b027f3c8、origin31c6ba077。OFF明示0/ON flag unset。353Rust/4ignored、1200全列挙/GMP/proof・7410改ざん拒否、12large/GMP/proof成功。large主解は6組同じ、upper2同値/1改善/3悪化（case2は2554→2548、case3は2581→2583、case4は2668→2679、case5は2732→2734）。全12実heap、component全列挙で安全なboundを確認。
+
+defaultの先行9controlsは全GMP/strict proof valid。cod105両−12 root最適、S3両−16最適/6,042,153nodes、5000pair ON−2500 root最適。z26/60秒は−1154/LB−1578→−1178/LB−1578（主解24改善/dual同じ）、CDC/60秒は−279/LB−434→−279/LB−431（主解同じ/dual3改善）。初期源の異なる値も保持し、厳密な同値再現とはしない。default188/376fresh監査と4longは進行中、main128は未変更。
