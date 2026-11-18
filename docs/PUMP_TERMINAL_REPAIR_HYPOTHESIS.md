@@ -1,0 +1,7 @@
+# pump終端点を元行で短く修復する候補
+
+main130で打切り点の単純丸めを主解として回収できるが、初期188比較では17点中16点は拒否された。次候補は、単純丸め失敗後だけ既存のRust座標修復 search_adaptive_incremental を使う。外部最適化は用いない。MIP_PUMP_TERMINAL_REPAIRの既定OFF、MIP_PUMP_LIMITED_ROUNDINGが有効な時だけ適用。元変数写像後の丸め前点から開始し、root変数bounds、元行の既存candidate_checkを保持する。
+
+局所deadlineは残り全体時間の1%と100msの小さい方、work予算500000、固定汎用乱数seed。既存修復の内部scanによる超過は実測時間に残す。全体期限を過ぎた結果は採用しない。LP予算・乱数軌跡・制約・許容差・境界・枝刈り規則は変更せず、返すのは可行主解のみ。回収点に伴う通常incumbent枝刈り以外の証明情報は使わない。
+
+事前選択は旧候補2dの188afterのlimited_points>0全17問。成否・目的値で選ばない。同じ新凍結CLI OFF/ON、各10秒/16GiB/1thread、CPU44/49で測定し全点元GMP/公式、全proofを独立検査する。CPU40/47/50の自作1198reseed、46の長round1時間とは独立に実施。利益がなければ採用しない。後続188比較では時間配分による損失も保存しholdout52を調整に使わない。main130の4post検査と候補/primaryのmcsched値の変動は別archiveで引継ぐ。
