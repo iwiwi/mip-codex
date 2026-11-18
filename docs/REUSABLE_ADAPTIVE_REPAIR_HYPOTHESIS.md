@@ -9,3 +9,6 @@ main123（63bb38b830、FP9b884c5d9667c934）を基準とする。外部ソルバ
 検証計画は重複係数を持つ索引の一致・適応重みリセット・MIN/MAXの16回超継続・メモリ不足fallback・既存全Rustテスト、凍結同一バイナリflag0/1で188 development問題10秒、生成小問題の全列挙/厳密証明/点検査、必要なSCIP/HiGHS/GLPK比較。holdout52は調整に使わない。採用判断は未実施。
 
 初回Rustテストでメモリfallback用JSON fixtureの元目的区間情報が欠け、既存objective_reliable guardが点を拒否した。fixtureに明示的な元区間を追加し、guardは変更しない。初回ログも保持する。
+
+
+最終検証で既定有効化を採用。FP8a9ce2724eeea001の環境変数なし188比較は主解2改善/0悪化、376出力/128点が独立合格。全証拠と限界はREUSABLE_ADAPTIVE_REPAIR_RESULTS.mdへ保存。

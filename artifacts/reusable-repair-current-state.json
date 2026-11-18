@@ -1,10 +1,10 @@
 {
-  "time": "2026-11-18T01:49:48.233820+00:00",
+  "time": "2026-11-18T02:19:19.919804+00:00",
   "main": "63bb38b8304c0ba432043675c6d8574249ea6878",
   "main_fingerprint": "9b884c5d9667c934",
   "current_root": "/home/ubuntu/mip-reusable-repair-index",
   "branch": "reusable-adaptive-repair-index",
-  "head": "d6fc183c9b81c049dfe1fa1d2a1cd4d8afbfea38",
+  "head": "e0ba78e0b6",
   "production_candidate_root": "/home/ubuntu/mip-reusable-repair-index",
   "experiment": "private copied core: fresh16/fresh128/cached128/cached128retry;2/10 seconds;2 development seeds;all returned points GMP checked",
   "production_changes": true,
@@ -20,7 +20,7 @@
     "if useful enable default then validate frozen final source",
     "preserve rejected target growth/retry diagnostics"
   ],
-  "candidate_fingerprint": "86f04a4091d4a4ae",
+  "candidate_fingerprint": "8a9ce2724eeea001",
   "adopted": false,
   "rust_tests": {
     "passed": 340,
@@ -32,14 +32,58 @@
     "cached_reuses": 296,
     "bad_objectives": 0
   },
-  "running": [
-    "development188 CPU31..35 376 runs",
-    "independent audit CPU36,37,42,48",
-    "general800 oracle CPU41",
-    "binary400 oracle CPU38",
-    "main10/60 pilot CPU44",
-    "native CPU46 plus GLPK launcher corrected rerunCPU47"
-  ],
+  "running": [],
   "shared_target_owner": "reusable-adaptive-repair-index",
-  "shared_target_fingerprint": "86f04a4091d4a4ae"
+  "shared_target_fingerprint": "86f04a4091d4a4ae",
+  "oracle_regression": {
+    "outputs": 1200,
+    "parent_proofs": 1028,
+    "tamper_rejections": 8224,
+    "gmp_valid": 1200
+  },
+  "native_comparison": "complete 2 instances; all6 points valid; first map10 GLPK launcher error preserved, both GLPK rerun time_limit no point",
+  "main_pilot": "map10 flag0 -16 /flag1 -24 at10s;60s flag1 -24;remaining runs active",
+  "default_enabled": true,
+  "pr": "https://github.com/iwiwi/mip-codex/pull/124",
+  "pr_status": "final188/default audits complete; preparing adoption",
+  "initial_comparison": {
+    "primal_improved": 2,
+    "primal_worsened": 0,
+    "primal_equal": 186,
+    "dual_improved": 3,
+    "dual_worsened": 2,
+    "dual_equal": 170,
+    "dual_incomparable": 13,
+    "all376_valid": true,
+    "all128_points_valid": true
+  },
+  "final_tests": {
+    "passed": 340,
+    "ignored": 4
+  },
+  "final_direct_oracle": {
+    "outputs": 400,
+    "gmp_valid": 400,
+    "bad_objectives": 0,
+    "cached_reuses": 296
+  },
+  "secondary_root": "/home/ubuntu/mip-monotone-primal-lifting",
+  "secondary_status": "deferred; real rd no point at10/60s zero objective and10s remaining/integer;800 generated points GMP and exactFraction valid; branch a0b00099c5 archive6362files2380960B11ELFretained; no secondary src included in candidate",
+  "final_comparison": {
+    "pairs": 188,
+    "primal_improved": 2,
+    "primal_worsened": 0,
+    "primal_equal": 186,
+    "dual_improved": 3,
+    "dual_worsened": 0,
+    "dual_equal": 172,
+    "dual_incomparable": 13,
+    "output_checks": 376,
+    "gmp_points": 128,
+    "map10_before": -16,
+    "map10_after": -25,
+    "supportcase12_before": -9,
+    "supportcase12_after": -12
+  },
+  "decision": "adopt; merge pending"
 }
