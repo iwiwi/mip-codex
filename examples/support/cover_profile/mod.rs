@@ -1054,8 +1054,10 @@ fn alternate_root_colors(graph: &Graph, mode: usize, deadline: Instant) -> Optio
 }
 
 /// 主解専用の独立診断。グラフ上界・証明・最適性は返さない。
-pub fn diagnostic(model:&Model,seconds:f64,mode:&str)->serde_json::Value{
+pub fn diagnostic(model:&Model,seconds:f64,mode:&str)->serde_json::Value{diagnostic_seeded(model,seconds,mode,None)}
+pub fn diagnostic_seeded(model:&Model,seconds:f64,mode:&str,point:Option<&[f64]>)->serde_json::Value{
  let start=Instant::now();let end=start+std::time::Duration::from_secs_f64(seconds);let graph=recognize(model,512*1024*1024,end).expect("recognized graph");let mut candidates=vec![u64::MAX;graph.words];if graph.n%64!=0{candidates[graph.words-1]=(1u64<<(graph.n%64))-1;}let mut seed=vec![];while let Some(v)=first(&candidates){seed.push(v);for(a,&b)in candidates.iter_mut().zip(&graph.compatible[v]){*a&=b;}}
+ if let Some(point)=point{assert!(model.check(point,true,0.).is_ok());assert!(point.iter().all(|&v|v==0.||v==1.));seed=(0..graph.n).filter(|&v|point[graph.order[v]]==1.).collect();assert!(strict_clique(&graph,&seed));}
  let seed_end=end.min(Instant::now()+std::time::Duration::from_secs_f64(0.5));let(mut best,seed_stats)=improve_seed(&graph,&seed,seed_end,true,true);let mut rounds=vec![];
  for round in 0..32u64{if Instant::now()>=end{break;}let before=best.len();let rng=if mode=="reseed"{0xd1b54a32d192ed03u64^(round.wrapping_mul(0x9e3779b97f4a7c15))}else{0xd1b54a32d192ed03};let(next,stats)=weighted_cover::improve_seeded(&graph,&best,256*1024*1024,end,rng);assert!(strict_clique(&graph,&next));if next.len()>best.len(){best=next;}rounds.push(serde_json::json!({"round":round,"rng":rng,"before":before,"after":best.len(),"stats":stats}));if mode=="single"{break;}}
  assert!(strict_clique(&graph,&best));let component_seconds=start.elapsed().as_secs_f64();let mut point=vec![0.;model.variables.len()];for &v in &best{point[graph.order[v]]=1.;}assert!(model.check(&point,true,0.).is_ok());let objective=model.objective(&point);let values:std::collections::BTreeMap<_,_>=model.variables.iter().zip(point).map(|(v,x)|(v.name.clone(),x)).collect();serde_json::json!({"status":"primal_candidate","objective":objective,"dual_bound":null,"values":values,"component_seconds":component_seconds,"vertices":graph.n,"seed_stats":seed_stats,"rounds":rounds,"purpose":"standalone profile; no parent bound or optimality claim"})
