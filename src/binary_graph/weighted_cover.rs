@@ -15,6 +15,7 @@ pub struct Stats {
     pub validation_failures: usize,
     pub configuration_fallbacks: usize,
     pub edges: usize,
+    pub restarts:usize,
     pub iteration_limit: usize,
     pub seconds: f64,
     pub stop_reason: &'static str,
@@ -203,6 +204,9 @@ pub(super) fn improve(
     memory: usize,
     deadline: Instant,
 ) -> (Vec<usize>, Stats) {
+    improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0)
+}
+fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,initial_rng:u64,minimum_iterations:usize)->(Vec<usize>,Stats){
     let started = Instant::now();
     let mut best = if strict_clique(graph, seed) {
         seed.to_vec()
@@ -212,7 +216,7 @@ pub(super) fn improve(
     let mut stats = Stats {
         initial: best.len(),
         best: best.len(),
-        iteration_limit: graph.n.saturating_mul(128).min(500000),
+        iteration_limit: graph.n.saturating_mul(128).min(500000).max(minimum_iterations).min(graph.n.saturating_mul(1024).min(2_000_000)),
         ..Stats::default()
     };
     let Some(mut state) = State::new(graph, &best, memory, deadline) else {
@@ -221,7 +225,7 @@ pub(super) fn improve(
         return (best, stats);
     };
     stats.edges = state.edges.len();
-    let mut rng = 0xd1b54a32d192ed03u64;
+    let mut rng = initial_rng;
     let extended_limit = graph.n.saturating_mul(1024).min(2_000_000);
     for step in 1..=extended_limit {
         if step > stats.iteration_limit {
@@ -425,4 +429,36 @@ mod tests {
         let (best, _) = improve(&g, &[0], 1 << 24, Instant::now());
         assert_eq!(best, vec![0]);
     }
+}
+
+/// 改善したときだけ、残り時間で重みと乱数系列を変えて再始動する。
+pub(super) fn portfolio(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant)->(Vec<usize>,Stats){
+ let began=Instant::now();let(mut best,mut stats)=improve(graph,seed,memory,deadline);
+ let mut improved=best.len()>seed.len();
+ for round in 1..=8u64{
+  if !improved||Instant::now()>=deadline||best.len()==graph.n||stats.validation_failures>0{break;}
+  let before=best.len();let offset=stats.iterations;
+  let rng=0xd1b54a32d192ed03u64^round.wrapping_mul(0x9e3779b97f4a7c15);
+  let(next,call)=improve_seeded(graph,&best,memory,deadline,rng,graph.n.saturating_mul(1024).min(2_000_000));
+  stats.restarts+=1;
+  stats.iterations=stats.iterations.saturating_add(call.iterations);
+  stats.iteration_limit=stats.iteration_limit.saturating_add(call.iteration_limit);
+  if let Some(first)=call.first_improvement_iteration{stats.first_improvement_iteration.get_or_insert(offset+first);}
+  if call.last_improvement_iteration>0{stats.last_improvement_iteration=offset+call.last_improvement_iteration;}
+  stats.additions+=call.additions;stats.removals+=call.removals;stats.weight_increases+=call.weight_increases;stats.forgettings+=call.forgettings;stats.validation_failures+=call.validation_failures;stats.configuration_fallbacks+=call.configuration_fallbacks;stats.stop_reason=call.stop_reason;
+  improved=next.len()>before;if improved{best=next;}stats.best=best.len();
+ }
+ stats.seconds=began.elapsed().as_secs_f64();(best,stats)
+}
+
+#[cfg(test)]mod portfolio_tests{
+ use super::*;
+ #[test]fn restarted_points_respect_exhaustive_clique_optima(){
+  let mut rng=2026111809u64;let mut restarts=0;
+  for case in 0..100{let n=4+case%5;let mut compatible=vec![vec![0u64;1];n];for a in 0..n{for b in a+1..n{rng=rng.wrapping_mul(6364136223846793005).wrapping_add(1);if rng>>63!=0{compatible[a][0]|=1<<b;compatible[b][0]|=1<<a;}}}let graph=Graph{n,words:1,compatible,order:(0..n).collect()};let before=graph.compatible.clone();let optimum=(0..1usize<<n).filter(|bits|{let x:Vec<_>=(0..n).filter(|&v|bits&(1<<v)!=0).collect();strict_clique(&graph,&x)}).map(|bits|bits.count_ones()as usize).max().unwrap();let seed=vec![case%n];let(x,stats)=portfolio(&graph,&seed,1<<20,Instant::now()+std::time::Duration::from_millis(100));assert!(strict_clique(&graph,&x));assert!(x.len()>=seed.len()&&x.len()<=optimum);assert_eq!(stats.best,x.len());assert_eq!(stats.validation_failures,0);assert_eq!(graph.compatible,before);assert_eq!(seed,[case%n]);restarts+=stats.restarts;}
+  assert!(restarts>0);
+ }
+ #[test]fn expired_or_insufficient_workspace_keeps_the_checked_seed(){
+  let graph=Graph{n:3,words:1,compatible:vec![vec![2],vec![1],vec![0]],order:vec![0,1,2]};let seed=vec![0];for(deadline,memory)in[(Instant::now(),1<<20),(Instant::now()+std::time::Duration::from_secs(1),1)]{let(x,stats)=portfolio(&graph,&seed,memory,deadline);assert_eq!(x,seed);assert_eq!(stats.restarts,0);assert!(strict_clique(&graph,&x));}
+ }
 }

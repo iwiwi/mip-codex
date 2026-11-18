@@ -1,0 +1,16 @@
+from pathlib import Path
+import os,sys,json,subprocess
+os.sched_setaffinity(0,{43});root=Path.cwd();sys.path.insert(0,'scripts');from benchmark_common import require_solver_origin
+info=require_solver_origin(root,root/'target/release/mip-codex');assert info['source_fingerprint']==info['library_source_fingerprint']=='3403747faafd1f58';url=next(x for x in Path('artifacts/cover-portfolio-pr-create.log').read_text().splitlines()if x.startswith('https://github.com/iwiwi/mip-codex/pull/'));number=url.rsplit('/',1)[1];assert json.load(open('artifacts/cover-portfolio-main-controls/exit.json'))['gmp_valid']==4;assert json.load(open('artifacts/cover-portfolio-development-parallel-audit/summary.json'))['strict_valid']==128;assert json.load(open('artifacts/cover-portfolio-default-graph-enumeration/summary.json'))['failures']==0
+text='''採用候補の比較を保存しました。最終既定有効coref2c16163e3/FP3403747faafd1f58を別凍結し、環境変数なしのdevelopment188と長時間main比較を再確認中です。draft解除/統合は完了後に判断します。
+
+初期core9f0c14527d/FP a17fcc51bf8ff4db、同一凍結CLI flag0/1、CPU44・1thread・16GiB: sorrell7の要求180秒は主解−197→−198、下界−241を維持、24735706→23516057 nodes。候補はrestart1・2893412反復・被覆8.399957秒、従来はrestart0・823588反復・2.399934秒。余分な局所探索のため本探索nodesは減り、品質と探索時間の代償も記録します。sorrell3は両方optimal−16/−16、同じ6042153 nodes、19.325897/19.371025秒。全4点GMP/全4出力のグラフ証明検査に合格。
+
+sorrell7はBenchmark v2外で240成績へ加算しません。MIPLIB公式公開最良−198と同値で、新記録・最適性証明ではありません。公式原MPSとgzip SHA11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45/展開bytesが完全一致、公開解は読まず、値も停止条件へ入れていません。CPU46のnative180秒はHiGHS1.16.0 −186/−230、SCIP10.0.2 −152/−447.6888496777278、GLPK5.0 −21/−356、全3点GMP合格。GLPK報告実時間183.343478秒の超過も保存。HiGHSの下界は本実装より強く、総合優位は未達成です。
+
+初期development188×各10秒（CPU31..35、順序交互、1thread/16GiB）は主解188同等、下界2改善/2悪化/171同等/13比較不能、有限175ずつ。両側183 time_limit/1optimal/4numerical_error。実際のrestartは0で短期改善とは扱わず、下界変動4件もgraph経路外なので時刻打切りの変動を含みます。全376出力を新規独立監査し合格、全128点GMP絶対1e−6・公式合格。
+
+342 Rust成功/4ignored。graph200モデル/1200出力の全列挙/GMP/厳密証明検査が合格、改ざん7410件全拒否。最終既定有効後も342/4とgraph1200/7410を確認済み。新unitは100小グラフで実際のrestart、全列挙optimumとの範囲照合・全組対・元グラフ不変・期限/メモリ不足保持を検証しています。
+
+最終再テスト初回はlink時ENOSPCで中断、失敗ログを保持。全63284ファイル1943967712 bytesを保持Git blobと全照合して過去評価3ディレクトリだけsparse checkout対象外にし、全内容はGitに保持、未追跡証拠/凍結ELF/稼働baseline領域は変更せずbaseline config SHA不変。再試行は全合格です。初期archive6569ファイル280468898 bytes→36214034 bytes、4bundle、全payload SHA256検証、1ELFは元凍結場所に保持。private16点の再始動診断と公式入力照合も別archiveへ保存し、privateコピーをmainへ入れません。追加の自作198点から300秒×2の継続診断は198のまま（両GMP合格）で、新記録/メイン比較に加えません。'''
+u=json.loads(subprocess.check_output(['python3','scripts/ai_usage.py'],text=True));Path('artifacts/cover-portfolio-pr-validation-ai-usage.json').write_text(json.dumps(u,ensure_ascii=False,indent=2));t=u['totals'];text+=f"\n\nAI使用量（直前ローカル最終累積、{u['sessions']} sessions）: total {t['total_tokens']:,}, input {t['input_tokens']:,}（cached {t['cached_input_tokens']:,}を含む）, output {t['output_tokens']:,}（reasoning {t['reasoning_output_tokens']:,}を含む）。内数の二重加算なし。\n";p=Path('artifacts/cover-portfolio-pr-validation-comment.txt');p.write_text(text);r=subprocess.run(['gh','pr','comment',number,'--repo','iwiwi/mip-codex','--body-file',str(p)],capture_output=True,text=True);Path('artifacts/cover-portfolio-pr-validation-comment.log').write_text(r.stdout+r.stderr);r.check_returncode();print(r.stdout)

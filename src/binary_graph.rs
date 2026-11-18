@@ -465,6 +465,23 @@ pub fn solve_with_fractional(
     cover: bool,
     fractional: bool,
 ) -> Option<Answer> {
+    solve_with_portfolio(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,false)
+}
+pub fn solve_with_portfolio(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+    adaptive: bool,
+    cover: bool,
+    fractional: bool,
+    portfolio:bool,
+) -> Option<Answer> {
+    let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
     let mut all = vec![u64::MAX; graph.words];
@@ -565,7 +582,7 @@ pub fn solve_with_fractional(
     {
         let allocation = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(
             if adaptive && cover {
-                3.0
+                if portfolio{f64::INFINITY}else{3.0}
             } else if adaptive {
                 2.0
             } else {
@@ -575,7 +592,8 @@ pub fn solve_with_fractional(
         let local_deadline =
             deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
         let first_deadline = if cover {
-            Instant::now() + local_deadline.saturating_duration_since(Instant::now()) / 5
+            let share=local_deadline.saturating_duration_since(Instant::now())/5;
+            Instant::now()+if portfolio{share.min(std::time::Duration::from_secs_f64(0.6))}else{share}
         } else {
             local_deadline
         };
@@ -583,8 +601,8 @@ pub fn solve_with_fractional(
         search.best = seed;
         search.stats.local = Some(stats);
         if cover && Instant::now() < local_deadline {
-            let (seed, stats) =
-                weighted_cover::improve(&graph, &search.best, memory / 2, local_deadline);
+            let improve=if portfolio{weighted_cover::portfolio}else{weighted_cover::improve};
+            let (seed, stats)=improve(&graph,&search.best,memory/2,local_deadline);
             search.best = seed;
             search.stats.cover_local = Some(stats);
         }
