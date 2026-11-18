@@ -171,7 +171,7 @@ impl Default for Limits {
             objective_dive_repeat: true,
             feasibility_pump: true,
             pump_limited_rounding:true,
-            pump_terminal_repair:false,
+            pump_terminal_repair:true,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 4,
