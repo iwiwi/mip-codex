@@ -103,7 +103,7 @@ impl Default for Limits {
             resource_primal:true,
             adaptive_resource_repair:true,
             adaptive_repair_incremental:true,
-            adaptive_repair_reuse:false,
+            adaptive_repair_reuse:true,
             resource_primal_compact:true,
             row_generation: true,
             row_generation_report: true,

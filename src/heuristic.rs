@@ -38,6 +38,8 @@ impl<'a> Repair<'a> {
             stats: Stats::default(),
         }
     }
+    // 呼出側は同じ変数・行順序・係数を維持し、RHSだけ変更する。
+    // 探索前の重みを保存し、適応ペナルティを次の試行へ移さない。
     pub(crate) fn initial_weights(&self) -> Vec<f64> { self.weights.clone() }
     pub(crate) fn into_incidence(self) -> Vec<Vec<(usize, f64)>> { self.incidence }
     pub(crate) fn from_cached(model: &'a Model, incidence: Vec<Vec<(usize, f64)>>, weights: Vec<f64>) -> Self {
