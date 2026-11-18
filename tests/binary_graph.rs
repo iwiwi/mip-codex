@@ -272,16 +272,30 @@ fn large_capacity_rejects_out_of_range_vertices_before_allocating_graph() {
 }
 
 #[test]
-fn large_deep_branch_stops_with_a_safe_unclosed_root_bound() {
+fn large_one_odd_cycle_closes_before_recursing_into_isolates() {
     let n=5100;
     let edges:Vec<_>=(0..5).map(|k|(n-5+k,n-5+(k+1)%5)).collect();
+    let m=model(n,&edges,false);
+    let answer=binary_graph::solve_with_capacity(&m,64*1024*1024,Instant::now()+Duration::from_secs(30),usize::MAX,false,false,false,false,false,false,false,false,false,false,true).unwrap();
+    assert!(m.check(&answer.point,true,0.).is_ok());
+    assert_eq!(answer.status,"optimal");
+    assert!(!answer.stats.depth_limit_hit);
+    assert!(answer.stats.complete);
+    assert_eq!(answer.stats.best,n-3);
+    assert_eq!(answer.stats.upper,n-3);
+}
+
+#[test]
+fn large_many_odd_cycles_stop_with_a_safe_unclosed_root_bound() {
+    let n=5100;
+    let edges:Vec<_>=(0..n/5).flat_map(|g|(0..5).map(move|k|(5*g+k,5*g+(k+1)%5))).collect();
     let m=model(n,&edges,false);
     let answer=binary_graph::solve_with_capacity(&m,64*1024*1024,Instant::now()+Duration::from_secs(30),usize::MAX,false,false,false,false,false,false,false,false,false,false,true).unwrap();
     assert!(m.check(&answer.point,true,0.).is_ok());
     assert_eq!(answer.status,"depth_limit");
     assert!(answer.stats.depth_limit_hit);
     assert!(!answer.stats.complete);
-    assert_eq!(answer.stats.best,n-3);
-    assert_eq!(answer.stats.upper,n-2);
+    assert_eq!(answer.stats.best,2*n/5);
+    assert_eq!(answer.stats.upper,3*n/5);
     assert!(answer.stats.nodes<=512);
 }
