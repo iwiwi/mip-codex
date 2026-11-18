@@ -7,3 +7,6 @@
 最初の比較はsorrell3（development）とsorrell7（Benchmark v2外の探索例、240成績へ加算しない）、各2/10秒×3方式。共通の貪欲点と既存improve_seedを最大0.5秒実行してから被覆探索へ移る。読込は探索計時外で、独立のmain同時間比較ではない。構築・再構築費もcomponentに含む。改善があれば連続探索の上限だけを延ばしたcontrolも追加し、再始動の寄与と時間の使い切りを分ける。全上限・seed列は入力名・公開最良値へ依存しない。
 
 MIPLIB公式ページ https://miplib.zib.de/instance_details_sorrell7.html を2026-11-18に確認し、open/公開目的-198（2023-10-25）と表示。公開点は読み込まず、値も停止条件・探索コードへ使わない。-198と同値なら新記録ではなく、上回った場合も元の公式入力hashと検査を改めて確認する。引用したNuMVCの数学的出典とコードを移植していない条件はGRAPH_WEIGHTED_COVER_PLAN.mdを継承する。
+
+
+初期12実行は全12点GMP合格、sorrell3は全て-16、sorrell7は2秒-195/10秒-197で方式差なし。singleの10秒設定は200万上限でcomponent6.38287秒で停止、reseedは6回の探索を行って10秒を消費しても-197。次は同じ60秒でcontinuous（初期/延長2000万）とreseed（各200万）をCPU44/45で比較。privateコピーだけの反復上限envを追加し、既定は旧値のまま。ソース1d54b84845、production FP8a不変。Python driverの初回はelse直後の空白不足をpy_compileで検出し修正、初期ソースを保存してから実行。
