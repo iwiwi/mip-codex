@@ -536,6 +536,14 @@ pub fn solve_with_capacity(
     adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
     input_cover: bool, spectral: bool, large: bool,
 ) -> Option<Answer> {
+    solve_with_heap(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,input_cover,spectral,large,false)
+}
+pub fn solve_with_heap(
+    model: &Model, memory: usize, deadline: Instant, limit: usize,
+    local: bool, stronger_root: bool, preserve_order: bool, diversify: bool,
+    adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
+    input_cover: bool, spectral: bool, large: bool, heap: bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline, large)?;
@@ -671,8 +679,7 @@ pub fn solve_with_capacity(
         search.best = seed;
         search.stats.local = Some(stats);
         if cover && Instant::now() < local_deadline {
-            let improve=if portfolio{weighted_cover::portfolio}else{weighted_cover::improve};
-            let (seed, stats)=improve(&graph,&search.best,memory/2,local_deadline);
+            let (seed, stats)=weighted_cover::selected(&graph,&search.best,memory/2,local_deadline,portfolio,heap);
             search.best = seed;
             search.stats.cover_local = Some(stats);
         }
