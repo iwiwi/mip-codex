@@ -845,7 +845,18 @@ impl Simplex {
         let mut verified = false;
         let mut restoration_epoch = self.stats.restoration_attempts;
         let mut restoration_objective = f64::INFINITY;
+        let cycle_trace=std::env::var_os("MIP_LP_CYCLE_TRACE").is_some();
+        let mut last_cycle_trace=usize::MAX;
         'iterations: loop {
+            if cycle_trace && self.stats.pivots%4096==0 && last_cycle_trace!=self.stats.pivots {
+                last_cycle_trace=self.stats.pivots;
+                let mut hash=0xcbf29ce484222325u64;
+                for &j in &self.basis { hash=(hash^j as u64).wrapping_mul(0x100000001b3); }
+                for (j,&up) in self.at_upper.iter().enumerate(){if up{hash=(hash^j as u64).wrapping_mul(0x100000001b3);}}
+                let objective=crate::exact::dot(c.iter().copied().zip(self.x.iter().copied()));
+                eprintln!("cycle trace pivots={} rows={} columns={} degenerate={} basis={hash:016x} objective={objective:?}",self.stats.pivots,self.rhs.len(),c.len(),degenerate);
+            }
+
             if self.deadline.is_some_and(|d| Instant::now() >= d) {
                 return Err(Outcome::TimeLimit);
             }
