@@ -1,0 +1,9 @@
+# 分数被覆の候補クリークを安価に分散生成する診断
+
+基準main125 91f82c6275 / FP3403747faafd1f58。productionは変更せずbinary_graphと2子moduleを隔離コピー。既存の候補列挙は20000個/構成時間で止まるため、初期頂点へ偏る場合がある。以前のFRACTIONAL_COVER_HYPOTHESIS.mdに記した未実施案を診断する。
+
+cheap方式は元の根彩色クリークを必ず保持し、各頂点から候補集合の先頭bitを選んでmaximal化する安価なgrowを先に実行。その後の元の極大クリーク列挙・価格更新・整数回数の証明は変えない。baselineは元の順序。構成/全体期限・memory・20000候補の上限は維持する。途中停止の集合も全組対が競合するため、有効な候補としてのみ扱う。
+
+根の正しい彩色を生成し、零点と根上界だけをnode_limitとして出力する。探索木を進めず最適性・不能を宣言しない。受理は元MPSのFractionから、全クリーク対・整数回数・総数/最小被覆・root/prefix・報告目的境界を既存の独立verify_binary_graphで検査し、零点もGMP検査する。価格の浮動小数は候補選択だけに使う。既存LP/MIPソルバーへ最適化を委譲しない。
+
+最初はdevelopment sorrell3とBenchmark v2外の探索例sorrell7、0.5/2/10秒のstandalone診断。MPS読込・出力変換・Python検査はcomponent時間外、認識/彩色/候補構成/価格更新/内部証明は内側。main同時限比較ではない。良い結果だけをclean mainへ移し、元のbudgetで測定してから採否を判断する。未知52検証群は使用しない。
