@@ -676,6 +676,10 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
     let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let mut row_sources = Vec::new();
     let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").is_ok_and(|v|v=="1");
+    let interval_dump=if interval_enabled{std::env::var_os("MIP_RHS_INTERVAL_DUMP").map(|path|{
+        let limit=std::env::var("MIP_RHS_INTERVAL_DUMP_LIMIT").ok().and_then(|v|v.parse::<usize>().ok()).filter(|&n|n<=1_000_000).unwrap_or(1024);
+        (path,limit)
+    })}else{None};
     let mut interval_source_valid=None;
     for (source,row) in sources {
         if row.lower.is_none() && row.upper.is_none() {
@@ -710,7 +714,7 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
                 let valid=*interval_source_valid.get_or_insert_with(||!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.matches(model)));
                 if valid&&let Some(value)=interval_shifted_bound(model,source,row,&shift,row_sign>0.){
                     bound=value;RHS_INTERVAL_COUNT.with(|n|n.set(n.get().saturating_add(1)));
-                    if RHS_INTERVAL_COUNT.with(|n|n.get())<=1024&&let Some(path)=std::env::var_os("MIP_RHS_INTERVAL_DUMP"){
+                    if let Some((path,limit))=&interval_dump&&RHS_INTERVAL_COUNT.with(|n|n.get())<=*limit{
                         use std::io::Write;
                         if let Ok(mut file)=std::fs::OpenOptions::new().create(true).append(true).open(path){
                             let shifts:Vec<_>=shift.iter().enumerate().filter(|&(_,&v)|v!=0.).map(|(j,v)|(j,format!("{:016x}",v.to_bits()))).collect();

@@ -14,6 +14,7 @@ def binary(text):
 
 def verify(model,dump):
     names,variables,rows=exact_model(model)
+    index_by_name={name:i for i,name in enumerate(names)}
     records=[]
     for line in Path(dump).read_text().splitlines():
         p=json.loads(line)
@@ -31,7 +32,7 @@ def verify(model,dump):
             shift[j]=binary(bits)
         required=sign*b
         for name,a in row['coefficients'].items():
-            j=names.index(name);hat=F(float(a));error=sign*(hat-a)
+            j=index_by_name[name];hat=F(float(a));error=sign*(hat-a)
             required-=sign*hat*shift.get(j,F(0))
             if error:
                 v=variables[name];lo=v['lower'];up=v['upper']
