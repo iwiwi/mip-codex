@@ -1,0 +1,5 @@
+# 3親unionの厳密な制限探索・私的仮説
+
+2親の二部matchingは多様な自作17親でもbestを上げなかった。次は現在bestと2親の3点で、共通点を保持、unionの残りだけを自由にして自作Rustのseed付き彩色/branchで解く。3親unionは一般には二部でないためmatching最適性は使わない。最大60組/600秒、各10秒/2M節点、自由点2048上限、現在bestの自由部分を必ず含む。新bestを次の組へ使うが、外部解/既知値/停止値は渡さない。
+
+共通点はunionの全点と両立することを100小グラフ×10triplesで全列挙して検査。既存seeded-core200/random制限domain200検査も保持する。改善した元点と制限MPS/点/mapping、最終元点を出力し、全出力は元/制限MPSの独立GMPで検査。局所bounds/optimal/infeasibleは元大域へ移さない。本体srcはE5不変でprivate成果のみ。
