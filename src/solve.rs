@@ -156,7 +156,7 @@ impl Default for Limits {
             graph_large_capacity:true,
             graph_cover_heap:true,
             graph_large_primal_budget:true,
-            graph_cover_long_rounds:false,
+            graph_cover_long_rounds:true,
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
