@@ -780,6 +780,8 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
 #[derive(Default, Debug, Serialize)]
 pub struct PumpStats {
     pub general_calls: usize,
+    pub general_last_projection_repairs: usize,
+    pub general_last_projection_candidates: usize,
     pub general_extension_trials: usize,
     pub general_extensions: usize,
     pub terminal_repair_calls:usize,
@@ -826,6 +828,15 @@ fn pump_terminal_candidate(model:&Model,root:&Node,standard:&Standard,point:&[f6
     if Instant::now()>=global_deadline{return None;}
     if candidate.is_some(){stats.terminal_repair_candidates+=1;}
     candidate
+}
+// 最後の検査済みLP射影も主解修復の種に限る。局所期限後は全体残時間の既存枠を使う。
+fn general_last_projection_candidate(model:&Model,root:&Node,standard:&Standard,point:Option<&[f64]>,limits:&Limits,global_deadline:Instant,recovery:bool,checker:&mut heuristic::Repair<'_>,stats:&mut PumpStats)->Option<Vec<f64>> {
+    if !recovery || !limits.pump_limited_rounding || !limits.pump_terminal_repair {return None;}
+    let point=point?;
+    stats.general_last_projection_repairs+=1;
+    let candidate=pump_terminal_candidate(model,root,standard,point,global_deadline,checker,stats)?;
+    stats.general_last_projection_candidates+=1;stats.candidates+=1;
+    Some(candidate)
 }
 fn general_integer_pump(
     model: &Model,
@@ -889,12 +900,13 @@ fn general_integer_pump(
     let mut checker = heuristic::Repair::new(model);
     let mut current = point.to_vec();
     let mut warm = None;
+    let mut last_projection: Option<Vec<f64>> = None;
     let mut history = std::collections::VecDeque::<Vec<i64>>::new();
     let mut seed = 0xace189e3914b5837u64;
     for _ in 0..64 {
         if Instant::now() >= deadline {
             stats.limited += 1;
-            return None;
+            return general_last_projection_candidate(model,root,standard,last_projection.as_deref(),limits,global_deadline,recovery,&mut checker,stats);
         }
         let mut rounded = current.clone();
         for (j, v) in model.variables.iter().enumerate() {
@@ -1006,6 +1018,7 @@ fn general_integer_pump(
         );
         stats.lp_solves += 1;
         lp_stats.add(&answer.stats);
+        let had_limited_point=answer.limited_point.is_some();
         match answer.outcome {
             lp::Outcome::Optimal { x, .. } => {
                 current = standard
@@ -1018,6 +1031,7 @@ fn general_integer_pump(
                     stats.numerical_errors += 1;
                     return None;
                 }
+                last_projection = Some(x);
                 warm = answer.warm;
             }
             lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => {
@@ -1038,7 +1052,8 @@ fn general_integer_pump(
                         }
                     } else {stats.limited_deadline_skips+=1;}
                 }
-                return None;
+                if had_limited_point {return None;}
+                return general_last_projection_candidate(model,root,standard,last_projection.as_deref(),limits,global_deadline,recovery,&mut checker,stats);
             }
             _ => {
                 stats.numerical_errors += 1;
@@ -1047,7 +1062,7 @@ fn general_integer_pump(
         }
     }
     stats.limited += 1;
-    None
+    general_last_projection_candidate(model,root,standard,last_projection.as_deref(),limits,global_deadline,recovery,&mut checker,stats)
 }
 fn binary_pump(
     model: &Model,
@@ -4060,6 +4075,20 @@ mod pump_tests {
         }
         let parent=revised::minimize_warm(p.sparse.as_ref().unwrap(),1000,None,node.warm.as_deref());
         assert!(matches!(parent.outcome,lp::Outcome::Optimal{objective,..}if (objective+1.5).abs()<1e-9));
+    }
+    #[test]
+    fn general_last_projection_is_primal_only_and_respects_policy_and_deadline() {
+        let (m,node,p,_)=prepare("NAME last\nROWS\n N obj\n L r\nCOLUMNS\n x obj -1 r 1\nRHS\n b r 1.5\nBOUNDS\n LI b x 0\n UI b x 3\nENDATA\n");
+        let mut checker=heuristic::Repair::new(&m);let mut stats=PumpStats::default();let limits=Limits::default();
+        let mut point=vec![0.;p.sparse.as_ref().unwrap().costs.len()+1];
+        assert_eq!(p.terms[0],vec![(0,1.)]);point[0]=1.5;let future=Instant::now()+std::time::Duration::from_secs(2);
+        assert!(general_last_projection_candidate(&m,&node,&p,Some(&point),&limits,future,false,&mut checker,&mut stats).is_none());
+        assert!(general_last_projection_candidate(&m,&node,&p,None,&limits,future,true,&mut checker,&mut stats).is_none());
+        assert!(general_last_projection_candidate(&m,&node,&p,Some(&point),&limits,Instant::now(),true,&mut checker,&mut stats).is_none());
+        assert_eq!(stats.terminal_repair_calls,0);
+        let x=general_last_projection_candidate(&m,&node,&p,Some(&point),&limits,future,true,&mut checker,&mut stats).unwrap();
+        assert_eq!(x,vec![1.]);assert!(m.check(&x,true,1e-7).is_ok());assert_eq!(stats.general_last_projection_candidates,1);
+        point[0]=f64::NAN;assert!(general_last_projection_candidate(&m,&node,&p,Some(&point),&limits,future,true,&mut checker,&mut stats).is_none());
     }
     const FRACTIONAL: &str = "NAME pump\nOBJSENSE\n MAX\nROWS\n N obj\n L r\nCOLUMNS\n x obj 1 r 1\n y obj 1 r 1\nRHS\n rhs r 1.5\nBOUNDS\n BV b x\n BV b y\nENDATA\n";
     #[test]
