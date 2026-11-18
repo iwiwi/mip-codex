@@ -16,6 +16,7 @@ pub struct Stats {
     pub configuration_fallbacks: usize,
     pub edges: usize,
     pub restarts:usize,
+    pub heap_used:bool,
     pub iteration_limit: usize,
     pub seconds: f64,
     pub stop_reason: &'static str,
@@ -37,6 +38,9 @@ struct State {
     uncovered: Vec<u32>,
     positions: Vec<u32>,
     total: u64,
+    heap_enabled: bool,
+    heap: Vec<usize>,
+    heap_position: Vec<usize>,
 }
 impl State {
     fn new(graph: &Graph, seed: &[usize], memory: usize, deadline: Instant) -> Option<Self> {
@@ -71,6 +75,9 @@ impl State {
             }
         }
         let mut s = Self {
+            heap_enabled: false,
+            heap: Vec::new(),
+            heap_position: Vec::new(),
             positions: vec![u32::MAX; edges.len()],
             score: vec![0; graph.n],
             changed: vec![true; graph.n],
@@ -107,6 +114,54 @@ impl State {
                 _ => {}
             }
         }
+        if self.heap_enabled {self.heap_rebuild();}
+    }
+    fn heap_rebuild(&mut self) {
+        self.heap.clear();self.heap_position.fill(usize::MAX);
+        for v in 0..self.covered.len(){if self.covered[v]{self.heap_position[v]=self.heap.len();self.heap.push(v);}}
+        for k in (0..self.heap.len()/2).rev(){self.heap_down(k);}
+    }
+    fn enable_heap(&mut self) {
+        self.heap_enabled=true;
+        self.heap=Vec::with_capacity(self.covered.len());
+        self.heap_position=vec![usize::MAX;self.covered.len()];
+        self.heap_rebuild();
+    }
+    fn heap_swap(&mut self, a: usize, b: usize) {
+        self.heap.swap(a,b);
+        self.heap_position[self.heap[a]]=a;
+        self.heap_position[self.heap[b]]=b;
+    }
+    fn heap_up(&mut self, mut k: usize) {
+        while k>0 {
+            let parent=(k-1)/2;
+            if !self.better(self.heap[k],self.heap[parent]) {break;}
+            self.heap_swap(k,parent);k=parent;
+        }
+    }
+    fn heap_down(&mut self, mut k: usize) {
+        loop {
+            let left=2*k+1;
+            if left>=self.heap.len(){break;}
+            let right=left+1;
+            let child=if right<self.heap.len()&&self.better(self.heap[right],self.heap[left]){right}else{left};
+            if !self.better(self.heap[child],self.heap[k]){break;}
+            self.heap_swap(k,child);k=child;
+        }
+    }
+    fn heap_refresh(&mut self, v: usize) {
+        let k=self.heap_position[v];
+        if k==usize::MAX{return;}
+        self.heap_up(k);self.heap_down(self.heap_position[v]);
+    }
+    fn heap_insert(&mut self, v: usize) {
+        debug_assert_eq!(self.heap_position[v],usize::MAX);
+        self.heap_position[v]=self.heap.len();self.heap.push(v);self.heap_up(self.heap.len()-1);
+    }
+    fn heap_remove(&mut self, v: usize) {
+        let k=self.heap_position[v];debug_assert_ne!(k,usize::MAX);
+        let last=self.heap.len()-1;self.heap_swap(k,last);self.heap.pop();self.heap_position[v]=usize::MAX;
+        if k<self.heap.len(){self.heap_refresh(self.heap[k]);}
     }
     fn uncover(&mut self, e: usize) {
         if self.positions[e] == u32::MAX {
@@ -128,6 +183,7 @@ impl State {
         if self.covered[v] == add {
             return;
         }
+        if self.heap_enabled && !add {self.heap_remove(v);}
         self.score[v] = -self.score[v];
         self.covered[v] = add;
         self.age[v] = step;
@@ -159,7 +215,9 @@ impl State {
                 self.score[u] += w;
                 self.uncover(id);
             }
+            if self.heap_enabled && self.covered[u]{self.heap_refresh(u);}
         }
+        if self.heap_enabled && add {self.heap_insert(v);}
         if !add {
             self.changed[v] = false;
         }
@@ -170,6 +228,7 @@ impl State {
                 && (self.age[a] < self.age[b] || self.age[a] == self.age[b] && a < b)
     }
     fn remove_choice(&self) -> Option<usize> {
+        if self.heap_enabled {return self.heap.first().copied();}
         let mut best = None;
         for v in 0..self.covered.len() {
             if self.covered[v] && best.is_none_or(|b| self.better(v, b)) {
@@ -204,9 +263,9 @@ pub(super) fn improve(
     memory: usize,
     deadline: Instant,
 ) -> (Vec<usize>, Stats) {
-    improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0)
+    improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,false)
 }
-fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,initial_rng:u64,minimum_iterations:usize)->(Vec<usize>,Stats){
+fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,initial_rng:u64,minimum_iterations:usize,heap:bool)->(Vec<usize>,Stats){
     let started = Instant::now();
     let mut best = if strict_clique(graph, seed) {
         seed.to_vec()
@@ -224,6 +283,8 @@ fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,initi
         stats.seconds = started.elapsed().as_secs_f64();
         return (best, stats);
     };
+    if heap && heap_eligible(graph.n,state.edges.len(),memory) {state.enable_heap();}
+    stats.heap_used=state.heap_enabled;
     stats.edges = state.edges.len();
     let mut rng = initial_rng;
     let extended_limit = graph.n.saturating_mul(1024).min(2_000_000);
@@ -330,6 +391,13 @@ mod tests {
     }
     fn verify(s: &State) {
         assert_eq!(s.count, s.covered.iter().filter(|v| **v).count());
+        if s.heap_enabled {
+            let expected=(0..s.covered.len()).filter(|&v|s.covered[v]).reduce(|a,b|if s.better(a,b){a}else{b});
+            assert_eq!(s.remove_choice(),expected);assert_eq!(s.heap.len(),s.count);
+            for v in 0..s.covered.len(){assert_eq!(s.heap_position[v]!=usize::MAX,s.covered[v]);}
+            for(k,&v)in s.heap.iter().enumerate(){assert_eq!(s.heap_position[v],k);if k>0{assert!(!s.better(v,s.heap[(k-1)/2]));}}
+        } else {assert!(s.heap.is_empty()&&s.heap_position.is_empty());}
+
         let mut scores = vec![0i64; s.covered.len()];
         let mut uncovered = vec![];
         let mut total = 0u64;
@@ -389,6 +457,60 @@ mod tests {
         }
     }
     #[test]
+    fn heap_selection_matches_full_scan_after_each_score_and_age_update() {
+        let mut seed = 791239u64;
+        for n in 1..=20 {
+            for _ in 0..5 {
+                let g = graph(n, &mut seed);
+                let mut state = State::new(
+                    &g,
+                    &[],
+                    1 << 24,
+                    Instant::now() + std::time::Duration::from_secs(2),
+                )
+                .unwrap();
+                state.enable_heap();
+                let mut stats = Stats::default();
+                verify(&state);
+                for step in 1..=300 {
+                    seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                    let v = seed as usize % n;
+                    state.change(v, !state.covered[v], step);
+                    verify(&state);
+                    state.raise_weights(&mut stats);
+                    verify(&state);
+                }
+            }
+        }
+    }
+    #[test]
+    fn heap_gate_respects_size_density_and_additional_memory() {
+        assert!(!heap_eligible(4096,100,usize::MAX));
+        assert!(heap_eligible(5000,2500,16*1024*1024));
+        assert!(heap_eligible(17937,520860,256*1024*1024));
+        assert!(!heap_eligible(5000,10000000,usize::MAX));
+        assert!(!heap_eligible(5000,2500,1));
+        assert!(!heap_eligible(65536,1,usize::MAX));
+    }
+    #[test]
+    fn heap_and_u16_edges_preserve_high_vertex_indices() {
+        let n:usize=5000;let words=n.div_ceil(64);
+        let mut compatible=vec![vec![u64::MAX;words];n];
+        for v in 0..n {
+            compatible[v][words-1]&=(1u64<<(n%64))-1;
+            compatible[v][v/64]&=!(1u64<<(v%64));
+            let partner=v^1;compatible[v][partner/64]&=!(1u64<<(partner%64));
+        }
+        let g=Graph{n,words,compatible,order:(0..n).collect()};
+        let mut state=State::new(&g,&[],16*1024*1024,Instant::now()+std::time::Duration::from_secs(10)).unwrap();
+        state.enable_heap();
+        assert!(state.edges.iter().any(|e|e.a==4998&&e.b==4999));verify(&state);
+        let mut stats=Stats::default();
+        for (step,v) in [4999,4998,4096,4097,4999,4096,0,1,4998].into_iter().enumerate(){
+            state.change(v,!state.covered[v],step+1);verify(&state);state.raise_weights(&mut stats);verify(&state);
+        }
+    }
+    #[test]
     fn local_candidates_are_valid_and_never_exceed_enumerated_optima() {
         let mut seed = 913421u64;
         for n in 1..=12 {
@@ -433,13 +555,26 @@ mod tests {
 
 /// 改善したときだけ、残り時間で重みと乱数系列を変えて再始動する。
 pub(super) fn portfolio(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant)->(Vec<usize>,Stats){
- let began=Instant::now();let(mut best,mut stats)=improve(graph,seed,memory,deadline);
+ portfolio_selected(graph,seed,memory,deadline,false)
+}
+pub(super) fn selected(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,portfolio:bool,heap:bool)->(Vec<usize>,Stats){
+ if portfolio {portfolio_selected(graph,seed,memory,deadline,heap)}else{improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,heap)}
+}
+fn heap_eligible(n:usize,edges:usize,memory:usize)->bool {
+ let bits=usize::BITS-n.saturating_sub(1).leading_zeros();
+ n>4096 && n<=u16::MAX as usize
+  && 8*(edges as u128)*(bits as u128)<=(n as u128)*(n as u128)
+  && 32*(edges as u128)+144*(n as u128)<=memory as u128
+}
+fn portfolio_selected(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,heap:bool)->(Vec<usize>,Stats){
+ let began=Instant::now();let(mut best,mut stats)=improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,heap);
  let mut improved=best.len()>seed.len();
  for round in 1..=8u64{
   if !improved||Instant::now()>=deadline||best.len()==graph.n||stats.validation_failures>0{break;}
   let before=best.len();let offset=stats.iterations;
   let rng=0xd1b54a32d192ed03u64^round.wrapping_mul(0x9e3779b97f4a7c15);
-  let(next,call)=improve_seeded(graph,&best,memory,deadline,rng,graph.n.saturating_mul(1024).min(2_000_000));
+  let(next,call)=improve_seeded(graph,&best,memory,deadline,rng,graph.n.saturating_mul(1024).min(2_000_000),heap);
+  stats.heap_used|=call.heap_used;
   stats.restarts+=1;
   stats.iterations=stats.iterations.saturating_add(call.iterations);
   stats.iteration_limit=stats.iteration_limit.saturating_add(call.iteration_limit);

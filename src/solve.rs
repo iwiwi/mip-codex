@@ -57,6 +57,7 @@ pub struct Limits {
     pub graph_input_cover:bool,
     pub graph_spectral_bound:bool,
     pub graph_large_capacity:bool,
+    pub graph_cover_heap:bool,
     pub aggregate_cuts: bool,
     pub clique_cuts: bool,
     pub mir_cuts: bool,
@@ -149,6 +150,7 @@ impl Default for Limits {
             graph_input_cover:true,
             graph_spectral_bound:true,
             graph_large_capacity:true,
+            graph_cover_heap:false,
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
@@ -1601,7 +1603,7 @@ fn solve_seeded_warm(
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
-            if let Some(answer) = crate::binary_graph::solve_with_capacity(
+            if let Some(answer) = crate::binary_graph::solve_with_heap(
                 model,
                 limits.dense_bytes,
                 deadline,
@@ -1617,6 +1619,7 @@ fn solve_seeded_warm(
                 limits.graph_input_cover,
                 limits.graph_spectral_bound,
                 limits.graph_large_capacity,
+                limits.graph_cover_heap,
             ) {
                 let sign = if model.maximize { -1. } else { 1. };
                 let objective = model.objective(&answer.point);
