@@ -1,0 +1,48 @@
+{
+  "input_sha256": "63ca4683d1311d5e1390472d5dfb880af2a6100dd11a8a08006d90fa1e27b783",
+  "comparison_worker_sha256": "86f65839b1dfbb6a40ea6e8eb9c08fccd202071faa9f04eefef0c23d363b5de1",
+  "validator_sha256": "4e8aa3a62c75d6367a50d3d2ed7336476b52c1c2cc371a72dec4ab8cb041db33",
+  "native_source": "artifacts/large-capacity-native-controls; full data in initial large-capacity-evaluation",
+  "native_experiment": {
+    "cpu": 46,
+    "seconds": 60,
+    "threads": 1,
+    "memory_bytes": 17179869184,
+    "input_sha256": "63ca4683d1311d5e1390472d5dfb880af2a6100dd11a8a08006d90fa1e27b783",
+    "split": "exploratory; outside Benchmarkv2",
+    "purpose": "fresh native comparison; no points or multipliers passed to Rust"
+  },
+  "records": [
+    {
+      "solver": "highs",
+      "status": "Time limit reached",
+      "objective": -1147.0,
+      "dual_bound": -2114.0,
+      "seconds": 60.04785180091858,
+      "nodes": 0,
+      "version": "1.16.0",
+      "gmp_valid": true
+    },
+    {
+      "solver": "scip",
+      "status": "timelimit",
+      "objective": -1013.0,
+      "dual_bound": -1650.9375,
+      "seconds": 60.024089,
+      "nodes": 1,
+      "version": "10.0.2",
+      "gmp_valid": true
+    },
+    {
+      "solver": "glpk",
+      "status": "time_limit",
+      "objective": null,
+      "dual_bound": null,
+      "seconds": 60.90326923696557,
+      "nodes": null,
+      "version": "5.0",
+      "gmp_valid": null
+    }
+  ],
+  "reuse_reason": "same frozen native solver versions/settings/input/driver/validator; only own Rust capacity default/depth guard changed; no native outputs passedoptimizer"
+}
