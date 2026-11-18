@@ -675,7 +675,7 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
     let mut slack_upper = Vec::new();
     let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let mut row_sources = Vec::new();
-    let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").is_ok_and(|v|v=="1");
+    let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").map_or(true,|v|v=="1");
     let interval_dump=if interval_enabled{std::env::var_os("MIP_RHS_INTERVAL_DUMP").map(|path|{
         let limit=std::env::var("MIP_RHS_INTERVAL_DUMP_LIMIT").ok().and_then(|v|v.parse::<usize>().ok()).filter(|&n|n<=1_000_000).unwrap_or(1024);
         (path,limit)
