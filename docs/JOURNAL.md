@@ -924,3 +924,13 @@ main126c788/E5のprimary再検査3点GMP/3strict証明、cod−12root最適性�
 ### 容量候補の最終188と非適用経路の再検査
 
 ABC既定ON188はprimal185same/3down、dual173same/2down/13inc、全376fresh/128GMP公式valid、新しい大容量認識0。元悪化を保持し5件×3交互順pairsをCPU46で追加、30点全GMP/proof valid。15pairs primal2up/1down/12same、dual2up/1down/12same、全graph None。厳密領域拡張の独立正しさと新領域z26本体改善を根拠に採用判断し、非適用変動の因果は断定しない。詳細GRAPH_LARGE_CAPACITY_RESULTS.md。全体優位/新記録は未達。正式Rust240は未起動。
+
+## 2026-11-18 PR127 primary再検査と新未起動snapshot
+
+PR127は07:27:24 UTCにmainb930/ABCへ採用。primaryソースとPRhead90b6 src/scripts/tests/Cargo/build差分0、CLI/library directory/FPともprimary/ABCで再ビルド。既存untrackedの取り込み対象はincoming Git blobとの全byte一致を確認し/tmpへ保持してpull、取り込み後SHAも確認。primary4点GMP/strict proof valid、cod−12/0nodes/.020695114sec root最適、5000pair−2500/0nodes/.053164141sec root最適、manyC5 depth_limit best2040/upper3060/512nodes/.206185296sec、z26/60s−1151/LB−1575/92135nodes。候補branchの−1154/LB−1578と区別し、主解/被覆の時間変動も保持する。
+
+new create-only large-capacity-final-20261118はconfig2bbdcf0f551ab1012cc76dd631e87f8661e1355f79255ddaace09f5287bfa7d0、113files/147libs全SHA、旧E5と5filesだけ変更・追加削除なし、snapshot自身でcod/5000pair/depth proof確認、新旧240cgroups空、全Rust最終job未起動。旧302bはOBSOLETE。receipt experiments/large-capacity-snapshot-20261118.json（実際の正確なhashはreceiptを正とする）。postcomment6972293164。
+
+元native720が終端し全cgroups/managerが終端してから、事前固定の外部disk障害重複GLPK1件の別tag測定が07:30:23に開始。元720と719summarySHAを保持、品質によらず新結果を使い元の失敗も提示する方針。旧coordinator-exit-code1は06:33初回停止の記録で、実終端はexit.json720/identity/cgroupsで確認。旧error logの保存先がrecovered stdoutに再使用されたが、元baseline/coordinator.logの181B errorは不変で別copyを保存。primary pullでstdoutの同一byteファイルが/tmpへ移った後もfdは同inodeへ書き続け、完了complete720も/tmpから別copyして保存。optimizer再起動なし。
+
+postarchive198files18,827,731B→3,763,293B/1bundle、全payloadSHA検証、ELF5本は元位置に保持・SHA検証。正式Rust240起動は新native1件の終端/予約cores解放も待つ。
