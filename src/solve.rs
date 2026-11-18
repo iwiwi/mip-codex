@@ -148,7 +148,7 @@ impl Default for Limits {
             graph_cover_restarts:true,
             graph_input_cover:true,
             graph_spectral_bound:true,
-            graph_large_capacity:false,
+            graph_large_capacity:true,
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,

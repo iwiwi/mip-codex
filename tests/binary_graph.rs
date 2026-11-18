@@ -270,3 +270,18 @@ fn large_capacity_rejects_out_of_range_vertices_before_allocating_graph() {
     let m=model(65536,&[],false);
     assert!(binary_graph::solve_with_capacity(&m,usize::MAX,Instant::now()+Duration::from_secs(1),0,false,false,false,false,false,false,false,false,false,false,true).is_none());
 }
+
+#[test]
+fn large_deep_branch_stops_with_a_safe_unclosed_root_bound() {
+    let n=5100;
+    let edges:Vec<_>=(0..5).map(|k|(n-5+k,n-5+(k+1)%5)).collect();
+    let m=model(n,&edges,false);
+    let answer=binary_graph::solve_with_capacity(&m,64*1024*1024,Instant::now()+Duration::from_secs(30),usize::MAX,false,false,false,false,false,false,false,false,false,false,true).unwrap();
+    assert!(m.check(&answer.point,true,0.).is_ok());
+    assert_eq!(answer.status,"depth_limit");
+    assert!(answer.stats.depth_limit_hit);
+    assert!(!answer.stats.complete);
+    assert_eq!(answer.stats.best,n-3);
+    assert_eq!(answer.stats.upper,n-2);
+    assert!(answer.stats.nodes<=512);
+}

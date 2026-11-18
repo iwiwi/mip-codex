@@ -31,6 +31,7 @@ pub struct Stats {
     pub upper: usize,
     pub best: usize,
     pub complete: bool,
+    pub depth_limit_hit: bool,
     pub root_colors: Vec<usize>,
     pub root_prefix_colorings: Vec<Vec<usize>>,
     pub root_search_order: Vec<usize>,
@@ -289,6 +290,13 @@ impl Search<'_> {
             self.stats
                 .first_seconds
                 .get_or_insert_with(|| self.started.elapsed().as_secs_f64());
+        }
+        // Bound recursion stack for the newly admitted large graphs. A partial
+        // branch retains the original safe root/prefix upper bound.
+        if self.graph.n > 4096 && clique.len() >= 512 {
+            self.stats.depth_limit_hit = true;
+            self.interrupted = true;
+            return;
         }
         if Instant::now() >= self.deadline || self.stats.nodes >= self.limit {
             self.interrupted = true;
@@ -722,6 +730,8 @@ pub fn solve_with_capacity(
     }
     let status = if search.stats.complete {
         "optimal"
+    } else if search.stats.depth_limit_hit {
+        "depth_limit"
     } else if search.stats.nodes >= limit {
         "node_limit"
     } else {
