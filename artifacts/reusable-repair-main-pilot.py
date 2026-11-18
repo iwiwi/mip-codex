@@ -1,0 +1,13 @@
+from pathlib import Path
+import os,resource,json,sys,subprocess,time
+os.sched_setaffinity(0,{44});resource.setrlimit(resource.RLIMIT_AS,(16*1024**3,16*1024**3));root=Path.cwd();sys.path.insert(0,'scripts');from benchmark_common import atomic_json,sha256;from validate_solution import validate;from verify_cover_cuts import validate_cut_proofs
+os.environ['MIP_ABSOLUTE_CHECKER']='/home/ubuntu/mip-codex/third_party/miplib-checker/bin/solchecker-absolute';out=root/'artifacts/reusable-repair-main-pilot';out.mkdir();binary=root/'artifacts/reusable-repair-frozen/bin/mip-codex';manifest={r['name']:r for r in json.load(open('data/manifest.json'))['instances']};records=[]
+atomic_json(out/'experiment.json',dict(cpu=44,seconds=[10,60],flags=[0,1],binary_sha256=sha256(binary),origin=json.load(open('artifacts/reusable-repair-origin.json')),memory_bytes=16*1024**3,purpose='same frozen production binary; default seed generation and root resource guard; no saved seed'))
+for name in ['map10.mps.gz','map16715-04.mps.gz']:
+ m=manifest[name];assert m['split']=='development';model=root/m['path'];assert sha256(model)==m['sha256']
+ for seconds in [10,60]:
+  for flag in ([0,1]if seconds==10 else[1,0]):
+   d=out/name/f'{seconds}-{flag}';d.mkdir(parents=True);env={k:v for k,v in os.environ.items()if not k.startswith('MIP_')};env.update(MIP_ADAPTIVE_REPAIR_REUSE=str(flag),OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1');cmd=[str(binary),'solve',str(model),str(seconds)];atomic_json(d/'job.json',dict(command=cmd,cpu=44,environment={k:v for k,v in env.items()if k.startswith(('MIP_','OMP_','OPENBLAS_','MKL_'))},input_sha256=m['sha256']));start=time.monotonic();r=subprocess.run(cmd,env=env,capture_output=True,text=True,timeout=seconds+60);(d/'stdout.log').write_text(r.stdout);(d/'stderr.log').write_text(r.stderr);atomic_json(d/'execution.json',dict(exit_code=r.returncode,wall_seconds=time.monotonic()-start));assert r.returncode==0;r=json.loads(r.stdout);atomic_json(d/'result.json',r);proof=validate_cut_proofs(model,r);atomic_json(d/'proof-validation.json',proof);assert proof['valid']is True;point=None
+   if r.get('values')is not None:point=validate(model,r);atomic_json(d/'point-validation.json',point);assert point['valid']is True
+   record=dict(name=name,seconds=seconds,flag=flag,status=r['status'],objective=r['objective'],dual_bound=r['dual_bound'],adaptive_stats=r['adaptive_resource_repair'],proof_valid=True,point_valid=point is not None);records.append(record);atomic_json(out/'records.json',records);print(json.dumps(record),flush=True)
+atomic_json(out/'exit.json',dict(status='complete',outputs=len(records),points=sum(r['point_valid']for r in records)))
