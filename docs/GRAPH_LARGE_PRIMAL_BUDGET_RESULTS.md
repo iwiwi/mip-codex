@@ -17,3 +17,9 @@ CPU44・1thread・16GiB、同一凍結CLI、flag明示0/1。全9出力が元MPS 
 z26 weighted反復は296,501→2,428,697、CDC61,301→430,738、weighted時間2.401598→14.401824秒だがCDC主解は増えなかった。z26/CDCは評価240問外、cod105/S3は開発用。5,000pairのOFFは以前の容量/heap検査で成功しているが、この候補ではON1点だけ測定したため新しいペア比較とは数えない。
 
 300秒比較は実CPU45に固定。copied metadataのcpu44誤記は訂正receiptに保存してrawを保持。188件開発screenと376出力の独立GMP/公式検査は進行中。holdout52は参照しない。採否は未決、main128と未起動最終snapshot9e5は維持。新記録・全体優位とも未達。
+
+## z26/300秒の先行完了
+
+同一凍結CLI・実CPU45のOFF/ONは−1181/LB−1578（300.041123989秒）→−1188/LB−1575（300.040943413秒）、全元GMP/strict proof valid。主解7点改善、下界も3点改善。60秒の下界悪化も取り消さず保持。
+
+同日PR128での元native300秒（CPU46・同マシン・16GiB/1thread）のraw証拠も別folderへコピー。HiGHS1.16.0−1147/LB−2114、SCIP10.0.2−1013/LB−1539.949499925362、両GMP valid。自作候補は両者より主解が良いがSCIPの下界が強い。GLPK5は420秒watchdogで時間内点なし、wrapper timeout後の441.545秒で遅着した−460/LB−1651は別GMP validだが時間同条件の品質比較から除外。正式cgroup測定とは別の研究driverのtimeout欠陥で、全失敗/遅着rawを保持した。その教訓から新CDC native300driverはprocess group全体killを用いる。
