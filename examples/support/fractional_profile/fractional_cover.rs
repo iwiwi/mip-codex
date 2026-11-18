@@ -100,9 +100,9 @@ impl Builder<'_> {
         }
         self.add(group);
     }
-    fn grow_first(&mut self,v:usize){
+    fn grow_first(&mut self,v:usize,reverse:bool){
         let mut group=vec![v];let mut candidates=self.conflict[v].clone();
-        while let Some(u)=first(&candidates){if Instant::now()>=self.deadline{self.partial=true;break;}group.push(u);for(a,&b)in candidates.iter_mut().zip(&self.conflict[u]){*a&=b;}}
+        while let Some(u)=if reverse{candidates.iter().enumerate().rev().find_map(|(k,&w)|(w!=0).then(||k*64+63-w.leading_zeros()as usize))}else{first(&candidates)}{if Instant::now()>=self.deadline{self.partial=true;break;}group.push(u);for(a,&b)in candidates.iter_mut().zip(&self.conflict[u]){*a&=b;}}
         self.add(group);
     }
     fn enumerate(&mut self, group: &mut Vec<usize>, mut p: Vec<u64>, mut x: Vec<u64>) {
@@ -312,8 +312,9 @@ pub(super) fn improve(
             base_count += 1;
         }
     }
-    if std::env::var("MIP_DIAGNOSTIC_CHEAP_GROUPS").is_ok_and(|v|v=="1"){
-        for v in 0..graph.n{if Instant::now()>=construction{builder.partial=true;break;}builder.grow_first(v);}
+    let cheap_mode=std::env::var("MIP_DIAGNOSTIC_CHEAP_GROUPS").unwrap_or_default();
+    if cheap_mode=="1"||cheap_mode=="2"{
+        for v in 0..graph.n{if Instant::now()>=construction{builder.partial=true;break;}builder.grow_first(v,cheap_mode=="2");}
     }
     for v in 0..graph.n {
         if Instant::now() >= construction {

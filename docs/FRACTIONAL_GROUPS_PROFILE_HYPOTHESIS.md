@@ -7,3 +7,7 @@ cheap方式は元の根彩色クリークを必ず保持し、各頂点から候
 根の正しい彩色を生成し、零点と根上界だけをnode_limitとして出力する。探索木を進めず最適性・不能を宣言しない。受理は元MPSのFractionから、全クリーク対・整数回数・総数/最小被覆・root/prefix・報告目的境界を既存の独立verify_binary_graphで検査し、零点もGMP検査する。価格の浮動小数は候補選択だけに使う。既存LP/MIPソルバーへ最適化を委譲しない。
 
 最初はdevelopment sorrell3とBenchmark v2外の探索例sorrell7、0.5/2/10秒のstandalone診断。MPS読込・出力変換・Python検査はcomponent時間外、認識/彩色/候補構成/価格更新/内部証明は内側。main同時限比較ではない。良い結果だけをclean mainへ移し、元のbudgetで測定してから採否を判断する。未知52検証群は使用しない。
+
+初版12実行は全12根上界を元MPSのFractionから検証し、零点12件GMP合格、該当する分数証明の30改ざんを全拒否。先頭bit growは利益なし。sorrell3の根上界は全て31、sorrell7は0.5秒242/2秒以上241でbaselineと同じ。これは枝探索後の下界ではなく根の被覆だけの値である。
+
+認識時の内部頂点順が競合次数の昇順であることを実コードで確認。先頭bitは低次数を優先していたので、次版mode2は末尾bit（高次数側）を先に選ぶ。どちらも全入力共通の順序で、クリークの有効性/整数証明は維持する。報告boundは既存mainと同じ非整数時の外向きmarginを使い、次版のPython検査はJSONの十進数をFractionとして読む。production srcは変更しない。
