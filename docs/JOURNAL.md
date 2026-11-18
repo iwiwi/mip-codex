@@ -946,3 +946,37 @@ a45/BDDと既定ONa6/9c9を別凍結、初期源はmain127へbyte同一でrebase
 HS300は−1147/LB−2114、SCIP300は−1013/LB−1539.9495、両元GMP valid。自作9c9 heap300は−1182/LB−1578、主解は良いがSCIP dualは強い。GLPKはresearch wrapper watchdog420、childは自然遅延終端441.545秒で−460/LB−1651、directAPI点を元GMP確認しlate別枠へ保存、300秒点と混同しない。初回late検査はchecker相対パス不在validNoneで停止、初回source/logを残しchecker絶対パスで検査だけ再実行。旧native3ケースとlateの全失敗を保持。元正式720+事前固定disk再測定1は両終端、原結果不変。
 
 初期/最終の353Rust・各1200/7410tampers・各12large actualheap6・各376fresh/128GMP公式・各9主制御と非適用再検査を根拠にheap採用判断。全体優位/新記録未達、private1197は本体成果に混同しない。
+
+## 2026-11-18 main128採用後
+
+PR128はmain1feca2b/9c9へ統合。primary再ビルド4出力すべて元GMP/strict proof valid。cod105−12最適、5000pair−2500最適、depth guard512nodes、z26/60秒−1151/LB−1575。create-only最終snapshot9e5fc98a69b2d1d849d30446c5ccb9cb39b04a3167647e319c2558b50158e846、113files/147libs全SHA検査、main127からbin+4Rustのみ変更、全240jobs未起動。旧2bbはOBSOLETEとして保持。PR128追記6973619289に新規AIusage、4再検査、snapshot詳細を記載。postmerge証拠185files/5ELF保持をarchiveし全payloadSHA検査。native原720+事前選択disk再測定1は全終了、holdout個別成績未参照。
+
+新branch作成時にbroad sparseパターンが継承されcheckoutが増大したため、ENOSPC前に停止。新規ディレクトリに実験/ソース編集が無いことと98,653パスがGit追跡対象であることを確認し、再生成可能なcheckout1,961,322,356Bを除去。全cargo/rustc停止を確認して共有debug cacheのみ除去。no-checkoutで再作成し、必要なsrc/scripts/tests/docs/dataだけ展開。正式ベンチマークは既に全終了し、自作final未起動のまま。回復receiptを保持。
+
+次仮説は構造gate付き主解予算5%→25%。main128のheap適合条件をそのまま使い、初期defaultOFF。全体期限・メモリ・数学証明を保ち、主解と下界の損失を含め比較する。目標の全体優位と新記録は未達。
+
+## 主解予算候補515fd/FP e180c8c80bbfc8ca の途中検査
+
+Rust353passed/4ignored。fixedbinarySHA72ae82b1027095bb5bc00343fc1719a498fc225a093585574cf6e096612cc51a、源origin61776dda（core515fd）。小規模200models×6limits=1200元GMP/strict proof/独立全列挙成功、7410改ざん拒否。初回はsparse treeの検査器相対pathが存在せず1200件がvalidNone（誤答ではなく未検証）で終了、全初回出力とログをchecker-unavailableへ保存し、primary検査器絶対pathを与えて同条件全再実行成功。
+
+large生成6models×2flags=12、全元GMP/strict proofとcomponent全列挙のbest≤alpha≤upper成功、全12実heap。主解6組すべて同じ、upperは2同値/4悪化（case2+9、3/4/5各+1）。初回driverは旧heap flagの判定を残しており、予算OFFでheapが動く正しい結果をassertで拒否した。初回点はGMP/proof valid、source/results/logをinitialとして保持。driverを明示予算0/1と両方heap適用の判定に修正し12件完了。ソルバー源は不変。
+
+longcontrolsは実CPU45だがcopied metadata label44が残った。両条件のaffinity45を訂正receiptへ記録、raw jobを上書きしない。新branch metadata copy時にexperimentsディレクトリ不存在で初回copy/add/commitが失敗したが、source commitは既に成立。ディレクトリ作成後61776ddaで全postmerge証拠を保存。初回停止ログはtool履歴に残り、optimizer結果に影響しない。以後依存shellはset-eを徹底。
+
+CDC探索はprivate60秒single/reseed各−285、own285seed300秒single−290、全3元GMP。main128/HS/SCIP/GLPK60秒比較は−279/−280/−237/点なし、各存在点元GMP、main strict proof valid。公式best−333未達。全元MPS hash・raw出力・比較driver・private源manifestをcdc-packing-evaluationに封入し全payloadSHA検査。三親LNS54近傍479.410495711秒1197不改善1GMP/17親検証SHA再利用はcover-parent-lns-evaluationへ保存。本体へprivate解を移植せず、全体優位/新記録とも未達。
+
+## default ON候補939230/602 の再検証開始
+
+初期515fd/e180は9controls/4long/6S12rechecks、188/376fresh監査128GMP公式、353Rust/1200oracle/7410改ざん/12largeすべて検査成功。z26/300秒−1181/LB−1578→−1188/LB−1575、CDC/300秒−279/LB−434→−285/LB−429で両改善。3pairs S12は両−13だが元188の−13→−12損失を保持。PR129 draft、初期コメント6974148247は直前AIusage付き。原点・証明を弱めず候補だけdefaultONとし、main128を未統合のまま再検証。
+
+新core939230aa1d、defaultFP6021621d57155bb7、凍結CLI35849e98ea20f9b65ac21dbd74ce98b50996eb75be9ab37a3015cf96b027f3c8、origin31c6ba077。353Rust/4ignored、1200oracle/GMP/proof/7410改ざん、12large/GMP/proof成功。large主解6組同値、upper2同値/1改善/3悪化。全source/frozen不変、defaultON側はflag unsetで実行。188/376監査と60/300controls進行中。defaultlongは実affinity45とmetadata45を一致させた。初期longの誤記44は訂正receipt+生OSaffinity[45]の保存あり。
+
+S8 component private prototypeはmain128無改変を10成分MPSに呼び、各最大30秒、計120.320449599秒、6localoptimal/4time。10local点+combined原問題−350点の11GMP/10strictproof valid。主解・速度の利益は確認できず不採用、原問題bound/最適性を主張しない。baseline/元MPS/成分構造とprototypeを別archiveで全SHA保存。
+
+private別枝cover-choice-heap435315では既存heap-profileのまま自作neutral親[0,16,7]を距離で選び、CPU40/47/50・100M反復/900秒guardで再探索。親と全出力を元GMP再検査。問題名/既知値/外部点はoptimizerに入れず、main成績には帰属しない。元720native+1再測定は全終了、自作final240は未起動・Nov19予定、目標未達。
+
+## 私的1198点（掲載bestと同着、main未達）
+
+既存heap-profile667でown neutral parent[0,16,7]からsingle100M反復/900秒guardの3探索が終了。−1197/−1198/−1197、component512.914195894/499.669962036/516.526172217秒。改善はparent16から40,959,147反復目、100M時点で1198。3親fresh GMP/3出力GMP、best追加strict/公式もvalid。追加監査初回は出力directory未作成で書込失敗、元GMP結果は既にvalid、失敗ログ保存後directory作成し検査だけ再実行成功。公式ページNov18再確認でbest−1198。新記録ではなくmain再現もまだ。SOLと再検証手順、全3出力の閉じたarchiveを保存。親の由来を復元できるよう、元の37点LNS/neutral archiveもこの枝へコピー。今後のsolverに既知点を埋め込まない。
+
+自作1198から既存neutral-profileを無改変で再利用し、16round×1秒の同値親生成+matching、その全18出力のfresh GMP/公式検査を私的枝で進行中。新Rust source・native点は使わない。現在の配分PR129/602は全く別sourceとして評価を継続する。

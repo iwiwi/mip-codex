@@ -560,7 +560,7 @@ pub(super) fn portfolio(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant
 pub(super) fn selected(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,portfolio:bool,heap:bool)->(Vec<usize>,Stats){
  if portfolio {portfolio_selected(graph,seed,memory,deadline,heap)}else{improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,heap)}
 }
-fn heap_eligible(n:usize,edges:usize,memory:usize)->bool {
+pub(super) fn heap_eligible(n:usize,edges:usize,memory:usize)->bool {
  let bits=usize::BITS-n.saturating_sub(1).leading_zeros();
  n>4096 && n<=u16::MAX as usize
   && 8*(edges as u128)*(bits as u128)<=(n as u128)*(n as u128)

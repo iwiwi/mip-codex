@@ -1,0 +1,7 @@
+# 大規模疎packingの主解探索時間配分仮説
+
+main128/9c9の局所探索時間は全体5%。private componentでは大規模packingの同じ汎用探索に長く時間を割くと主解が改善する。新flag MIP_GRAPH_LARGE_PRIMAL_BUDGET（初期defaultOFF）で、既存portfolio/heapがONかつ既存heap operation/memory gateが適合する場合のみ25%へ拡大する。問題名・既知点・既知目的値は一切使わず、他の構造では5%を保つ。古い公開APIの配分は維持。
+
+数学・枝刈り・認識・反復上限・乱数・制限は変更しない。費やした時間は全体期限から差し引かれ、探索木の残り時間は減る。新しい解も元MPSの独立GMP検査、全証明を厳密検査する。主解改善だけで採用せず、下界や既知最適性の悪化もそのまま記録する。生成問題、小規模全列挙、開発188件、outside240の複数packing入力で比較して採否判断する。
+
+2026-11-18公式set_packing tag一覧を取得し、全binary・4096<n≤65535・評価240問外を機械的に抽出、raw HTMLと抽出表をpacking-candidate-surveyに保持した。このサイズの単純なbinary/set_packing（追加variable_boundのみ可）タグ構成は既存z26とcdc7-4-3-2。他候補はset_partitioning/set_covering/knapsack等もあり、現純packing認識から外れる可能性が高い。タグは認識の証明には使わず、最終的な可否は元MPSの既存厳密認識で判断する。対象の良否を目的値や既知解で選別しない。
