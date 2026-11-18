@@ -121,20 +121,24 @@ fn scale(p: &Problem) -> Result<Option<(Problem, Vec<f64>, Vec<f64>)>, ()> {
         for ((i, a), (_, original)) in q.columns[j].iter_mut().zip(&p.columns[j]) {
             let col_value = *a / s;
             if !col_value.is_finite() || col_value * s != *original {
+                if std::env::var_os("MIP_LP_TRACE").is_some(){eprintln!("LP scale rejection line {}",line!());}
                 return Err(());
             }
             *a = col_value / rows[*i];
             if !a.is_finite() || *a * rows[*i] != col_value {
+                if std::env::var_os("MIP_LP_TRACE").is_some(){eprintln!("LP scale rejection line {}",line!());}
                 return Err(());
             }
         }
         q.costs[j] /= s;
         if !q.costs[j].is_finite() || q.costs[j] * s != p.costs[j] {
-            return Err(());
+            if std::env::var_os("MIP_LP_TRACE").is_some(){eprintln!("LP scale rejection line {}",line!());}
+                return Err(());
         }
         if p.upper[j].is_finite() {
             q.upper[j] *= s;
             if !q.upper[j].is_finite() || q.upper[j] / s != p.upper[j] {
+                if std::env::var_os("MIP_LP_TRACE").is_some(){eprintln!("LP scale rejection line {}",line!());}
                 return Err(());
             }
         }
@@ -142,11 +146,13 @@ fn scale(p: &Problem) -> Result<Option<(Problem, Vec<f64>, Vec<f64>)>, ()> {
     for (i, &r) in rows.iter().enumerate() {
         q.rhs[i] /= r;
         if !q.rhs[i].is_finite() || q.rhs[i] * r != p.rhs[i] {
-            return Err(());
+            if std::env::var_os("MIP_LP_TRACE").is_some(){eprintln!("LP scale rejection line {}",line!());}
+                return Err(());
         }
         if p.slack_upper[i].is_finite() {
             q.slack_upper[i] /= r;
             if !q.slack_upper[i].is_finite() || q.slack_upper[i] * r != p.slack_upper[i] {
+                if std::env::var_os("MIP_LP_TRACE").is_some(){eprintln!("LP scale rejection line {}",line!());}
                 return Err(());
             }
         }
@@ -310,6 +316,11 @@ pub(crate) fn solve(
     retain: bool,
 ) -> Answer {
     if !revised::valid(p) {
+        if std::env::var_os("MIP_LP_TRACE").is_some(){
+            let bad=|values:&[f64],nonnegative:bool|values.iter().enumerate().filter(|&(_,&x)|if nonnegative{x.is_nan()||x<0.}else{!x.is_finite()}).take(16).map(|(i,x)|serde_json::json!({"index":i,"value":format!("{x:?}"),"bits":format!("{:016x}",x.to_bits())})).collect::<Vec<_>>();
+            let columns=p.columns.iter().enumerate().flat_map(|(j,c)|c.iter().filter(move|&&(i,a)|i>=p.rhs.len()||!a.is_finite()).map(move|&(i,a)|(j,i,format!("{a:?}")))).take(16).collect::<Vec<_>>();
+            eprintln!("LP invalid input {}",serde_json::json!({"dimensions":[p.columns.len(),p.costs.len(),p.upper.len(),p.rhs.len(),p.equality.len(),p.slack_upper.len()],"rhs":bad(&p.rhs,false),"costs":bad(&p.costs,false),"upper":bad(&p.upper,true),"slack_upper":bad(&p.slack_upper,true),"columns":columns}));
+        }
         return error();
     }
     let normalized = match scale(p) {

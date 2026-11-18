@@ -849,6 +849,7 @@ PR121は2026-11-17 22:05:20UTCにmain d11f3c9b231c32427dcc631edde9de28bc763cd5�
 
 新create-only incremental-adaptive-final-20261117はconfig7f77b18e2c74d475b3b2f634befeb79e81fd1b8d9ea3ef12b672dc616a1dcad6、110snapshot/147lib全SHA一致、240 cgroup空、3600秒1thread16GiB/CPU8..15、未起動。旧zero-phaseタグも未起動のままOBSOLETE追記。準備/検証CPU43、共有libは前snapshotと一致し変更なし。post記録194ファイル18,940,599bytes→2,632,114bytes全SHA保全、ELF4除外保持。native集計22:10は655/720、検査済最適HS132/SCIP108/GLPK23、holdout個別結果は見ない。own240はNov19UTC目安、期限Nov22 14:59UTCまで自律継続。
 
+RHS interval prototypeは既定無効、Fixture追加後333 Rust成功4ignoredだが独立行証拠/実MPS未検証。調査中にmain121で元十進係数がf64整数に丸まりexact_integralを保つため、a=.99999999999999999999, x<=2, a*x<=1, min -xで報告dual=-1>真値-100000000000000000000/99999999999999999999を確認。整数連続リンク例は既存ガードがnumeric/dualNoneへ撤回。Source metadataの係数exact条件を別mainベースbranchで修正し優先検証する。
 ### 小数係数下界検証の改良と継続測定 (2026-11-17 23UTC)
 初版a273febe33/a6cac75c0f46dffeは有限でないboxで下界再構成ができず、開発問題の早期数値終了が増加した。元制約から区間演算で有限境界を導く既存機能をCertifierへ適用するa301162741/38b0a4315610cc1aを別の凍結binとして保存。両版の188対測定を中断せず保存し、改良版も独立に測定中。原版CPU31..35、改良版CPU26..30、各10秒1thread16GiB、baseline8..15専有。全333 Rustテスト再成功4ignored。疎/密の解析各216例は改良版全optimal・全下界保守的、両版864点GMP有効。修正前不正下界は疎94・密108件、初版は各108自由変数例で数値終了、改良版は0。混合整数200例も186optimal/14既存元点guardによる数値終了、全下界保守的・全200点GMP有効。
 初版一般800/二値400出力の全列挙・親proof1028/改竄拒否8224・GMP1200点すべて成功。改良版で同じ検証を再実行中。開発測定は全出力証明と返却点のGMP/公式検査を並行実行。native短期比較CPU46も実行中。まだmain未採用。
@@ -864,3 +865,11 @@ main121統合後metadataだけを6cd2a0963fとしてcherry-pickし、Journal競�
 分散監査は208既存+168新規で全376、checker SHA/入力出力SHAを照合し重複なし。旧serialを302件でSIGTERM、実プロセス不在・superseded終了を記録。first版は343+33分散全376/126点、serialも全376完了。中間全結果はRESULTSに整理。最終native swath1/glass4全8点GMP・公式/Rust2出力2カット有効。比較他社がなお大幅に良い。native全体23:31集計666/720、最適HS134/SCIP109/GLPK23。元係数で非保守的下界を防ぐ必須の正しさ修正として採用し、性能損失1改善4悪化もそのまま報告する。次は全証拠archive/PR、main再buildとcreate-only更新。新記録・総合優位は未達成。
 
 最終証拠archiveは64,315ファイル1,476,246,982bytes→16束224,467,455bytes、全payload SHA成功、ELF4除外保持して実体SHA再確認。live archive stdoutの入力混入を初回で検出し停止、初回script/log/再試行理由を保存して再実行成功。raw・frozen・既存評価を変更せず保持。次はown repo PRと直前AI使用量コメント、統合後main再build/元点検査/create-only更新。
+
+
+遅延構築は不採用。105f9f28b1/1ef2f93be87fa2fe、334テスト・両LP216/864点・混合200・1200列挙/親proof1028/改竄8224/GMP1200・188対376出力/128点有効。主解188同値、下界3改善1悪化171同値13比較不能、有限175→175、前後182time/1opt/5numeric。改善3問は構築対象外、悪化sp98arは342非binary係数で対象。16,133ファイル382,411,209bytes→5束58,548,737bytes全SHA、ELF2保持、remote6aa4f1c519。コードを入れずarchive/結果/仮説だけをRHS branchへ引継ぎ。main122統合後208ファイル1,509,329bytes archiveとconfig322a...receiptも保存。初回metadata importはexperiments親dir不足で停止し、作成して修正。main27791c8fa5/8b579cacb175412d、最終240未起動、総合優位・新記録未達成。
+RHS候補9b884c5d9667c934は既定有効の実験版でmain未採用。先行867版の全55193RHS/337テスト、200生成MILP400出力の厳密opt/dual/infと290GMP（前131/後159）、436RHS全有効、最適7→103。新9bで再検証中。新default pilotとoracleは内部CPU45で一部重複したので性能比較に使わず、別CPUでdumpなし測定する。補助main122連続境界丸め2例は既存guardがnumeric/dualNoneへ撤回し安全。独立GMPが省略RHS構文を拒否したため、元MPSは保持し、明示ゼロRHS追加モデルとFraction全モデル同値を照合して2点GMP成功、初回失敗も保存。
+
+保存結果: 17,936ファイル446,906,359bytes→5束66,006,789bytes、全payload SHA256検証成功。ELF4個は実体を保持してSHA再照合。停止中Cargo debug cache 1,520,055,016bytesだけを別途削除し、source/ELF/snapshot/全証拠は保持した。
+
+RHS候補9b884c5d9667c934の全検証完了、188主解188同値、下界3改善1悪化171同値13比較不能、数値終了5→4、全376出力/128点GMP・公式有効。適用rdのみ55193回、0pivot/numeric→10秒time、別CPU44/dumpなし10949pivot、主解/下界なし。生成200で最適7→103/inf6正しい判定、全400出力誤り0/290GMP/436行証拠、全55193実行証拠/10改ざん、337Rust、1200列挙/実親1028/改ざん8224/GMP1200すべて有効。native10秒全4solver点なし、SCIP100/GLPK100.0000000000004の下界、Rust/HSなし。Rust1出力構造検査有効、実際のtyped global proofは0。速度優位とせず、保守的な行変換による求解範囲拡大として採用。次はPR/直前usageコメント/主作業木再buildと元点検査/未起動240 snapshot更新。総合優位・新記録未達成。
