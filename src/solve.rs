@@ -202,6 +202,8 @@ impl Default for Limits {
 #[derive(Serialize, Debug, Default)]
 pub struct Result {
     pub lp_zero_phase_one_skips:Option<usize>,
+    pub lp_cold_recovery_attempts:Option<usize>,
+    pub lp_cold_recovery_candidates:Option<usize>,
     pub lp_rhs_interval_fallbacks:Option<usize>,
     pub original_coefficient_bound_checks:usize,
     pub original_coefficient_bound_successes:usize,
@@ -3345,6 +3347,8 @@ fn solve_seeded_warm(
         original_coefficient_bound_checks,
         original_coefficient_bound_successes,
         lp_zero_phase_one_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.zero_phase_one_skips),
+        lp_cold_recovery_attempts:matches!(limits.engine,Engine::Revised).then_some(lp_stats.cold_recovery_attempts),
+        lp_cold_recovery_candidates:matches!(limits.engine,Engine::Revised).then_some(lp_stats.cold_recovery_candidates),
         lp_empty_pricing_calls:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_calls),
         lp_empty_pricing_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.empty_pricing_skips),
         lp_singleton_crash_columns: matches!(limits.engine, Engine::Revised).then_some(lp_stats.singleton_crash_columns),
@@ -3576,6 +3580,8 @@ pub struct RinsStats {
 }
 fn add_lp_result(stats: &mut revised::Stats, result: &Result) {
     stats.add(&revised::Stats {
+        cold_recovery_attempts:result.lp_cold_recovery_attempts.unwrap_or(0),
+        cold_recovery_candidates:result.lp_cold_recovery_candidates.unwrap_or(0),
         pivots: result.lp_pivots.unwrap_or(0),
         feasibility_pricing_calls: result.lp_feasibility_pricing_calls.unwrap_or(0),
         pricing_cutoffs: result.lp_pricing_cutoffs.unwrap_or(0),

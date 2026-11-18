@@ -1,0 +1,9 @@
+# 数値停止後に別の初期基底を一度試す
+
+2026-11-18。main133はmain132とRust/測定コード同一。開発188問の数値停止4件を凍結0bf00779/source cbfa820d2f513238で再診断した。neos-3754480-nidda、neos-2657525-crna、glass4、leo1はいずれもLP内部の数値失敗を含んで停止した。2点は元問題GMP合格、4出力は厳密証明検査合格。全ログと停止状態を保存した。
+
+既に温開始失敗後は冷開始へフォールバックするため、同じ手順を追加で繰り返すのではなく初期基底を変える。MIP_LP_NUMERICAL_RECOVERY=1だけで有効化し、既定OFF。scaling内部raw solverの最終NumericalErrorだけに対し、singleton crashなし・人工変数が全0でもPhase Iを実行する既存cold_initializedを一度だけ呼ぶ。別LPの行・係数・境界・目的・許容誤差は変えない。元Problemを借用し、同じdeadline、元limitから既使用pivots+flipsを引いた予算を使う。disabled、期限切れ、予算なし、数値失敗以外の結果では試さない。
+
+結果は同じscaling::solveの検査を通り、その後も元MPSの可否・枝刈り用境界・実行不能証拠の既存検査を維持する。失敗したLPの境界や点を混ぜない。LP内のcold_recovery_candidatesはrawでOptimal/Infeasible/Unboundedを返した候補数であり、元単位での検証合格数ではない。attemptsと既存ピボット統計を全呼出しから集約する。
+
+3単体テスト：既知LPを別基底で解き元Problemの不変と元単位primal/dual検査を確認、disabled/expired/spent/非数値終了の非作動、残予算と打切り点の境界非昇格を確認する。次は4件の開発モデルを同一凍結CLI明示0/1、各10秒・1thread・16GiB・順序交替で試し、全出力をGMP/公式と証明検査する。改善があれば合成oracleと開発188問へ広げる。許容誤差を緩める改善は採用しない。
