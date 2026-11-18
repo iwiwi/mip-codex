@@ -56,3 +56,10 @@ defaultの先行9controlsは全GMP/strict proof valid。cod105両−12 root最�
 変化はfast0507 dual166.079437576→165.969633434（悪化）、seymour1 dual394.843673972→394.907034726、sp97ar dual595791964.398→596742367.117、graph20-20-1rand primal0→点なし（dual両−37）。全件binary_graph=Noneで機能未発動。追加CPU44交互3pairsのgraph20は全6出力点なし/LB−37、strict proof6valid、存在点0なのでGMP成功0（未検証点が残っているという意味ではない）。元188の可行点coverage損失は削除/置換しない。
 
 defaultのz26/300秒も完了し−1178/LB−1578→−1188/LB−1575、2点GMP/proof valid。初期源OFF−1181との差も保持。defaultCDC300秒OFF−279/LB−434まで完了、ONは測定中。
+
+
+## default300秒完了と採用方向
+
+全4long出力GMP/strict proof valid。defaultz26はOFF−1178/LB−1578（300.040351103秒）→ON−1188/LB−1575（300.041528501秒）。defaultCDCは−279/LB−434（300.004426887秒）→−285/LB−426（300.004514930秒）。初期とdefaultの両方で2つの評価外入力の主解改善を確認し、defaultでは両下界も強い。数学・期限・メモリguardを保持し、全点/証明検査を通したため採用方向とする。生成上界悪化、初期z26/60秒下界悪化、初期supportcase12/最終graph20の未発動路primal損失、全4numerical_errorも保持。
+
+大規模gateの188非発動はheap_usedだけから推定せず、全recognized statsを再確認して証明した。両源ともcod105とS3の各1024変数だけが認識され、新条件n>4096に全件不適合。追加size-gate receiptあり。採用前に全archive payload/保持ELFとdefault flag unset、src同一性を再照合する。正式自作240は未起動、全体優位・新記録未達。
