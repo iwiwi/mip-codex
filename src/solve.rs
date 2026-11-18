@@ -205,6 +205,7 @@ pub struct Result {
     pub lp_farkas_row_projection_trials:Option<usize>,
     pub lp_farkas_row_projections:Option<usize>,
     pub lp_rhs_interval_fallbacks:Option<usize>,
+    pub lp_rhs_interval_pairs:Option<usize>,
     pub original_coefficient_bound_checks:usize,
     pub original_coefficient_bound_successes:usize,
     pub adaptive_resource_repair:Option<crate::adaptive_resource_repair::Stats>,
@@ -449,6 +450,7 @@ fn trace_shift_rejection(row:&crate::model::Row,kind:&str,value:f64){
     static COUNT:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);
     if std::env::var_os("MIP_LP_TRACE").is_some()&&COUNT.fetch_add(1,std::sync::atomic::Ordering::Relaxed)<16{eprintln!("LP shifted RHS rejection row={} kind={} value={:?}",row.name,kind,value);}
 }
+thread_local!{static RHS_PAIR_COUNT:std::cell::Cell<usize>=const{std::cell::Cell::new(0)};}
 thread_local!{static RHS_INTERVAL_COUNT:std::cell::Cell<usize>=const{std::cell::Cell::new(0)};}
 fn interval_shifted_bound(model:&Model,index:usize,row:&crate::model::Row,shift:&[f64],upper:bool)->Option<f64>{
     // 有限の範囲/等式はRHSだけを動かせないので対象外。
@@ -762,6 +764,7 @@ fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows
                 }
             }
             if interval_applied {
+                    if row_sign>0. && paired_rhs.contains_key(&source){RHS_PAIR_COUNT.with(|n|n.set(n.get().saturating_add(1)));}
                     RHS_INTERVAL_COUNT.with(|n|n.set(n.get().saturating_add(1)));
                     if let Some((path,limit))=&interval_dump&&RHS_INTERVAL_COUNT.with(|n|n.get())<=*limit{
                         use std::io::Write;
@@ -1992,6 +1995,7 @@ fn solve_seeded_warm(
         }
     }
     let rhs_interval_start=RHS_INTERVAL_COUNT.with(|n|n.get());
+    let rhs_pairs_start=RHS_PAIR_COUNT.with(|n|n.get());
     let mut lp_stats = revised::Stats::default();
     let mut prepared = prepare_cuts(model, &mut root, limits, deadline, &mut lp_stats);
     let mut cached_root = prepared.cached.take();
@@ -3370,6 +3374,7 @@ fn solve_seeded_warm(
         lp_dual_form_fallbacks: Some(lp_stats.dual_form_fallbacks),
         adaptive_resource_repair:Some(adaptive_resource_repair_stats),
         lp_rhs_interval_fallbacks:matches!(limits.engine,Engine::Revised).then(||RHS_INTERVAL_COUNT.with(|n|n.get()).saturating_sub(rhs_interval_start)),
+        lp_rhs_interval_pairs:matches!(limits.engine,Engine::Revised).then(||RHS_PAIR_COUNT.with(|n|n.get()).saturating_sub(rhs_pairs_start)),
         original_coefficient_bound_checks,
         original_coefficient_bound_successes,
         lp_zero_phase_one_skips:matches!(limits.engine,Engine::Revised).then_some(lp_stats.zero_phase_one_skips),
