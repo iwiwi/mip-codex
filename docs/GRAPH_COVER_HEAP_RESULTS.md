@@ -14,4 +14,14 @@ cod105は両opt−12/LP1/13pivots/約.0209秒で新経路非適用、S3は両opt
 
 private prototypeの固定100k×12pairs24点は同values/同weighted counters、全GMP。疎5000pair約16x、z26約3.6x、S7約1.13x、密cod105は5x遅かったため一律適用を棄却し、上記構造gateを採用候補とした。private1197点を本体へ帰属せず、新記録/全体優位は未達。別private mean64/親再結合/LNSの不改善も保存する。
 
-最終主制御7点と長制御2点、最終188の全376fresh/128元GMP公式、12large actualheap6もすべて通過。既定ONの開発376jobはbefore明示0/after未設定、large6pairsも同じ条件をjob.envで確認する。native300秒のHS/SCIP/GLPKを同CPU46/16GiB1threadで追加実行中。比較が完了してから採用コメントへ追記する。heapの固定順位・追加メモリguardと小/大生成例の正しさ、本体の同時間主解改善を採用根拠とし、非適用neos悪化と300秒dual3低下も隠さない。
+最終主制御7点と長制御2点、最終188の全376fresh/128元GMP公式、12large actualheap6もすべて通過。既定ONの開発376jobはbefore明示0/after未設定、large6pairsも同じ条件をjob.envで確認する。native300秒のHS/SCIP/GLPKを同CPU46/16GiB1threadで新規比較し、全ケースを記録した。heapの固定順位・追加メモリguardと小/大生成例の正しさ、本体の同時間主解改善を採用根拠とし、非適用neos悪化と300秒dual3低下も隠さない。
+
+## 新規native300秒と採用判断
+
+HiGHS1.16.0はtime_limit−1147/LB−2114/300.048725秒、SCIP10.0.2はtimelimit−1013/LB−1539.949499925362/300.142509秒、2点とも元MPS GMP valid。同一予算の自作heap−1182/LB−1578と比較し、主解の改善とSCIPのより強いdualを両方報告する。全体優位・新MIPLIB記録は未達。
+
+GLPK5.0は外側420秒watchdogでPython比較wrapperがTimeoutExpiredとなり、300秒の完了結果を得られなかった。subprocess.runはwrapperをkillしたがchildが残る可能性があるため調べ、08:32:07には該当childは既に終端。native Cが441.545323秒で遅延出力した−460/LB−1651をdirect API sidecarから再構成し、別名late-resultとして元MPS GMP validを確認した。この点を300秒結果には含めず、watchdog失敗と遅延結果をともに残す。初回の再構成検査は疎worktreeの既定checkerパス不在でvalid=Noneとなり副作用前に停止、初回source/log/None結果を保持してprimary絶対checkerパスを指定し、検査だけ再実行した。native最適化を再実行していない。研究driverのtimeoutは以後process groupで管理する。正式baseline harnessはcgroupで全子を制御しており、この研究driverの事象とは区別する。
+
+判断: 採用。完全に同じ順序を保つ選択処理、追加メモリguard、small全列挙・large component oracle・元GMP・strict proofと主制御を通過し、固定時間で反復数と大規模packing主解を改善した。疎/サイズgateでprivateに観測した密グラフ遅化を避ける。両188の非適用neos悪化は保存し、同一最終binary3pairsは同値、因果は断定しない。初期/最終のsafe dual変動もすべて保存する。
+
+親PR127 postarchiveとcreate-only2bb/113files/147libsのreceiptを継承。元native720と事前固定の外部disk障害1件再測定はいずれも終端・cgroups空、元結果を保持。正式自作240は依然未起動で、Nov19開始予定。

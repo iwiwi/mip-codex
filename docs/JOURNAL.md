@@ -940,3 +940,9 @@ postarchive198files18,827,731B→3,763,293B/1bundle、全payloadSHA検証、ELF5
 a45/BDDと既定ONa6/9c9を別凍結、初期源はmain127へbyte同一でrebaseした。各353Rust/4ignored、1200small元GMP/strictproof/7410改変棄却、12largeのcomponent全列挙からbest<=alpha<=upper/GMP/strict proof（実heap6）を検査。初期188はprimal186same/1up/1down、dual173same/2up/13inc、最終188はprimal187same/1down、dual173same/2up/13inc、どちらも全376fresh/128GMP公式valid、実heap適用0。初期と最終のneos911970悪化を保存し、最終同一9c9/CPU46の3pairs6点は全両140.59/LB23.26、GMP/proofvalid。非適用変動の因果は断定しない。
 
 本体300秒z26は初期−1160/LB−1578→−1178/LB−1575、最終−1163/LB−1575→−1182/LB−1578。最終60秒はprimal両−1154、dual−1575/−1578も保持。主制御7+長制御2を初期/最終それぞれ全GMP/proof検査。native300の新規比較を待って採用を判断。正式240未起動、private1197は本体成績でなく新記録未達。
+
+### Heap native300比較と採用判断
+
+HS300は−1147/LB−2114、SCIP300は−1013/LB−1539.9495、両元GMP valid。自作9c9 heap300は−1182/LB−1578、主解は良いがSCIP dualは強い。GLPKはresearch wrapper watchdog420、childは自然遅延終端441.545秒で−460/LB−1651、directAPI点を元GMP確認しlate別枠へ保存、300秒点と混同しない。初回late検査はchecker相対パス不在validNoneで停止、初回source/logを残しchecker絶対パスで検査だけ再実行。旧native3ケースとlateの全失敗を保持。元正式720+事前固定disk再測定1は両終端、原結果不変。
+
+初期/最終の353Rust・各1200/7410tampers・各12large actualheap6・各376fresh/128GMP公式・各9主制御と非適用再検査を根拠にheap採用判断。全体優位/新記録未達、private1197は本体成果に混同しない。
