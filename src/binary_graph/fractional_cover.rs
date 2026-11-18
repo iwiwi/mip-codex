@@ -15,6 +15,7 @@ pub struct Certificate {
 #[derive(Debug, Default, serde::Serialize)]
 pub struct Stats {
     pub generated: usize,
+    pub supplemented: usize,
     pub enumeration_calls: usize,
     pub enumeration_partial: bool,
     pub iterations: usize,
@@ -35,6 +36,7 @@ struct Builder<'a> {
     groups: Vec<Vec<usize>>,
     seen: HashSet<Vec<usize>>,
     members: usize,
+    group_limit: usize,
     memory: usize,
     deadline: Instant,
     partial: bool,
@@ -50,7 +52,7 @@ impl Builder<'_> {
         if self.seen.contains(&group) {
             return None;
         }
-        if self.groups.len() >= 20000
+        if self.groups.len() >= self.group_limit
             || (self.members + group.len())
                 .checked_mul(16)?
                 .checked_add((self.groups.len() + 1) * 128)?
@@ -265,6 +267,7 @@ pub(super) fn improve(
     memory: usize,
     deadline: Instant,
     incumbent: usize,
+    supplement: bool,
 ) -> Outcome {
     let started = Instant::now();
     let mut out = Outcome::default();
@@ -288,6 +291,7 @@ pub(super) fn improve(
         groups: vec![],
         seen: HashSet::new(),
         members: 0,
+        group_limit: 20000,
         memory,
         deadline: construction,
         partial: false,
@@ -322,6 +326,17 @@ pub(super) fn improve(
             }
         }
         builder.enumerate(&mut vec![v], p, x);
+    }
+    // Enumeration can exhaust its quota before reaching later vertices. Retain
+    // that pool and add at most one dynamically grown clique per vertex.
+    if supplement && builder.groups.len() >= 20000 && Instant::now() < construction {
+        builder.group_limit = 20000usize.saturating_add(graph.n);
+        let before = builder.groups.len();
+        for v in 0..graph.n {
+            if Instant::now() >= construction { break; }
+            builder.grow(vec![v]);
+        }
+        out.stats.supplemented = builder.groups.len() - before;
     }
     let base = builder.groups.clone();
     for group in base {
@@ -528,6 +543,7 @@ mod tests {
                 groups: vec![],
                 seen: HashSet::new(),
                 members: 0,
+        group_limit: 20000,
                 memory: 1 << 20,
                 deadline: Instant::now() + std::time::Duration::from_secs(1),
                 partial: false,

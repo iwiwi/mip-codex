@@ -481,6 +481,23 @@ pub fn solve_with_portfolio(
     fractional: bool,
     portfolio:bool,
 ) -> Option<Answer> {
+    solve_with_groups(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,false)
+}
+pub fn solve_with_groups(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+    adaptive: bool,
+    cover: bool,
+    fractional: bool,
+    portfolio:bool,
+    supplement:bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
@@ -610,7 +627,7 @@ pub fn solve_with_portfolio(
     if fractional && root.is_some() && search.best.len() < search.stats.root_upper {
         search.stats.root_coloring_upper = Some(search.stats.root_upper);
         let allocation =
-            (deadline.saturating_duration_since(started).as_secs_f64() * 0.02).min(0.5);
+            (deadline.saturating_duration_since(started).as_secs_f64() * if supplement {0.10} else {0.02}).min(if supplement {3.0} else {0.5});
         let end = deadline.min(Instant::now() + std::time::Duration::from_secs_f64(allocation));
         let result = fractional_cover::improve(
             &graph,
@@ -619,6 +636,7 @@ pub fn solve_with_portfolio(
             memory / 4,
             end,
             search.best.len(),
+            supplement,
         );
         if let Some((order, bounds)) = root.as_mut() {
             let original_order: Vec<_> = order.iter().map(|&v| graph.order[v]).collect();
