@@ -405,6 +405,23 @@ mod tests {
         }
     }
     #[test]
+    fn heap_and_u16_edges_preserve_high_vertex_indices() {
+        let n:usize=5000;let words=n.div_ceil(64);
+        let mut compatible=vec![vec![u64::MAX;words];n];
+        for v in 0..n {
+            compatible[v][words-1]&=(1u64<<(n%64))-1;
+            compatible[v][v/64]&=!(1u64<<(v%64));
+            let partner=v^1;compatible[v][partner/64]&=!(1u64<<(partner%64));
+        }
+        let g=Graph{n,words,compatible,order:(0..n).collect()};
+        let mut state=State::new(&g,&[],16*1024*1024,Instant::now()+std::time::Duration::from_secs(10)).unwrap();
+        assert!(state.edges.iter().any(|e|e.a==4998&&e.b==4999));verify(&state);
+        let mut stats=Stats::default();
+        for (step,v) in [4999,4998,4096,4097,4999,4096,0,1,4998].into_iter().enumerate(){
+            state.change(v,!state.covered[v],step+1);verify(&state);state.raise_weights(&mut stats);verify(&state);
+        }
+    }
+    #[test]
     fn incremental_scores_edge_sets_and_forgetting_match_full_recomputation() {
         let mut seed = 791239u64;
         for n in 1..=20 {
