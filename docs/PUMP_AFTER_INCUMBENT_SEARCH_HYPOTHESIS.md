@@ -5,3 +5,5 @@ drayageの現候補は10秒266nodesでmax_open266の深さ優先となり、主�
 既存凍結CLI3f/8f/7a8aを用い、事前のlimited-point全17問を端末修復ONでdepth/best/hybrid各10秒比較する。各入力の3方式は同じCPU、方式順は入力indexで巡回。CPU43/45/49、16GiB/1thread、全point GMP公式と全proofを検査する。入力ごとの答え・native点の移送はない。
 
 本体の動的切替は未実装。現診断は既存MIP_SEARCHを最初から指定するため、そのまま動的切換の性能証拠とは扱わない。利益があれば新incumbentを得た場合だけの汎用切換を別途比較し、不利益なら追加しない。現17問は利益だけで選んだ群ではないが開発群でありholdoutへの調整はしない。
+
+17問の診断は51proof/19点GMP公式valid。全体bestは主解1改善(b1c1s1 None→84123.199361)/1悪化(rmat428→814.026596)/15同等、hybridは全主解同等。全方式でpump受理された4問は主解全同等で、動的切換の導入は見送る。ただし17問はterminal LP群に限定され、既存global bestの汎用差を判定できないため、現core3f/terminal明示ONの開発188問全体でdepth/bestを比較する。source変更なし、同一frozen7a8a、5workers CPU28/29/30/54/55、audit24/25/26/27、各10秒/16GiB/1thread。holdoutは使わず全損失を残し、以前の18問での棄却結果を置換しない。
