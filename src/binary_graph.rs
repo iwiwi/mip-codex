@@ -544,6 +544,14 @@ pub fn solve_with_heap(
     adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
     input_cover: bool, spectral: bool, large: bool, heap: bool,
 ) -> Option<Answer> {
+    solve_with_primal_budget(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,input_cover,spectral,large,heap,false)
+}
+pub fn solve_with_primal_budget(
+    model: &Model, memory: usize, deadline: Instant, limit: usize,
+    local: bool, stronger_root: bool, preserve_order: bool, diversify: bool,
+    adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
+    input_cover: bool, spectral: bool, large: bool, heap: bool, primal_budget: bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline, large)?;
@@ -658,7 +666,10 @@ pub fn solve_with_heap(
         && search.best.len() < search.stats.root_upper
         && Instant::now() < deadline
     {
-        let allocation = (deadline.saturating_duration_since(started).as_secs_f64() * 0.05).min(
+        // Spend more time on primal search only where the sparse large-graph heap is eligible.
+        let fraction = if primal_budget && portfolio && heap
+            && weighted_cover::heap_eligible(graph.n,search.stats.conflict_edges,memory/2) {0.25} else {0.05};
+        let allocation = (deadline.saturating_duration_since(started).as_secs_f64() * fraction).min(
             if adaptive && cover {
                 if portfolio{f64::INFINITY}else{3.0}
             } else if adaptive {
