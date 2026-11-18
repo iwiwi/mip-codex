@@ -954,3 +954,13 @@ PR128はmain1feca2b/9c9へ統合。primary再ビルド4出力すべて元GMP/str
 新branch作成時にbroad sparseパターンが継承されcheckoutが増大したため、ENOSPC前に停止。新規ディレクトリに実験/ソース編集が無いことと98,653パスがGit追跡対象であることを確認し、再生成可能なcheckout1,961,322,356Bを除去。全cargo/rustc停止を確認して共有debug cacheのみ除去。no-checkoutで再作成し、必要なsrc/scripts/tests/docs/dataだけ展開。正式ベンチマークは既に全終了し、自作final未起動のまま。回復receiptを保持。
 
 次仮説は構造gate付き主解予算5%→25%。main128のheap適合条件をそのまま使い、初期defaultOFF。全体期限・メモリ・数学証明を保ち、主解と下界の損失を含め比較する。目標の全体優位と新記録は未達。
+
+## 主解予算候補515fd/FP e180c8c80bbfc8ca の途中検査
+
+Rust353passed/4ignored。fixedbinarySHA72ae82b1027095bb5bc00343fc1719a498fc225a093585574cf6e096612cc51a、源origin61776dda（core515fd）。小規模200models×6limits=1200元GMP/strict proof/独立全列挙成功、7410改ざん拒否。初回はsparse treeの検査器相対pathが存在せず1200件がvalidNone（誤答ではなく未検証）で終了、全初回出力とログをchecker-unavailableへ保存し、primary検査器絶対pathを与えて同条件全再実行成功。
+
+large生成6models×2flags=12、全元GMP/strict proofとcomponent全列挙のbest≤alpha≤upper成功、全12実heap。主解6組すべて同じ、upperは2同値/4悪化（case2+9、3/4/5各+1）。初回driverは旧heap flagの判定を残しており、予算OFFでheapが動く正しい結果をassertで拒否した。初回点はGMP/proof valid、source/results/logをinitialとして保持。driverを明示予算0/1と両方heap適用の判定に修正し12件完了。ソルバー源は不変。
+
+longcontrolsは実CPU45だがcopied metadata label44が残った。両条件のaffinity45を訂正receiptへ記録、raw jobを上書きしない。新branch metadata copy時にexperimentsディレクトリ不存在で初回copy/add/commitが失敗したが、source commitは既に成立。ディレクトリ作成後61776ddaで全postmerge証拠を保存。初回停止ログはtool履歴に残り、optimizer結果に影響しない。以後依存shellはset-eを徹底。
+
+CDC探索はprivate60秒single/reseed各−285、own285seed300秒single−290、全3元GMP。main128/HS/SCIP/GLPK60秒比較は−279/−280/−237/点なし、各存在点元GMP、main strict proof valid。公式best−333未達。全元MPS hash・raw出力・比較driver・private源manifestをcdc-packing-evaluationに封入し全payloadSHA検査。三親LNS54近傍479.410495711秒1197不改善1GMP/17親検証SHA再利用はcover-parent-lns-evaluationへ保存。本体へprivate解を移植せず、全体優位/新記録とも未達。
