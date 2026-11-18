@@ -1,0 +1,5 @@
+# weighted-cover選択の厳密indexed heap（私的検証）
+
+毎反復のcovered全頂点走査を、同じscore降順・age昇順・頂点番号昇順で優先順位付きheapに置き換える。cover出入りで自身を挿入/削除し、score変化したcovered隣接点だけ更新する。uncovered辺の重み増加は両端とも非coveredなのでheap更新不要。forgettingのrebuildでheapも再構築する。追加メモリ16nバイトは既存128n見積りの内訳にも照合する。本体srcはE5不変、privateコピーのみ。
+
+既存100個random graph×300stepで、全score/未被覆辺/重みの全再計算に加えてheap最上位と線形走査の厳密一致、全heap位置と順序を各移動・重み変更後に検査する。小規模全列挙の主解上限、5000頂点pair、z26の元点GMPも検査。固定反復数でscan版と同じ軌跡・点が出ることを時間上限に十分余裕のある条件で先に比較し、その後固定時間の比較を行う。改善は本体へ移して再測定するまでprivate成績として扱う。外部解・既知目標値・停止値は与えない。
