@@ -914,3 +914,9 @@ Sorrell7の対称軌道制限9点、元グラフ継続6点、2親の厳密二部
 main126/E5は不変。候補580d517295/f293は上限65535を既定OFFで追加、5000pair両方向・資源guard8tests通過。fulltest初回はENOSPCでリンク失敗しcargo/残compilerを停止、終端確認後に再生成可能debugcacheだけ削除、debug情報0/jobs2で再試行348passed/4ignored。失敗logと復旧receipt保持。retry/sourceとreleaseを凍結。200small/1200outputs全列挙・GMP・strictproof、7410tampers通過。40large解析例（4097..5484）すべてopt/0searchnodes/GMP/proof、160tampers通過。tamperdriver初回は存在しないresult.maximizeを参照し1case後KeyError、初回script/log/partial保存しMPSからsenseを読む形で全40を新dirへ再実行、optimizer変更なし。生成driverのMIP_NODE_LIMITはCLIにない未使用変数だったが実出力全40は自然に0nodes、事前node0設定の成功とは主張しない。
 
 ENOSPCはbaseline coordinatorも06:33:06 UTCに停止させた。集計719/720（HS240/SCIP240/GLPK239）、GLPK最後のcgroup4processは生存・OOM0。元config39551aと全snapshot/libraries SHA、719terminal summaryのSHA、稼働case/supervisor identityを確認し、凍結coordinatorだけを06:43に再開した。719summary不変、生存GLPK case identity不変、supervisor起動06:30:21が復旧前、optimizer再起動なしをpostflight確認。初回のroot cgroup globは実際のmip-codex-bench/id/job階層を見ておらず空と判定したため使用せず、正しい階層で確認した。旧coordinator exit1/log/identity/progressを別保存。holdout個別成績には触れていない。復旧台帳artifacts/large-capacity-baseline-recovery。
+
+### PR126 postmergeと大容量最終候補
+
+main126c788/E5のprimary再検査3点GMP/3strict証明、cod−12root最適性、S3−16tree証明、S7−198/LB−241と新create-only final302b/113snapshotfiles/147libs/空240cgroupsのreceipt、postcomment6970630630をpostmerge-evaluationから継承。旧fa aeタグはobsolete、全Rust最終タグ未起動。private容量profile5点GMP（z26最大1190）と元入力SHA/公式URLもmain向け証拠として追加する。
+
+最終候補1572/ABC（既定ON・>4096再帰深さ512）で350Rustpassed/4ignored、200small1200points/7410tampers、40large/GMP/proofs/160tampers、深さ制御4点GMP/proofs/2tampersが通過。単一oddcycle+isolatesは2nodesで正しくoptimal、1020個C5は512nodesでdepth_limit、安全upper3060/best2040。depthdriverの初回else2/else3スペース欠落はpy_compileが実行前に検出、初回source/logを保存しdriverだけ修正して全4点再実行。default188screen/376freshauditは進行中。主制御7点GMP/proofも通過し、z26ON60秒は−1154/LB−1578（root Fraction時間差）、depth_hit false、73,083nodes。初期FPf293の−1575と混同しない。

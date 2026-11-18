@@ -1,0 +1,7 @@
+# 大規模packingの容量拡張・私的主解プロファイル
+
+本体src/Cargo/buildは採用済みmain126/E5のまま。既存の私的cover profile（独自Graph/weighted/fractionalの3モジュールとfrontend）をコピーし、認識の頂点上限だけ4096から65535へ変更する。Edgeのu16頂点番号に対して最大index65534であり表現可能、元の行認識・ペア作業上限・bitsetメモリ検査・期限・原点可行性のguardを維持する。高品質な点が得られても本体性能と混同せず、本体へ移す場合は新しいソースで再検証する。
+
+入力z26はBenchmark v2全240の外であることをmanifestから確認し、公式MPSだけを取得。gzip/source SHAを記録し、公式やnativeの解はダウンロードせず、目標値/停止値もoptimizerへ渡さない。まず5000頂点の独立pairモデル（解析的optimum2500）で元点GMPと厳密制約を検査し、私的Rustprofileが旧容量外の点を正しく生成することを確認する。続いて実モデルの固定時間single/reseedを実行し、元MPSのGMPで全点を検査する。上界・最適性・実行不能の証明は返さない。
+
+最適化は自作Rustのみ。共有targetのnormal CLIを上書きしないexample-only build、library source directory/FP、私的4ソースのSHAと凍結ELFを保存する。内部graph workspaceは512MiB、weighted256MiB、外部1thread・16GiBの制限を別に記録する。
