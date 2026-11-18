@@ -74,6 +74,7 @@ pub struct Limits {
     pub objective_backtrack: bool,
     pub objective_dive_repeat: bool,
     pub feasibility_pump: bool,
+    pub pump_limited_rounding:bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
     pub cover_rounds: usize,
@@ -168,6 +169,7 @@ impl Default for Limits {
             objective_backtrack: true,
             objective_dive_repeat: true,
             feasibility_pump: true,
+            pump_limited_rounding:false,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 4,
@@ -771,6 +773,10 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
 }
 #[derive(Default, Debug, Serialize)]
 pub struct PumpStats {
+    pub limited_points:usize,
+    pub limited_candidates:usize,
+    pub limited_rejected:usize,
+    pub limited_deadline_skips:usize,
     pub calls: usize,
     pub lp_solves: usize,
     pub perturbations: usize,
@@ -779,6 +785,15 @@ pub struct PumpStats {
     pub numerical_errors: usize,
     pub limited: usize,
     pub seconds: f64,
+}
+// 局所LPの打切り点は可行点の種としてだけ扱い、境界や最適性は引き継がない。
+fn pump_limited_candidate(model:&Model,standard:&Standard,point:&[f64],checker:&heuristic::Repair<'_>)->Option<Vec<f64>> {
+    if standard.terms.len()!=model.variables.len() || standard.shift.len()!=model.variables.len()
+        || point.iter().any(|v|!v.is_finite())
+        || standard.terms.iter().flatten().any(|&(k,_)|k>=point.len()) {return None;}
+    let mut rounded:Vec<_>=standard.terms.iter().enumerate().map(|(j,t)|standard.shift[j]+t.iter().map(|&(k,a)|a*point[k]).sum::<f64>()).collect();
+    for(j,v)in model.variables.iter().enumerate(){if v.integer{rounded[j]=rounded[j].round();}}
+    if rounded.iter().all(|v|v.is_finite()) && checker.candidate_check(&rounded){Some(rounded)}else{None}
 }
 fn binary_pump(
     model: &Model,
@@ -790,6 +805,12 @@ fn binary_pump(
     stats: &mut PumpStats,
     lp_stats: &mut revised::Stats,
 ) -> Option<Vec<f64>> {
+    binary_pump_with_global_deadline(model,root,standard,point,limits,deadline,deadline,stats,lp_stats)
+}
+fn binary_pump_with_global_deadline(
+    model: &Model, root:&Node, standard:&Standard, point:&[f64], limits:&Limits,
+    deadline:Instant, global_deadline:Instant, stats:&mut PumpStats, lp_stats:&mut revised::Stats,
+)->Option<Vec<f64>> {
     let mut binary = Vec::new();
     for (j, v) in model
         .variables
@@ -922,6 +943,17 @@ fn binary_pump(
             }
             lp::Outcome::TimeLimit | lp::Outcome::IterationLimit => {
                 stats.limited += 1;
+                if limits.pump_limited_rounding {
+                    if Instant::now()<global_deadline {
+                        if let Some(point)=answer.limited_point {
+                            stats.limited_points+=1;
+                            if let Some(candidate)=pump_limited_candidate(model,standard,&point,&checker){
+                                stats.limited_candidates+=1;stats.candidates+=1;return Some(candidate);
+                            }
+                            stats.limited_rejected+=1;
+                        }
+                    } else {stats.limited_deadline_skips+=1;}
+                }
                 return None;
             }
             _ => {
@@ -2589,13 +2621,14 @@ fn solve_seeded_warm(
                             + std::time::Duration::from_secs_f64((limits.seconds * 0.1).min(1.)),
                     );
                     let old_solves = pump.lp_solves;
-                    if let Some(x) = binary_pump(
+                    if let Some(x) = binary_pump_with_global_deadline(
                         model,
                         &node,
                         &p,
                         &original,
                         limits,
                         pump_deadline,
+                        deadline,
                         &mut pump,
                         &mut lp_stats,
                     ) {
@@ -3681,6 +3714,27 @@ mod pump_tests {
         assert!(
             matches!(parent.outcome, lp::Outcome::Optimal { objective, .. } if (objective + 1.5).abs() < 1e-9)
         );
+    }
+    #[test]
+    fn limited_projection_can_yield_a_primal_without_certifying_the_auxiliary_lp() {
+        let(m,node,p,point)=prepare(FRACTIONAL);
+        for enabled in [false,true]{
+            let limits=Limits{pivots:1,pump_limited_rounding:enabled,..Limits::default()};
+            let mut stats=PumpStats::default();let mut lp_stats=revised::Stats::default();
+            let candidate=binary_pump(&m,&node,&p,&point,&limits,Instant::now()+std::time::Duration::from_secs(2),&mut stats,&mut lp_stats);
+            if enabled{let x=candidate.expect("one pivot reaches an integer point before the limit");assert!(m.check(&x,true,1e-7).is_ok());assert_eq!(m.objective(&x),1.);assert_eq!(stats.limited_candidates,1);}else{assert!(candidate.is_none());}
+            assert_eq!(stats.limited,1);
+            let parent=revised::minimize_warm(p.sparse.as_ref().unwrap(),1000,None,node.warm.as_deref());
+            assert!(matches!(parent.outcome,lp::Outcome::Optimal{objective,..}if objective == -1.5));
+        }
+    }
+    #[test]
+    fn limited_rounding_rejects_nonfinite_and_infeasible_points() {
+        let(m,_,p,_)=prepare(FRACTIONAL);let checker=heuristic::Repair::new(&m);let n=p.sparse.as_ref().unwrap().columns.len();
+        assert!(pump_limited_candidate(&m,&p,&[],&checker).is_none());
+        assert!(pump_limited_candidate(&m,&p,&vec![f64::NAN;n],&checker).is_none());
+        let x=vec![0.;n];let good=pump_limited_candidate(&m,&p,&x,&checker).unwrap();assert!(m.check(&good,true,1e-7).is_ok());
+        assert!(pump_limited_candidate(&m,&p,&vec![1.;n],&checker).is_none());
     }
     #[test]
     fn pump_projects_and_perturbs_without_changing_parent_lp() {

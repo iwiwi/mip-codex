@@ -1,0 +1,5 @@
+# pump局所LPの打切り点からの可行点回収
+
+base main129/602。既存binary pumpは補助L1射影LPがTimeLimit/IterationLimitで終わるとlimited_pointを使わず返っていた。新flag MIP_PUMP_LIMITED_ROUNDINGは初期OFF。補助LPの打切り時に元MPS変数へ写像し整数を丸め、既存の厳しいcandidate_checkを通った点だけ返す。LP最適性は不要で、auxiliary dual/basis/boundを探索木へ渡さない。元の親LP/warm/boundsは変更しない。全体deadlineが既に切れていれば追加の点検査も行わない。補助LPの1秒/4096pivot/64roundなどの制限は変えない。
+
+根拠は開発用の部分集計でpump呼出25件中limit17、可行点なし17、取得6。特にgraph20では1秒の射影LP打切りが見られた。問題名/答えでsolver分岐せず全pumpに同じ規則を適用する。まず小モデルで反復制限のまま可行点を得ても親LPが不変なことを検査し、全出力を元GMP検査する。開発用のpump未成功ケースで短い0/1ペアを試し、信号があれば188/独立監査へ広げる。holdout個別結果は参照しない。
