@@ -873,3 +873,5 @@ PR122は2026-11-17 23:45:01UTCにmain27791c8fa5eb65274115351427881c34009b8edcへ
 安全性版の停止済みrawはarchive64,315payload全SHA再検証後、同一未追跡63,035ファイル1,447,384,226bytesだけ削除。skip0、全bundle/追跡ファイル/凍結diagnostic/ELF4/評価snapshot/ドライバとrootログを保持、再構成先をcleanup ledgerに保存。post archiveもnew branchへ引継済み。通常shared targetはこの遅延版のため、main122の比較は専用before凍結bin、主作業木normalは引き続き8b579cacb175412dを使う。
 
 遅延構築版105f9f28b1/1ef2f93be87fa2feの全188対完了。主解0改善0悪化188同値、下界3改善1悪化171同値13比較不能、有限下界175→175、前後182time/1optimal/5numeric、全376出力/128点GMP・公式有効。全334Rust・両LP216解析/864点・混合200/1200全列挙/親proof1028/改竄拒否8224/GMP1200有効。下界差の4問は全て元係数検証呼出し0。直接成果がないので不採用とし、main122/8b579cacb175412dとcreate-only config322a...を維持。全証拠archiveと研究branch保存へ進む。別RHS試作はmain122取込後337テスト、rd-rplusc-21でnumeric0pivot→10秒10573pivot/time（主解・下界なし）、最初1024適用のFraction検査/10改竄拒否成功、未採用。次は全行証拠と汎用主解探索の費用内訳を検証する。
+
+遅延版の係数構造を追加調査し、呼出し0だけではsetup省略の直接効果を否定できない点を修正。改善fast0507/seymour1/sp97arは非binary係数0で構築対象外、悪化sp98arは非binary係数342個で対象。正の直接効果なしという棄却判断は維持し、悪化を含めて記録。
