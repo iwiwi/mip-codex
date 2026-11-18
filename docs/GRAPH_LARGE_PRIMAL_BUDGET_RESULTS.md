@@ -23,3 +23,9 @@ z26 weighted反復は296,501→2,428,697、CDC61,301→430,738、weighted時間2
 同一凍結CLI・実CPU45のOFF/ONは−1181/LB−1578（300.041123989秒）→−1188/LB−1575（300.040943413秒）、全元GMP/strict proof valid。主解7点改善、下界も3点改善。60秒の下界悪化も取り消さず保持。
 
 同日PR128での元native300秒（CPU46・同マシン・16GiB/1thread）のraw証拠も別folderへコピー。HiGHS1.16.0−1147/LB−2114、SCIP10.0.2−1013/LB−1539.949499925362、両GMP valid。自作候補は両者より主解が良いがSCIPの下界が強い。GLPK5は420秒watchdogで時間内点なし、wrapper timeout後の441.545秒で遅着した−460/LB−1651は別GMP validだが時間同条件の品質比較から除外。正式cgroup測定とは別の研究driverのtimeout欠陥で、全失敗/遅着rawを保持した。その教訓から新CDC native300driverはprocess group全体killを用いる。
+
+## 開発188問完了（defaultOFF源515fd、同一CLIの明示0/1）
+
+376出力のstrict proof全成功、可行点128件すべてGMP/公式検査成功（376fresh、再利用0）。新予算の実発動0。primal187同値/1悪化、dual172同値/3改善/13比較不能、finite dual各175。両status内訳time_limit182/optimal2/numerical_error4。元の失敗も含め全188問を保存。時間のshifted geomean（shift1/未解決10秒）は9.724145755/9.724146697秒で実質同じ。
+
+変化はfast0507下界165.969633434→166.079437576、leo1下界389771802.153→389874005.625（両点なし）、seymour1下界394.872509052→394.992394258、supportcase12主解−13→−12（下界両−537783.5007328897）。新機能の未発動路であるため改善・悪化を新機能の数学的効果と主張しない。supportcase12を同CPU44/交互順3pairsで別途再確認中だが、元188損失を削除・置換しない。
