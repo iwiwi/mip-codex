@@ -85,6 +85,7 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_GRAPH_FRACTIONAL_COVER must be 0 or 1".into()),
             };
         }
+        if let Ok(v)=std::env::var("MIP_GRAPH_LARGE_CAPACITY"){limits.graph_large_capacity=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_LARGE_CAPACITY must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GRAPH_SPECTRAL_BOUND"){limits.graph_spectral_bound=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_SPECTRAL_BOUND must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GRAPH_INPUT_COVER"){limits.graph_input_cover=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_INPUT_COVER must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GRAPH_COVER_RESTARTS"){limits.graph_cover_restarts=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_COVER_RESTARTS must be 0 or 1".into())};}

@@ -145,9 +145,10 @@ fn row_vertices(model: &Model, row: &crate::model::Row) -> Option<Vec<usize>> {
     }
     (hi < smallest[0] + smallest[1]).then_some(vertices)
 }
-fn recognize(model: &Model, memory: usize, deadline: Instant) -> Option<Graph> {
+fn recognize(model: &Model, memory: usize, deadline: Instant, large: bool) -> Option<Graph> {
     let n = model.variables.len();
-    if n == 0 || n > 4096 {
+    // Weighted cover stores vertex indices in u16. Keep index65535 unused.
+    if n == 0 || n > if large { u16::MAX as usize } else { 4096 } {
         return None;
     }
     let sign = if model.maximize { -1. } else { 1. };
@@ -519,9 +520,17 @@ pub fn solve_with_spectral(
     input_cover:bool,
     spectral:bool,
 ) -> Option<Answer> {
+    solve_with_capacity(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,input_cover,spectral,false)
+}
+pub fn solve_with_capacity(
+    model: &Model, memory: usize, deadline: Instant, limit: usize,
+    local: bool, stronger_root: bool, preserve_order: bool, diversify: bool,
+    adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
+    input_cover: bool, spectral: bool, large: bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
-    let graph = recognize(model, memory, deadline)?;
+    let graph = recognize(model, memory, deadline, large)?;
     let mut all = vec![u64::MAX; graph.words];
     if graph.n % 64 != 0 {
         all[graph.words - 1] = (1 << (graph.n % 64)) - 1;
