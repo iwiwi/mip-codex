@@ -9,3 +9,5 @@ main124 b8c51c4796 / FP8a9ce2724eeea001を基準。MIP_GRAPH_COVER_RESTARTS=1、
 長い全体時限では局所探索枠を全体5%まで許し、従来の固定3秒上限をこのflagに限り外す。元の最初のseed探索は最大0.6秒で、短い時限の配分は維持。時間内でしか動かず、再構築費も含める。主解改善の代償に本探索の時間が減るため、同時限の主解/下界/証明時間を比較する。既存public APIは旧挙動を保つwrapperとして残す。
 
 検証：新しい小グラフ100例は全列挙optimumとの範囲照合・全組対検査・入力不変、実際のrestart発生を確認。期限切れ/メモリ不足は元の検査済みseedを保持。全Rust342成功/4 ignore。これから凍結CLIによるdevelopment188×10秒、graph全列挙/元MPS GMP/証明と改ざん、sorrell3/7の長いmain比較とnative比較を行う。holdout52を調整に使わない。採用未判断。
+
+既定有効化後の初回再テストはlink時のENOSPCで中断、全ログ保存。主作業木の過去評価3ディレクトリの63284ファイル/1943967712 bytesについて、現在bytesのGit blob/hash・保持オブジェクトの存在/サイズを全照合後、sparse checkout対象から除外した。Gitに全内容を保持し、未追跡証拠/凍結ELF/稼働baseline領域は変更せず、baseline config SHAも不変。再試行は342成功/4ignore。数値コードの失敗として隠さず、最終defaultソースの188確認へ進む。

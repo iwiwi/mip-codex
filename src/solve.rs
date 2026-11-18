@@ -142,7 +142,7 @@ impl Default for Limits {
             graph_local_diversify: true,
             graph_adaptive_local: true,
             graph_cover_local: true,
-            graph_cover_restarts:false,
+            graph_cover_restarts:true,
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
