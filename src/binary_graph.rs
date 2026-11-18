@@ -709,7 +709,7 @@ pub fn solve_with_vertex(
         search.best = seed;
         search.stats.local = Some(stats);
         let vertex_allowed=vertex&&cover&&portfolio&&heap&&weighted_cover::heap_eligible(graph.n,search.stats.conflict_edges,memory/2)&&vertex_penalty::eligible(graph.n,search.stats.conflict_edges,memory/2);
-        let cover_deadline=if vertex_allowed{let now=Instant::now();now+local_deadline.saturating_duration_since(now)/2}else{local_deadline};
+        let cover_deadline=if vertex_allowed{let now=Instant::now();now+(local_deadline.saturating_duration_since(now)/10)*9}else{local_deadline};
         if cover && Instant::now() < cover_deadline {
             let (seed, stats)=weighted_cover::selected_with_rounds(&graph,&search.best,memory/2,cover_deadline,portfolio,heap,long_rounds);
             search.best = seed;
