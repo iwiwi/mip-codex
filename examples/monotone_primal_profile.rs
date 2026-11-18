@@ -64,9 +64,15 @@ fn main() {
     subset
         .rows
         .retain(|r| !r.coefficients.iter().any(|(k, _)| *k == j));
-    for v in &mut subset.variables {
-        v.objective = 0.;
-        v.objective_enclosure = Some([0., 0.]);
+    let mode=std::env::var("MIP_DIAGNOSTIC_LIFT_OBJECTIVE").unwrap_or_else(|_|"zero".into());
+    assert!(["zero","remaining","integer"].contains(&mode.as_str()));
+    for (k,v) in subset.variables.iter_mut().enumerate() {
+        if mode=="remaining" && k!=j {continue;}
+        let c=if mode=="integer" && k!=j && v.integer && v.lower.is_some_and(f64::is_finite) && v.upper.is_some_and(f64::is_finite) {
+            let hash=(k as u64+1).wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            ((hash>>32)%7)as f64-3.
+        }else{0.};
+        v.objective=c;v.objective_enclosure=Some([c,c]);
     }
     subset.offset = 0.;
     subset.offset_enclosure = Some([0., 0.]);
