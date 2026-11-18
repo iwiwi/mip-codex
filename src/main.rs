@@ -88,6 +88,7 @@ fn run() -> Result<(), String> {
             };
         }
         if let Ok(v)=std::env::var("MIP_GRAPH_COVER_LONG_ROUNDS"){limits.graph_cover_long_rounds=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_COVER_LONG_ROUNDS must be 0 or 1".into())};}
+        if let Ok(v)=std::env::var("MIP_GRAPH_VERTEX_PORTFOLIO"){limits.graph_vertex_portfolio=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_VERTEX_PORTFOLIO must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GRAPH_LARGE_PRIMAL_BUDGET"){limits.graph_large_primal_budget=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_LARGE_PRIMAL_BUDGET must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GRAPH_COVER_HEAP"){limits.graph_cover_heap=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_COVER_HEAP must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GRAPH_LARGE_CAPACITY"){limits.graph_large_capacity=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_LARGE_CAPACITY must be 0 or 1".into())};}

@@ -6,12 +6,15 @@ mod fractional_cover;
 mod spectral;
 pub use spectral::Outcome as SpectralBound;
 mod weighted_cover;
+mod vertex_penalty;
+pub use vertex_penalty::Stats as VertexStats;
 pub use fractional_cover::Outcome as FractionalCover;
 pub use weighted_cover::Stats as CoverStats;
 #[derive(Debug, Default, serde::Serialize)]
 pub struct Stats {
     pub local: Option<LocalStats>,
     pub cover_local: Option<CoverStats>,
+    pub vertex_local: Option<VertexStats>,
     pub fractional_cover: Option<FractionalCover>,
     pub spectral_bound: Option<SpectralBound>,
     pub root_coloring_upper: Option<usize>,
@@ -560,6 +563,14 @@ pub fn solve_with_rounds(
     adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
     input_cover: bool, spectral: bool, large: bool, heap: bool, primal_budget: bool, long_rounds: bool,
 ) -> Option<Answer> {
+    solve_with_vertex(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,input_cover,spectral,large,heap,primal_budget,long_rounds,false)
+}
+pub fn solve_with_vertex(
+    model: &Model, memory: usize, deadline: Instant, limit: usize,
+    local: bool, stronger_root: bool, preserve_order: bool, diversify: bool,
+    adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
+    input_cover: bool, spectral: bool, large: bool, heap: bool, primal_budget: bool, long_rounds: bool, vertex:bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline, large)?;
@@ -697,10 +708,15 @@ pub fn solve_with_rounds(
         let (seed, stats) = improve_seed(&graph, &search.best, first_deadline, diversify, adaptive);
         search.best = seed;
         search.stats.local = Some(stats);
-        if cover && Instant::now() < local_deadline {
-            let (seed, stats)=weighted_cover::selected_with_rounds(&graph,&search.best,memory/2,local_deadline,portfolio,heap,long_rounds);
+        let vertex_allowed=vertex&&cover&&portfolio&&heap&&weighted_cover::heap_eligible(graph.n,search.stats.conflict_edges,memory/2)&&vertex_penalty::eligible(graph.n,search.stats.conflict_edges,memory/2);
+        let cover_deadline=if vertex_allowed{let now=Instant::now();now+local_deadline.saturating_duration_since(now)/2}else{local_deadline};
+        if cover && Instant::now() < cover_deadline {
+            let (seed, stats)=weighted_cover::selected_with_rounds(&graph,&search.best,memory/2,cover_deadline,portfolio,heap,long_rounds);
             search.best = seed;
             search.stats.cover_local = Some(stats);
+        }
+        if vertex_allowed&&Instant::now()<local_deadline{
+            let(seed,stats)=vertex_penalty::improve(&graph,&search.best,search.stats.conflict_edges,memory/2,local_deadline);search.best=seed;search.stats.vertex_local=Some(stats);
         }
     }
     if fractional && root.is_some() && search.best.len() < search.stats.root_upper {
