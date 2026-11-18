@@ -946,3 +946,11 @@ a45/BDDと既定ONa6/9c9を別凍結、初期源はmain127へbyte同一でrebase
 HS300は−1147/LB−2114、SCIP300は−1013/LB−1539.9495、両元GMP valid。自作9c9 heap300は−1182/LB−1578、主解は良いがSCIP dualは強い。GLPKはresearch wrapper watchdog420、childは自然遅延終端441.545秒で−460/LB−1651、directAPI点を元GMP確認しlate別枠へ保存、300秒点と混同しない。初回late検査はchecker相対パス不在validNoneで停止、初回source/logを残しchecker絶対パスで検査だけ再実行。旧native3ケースとlateの全失敗を保持。元正式720+事前固定disk再測定1は両終端、原結果不変。
 
 初期/最終の353Rust・各1200/7410tampers・各12large actualheap6・各376fresh/128GMP公式・各9主制御と非適用再検査を根拠にheap採用判断。全体優位/新記録未達、private1197は本体成果に混同しない。
+
+## 2026-11-18 main128採用後
+
+PR128はmain1feca2b/9c9へ統合。primary再ビルド4出力すべて元GMP/strict proof valid。cod105−12最適、5000pair−2500最適、depth guard512nodes、z26/60秒−1151/LB−1575。create-only最終snapshot9e5fc98a69b2d1d849d30446c5ccb9cb39b04a3167647e319c2558b50158e846、113files/147libs全SHA検査、main127からbin+4Rustのみ変更、全240jobs未起動。旧2bbはOBSOLETEとして保持。PR128追記6973619289に新規AIusage、4再検査、snapshot詳細を記載。postmerge証拠185files/5ELF保持をarchiveし全payloadSHA検査。native原720+事前選択disk再測定1は全終了、holdout個別成績未参照。
+
+新branch作成時にbroad sparseパターンが継承されcheckoutが増大したため、ENOSPC前に停止。新規ディレクトリに実験/ソース編集が無いことと98,653パスがGit追跡対象であることを確認し、再生成可能なcheckout1,961,322,356Bを除去。全cargo/rustc停止を確認して共有debug cacheのみ除去。no-checkoutで再作成し、必要なsrc/scripts/tests/docs/dataだけ展開。正式ベンチマークは既に全終了し、自作final未起動のまま。回復receiptを保持。
+
+次仮説は構造gate付き主解予算5%→25%。main128のheap適合条件をそのまま使い、初期defaultOFF。全体期限・メモリ・数学証明を保ち、主解と下界の損失を含め比較する。目標の全体優位と新記録は未達。
