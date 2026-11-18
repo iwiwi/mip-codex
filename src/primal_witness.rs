@@ -39,6 +39,8 @@ impl Rat {
 #[derive(Clone,Debug,Default)]
 pub struct Source {
     signature:u64,
+    sealed_rows:usize,
+    sealed_variables:usize,
     pub(crate) coefficients:BTreeMap<(usize,usize),String>,
     pub(crate) row_bounds:BTreeMap<(usize,usize),String>,
     pub(crate) variable_bounds:BTreeMap<(usize,usize),String>,
@@ -46,10 +48,18 @@ pub struct Source {
     pub(crate) offset:Option<String>,
 }
 impl Source {
-    pub(crate) fn seal(&mut self,m:&crate::model::Model){self.signature=signature(m);}
+    pub(crate) fn seal(&mut self,m:&crate::model::Model){self.signature=signature(m);self.sealed_rows=m.rows.len();self.sealed_variables=m.variables.len();}
     pub(crate) fn matches(&self,m:&crate::model::Model)->bool{self.signature==signature(m)}
+    pub(crate) fn contains_original_row(&self,index:usize)->bool{index<self.sealed_rows}
+    /// Original rows and variables must match exactly; appended rows are permitted.
+    /// Only used for conservative LP row enclosures, not primal proof reconstruction.
+    pub(crate) fn matches_original_prefix(&self,m:&crate::model::Model)->bool{
+        m.variables.len()==self.sealed_variables && m.rows.len()>=self.sealed_rows
+            && self.signature==signature_prefix(m,self.sealed_rows)
+    }
 }
-fn signature(m:&crate::model::Model)->u64{
+fn signature(m:&crate::model::Model)->u64{signature_prefix(m,m.rows.len())}
+fn signature_prefix(m:&crate::model::Model,rows:usize)->u64{
     let mut h=0xcbf29ce484222325u64;
     let mut feed=|bytes:&[u8]|{for &b in bytes {h=(h^u64::from(b)).wrapping_mul(0x100000001b3);}h=(h^255).wrapping_mul(0x100000001b3);};
     feed(m.name.as_bytes());feed(&[u8::from(m.maximize),u8::from(m.original_decimal)]);feed(&m.offset.to_bits().to_le_bytes());
@@ -58,11 +68,11 @@ fn signature(m:&crate::model::Model)->u64{
         for b in [v.lower,v.upper]{feed(&[u8::from(b.is_some())]);if let Some(b)=b{feed(&b.to_bits().to_le_bytes());}}
     }
     feed(&(m.variables.len()as u64).to_le_bytes());
-    for r in &m.rows{
+    for r in m.rows.iter().take(rows){
         feed(r.name.as_bytes());for b in [r.lower,r.upper]{feed(&[u8::from(b.is_some())]);if let Some(b)=b{feed(&b.to_bits().to_le_bytes());}}
         feed(&(r.coefficients.len()as u64).to_le_bytes());for &(j,a)in &r.coefficients{feed(&(j as u64).to_le_bytes());feed(&a.to_bits().to_le_bytes());}
     }
-    feed(&(m.rows.len()as u64).to_le_bytes());h
+    feed(&(rows as u64).to_le_bytes());h
 }
 #[derive(Clone,Debug,Serialize)]
 pub struct Coordinate { pub variable:usize,pub numerator:String,pub denominator:String }

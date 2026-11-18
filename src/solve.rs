@@ -453,6 +453,9 @@ thread_local!{static RHS_INTERVAL_COUNT:std::cell::Cell<usize>=const{std::cell::
 fn interval_shifted_bound(model:&Model,index:usize,row:&crate::model::Row,shift:&[f64],upper:bool)->Option<f64>{
     // 有限の範囲/等式はRHSだけを動かせないので対象外。
     if row.lower.is_some()&&row.upper.is_some(){return None;}
+    interval_shifted_side(model,index,row,shift,upper)
+}
+fn interval_shifted_side(model:&Model,index:usize,row:&crate::model::Row,shift:&[f64],upper:bool)->Option<f64>{
     let mut error_terms=Vec::new();
     if model.original_decimal{
         let source=model.decimal_source.as_ref()?;
@@ -643,6 +646,9 @@ fn sparse_source_rows<'a>(model:&'a Model,selected:Option<&'a [usize]>)->impl Cl
         .chain(model.rows.iter().enumerate().take(if selected.is_none(){model.rows.len()}else{0}))
 }
 fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,fixed_columns:bool,selected:Option<&[usize]>)->Relaxation {
+    standard_sparse_selected_pairs(model,node,limit,track_rows,fixed_columns,selected,std::env::var("MIP_RHS_INTERVAL_PAIRS").is_ok_and(|v|v=="1"))
+}
+fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows:bool,fixed_columns:bool,selected:Option<&[usize]>,pairs:bool)->Relaxation {
     let mut shift = Vec::new();
     let mut terms = Vec::new();
     let mut costs = Vec::new();
@@ -681,11 +687,28 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
         }
     }
     let sources=sparse_source_rows(model,selected);
-    let nonzeros = sources.clone().map(|(_,r)|r)
-        .map(|r| r.coefficients.len() as u128 * if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2 } else { 1 })
+    let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
+    let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").map_or(true,|v|v=="1");
+    let mut paired_rhs=std::collections::BTreeMap::new();
+    let mut pair_source_valid=None;
+    if pairs && interval_enabled {
+        for (i,row) in sources.clone() {
+            if model.original_decimal && !model.decimal_source.as_ref().is_some_and(|s|s.contains_original_row(i)) {continue;}
+            if row.lower.zip(row.upper).is_none_or(|(l,u)|!l.is_finite()||!u.is_finite()||l>u) {continue;}
+            if shifted_bound(row,&shift,true,model.original_decimal,exact_shift).is_finite()
+                && shifted_bound(row,&shift,false,model.original_decimal,exact_shift).is_finite() {continue;}
+            let valid=*pair_source_valid.get_or_insert_with(||!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.matches_original_prefix(model)));
+            if !valid {continue;}
+            if let (Some(upper),Some(lower))=(interval_shifted_side(model,i,row,&shift,true),interval_shifted_side(model,i,row,&shift,false)) {
+                paired_rhs.insert(i,[upper,lower]);
+            }
+        }
+    }
+    let nonzeros = sources.clone()
+        .map(|(i,r)| r.coefficients.len() as u128 * if paired_rhs.contains_key(&i)||split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2 } else { 1 })
         .sum::<u128>();
-    let rows = sources.clone().map(|(_,r)|r)
-        .map(|r| if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2u128 } else { 1 })
+    let rows = sources.clone()
+        .map(|(i,r)| if paired_rhs.contains_key(&i)||split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2u128 } else { 1 })
         .sum::<u128>();
     let estimate = nonzeros * 48 + rows * 2048 + (costs.len() as u128) * 128;
     if estimate > limit as u128 {
@@ -695,9 +718,7 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
     let mut rhs = Vec::new();
     let mut equality = Vec::new();
     let mut slack_upper = Vec::new();
-    let exact_shift = shift.iter().all(|&x| crate::model::point_error(x) == 0.);
     let mut row_sources = Vec::new();
-    let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").map_or(true,|v|v=="1");
     let interval_dump=if interval_enabled{std::env::var_os("MIP_RHS_INTERVAL_DUMP").map(|path|{
         let limit=std::env::var("MIP_RHS_INTERVAL_DUMP_LIMIT").ok().and_then(|v|v.parse::<usize>().ok()).filter(|&n|n<=1_000_000).unwrap_or(1024);
         (path,limit)
@@ -710,7 +731,7 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
         if row.lower.zip(row.upper).is_some_and(|(l, u)| l > u) {
             return Relaxation::Infeasible;
         }
-        let split = split_range(row)||selected.is_some()&&row.lower.zip(row.upper).is_some_and(|(l,u)|l<u);
+        let split = paired_rhs.contains_key(&source)||split_range(row)||selected.is_some()&&row.lower.zip(row.upper).is_some_and(|(l,u)|l<u);
         let orientations: &[f64] = if split {
             &[1., -1.]
         } else if row.upper.is_some() {
@@ -732,18 +753,23 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
                 model.original_decimal,
                 exact_shift,
             );
+            let mut interval_applied=false;
+            if let Some(pair)=paired_rhs.get(&source) {bound=pair[usize::from(row_sign<0.)];interval_applied=true;}
             if !bound.is_finite()&&interval_enabled{
                 let valid=*interval_source_valid.get_or_insert_with(||!model.original_decimal||model.decimal_source.as_ref().is_some_and(|s|s.matches(model)));
                 if valid&&let Some(value)=interval_shifted_bound(model,source,row,&shift,row_sign>0.){
-                    bound=value;RHS_INTERVAL_COUNT.with(|n|n.set(n.get().saturating_add(1)));
+                    bound=value;interval_applied=true;
+                }
+            }
+            if interval_applied {
+                    RHS_INTERVAL_COUNT.with(|n|n.set(n.get().saturating_add(1)));
                     if let Some((path,limit))=&interval_dump&&RHS_INTERVAL_COUNT.with(|n|n.get())<=*limit{
                         use std::io::Write;
                         if let Ok(mut file)=std::fs::OpenOptions::new().create(true).append(true).open(path){
                             let shifts:Vec<_>=shift.iter().enumerate().filter(|&(_,&v)|v!=0.).map(|(j,v)|(j,format!("{:016x}",v.to_bits()))).collect();
-                            let _=writeln!(file,"{}",serde_json::json!({"source_row":source,"source_name":row.name,"upper":row_sign>0.,"rhs_bits":format!("{:016x}",value.to_bits()),"shift_bits":shifts}));
+                            let _=writeln!(file,"{}",serde_json::json!({"paired":paired_rhs.contains_key(&source),"source_row":source,"source_name":row.name,"upper":row_sign>0.,"rhs_bits":format!("{:016x}",bound.to_bits()),"shift_bits":shifts}));
                         }
                     }
-                }
             }
             rhs.push(bound);
             if track_rows {
@@ -4316,5 +4342,59 @@ fn gomory_report_bound(model: &Model, cached: &CachedRoot) -> Option<crate::gomo
   let input="NAME near\nROWS\n N c\n L r\nCOLUMNS\n x c 1 r 0.99999999999999999999\nRHS\n rhs r 1\nBOUNDS\n LO b x 0\n UP b x 2\nENDATA\n";
   let m=crate::mps::parse(std::io::Cursor::new(input)).unwrap();assert!(m.decimal_source.as_ref().unwrap().coefficients.contains_key(&(0,0)));
   assert_eq!(m.rows[0].coefficients[0].1,1.);let b=interval_shifted_bound(&m,0,&m.rows[0],&[0.],true).unwrap();assert!(b>1.);
+ }
+}
+
+#[cfg(test)]
+mod paired_rhs_interval_tests {
+ use super::*;
+ fn setup(range:bool)->(Model,Node){
+  let text=format!("NAME pair\nROWS\n N c\n E r\nCOLUMNS\n x c 1 r 1\n y c 0 r 0.1\nRHS\n rhs r 100000001\n{}BOUNDS\n LI b x 0\n UI b x 3\n FX b y 1000000000\nENDATA\n",if range{"RANGES\n rng r 1\n"}else{""});
+  let model=crate::mps::parse(std::io::Cursor::new(text)).unwrap();
+  let node=Node{certified_bound:None,lower:model.variables.iter().map(|v|v.lower).collect(),upper:model.variables.iter().map(|v|v.upper).collect(),bound:f64::NEG_INFINITY,warm:None,changed:None,edge:None};(model,node)
+ }
+ #[test]fn equalities_and_ranges_become_two_outer_inequalities_only_on_shift_failure(){
+  for range in [false,true]{for fixed in [false,true]{
+   let(m,node)=setup(range);let before=serde_json::to_string(&m).unwrap();
+   let Relaxation::Ready(old)=standard_sparse_selected_pairs(&m,&node,1<<24,true,fixed,None,false)else{panic!()};
+   assert_eq!(old.sparse.as_ref().unwrap().rhs.len(),1);assert!(old.sparse.as_ref().unwrap().rhs.iter().any(|v|!v.is_finite()));
+   let Relaxation::Ready(new)=standard_sparse_selected_pairs(&m,&node,1<<24,true,fixed,None,true)else{panic!()};
+   let p=new.sparse.as_ref().unwrap();assert_eq!(p.rhs.len(),2);assert!(p.rhs.iter().all(|v|v.is_finite()));assert_eq!(p.equality,vec![false,false]);assert_eq!(p.slack_upper,vec![f64::INFINITY;2]);assert_eq!(new.row_sources,vec![(0,1.),(0,-1.)]);
+   for x in if range{vec![1.,2.]}else{vec![1.]}{
+    assert!((1..=if range{2}else{1}).contains(&(x as i128)));
+    // 元十進式では0.1*10^9=10^8。binary64係数の検査は既存絶対精度で別途行う。
+    assert!(m.check(&[x,1e9],true,1e-6).is_ok());let mut point=vec![0.;p.costs.len()];for &(k,a)in &new.terms[0]{point[k]=a*(x-new.shift[0]);}
+    let point=&point;for i in 0..2{let activity=crate::exact::dot_bounds(p.columns.iter().enumerate().flat_map(|(j,col)|col.iter().filter(move|&&(r,_)|r==i).map(move|&(_,a)|(a,point[j]))));assert!(activity.unwrap()[1]<=p.rhs[i]);}
+   }
+   assert_eq!(before,serde_json::to_string(&m).unwrap());
+  }}
+ }
+ #[test]fn uncertain_unbounded_or_changed_sources_stay_rejected(){
+  let(mut m,mut node)=setup(false);m.variables[1].upper=None;m.variables[1].upper_enclosure=None;node.upper[1]=None;
+  let Relaxation::Ready(p)=standard_sparse_selected_pairs(&m,&node,1<<24,true,false,None,true)else{panic!()};assert_eq!(p.sparse.as_ref().unwrap().rhs.len(),1);assert!(!p.sparse.as_ref().unwrap().rhs[0].is_finite());
+  let(mut m,node)=setup(false);m.rows[0].coefficients[1].1=0.2;assert!(!m.decimal_source.as_ref().unwrap().matches(&m));
+  let Relaxation::Ready(p)=standard_sparse_selected_pairs(&m,&node,1<<24,true,false,None,true)else{panic!()};assert_eq!(p.sparse.as_ref().unwrap().rhs.len(),1);assert!(!p.sparse.as_ref().unwrap().rhs[0].is_finite());
+ }
+ #[test]fn duplicated_rows_are_included_in_the_memory_estimate(){
+  let(m,node)=setup(false);let limit=2*48+2048+2*128;
+  assert!(matches!(standard_sparse_selected_pairs(&m,&node,limit,true,false,None,false),Relaxation::Ready(_)));
+  assert!(matches!(standard_sparse_selected_pairs(&m,&node,limit,true,false,None,true),Relaxation::ResourceLimit));
+ }
+ #[test]fn appended_exact_rows_keep_original_provenance_but_cannot_replace_original_rows(){
+  let(mut m,node)=setup(false);let source=m.decimal_source.as_ref().unwrap().clone();
+  let extra=crate::mps::parse(std::io::Cursor::new("NAME extra\nROWS\n N c\n L s\nCOLUMNS\n x c 0 s 1\nRHS\n rhs s 3\nENDATA\n")).unwrap().rows.remove(0);
+  m.rows.push(extra);assert!(!source.matches(&m));assert!(source.matches_original_prefix(&m));
+  let Relaxation::Ready(p)=standard_sparse_selected_pairs(&m,&node,1<<24,true,false,None,true)else{panic!()};let p=p.sparse.as_ref().unwrap();assert_eq!(p.rhs.len(),3);assert!(p.rhs.iter().all(|v|v.is_finite()));
+  let mut changed=m.clone();changed.rows[0].upper=Some(100000002.);assert!(!source.matches_original_prefix(&changed));
+  let mut changed=m.clone();changed.variables[0].objective=2.;assert!(!source.matches_original_prefix(&changed));
+  let mut changed=m.clone();changed.variables[0].integer=false;assert!(!source.matches_original_prefix(&changed));
+  let mut changed=m.clone();changed.rows.swap(0,1);assert!(!source.matches_original_prefix(&changed));
+  let copied=m.rows[0].clone();m.rows.push(copied);assert!(source.matches_original_prefix(&m));assert!(!source.contains_original_row(2));
+  let Relaxation::Ready(p)=standard_sparse_selected_pairs(&m,&node,1<<24,true,false,None,true)else{panic!()};assert_eq!(p.sparse.as_ref().unwrap().rhs.len(),4);assert!(!p.sparse.as_ref().unwrap().rhs[3].is_finite());
+ }
+ #[test]fn exact_equalities_keep_the_original_representation(){
+  let text="NAME exact\nROWS\n N c\n E r\nCOLUMNS\n x c 1 r 1\nRHS\n rhs r 1\nBOUNDS\n LI b x 0\n UI b x 3\nENDATA\n";
+  let m=crate::mps::parse(std::io::Cursor::new(text)).unwrap();let(_,mut node)=setup(false);node.lower=vec![Some(0.)];node.upper=vec![Some(3.)];
+  let Relaxation::Ready(p)=standard_sparse_selected_pairs(&m,&node,1<<24,true,false,None,true)else{panic!()};let p=p.sparse.as_ref().unwrap();assert_eq!(p.rhs,vec![1.]);assert_eq!(p.equality,vec![true]);
  }
 }

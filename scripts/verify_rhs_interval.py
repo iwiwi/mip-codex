@@ -16,14 +16,26 @@ def verify(model,dump):
     names,variables,rows=exact_model(model)
     index_by_name={name:i for i,name in enumerate(names)}
     records=[]
+    pending_pair=None
     for line in Path(dump).read_text().splitlines():
         p=json.loads(line)
-        if set(p)!={'source_row','source_name','upper','rhs_bits','shift_bits'}:raise ValueError('record schema')
+        base={'source_row','source_name','upper','rhs_bits','shift_bits'}
+        if set(p)not in (base,base|{'paired'}):raise ValueError('record schema')
+        paired=p.get('paired',False)
+        if type(paired)is not bool:raise ValueError('paired flag')
         index=p['source_row']
         if type(index)is not int or not 0<=index<len(rows):raise ValueError('row index')
         row=rows[index]
         if row['name']!=p['source_name'] or type(p['upper'])is not bool:raise ValueError('row identity')
-        if row['lower']is not None and row['upper']is not None:raise ValueError('equality/range is not a permitted fallback')
+        both=row['lower']is not None and row['upper']is not None
+        if both!=paired:raise ValueError('paired flag and original row type disagree')
+        identity=(index,p['source_name'],p['shift_bits'])
+        if pending_pair is not None:
+            if not paired or p['upper'] or identity!=pending_pair:raise ValueError('missing matching lower side')
+            pending_pair=None
+        elif paired:
+            if not p['upper']:raise ValueError('paired lower side without upper')
+            pending_pair=identity
         side='upper'if p['upper']else'lower';b=row[side]
         if b is None:raise ValueError('missing original side')
         sign=1 if p['upper']else-1;shift={}
@@ -41,6 +53,7 @@ def verify(model,dump):
         actual=binary(p['rhs_bits'])
         if actual<required:raise ValueError('nonconservative shifted RHS')
         records.append(dict(source_row=index,source_name=row['name'],required=str(required),actual=str(actual),margin=str(actual-required)))
+    if pending_pair is not None:raise ValueError('unfinished row pair')
     if not records:raise ValueError('empty diagnostic dump')
     return dict(valid=True,rows=len(records),input_sha256=sha256(model),dump_sha256=sha256(dump),records=records)
 
