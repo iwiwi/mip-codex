@@ -1,0 +1,9 @@
+# 重み付き被覆局所探索の再始動診断
+
+基準はmain124 b8c51c4796 / FP8a9ce2724eeea001。production srcは変更せず、既存binary_graphと2子moduleだけをexamples/support/cover_profileへ隔離コピーする。認識と各候補のstrict_clique検査は同じ。主解専用の診断で上界・最適性・不能を返さない。元MPSで全点をGMP検査する。
+
+既存NuMVC型の独自実装は固定rng、初期128*n/500000、改善後1024*n/2000000という上限を持ち、同じ探索を長時間へ伸ばすだけではsorrell7 -197から改善しなかった。過去の予算増加棄却を繰り返さず、同じ時間上限で上限到達後に最良点から状態と重みを再構築する案を調べる。singleは既存1回、repeatは同じrngで再始動、reseedは全問題共通の決定的rng列で再始動。比較用のコピーにrng引数を追加しただけで、productionのpivot/証明/認識は変更しない。
+
+最初の比較はsorrell3（development）とsorrell7（Benchmark v2外の探索例、240成績へ加算しない）、各2/10秒×3方式。共通の貪欲点と既存improve_seedを最大0.5秒実行してから被覆探索へ移る。読込は探索計時外で、独立のmain同時間比較ではない。構築・再構築費もcomponentに含む。改善があれば連続探索の上限だけを延ばしたcontrolも追加し、再始動の寄与と時間の使い切りを分ける。全上限・seed列は入力名・公開最良値へ依存しない。
+
+MIPLIB公式ページ https://miplib.zib.de/instance_details_sorrell7.html を2026-11-18に確認し、open/公開目的-198（2023-10-25）と表示。公開点は読み込まず、値も停止条件・探索コードへ使わない。-198と同値なら新記録ではなく、上回った場合も元の公式入力hashと検査を改めて確認する。引用したNuMVCの数学的出典とコードを移植していない条件はGRAPH_WEIGHTED_COVER_PLAN.mdを継承する。

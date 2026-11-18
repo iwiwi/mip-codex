@@ -1,0 +1,3 @@
+pub mod model{pub use mip_codex::model::*;}
+#[path="support/cover_profile/mod.rs"]mod profile;
+fn main(){let args:Vec<_>=std::env::args().collect();assert_eq!(args.len(),5);let model=mip_codex::mps::read(&args[1]).unwrap();let seconds:f64=args[2].parse().unwrap();assert!(["single","repeat","reseed"].contains(&args[3].as_str()));let value=profile::diagnostic(&model,seconds,&args[3]);std::fs::write(&args[4],serde_json::to_vec_pretty(&value).unwrap()).unwrap();println!("{}",serde_json::json!({"objective":value["objective"],"component_seconds":value["component_seconds"],"rounds":value["rounds"].as_array().unwrap().len(),"base_production_fingerprint":mip_codex::BUILD_SOURCE_FINGERPRINT}));}
