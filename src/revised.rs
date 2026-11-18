@@ -23,6 +23,8 @@ pub struct Problem {
 }
 #[derive(Default, Clone, Debug)]
 pub struct Stats {
+    pub farkas_row_projection_trials:usize,
+    pub farkas_row_projections:usize,
     pub zero_phase_one_skips:usize,
     pub pivots: usize,
     pub feasibility_pricing_calls: usize,
@@ -1166,6 +1168,8 @@ fn pricing_columns(columns:&[Vec<(usize,f64)>],costs:&[f64],enabled:bool)->Optio
 }
 impl Stats {
     pub fn add(&mut self, other: &Self) {
+        self.farkas_row_projection_trials+=other.farkas_row_projection_trials;
+        self.farkas_row_projections+=other.farkas_row_projections;
         self.pivots += other.pivots;
         self.feasibility_pricing_calls += other.feasibility_pricing_calls;
         self.pricing_cutoffs += other.pricing_cutoffs;

@@ -1,0 +1,5 @@
+from pathlib import Path
+import os,subprocess,json,time,re,hashlib
+root=Path.cwd();os.sched_setaffinity(0,set(range(54,62)));binary=root/'target/release/mip-codex';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();before=sha(binary);env=os.environ.copy();env['MIP_LP_FARKAS_ROW_PROJECT']='1';start=time.monotonic()
+with(root/'artifacts/farkas-row-projection-tests.log').open('w')as log:r=subprocess.run(['cargo','test','--release'],stdout=log,stderr=subprocess.STDOUT,env=env)
+log=(root/'artifacts/farkas-row-projection-tests.log').read_text();matches=re.findall(r'test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored',log);summary=dict(exit_code=r.returncode,wall_seconds=time.monotonic()-start,mode='release',environment=dict(MIP_LP_FARKAS_ROW_PROJECT='1'),cpus=list(range(54,62)),passed=sum(int(a)for a,b,c in matches),failed=sum(int(b)for a,b,c in matches),ignored=sum(int(c)for a,b,c in matches),cli_before_sha256=before,cli_after_sha256=sha(binary));(root/'artifacts/farkas-row-projection-test-summary.json').write_text(json.dumps(summary,indent=2));print(json.dumps(summary),flush=True);assert r.returncode==0 and before==sha(binary)

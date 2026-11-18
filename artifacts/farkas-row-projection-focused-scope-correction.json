@@ -1,0 +1,13 @@
+{
+  "initial": "cargo test --release farkas_projection_tests (all integration targets compiled)",
+  "initial_exit_code": 101,
+  "corrected": "cargo test --release --lib farkas_projection_tests",
+  "corrected_passed": 3,
+  "corrected_failed": 0,
+  "source_unchanged": true,
+  "optimizer_measurements_not_launched_or_modified": true,
+  "recording_race": "a cargo process exited while /proc/PID/cwd was being inspected; FileNotFoundError was not caught",
+  "initial_build_log_not_retained": true,
+  "reason_for_log_loss": "wrapper did not enable set -e before its Python preflight and continued to the corrected command",
+  "current_focused_log_and_build_log_retained": true
+}
