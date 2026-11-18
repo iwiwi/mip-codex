@@ -222,6 +222,14 @@ pub fn minimize_until(
     limit: usize,
     deadline: Option<std::time::Instant>,
 ) -> Result<Outcome, String> {
+    minimize_until_with_witness(a,b,c,limit,deadline,&mut None)
+}
+
+pub(crate) fn minimize_until_with_witness(
+    a:&[Vec<f64>], b:&[f64], c:&[f64], limit:usize,
+    deadline:Option<std::time::Instant>, witness:&mut Option<Vec<f64>>,
+) -> Result<Outcome,String> {
+    *witness=None;
     let m = b.len();
     let n = c.len();
     if a.len() != m || a.iter().any(|r| r.len() != n) {
@@ -461,6 +469,7 @@ pub fn minimize_until(
     {
         return Ok(numerical());
     }
+    *witness=Some(lambda);
     Ok(Outcome::Optimal { objective, x })
 }
 

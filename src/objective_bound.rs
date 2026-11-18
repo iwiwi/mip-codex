@@ -304,6 +304,11 @@ impl Certifier {
     pub fn new(model: &Model) -> Option<Self> {
         Self::with_objective(model, false, false)
     }
+    pub fn with_implied_bounds(model:&Model)->Option<Self>{
+        let mut certifier=Self::new(model)?;
+        certifier.implied_box=Some(certifier.infer_finite_box(model,true));
+        Some(certifier)
+    }
     pub fn feasibility(model: &Model) -> Option<Self> {
         Self::feasibility_with_aggregation(model, false)
     }

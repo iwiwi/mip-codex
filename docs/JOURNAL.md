@@ -840,8 +840,28 @@ main候補26debb9be6dd0377の測定は凍結binで継続中。別branch incremen
 
 統合修復最終記録は26,474ファイル1,007,582,734bytes→14分割160,940,386bytesで全SHA保全、ELF2除外保持。次はPRを作成し直前AI使用量付き結果コメント、採用後main再build/点検査/最終240 create-only更新へ進む。最終240はまだ起動しない。
 
+## 2026-11-17: 小数係数による非保守的下界の修正検証
+- `DECIMAL_COEFFICIENT_SAFETY_HYPOTHESIS.md` に最小再現、厳密な解析解、仮説、失敗したparserのみの修正、現在の実装と未検証項目を保存。
+- 元の小数係数を区間で囲む下界再構成を追加。密LPの乗数未返却による既存テスト失敗を修正し、対象10テスト成功。全テスト再実行中。
+- まだmainへ採用せず、厳密分数オラクルと開発188問で正しさと求解率を調べる。RHS interval試作は別ブランチで保留。全体目標の性能優位・新記録は未達成。
+
 PR121は2026-11-17 22:05:20UTCにmain d11f3c9b231c32427dcc631edde9de28bc763cd5へ統合。通常/library cb0ba03a36c3f07eを主作業木で再build確認し、同一未追跡5ファイルは全バイト比較後/tmp退避してpullをゲートした。既定設定のmap10-16/下界-786.313117875、map167-12/-503.157523748、neos1440/-24591をCPU47×10秒で再確認、全3点GMP・公式/3出力証明検査有効。直前usage付き最終コメント6962283621/統合後6962487986。
 
 新create-only incremental-adaptive-final-20261117はconfig7f77b18e2c74d475b3b2f634befeb79e81fd1b8d9ea3ef12b672dc616a1dcad6、110snapshot/147lib全SHA一致、240 cgroup空、3600秒1thread16GiB/CPU8..15、未起動。旧zero-phaseタグも未起動のままOBSOLETE追記。準備/検証CPU43、共有libは前snapshotと一致し変更なし。post記録194ファイル18,940,599bytes→2,632,114bytes全SHA保全、ELF4除外保持。native集計22:10は655/720、検査済最適HS132/SCIP108/GLPK23、holdout個別結果は見ない。own240はNov19UTC目安、期限Nov22 14:59UTCまで自律継続。
 
 RHS interval prototypeは既定無効、Fixture追加後333 Rust成功4ignoredだが独立行証拠/実MPS未検証。調査中にmain121で元十進係数がf64整数に丸まりexact_integralを保つため、a=.99999999999999999999, x<=2, a*x<=1, min -xで報告dual=-1>真値-100000000000000000000/99999999999999999999を確認。整数連続リンク例は既存ガードがnumeric/dualNoneへ撤回。Source metadataの係数exact条件を別mainベースbranchで修正し優先検証する。
+### 小数係数下界検証の改良と継続測定 (2026-11-17 23UTC)
+初版a273febe33/a6cac75c0f46dffeは有限でないboxで下界再構成ができず、開発問題の早期数値終了が増加した。元制約から区間演算で有限境界を導く既存機能をCertifierへ適用するa301162741/38b0a4315610cc1aを別の凍結binとして保存。両版の188対測定を中断せず保存し、改良版も独立に測定中。原版CPU31..35、改良版CPU26..30、各10秒1thread16GiB、baseline8..15専有。全333 Rustテスト再成功4ignored。疎/密の解析各216例は改良版全optimal・全下界保守的、両版864点GMP有効。修正前不正下界は疎94・密108件、初版は各108自由変数例で数値終了、改良版は0。混合整数200例も186optimal/14既存元点guardによる数値終了、全下界保守的・全200点GMP有効。
+初版一般800/二値400出力の全列挙・親proof1028/改竄拒否8224・GMP1200点すべて成功。改良版で同じ検証を再実行中。開発測定は全出力証明と返却点のGMP/公式検査を並行実行。native短期比較CPU46も実行中。まだmain未採用。
+main121統合後metadataだけを6cd2a0963fとしてcherry-pickし、Journal競合は両記録を保持して解決。LP RHS interval未採用コードは持ち込んでいない。baselineは23:04UTC 660/720、検査済最適HS133/SCIP108/GLPK23。同一complete prefix bytes/SHAを保存し、holdout個別内容は未参照。own240は未起動。全体目標未達成で期限まで継続。
+
+追加費用を減らす版6f4d34a4c8/a028151f2d88359cは、最初の乗数で区間証明に成功すれば追加2回の微小scale試行を省く。全333テスト成功4ignored、疎/密各216解析LPは全optimal/不正下界0、混合整数200は不正下界0・186optimal/14既存元点guard。初版188×2の全5worker/376出力完了後に同じCPU31..35で別188対を開始、監査CPU47。改良三試行版はCPU26..30で引き続き測定、監査CPU49、初版監査CPU48も継続。最終候補の全列挙1200/親proof/GMPとnativeCPU46比較を別途実行中。全版の測定と失敗記録を残してから採否を判断する。
+
+主解継続版fb986443b5/8b579cacb175412dは全334テスト成功4ignored。下界検証失敗時に証明済み親下界のみを維持し、分枝・主解探索を継続する。未証明の葉では終了時のoptimalを撤回する新テスト成功。CPU45×10秒のswath1は562検証0成功でも563ノードで458.2814475499998、下界None、time_limit。glass4は99ノード、2350021800.0000024/800002399.9999994、numeric（96検証71成功）。両点GMP・公式検査有効。監査初回の出力dir漏れwrapper失敗は保持しv2で修正成功。両エンジン216解析LP全下界保守的・全optimal、混合整数200は不正下界0・全200点GMP有効（186optimal/14既存元点guard）。188×2はimplied版全worker完了後のCPU26..30で開始、監査CPU50、first版CPU31..35/監査47と同時稼働。親proof1200/GMPとnative swath1/glass4 CPU46比較も実行中。旧版の監査48/49は継続。全ソースと出力を固定保持し、これを最終候補として評価を完了させる。
+
+最終候補の監査を、既存193件以上の完了記録を入力/出力SHAで再照合した上で、未完了分だけCPU41..44の4プロセスへ分散する補助wrapperを開始した。frozen checkerと現行checkerのSHA一致を要求し、検査内容・600秒点検査watchdog・各16GiBは維持。元のserial監査も当面稼働させ、補助全376件の完了確認までは置換しない。再利用/新規の内訳と全記録を別保存し、重複集計せず376件を要求する。モデル別最適化設定の追加はない。
+
+最終候補の188対・全監査が完了。主解1改善4悪化183同値、下界3改善1悪化171同値13比較不能。前後182time/1optimal/5numeric、有限下界176→175（swath1を未証明として保留）。全376出力証明/130点GMP・公式有効。解析LP両エンジン各216全optimal/下界不正0、混合200不正下界0/全点GMP、一般800+binary400/実親proof1028/改竄拒否8224/GMP1200全有効、334 Rust成功4ignored。全中間版の解析目的値も3456出力/3240optimal宣言を分数で確認し誤宣言0。
+分散監査は208既存+168新規で全376、checker SHA/入力出力SHAを照合し重複なし。旧serialを302件でSIGTERM、実プロセス不在・superseded終了を記録。first版は343+33分散全376/126点、serialも全376完了。中間全結果はRESULTSに整理。最終native swath1/glass4全8点GMP・公式/Rust2出力2カット有効。比較他社がなお大幅に良い。native全体23:31集計666/720、最適HS134/SCIP109/GLPK23。元係数で非保守的下界を防ぐ必須の正しさ修正として採用し、性能損失1改善4悪化もそのまま報告する。次は全証拠archive/PR、main再buildとcreate-only更新。新記録・総合優位は未達成。
+
+最終証拠archiveは64,315ファイル1,476,246,982bytes→16束224,467,455bytes、全payload SHA成功、ELF4除外保持して実体SHA再確認。live archive stdoutの入力混入を初回で検出し停止、初回script/log/再試行理由を保存して再実行成功。raw・frozen・既存評価を変更せず保持。次はown repo PRと直前AI使用量コメント、統合後main再build/元点検査/create-only更新。
