@@ -908,3 +908,12 @@ PR126候補の初期78f449d595/FPbb1e47d94be27422、既定有効8a959e1ce1/FPe5d
 Sorrell7の対称軌道制限9点、元グラフ継続6点、2親の厳密二部再結合45対、3親union10近傍は現時点で-198を超えず、境界・最適性の転用はせず本体未採用。元点はGMPで確認。全体優位と新記録は未達のまま。最終240はcreate-onlyの旧cover-portfolio tag/faae（main91f/340）で未起動、統合後に新sourceのsnapshotを再作成し、native720完了と専用CPU空きを確認してNov19に実行する。
 
 統合前の設定組合せも追加検査した。3生成モデル×根彩色/prefix/local/分数被覆/スペクトルの全32設定=96出力で全列挙/元MPS証明/GMPが成功。スペクトル32証明と元行32証明を実発動。初回driverが非2冪の循環モデルへCayley専用guardを誤用し64出力後に停止したログを保持し、driver修正後は全96件を新規検査した。optimizer sourceの修正はなく、凍結E5と同一。
+
+
+## 2026-11-18T06:16:38.763065+00:00 PR126 main後検査と未起動最終snapshot
+
+main c7888a44a18b0bf9c63f7b7097cc6ebf15550408/FP E5dfb6151bba081eでprimary再build。未追跡incoming5ファイルは全byte/Git blob一致を確認して/tmpへ保持し、tracked cleanを維持。新規CPU47のcod105は0.020652363秒・0探索節点・独立root最適性証明、sorrell3は19.367050972秒/6042153節点でoptimal-16、sorrell7は180秒-198/-241/restart1、全3点GMP/3出力厳密証明成功。後二者の全探索木は独立再生しない。PR126 postcomment6970630630には直前AI使用量を付記。
+
+最終create-onlyはspectral-bound-final-20261118、configSHA302b01a56a957515587b5aa4c7a19276a625f33c65bbee35f06fc6cf933b1e3e。全113snapshotファイル/147libraryをSHA確認、新検査器とRust spectral moduleを収録しsnapshot検査器だけでもcod105証明成功。240問・3600秒・1thread・16GiB・CPU8..15・swap0/pids512、240新旧cgroupempty、未起動。旧cover-portfolioタグfaaeはconfig不変でOBSOLETE。receiptをexperimentsへ保存。postarchive195files/12539293B→2460473B、1bundle、5ELFは元凍結場所に保持、全payloadSHA確認。
+
+native完了は直近718/720（個別holdout結果は未閲覧）。全720 terminalとreservedcore解放を確認してNov19に本実装240を起動する。全体優位/新記録は未達、Nov22 14:59UTCまで継続。次はoutside240のz26公式MPSを取得済み、sourceSHAを保存し、65535以下というu16型に整合する私的容量拡張で主解探索を試す。公式解/目標値はoptimizerへ渡さない。
