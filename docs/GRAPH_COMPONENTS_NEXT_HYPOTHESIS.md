@@ -5,3 +5,6 @@
 公式decomposition tagから選んだ評価240問外sorrell8の元MPSのみ取得、gzip SHA f4c2a95d93d72f166c67fd5736006e62681e27661fd07425801e212c28b1eeb5。既知解ファイルは取得せず、既知最適値はoptimizerの入力/停止値に使わない。元finite rowsの全nonzeroを結合する自作Python調査では10成分、サイズ462,462,330,330,165,165,55,55,11,11。これは最適化処理ではない。公式表のdecomposition表示をそのまま成分証明として使わない。
 
 main128/9c9、CPU47/16GiB/1thread/60秒はprimal−350/LB−379、2,832,780nodes/60.002121461秒、元GMP/strict proof valid、最適性未証明。掲載済み最適解に到達しただけで新記録ではない。現在の予算候補515fdの採否検証を完了してから、別の源として調査を続ける。
+
+
+私的分割prototype終了: 既存main128の凍結CLIを成分MPSごとに呼び、各最大30秒、10成分の自作最適化時間計120.320449599秒。10成分点がGMP/strict proof valid、6成分はoptimal status、4成分はtime_limit。結合−350点は元MPSのGMP valid。全体60秒でもmainは−350なので、主解改善・速度改善は確認できず、現時点で本体への採用を見送る。原問題のbound/最適性は出力・宣言していない。外部optimizerへ委譲せず、元点/既知解も入力していない。全10成分MPS/対応表/点/ログ・結合点をarchiveしSHA検査。
