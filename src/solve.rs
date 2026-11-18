@@ -60,6 +60,7 @@ pub struct Limits {
     pub graph_cover_heap:bool,
     pub graph_large_primal_budget:bool,
     pub graph_cover_long_rounds:bool,
+    pub graph_vertex_portfolio:bool,
     pub aggregate_cuts: bool,
     pub clique_cuts: bool,
     pub mir_cuts: bool,
@@ -157,6 +158,7 @@ impl Default for Limits {
             graph_cover_heap:true,
             graph_large_primal_budget:true,
             graph_cover_long_rounds:true,
+            graph_vertex_portfolio:false,
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
@@ -1669,7 +1671,7 @@ fn solve_seeded_warm(
     if limits.binary_graph && seed.is_none() && matches!(limits.engine, Engine::Revised) {
         let deadline = start + std::time::Duration::from_secs_f64(limits.seconds);
         if Instant::now() < deadline {
-            if let Some(answer) = crate::binary_graph::solve_with_rounds(
+            if let Some(answer) = crate::binary_graph::solve_with_vertex(
                 model,
                 limits.dense_bytes,
                 deadline,
@@ -1688,6 +1690,7 @@ fn solve_seeded_warm(
                 limits.graph_cover_heap,
                 limits.graph_large_primal_budget,
                 limits.graph_cover_long_rounds,
+                limits.graph_vertex_portfolio,
             ) {
                 let sign = if model.maximize { -1. } else { 1. };
                 let objective = model.objective(&answer.point);
