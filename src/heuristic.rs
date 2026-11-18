@@ -38,6 +38,13 @@ impl<'a> Repair<'a> {
             stats: Stats::default(),
         }
     }
+    pub(crate) fn initial_weights(&self) -> Vec<f64> { self.weights.clone() }
+    pub(crate) fn into_incidence(self) -> Vec<Vec<(usize, f64)>> { self.incidence }
+    pub(crate) fn from_cached(model: &'a Model, incidence: Vec<Vec<(usize, f64)>>, weights: Vec<f64>) -> Self {
+        assert_eq!(incidence.len(), model.variables.len());
+        assert_eq!(weights.len(), model.rows.len());
+        Self { model, incidence, weights, stats: Stats::default() }
+    }
     fn violation(&self, i: usize, activity: f64) -> f64 {
         let row = &self.model.rows[i];
         row.lower
@@ -423,5 +430,27 @@ impl Repair<'_> {
         }
         stats.seconds = started.elapsed().as_secs_f64();
         (best, stats)
+    }
+}
+
+#[cfg(test)]
+mod cached_index_tests {
+    use super::*;
+    #[test]
+    fn rhs_updates_reuse_duplicate_incidence_and_reset_adaptive_weights() {
+        let mut model:Model=serde_json::from_value(serde_json::json!({"name":"cache","maximize":false,"offset":0.,"variables":[{"name":"x","lower":0.,"upper":3.,"integer":true,"objective":-1.}],"rows":[{"name":"row","upper":4.,"coefficients":[[0,1.],[0,1.]]}]})).unwrap();
+        let mut old=Repair::new(&model);
+        let weights=old.initial_weights();
+        old.weights[0]*=32.;
+        let index=old.into_incidence();
+        model.rows[0].upper=Some(2.);
+        let reused=Repair::from_cached(&model,index,weights);
+        let fresh=Repair::new(&model);
+        assert_eq!(reused.incidence,fresh.incidence);
+        assert_eq!(reused.incidence[0].len(),2);
+        assert_eq!(reused.weights,fresh.weights);
+        assert_eq!(reused.stats.penalty_updates,0);
+        assert!(reused.candidate_check(&[1.]));
+        assert!(!reused.candidate_check(&[2.]));
     }
 }

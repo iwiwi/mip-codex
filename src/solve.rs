@@ -15,6 +15,7 @@ pub struct Limits {
     pub resource_primal:bool,
     pub adaptive_resource_repair:bool,
     pub adaptive_repair_incremental:bool,
+    pub adaptive_repair_reuse:bool,
     pub resource_primal_compact:bool,
     pub row_generation: bool,
     pub row_generation_report: bool,
@@ -102,6 +103,7 @@ impl Default for Limits {
             resource_primal:true,
             adaptive_resource_repair:true,
             adaptive_repair_incremental:true,
+            adaptive_repair_reuse:false,
             resource_primal_compact:true,
             row_generation: true,
             row_generation_report: true,
@@ -2071,7 +2073,7 @@ fn solve_seeded_warm(
         }
         if nodes==1&&matches!(relaxation,Relaxation::ResourceLimit)&&limits.adaptive_resource_repair&&let Some(seed)=best.as_deref(){
             let end=deadline.min(Instant::now()+std::time::Duration::from_secs_f64((limits.seconds*0.2).min(2.)));
-            let search=if limits.adaptive_repair_incremental{crate::adaptive_resource_repair::search_incremental}else{crate::adaptive_resource_repair::search};
+            let search=if limits.adaptive_repair_incremental&&limits.adaptive_repair_reuse{crate::adaptive_resource_repair::search_incremental_reusing}else if limits.adaptive_repair_incremental{crate::adaptive_resource_repair::search_incremental}else{crate::adaptive_resource_repair::search};
             if let Some(point)=search(model,seed,&node.lower,&node.upper,end,limits.dense_bytes,&mut adaptive_resource_repair_stats){
                 let value=sign*model.objective(&point);
                 if value.is_finite()&&value<incumbent&&model.check(&point,true,1e-7).is_ok()&&candidate_respects_bound(value,node.certified_bound,&mut objective_bound_stats){incumbent=value;best=Some(point);}

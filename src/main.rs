@@ -205,6 +205,7 @@ fn run() -> Result<(), String> {
         if let Ok(v)=std::env::var("MIP_GOMORY_REPORT_ONLY"){limits.gomory_report_only=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GOMORY_REPORT_ONLY must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GOMORY_CUTS"){limits.gomory_cuts=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GOMORY_CUTS must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_LP_DUAL_ROOT"){limits.lp_dual_root=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_LP_DUAL_ROOT must be 0 or 1".into())};}
+        if let Ok(v)=std::env::var("MIP_ADAPTIVE_REPAIR_REUSE"){limits.adaptive_repair_reuse=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ADAPTIVE_REPAIR_REUSE must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_ADAPTIVE_REPAIR_INCREMENTAL"){limits.adaptive_repair_incremental=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_ADAPTIVE_REPAIR_INCREMENTAL must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_RHS_INTERVAL_FALLBACK"){if v!="0"&&v!="1"{return Err("MIP_RHS_INTERVAL_FALLBACK must be 0 or 1".into());}}
         if let Ok(v)=std::env::var("MIP_RHS_INTERVAL_DUMP_LIMIT"){if !v.parse::<usize>().is_ok_and(|n|n<=1_000_000){return Err("MIP_RHS_INTERVAL_DUMP_LIMIT must be an integer in 0..=1000000".into());}}
