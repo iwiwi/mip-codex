@@ -152,7 +152,7 @@ impl Default for Limits {
             graph_spectral_bound:true,
             graph_large_capacity:true,
             graph_cover_heap:true,
-            graph_large_primal_budget:false,
+            graph_large_primal_budget:true,
             aggregate_cuts: true,
             clique_cuts: true,
             mir_cuts: true,
