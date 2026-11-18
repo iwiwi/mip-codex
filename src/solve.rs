@@ -3729,6 +3729,24 @@ mod pump_tests {
         }
     }
     #[test]
+    fn limited_rounding_does_not_round_free_continuous_coordinates() {
+        let(m,_,p,_)=prepare("NAME mixedpump\nOBJSENSE\n MAX\nROWS\n N obj\n G r\nCOLUMNS\n x obj 1 r 1\n c r 1\nRHS\n rhs r 1.5\nBOUNDS\n BV b x\n FR b c\nENDATA\n");
+        let mut point=vec![0.;p.sparse.as_ref().unwrap().columns.len()];
+        for(name,value)in [("x",0.7),("c",0.8)]{
+            let j=m.variables.iter().position(|v|v.name==name).unwrap();
+            let &(k,a)=p.terms[j].iter().find(|&&(_,a)|a>0.).unwrap();point[k]=(value-p.shift[j])/a;
+        }
+        let x=pump_limited_candidate(&m,&p,&point,&heuristic::Repair::new(&m)).unwrap();
+        let c=m.variables.iter().position(|v|v.name=="c").unwrap();assert_eq!(x[c],0.8);assert!(m.check(&x,true,1e-7).is_ok());
+    }
+    #[test]
+    fn limited_rounding_skips_when_global_deadline_has_expired() {
+        let(m,node,p,point)=prepare(FRACTIONAL);let limits=Limits{pivots:1,pump_limited_rounding:true,..Limits::default()};
+        let mut stats=PumpStats::default();let mut lp_stats=revised::Stats::default();
+        let x=binary_pump_with_global_deadline(&m,&node,&p,&point,&limits,Instant::now()+std::time::Duration::from_secs(2),Instant::now()-std::time::Duration::from_secs(1),&mut stats,&mut lp_stats);
+        assert!(x.is_none());assert_eq!(stats.limited_deadline_skips,1);assert_eq!(stats.limited_candidates,0);
+    }
+    #[test]
     fn limited_rounding_rejects_nonfinite_and_infeasible_points() {
         let(m,_,p,_)=prepare(FRACTIONAL);let checker=heuristic::Repair::new(&m);let n=p.sparse.as_ref().unwrap().columns.len();
         assert!(pump_limited_candidate(&m,&p,&[],&checker).is_none());
