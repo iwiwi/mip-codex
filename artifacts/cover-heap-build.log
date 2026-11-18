@@ -1,0 +1,164 @@
+   Compiling mip-codex v0.1.0 (/home/ubuntu/mip-cover-choice-heap)
+warning: struct `Stats` is never constructed
+  --> examples/support/cover_heap_profile/mod.rs:10:12
+   |
+10 | pub struct Stats {
+   |            ^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `Answer` is never constructed
+  --> examples/support/cover_heap_profile/mod.rs:37:12
+   |
+37 | pub struct Answer {
+   |            ^^^^^^
+
+warning: struct `Search` is never constructed
+   --> examples/support/cover_heap_profile/mod.rs:230:8
+    |
+230 | struct Search<'a> {
+    |        ^^^^^^
+
+warning: methods `color` and `expand` are never used
+   --> examples/support/cover_heap_profile/mod.rs:240:8
+    |
+239 | impl Search<'_> {
+    | --------------- methods in this implementation
+240 |     fn color(&mut self, p: &[u64]) -> Option<(Vec<usize>, Vec<usize>)> {
+    |        ^^^^^
+...
+277 |     fn expand(
+    |        ^^^^^^
+
+warning: function `solve` is never used
+   --> examples/support/cover_heap_profile/mod.rs:341:8
+    |
+341 | pub fn solve(model: &Model, memory: usize, deadline: Instant, limit: usize) -> Option<Answer> {
+    |        ^^^^^
+
+warning: function `solve_with_local` is never used
+   --> examples/support/cover_heap_profile/mod.rs:344:8
+    |
+344 | pub fn solve_with_local(
+    |        ^^^^^^^^^^^^^^^^
+
+warning: function `solve_with_options` is never used
+   --> examples/support/cover_heap_profile/mod.rs:353:8
+    |
+353 | pub fn solve_with_options(
+    |        ^^^^^^^^^^^^^^^^^^
+
+warning: function `solve_with_prefix` is never used
+   --> examples/support/cover_heap_profile/mod.rs:363:8
+    |
+363 | pub fn solve_with_prefix(
+    |        ^^^^^^^^^^^^^^^^^
+
+warning: function `solve_with_diversify` is never used
+   --> examples/support/cover_heap_profile/mod.rs:383:8
+    |
+383 | pub fn solve_with_diversify(
+    |        ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `solve_with_adaptive` is never used
+   --> examples/support/cover_heap_profile/mod.rs:405:8
+    |
+405 | pub fn solve_with_adaptive(
+    |        ^^^^^^^^^^^^^^^^^^^
+
+warning: function `solve_with_cover` is never used
+   --> examples/support/cover_heap_profile/mod.rs:429:8
+    |
+429 | pub fn solve_with_cover(
+    |        ^^^^^^^^^^^^^^^^
+
+warning: function `solve_with_fractional` is never used
+   --> examples/support/cover_heap_profile/mod.rs:455:8
+    |
+455 | pub fn solve_with_fractional(
+    |        ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `alternate_root_colors` is never used
+   --> examples/support/cover_heap_profile/mod.rs:972:4
+    |
+972 | fn alternate_root_colors(graph: &Graph, mode: usize, deadline: Instant) -> Option<Vec<usize>> {
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `diagnostic` is never used
+    --> examples/support/cover_heap_profile/mod.rs:1057:8
+     |
+1057 | pub fn diagnostic(model:&Model,seconds:f64,mode:&str)->serde_json::Value{diagnostic_seeded(model,seconds,mode,None)}
+     |        ^^^^^^^^^^
+
+warning: struct `Certificate` is never constructed
+ --> examples/support/cover_heap_profile/fractional_cover.rs:8:12
+  |
+8 | pub struct Certificate {
+  |            ^^^^^^^^^^^
+
+warning: struct `Stats` is never constructed
+  --> examples/support/cover_heap_profile/fractional_cover.rs:16:12
+   |
+16 | pub struct Stats {
+   |            ^^^^^
+
+warning: struct `Outcome` is never constructed
+  --> examples/support/cover_heap_profile/fractional_cover.rs:28:12
+   |
+28 | pub struct Outcome {
+   |            ^^^^^^^
+
+warning: struct `Builder` is never constructed
+  --> examples/support/cover_heap_profile/fractional_cover.rs:32:8
+   |
+32 | struct Builder<'a> {
+   |        ^^^^^^^
+
+warning: methods `add`, `grow`, and `enumerate` are never used
+   --> examples/support/cover_heap_profile/fractional_cover.rs:44:8
+    |
+ 43 | impl Builder<'_> {
+    | ---------------- methods in this implementation
+ 44 |     fn add(&mut self, mut group: Vec<usize>) -> Option<usize> {
+    |        ^^^
+...
+ 68 |     fn grow(&mut self, mut group: Vec<usize>) {
+    |        ^^^^
+...
+103 |     fn enumerate(&mut self, group: &mut Vec<usize>, mut p: Vec<u64>, mut x: Vec<u64>) {
+    |        ^^^^^^^^^
+
+warning: struct `Entry` is never constructed
+   --> examples/support/cover_heap_profile/fractional_cover.rs:166:8
+    |
+166 | struct Entry {
+    |        ^^^^^
+
+warning: function `certificate` is never used
+   --> examples/support/cover_heap_profile/fractional_cover.rs:188:4
+    |
+188 | fn certificate(graph: &Graph, groups: &[Vec<usize>], counts: &[u32]) -> Option<Certificate> {
+    |    ^^^^^^^^^^^
+
+warning: method `prefix_bounds` is never used
+   --> examples/support/cover_heap_profile/fractional_cover.rs:225:19
+    |
+224 | impl Certificate {
+    | ---------------- method in this implementation
+225 |     pub(super) fn prefix_bounds(&self, n: usize, order: &[usize]) -> Option<Vec<usize>> {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `improve` is never used
+   --> examples/support/cover_heap_profile/fractional_cover.rs:261:15
+    |
+261 | pub(super) fn improve(
+    |               ^^^^^^^
+
+warning: function `improve` is never used
+   --> examples/support/cover_heap_profile/weighted_cover.rs:238:15
+    |
+238 | pub(super) fn improve(
+    |               ^^^^^^^
+
+warning: `mip-codex` (example "cover_heap_profile") generated 24 warnings
+    Finished `release` profile [optimized] target(s) in 8.81s

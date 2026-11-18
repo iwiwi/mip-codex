@@ -923,3 +923,7 @@ native完了は直近718/720（個別holdout結果は未閲覧）。全720 termi
 main126/E5は不変。private上限65535例示ビルド、5000pairで解析最適−2500/GMP valid。240外z26は60秒single−1184/reseed−1181、両GMP valid、両1roundのため再始動比較不能。共通自作seedから300秒連続/2M再始動を事前固定して継続。境界・最適性・新記録の主張なし。詳細LARGE_PACKING_PROFILE_RESULTS.md。過去証拠27032ファイルのsparse除外は全SHA/Git保持検査済み、baseline設定不変。
 
 記録作成の初回スクリプトはJOURNAL.mdをrootにあると誤認してFileNotFoundErrorとなり、set-eのないshellで後続の証拠7ファイルだけが7bf92b9c60としてcommit/pushされた。optimizer実行や結果への変更なし。実際のdocs/JOURNAL.mdを追記し結果文書と合わせて追加commitする。
+
+## 2026-11-18 private cover選択heap
+
+同順位heapをprivateコピーだけで作成、6unit testsで約60000更新後の選択/全順位/scoreを線形再計算照合、高頂点4999も検査。4モデル各3fixed100kペア24点は全GMP valid、同じvalues/weighted counters。疎pair約16x、z26約3.6x、S7約1.13x、密cod105約0.20x（遅化5x）。一律heapは棄却、構造判定を必要とする。本体変更なし、固定60秒3ペアを継続。詳細COVER_CHOICE_HEAP_RESULTS.md。
