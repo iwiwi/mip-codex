@@ -871,3 +871,5 @@ PR122は2026-11-17 23:45:01UTCにmain27791c8fa5eb65274115351427881c34009b8edcへ
 
 遅延構築版105f9f28b1/1ef2f93be87fa2feはrelease成功、全334 Rust成功4ignored。疎/密各216解析LPで前後とも下界不正0、両bin/両engine864点GMP・864最適目的値検査成功。混合200は下界不正0、186optimal/14既存guard数値終了、全200点GMP成功。一般800親proof/二値400GMPを継続中。開発188×2はCPU31..35、両binをSHAで凍結して交互順、各10秒1thread16GiB、監査は再利用0の4プロセスCPU36,37,42,48、同じcheckerを用いて全出力/点を検査中。main122をbaselineにし、旧main121の非保守的下界へ戻さない。採用判断は未実施。
 安全性版の停止済みrawはarchive64,315payload全SHA再検証後、同一未追跡63,035ファイル1,447,384,226bytesだけ削除。skip0、全bundle/追跡ファイル/凍結diagnostic/ELF4/評価snapshot/ドライバとrootログを保持、再構成先をcleanup ledgerに保存。post archiveもnew branchへ引継済み。通常shared targetはこの遅延版のため、main122の比較は専用before凍結bin、主作業木normalは引き続き8b579cacb175412dを使う。
+
+遅延構築版105f9f28b1/1ef2f93be87fa2feの全188対完了。主解0改善0悪化188同値、下界3改善1悪化171同値13比較不能、有限下界175→175、前後182time/1optimal/5numeric、全376出力/128点GMP・公式有効。全334Rust・両LP216解析/864点・混合200/1200全列挙/親proof1028/改竄拒否8224/GMP1200有効。下界差の4問は全て元係数検証呼出し0。直接成果がないので不採用とし、main122/8b579cacb175412dとcreate-only config322a...を維持。全証拠archiveと研究branch保存へ進む。別RHS試作はmain122取込後337テスト、rd-rplusc-21でnumeric0pivot→10秒10573pivot/time（主解・下界なし）、最初1024適用のFraction検査/10改竄拒否成功、未採用。次は全行証拠と汎用主解探索の費用内訳を検証する。
