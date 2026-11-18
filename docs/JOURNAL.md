@@ -974,3 +974,9 @@ CDC探索はprivate60秒single/reseed各−285、own285seed300秒single−290、
 S8 component private prototypeはmain128無改変を10成分MPSに呼び、各最大30秒、計120.320449599秒、6localoptimal/4time。10local点+combined原問題−350点の11GMP/10strictproof valid。主解・速度の利益は確認できず不採用、原問題bound/最適性を主張しない。baseline/元MPS/成分構造とprototypeを別archiveで全SHA保存。
 
 private別枝cover-choice-heap435315では既存heap-profileのまま自作neutral親[0,16,7]を距離で選び、CPU40/47/50・100M反復/900秒guardで再探索。親と全出力を元GMP再検査。問題名/既知値/外部点はoptimizerに入れず、main成績には帰属しない。元720native+1再測定は全終了、自作final240は未起動・Nov19予定、目標未達。
+
+## 私的1198点（掲載bestと同着、main未達）
+
+既存heap-profile667でown neutral parent[0,16,7]からsingle100M反復/900秒guardの3探索が終了。−1197/−1198/−1197、component512.914195894/499.669962036/516.526172217秒。改善はparent16から40,959,147反復目、100M時点で1198。3親fresh GMP/3出力GMP、best追加strict/公式もvalid。追加監査初回は出力directory未作成で書込失敗、元GMP結果は既にvalid、失敗ログ保存後directory作成し検査だけ再実行成功。公式ページNov18再確認でbest−1198。新記録ではなくmain再現もまだ。SOLと再検証手順、全3出力の閉じたarchiveを保存。親の由来を復元できるよう、元の37点LNS/neutral archiveもこの枝へコピー。今後のsolverに既知点を埋め込まない。
+
+自作1198から既存neutral-profileを無改変で再利用し、16round×1秒の同値親生成+matching、その全18出力のfresh GMP/公式検査を私的枝で進行中。新Rust source・native点は使わない。現在の配分PR129/602は全く別sourceとして評価を継続する。
