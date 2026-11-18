@@ -9,7 +9,7 @@
   "production_changes": true,
   "adopted": false,
   "default_enabled": true,
-  "phase": "final frozen default188 and audits running;finalgraph1200passed;finalmaincontrols running",
+  "phase": "all final verification complete;ready for adoption",
   "tests": {
     "passed": 342,
     "ignored": 4
@@ -33,7 +33,7 @@
   "latest_create_only": "reusable-repair-final-20261118",
   "config_sha256": "69c197ee57d1009aa126a639f0bcd71da1996013fe15729e612e1e70104b0f09",
   "own_final240_launched": false,
-  "native_baseline_last_completed": 699,
+  "native_baseline_last_completed": 709,
   "goal_achieved": false,
   "goal_deadline_utc": "2026-11-22 14:59 UTC",
   "next": [
@@ -96,5 +96,41 @@
     "artifacts/safe-gmi-research-evaluation",
     "artifacts/aggregate-three-evaluation",
     "artifacts/row-ray-bound-evaluation"
-  ]
+  ],
+  "decision": "adopt;merge pending",
+  "pr": "https://github.com/iwiwi/mip-codex/pull/125",
+  "pr_status": "draft;preparing final evidence comment",
+  "final_188": {
+    "pairs": 188,
+    "primal_equal": 187,
+    "primal_worsened": 1,
+    "dual_improved": 2,
+    "dual_worsened": 1,
+    "dual_equal": 172,
+    "dual_incomparable": 13,
+    "all376_checks_valid": true,
+    "gmp_points": 128,
+    "actual_restarts": 0
+  },
+  "blp_repeat": {
+    "pairs": 3,
+    "outputs": 6,
+    "all_point_proof_valid": true,
+    "all_objectives": 10015.449196799998,
+    "all_bounds": 4331.168352597869,
+    "graph": null,
+    "initial_worsening_retained": true,
+    "initial_rins_nodes_before_after": [
+      106,
+      105
+    ]
+  },
+  "final_main": {
+    "outputs": 4,
+    "all_point_proof_valid": true,
+    "sorrell7_before": -197,
+    "sorrell7_after": -198,
+    "sorrell7_both_bound": -241,
+    "restarts": 1
+  }
 }
