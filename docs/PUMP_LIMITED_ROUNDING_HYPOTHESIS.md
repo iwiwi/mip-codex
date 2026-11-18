@@ -10,3 +10,5 @@ base main129/602。既存binary pumpは補助L1射影LPがTimeLimit/IterationLim
 old602-beforeの開発188件からpump.limited>0の全21件を新結果を見る前に選択。samefrozen0/1/各10秒、42出力strict proof全成功、存在点7GMP成功。新回収点1件はmcsched: OFF点なし→ON309595.0000000017、下界両193774.75370663218。limited_points/candidates/improvements各1、最初の主解5.605072079秒。graph20は両点なし、LP打切り点は取れたが丸め後拒否。全拒否/失敗を保存し、新効果を他の時間差へ帰属しない。全188/376fresh監査へ広げている。
 
 mcschedの新規native10秒/CPU44/16GiB/1thread: HS1.16.0 objective212888.9999999998/LB193794/10.004560232秒、SCIP10.0.2 212887/LB194854.635042183/10.000440秒、GLPK5 216929/LB193854/10.119847763秒、全3GMP valid。新自作点は可行点なしを改善したがnative全3者より主解・下界が弱い。超過時間も保持。新記録/全体優位を主張しない。
+
+188問比較完了: primal187同等/1改善(mcsched None→309595.0000000017)、dual174同等/1改善/13比較不能。全376 fresh proof、129点fresh絶対GMP/公式valid。seymour1 dual変動は期限依存で新機能の効果とは断定しない。binary200全成功。mixed200は195成功/5 numerical_error。5件はmain129/候補OFF/ON全て同じstatus/点、pump.calls=0。初回5点+再現15点GMP valid、15proof valid。Fraction独立頂点列挙5問の厳密最適値も保存。誤った最適宣言はなく既存の保守的終了だが、200全成功とは扱わない。許容差/安全guardは変更しない。
