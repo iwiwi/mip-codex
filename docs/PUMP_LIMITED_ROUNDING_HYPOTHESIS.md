@@ -3,3 +3,10 @@
 base main129/602。既存binary pumpは補助L1射影LPがTimeLimit/IterationLimitで終わるとlimited_pointを使わず返っていた。新flag MIP_PUMP_LIMITED_ROUNDINGは初期OFF。補助LPの打切り時に元MPS変数へ写像し整数を丸め、既存の厳しいcandidate_checkを通った点だけ返す。LP最適性は不要で、auxiliary dual/basis/boundを探索木へ渡さない。元の親LP/warm/boundsは変更しない。全体deadlineが既に切れていれば追加の点検査も行わない。補助LPの1秒/4096pivot/64roundなどの制限は変えない。
 
 根拠は開発用の部分集計でpump呼出25件中limit17、可行点なし17、取得6。特にgraph20では1秒の射影LP打切りが見られた。問題名/答えでsolver分岐せず全pumpに同じ規則を適用する。まず小モデルで反復制限のまま可行点を得ても親LPが不変なことを検査し、全出力を元GMP検査する。開発用のpump未成功ケースで短い0/1ペアを試し、信号があれば188/独立監査へ広げる。holdout個別結果は参照しない。
+
+
+初期2d5725ccbc/FP4029b9334b9f7c26/CLI5670dee5909e7b3913b5ca07fd15adbf1138ff9222d312af7ffd2d956d0c1416。357Rust成功/4ignored。小fixtureで補助LPがIterationLimitのまま整数点を回収し、親LPのobjective−1.5が不変なことを確認。非有限/不可行点拒否、free連続座標を丸めないこと、global期限切れでは回収しないことも検査した。
+
+old602-beforeの開発188件からpump.limited>0の全21件を新結果を見る前に選択。samefrozen0/1/各10秒、42出力strict proof全成功、存在点7GMP成功。新回収点1件はmcsched: OFF点なし→ON309595.0000000017、下界両193774.75370663218。limited_points/candidates/improvements各1、最初の主解5.605072079秒。graph20は両点なし、LP打切り点は取れたが丸め後拒否。全拒否/失敗を保存し、新効果を他の時間差へ帰属しない。全188/376fresh監査へ広げている。
+
+mcschedの新規native10秒/CPU44/16GiB/1thread: HS1.16.0 objective212888.9999999998/LB193794/10.004560232秒、SCIP10.0.2 212887/LB194854.635042183/10.000440秒、GLPK5 216929/LB193854/10.119847763秒、全3GMP valid。新自作点は可行点なしを改善したがnative全3者より主解・下界が弱い。超過時間も保持。新記録/全体優位を主張しない。
