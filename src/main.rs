@@ -85,6 +85,7 @@ fn run() -> Result<(), String> {
                 _ => return Err("MIP_GRAPH_FRACTIONAL_COVER must be 0 or 1".into()),
             };
         }
+        if let Ok(v)=std::env::var("MIP_GRAPH_COLOR_REPAIR"){limits.graph_color_repair=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_COLOR_REPAIR must be 0 or 1".into())};}
         if let Ok(v)=std::env::var("MIP_GRAPH_COVER_RESTARTS"){limits.graph_cover_restarts=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_GRAPH_COVER_RESTARTS must be 0 or 1".into())};}
         if let Ok(value) = std::env::var("MIP_GRAPH_COVER_LOCAL") {
             limits.graph_cover_local = match value.as_str() {

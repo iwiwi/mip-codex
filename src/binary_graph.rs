@@ -20,6 +20,9 @@ pub struct Stats {
     pub conflict_edges: usize,
     pub nodes: usize,
     pub colorings: usize,
+    pub repair_calls: usize,
+    pub repair_moves: usize,
+    pub repair_probes: usize,
     pub color_vertex_steps: usize,
     pub color_clock_checks: usize,
     pub root_upper: usize,
@@ -235,9 +238,10 @@ struct Search<'a> {
     best: Vec<usize>,
     stats: Stats,
     interrupted: bool,
+    repair: bool,
 }
 impl Search<'_> {
-    fn color(&mut self, p: &[u64]) -> Option<(Vec<usize>, Vec<usize>)> {
+    fn color(&mut self, p: &[u64], cutoff: usize) -> Option<(Vec<usize>, Vec<usize>)> {
         let mut remaining = p.to_vec();
         let mut order = Vec::new();
         let mut bounds = Vec::new();
@@ -261,6 +265,62 @@ impl Search<'_> {
                 for (word, &neighbors) in available.iter_mut().zip(&self.graph.compatible[v]) {
                     *word &= !neighbors;
                 }
+            }
+        }
+        if self.repair && self.stats.nodes > 0 && color > cutoff && cutoff >= 2 {
+            self.stats.repair_calls += 1;
+            let mut classes = vec![Vec::new(); color];
+            for (&v, &c) in order.iter().zip(&bounds) { classes[c-1].push(v); }
+            let mut work=0usize;
+            'repair: for high in cutoff..classes.len() {
+                let vertices=classes[high].clone();
+                for v in vertices {
+                    for low in 0..cutoff {
+                        let mut neighbor=None;
+                        let mut multiple=false;
+                        for &u in &classes[low] {
+                            work+=1;
+                            if work>=4096 {break 'repair;}
+                            if adjacent(self.graph,v,u) {
+                                if neighbor.is_some() {multiple=true;break;}
+                                neighbor=Some(u);
+                            }
+                        }
+                        if multiple {continue;}
+                        let destination=if let Some(w)=neighbor {
+                            let mut destination=None;
+                            for other in 0..cutoff {
+                                if other==low {continue;}
+                                let mut fits=true;
+                                for &u in &classes[other] {
+                                    work+=1;
+                                    if work>=4096 {break 'repair;}
+                                    if adjacent(self.graph,w,u) {fits=false;break;}
+                                }
+                                if fits {destination=Some(other);break;}
+                            }
+                            destination.map(|other|(w,other))
+                        } else {None};
+                        if neighbor.is_some() && destination.is_none() {continue;}
+                        if let Some((w,other))=destination {
+                            classes[low].retain(|&u|u!=w);
+                            classes[other].push(w);
+                        }
+                        classes[high].retain(|&u|u!=v);
+                        classes[low].push(v);
+                        self.stats.repair_moves+=1;
+                        break;
+                    }
+                    if Instant::now()>=self.deadline {return None;}
+                }
+            }
+            self.stats.repair_probes+=work;
+            order.clear();bounds.clear();
+            let mut c=0;
+            for group in classes {
+                if group.is_empty(){continue;}
+                c+=1;
+                for v in group {order.push(v);bounds.push(c);}
             }
         }
         self.stats.colorings += 1;
@@ -293,7 +353,7 @@ impl Search<'_> {
         self.stats.nodes += 1;
         let colored = match root {
             Some(c) => Some(c),
-            None => self.color(&p),
+            None => self.color(&p,self.best.len().saturating_sub(clique.len())),
         };
         let Some((order, bounds)) = colored else {
             self.interrupted = true;
@@ -481,6 +541,23 @@ pub fn solve_with_portfolio(
     fractional: bool,
     portfolio:bool,
 ) -> Option<Answer> {
+    solve_with_repair(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,false)
+}
+pub fn solve_with_repair(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+    adaptive: bool,
+    cover: bool,
+    fractional: bool,
+    portfolio:bool,
+    repair:bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
@@ -520,9 +597,10 @@ pub fn solve_with_portfolio(
             ..Stats::default()
         },
         interrupted: false,
+        repair,
     };
     search.stats.first_seconds = Some(started.elapsed().as_secs_f64());
-    let mut root = search.color(&all);
+    let mut root = search.color(&all,0);
     search.stats.root_initial_upper = search.stats.root_upper;
     let original_root = root.clone();
     let mut prefix_colorings = vec![search.stats.root_colors.clone()];
@@ -1069,4 +1147,37 @@ fn alternate_root_colors(graph: &Graph, mode: usize, deadline: Instant) -> Optio
         }
     }
     Some(colors)
+}
+
+#[cfg(test)]
+mod repair_property_tests {
+    use super::*;
+    #[test]
+    fn repaired_color_prefixes_remain_proper_for_every_five_vertex_graph() {
+        let n=5;
+        let mut moves=0;
+        for edges in 0usize..1024 {
+            let mut graph=Graph{n,words:1,compatible:vec![vec![0];n],order:(0..n).collect()};
+            let mut bit=0;
+            for a in 0..n {for b in a+1..n {
+                if edges&(1<<bit)!=0 {graph.compatible[a][0]|=1<<b;graph.compatible[b][0]|=1<<a;}
+                bit+=1;
+            }}
+            for subset in 1u64..32 {for cutoff in 2..5 {
+                let now=Instant::now();
+                let mut search=Search{graph:&graph,deadline:now+std::time::Duration::from_secs(1),limit:usize::MAX,started:now,best:vec![],stats:Stats{nodes:1,..Stats::default()},interrupted:false,repair:true};
+                let (order,bounds)=search.color(&[subset],cutoff).unwrap();
+                assert_eq!(order.len(),subset.count_ones()as usize);
+                let mut seen=0u64;
+                for (k,(&v,&c))in order.iter().zip(&bounds).enumerate(){
+                    assert!(subset&(1<<v)!=0 && seen&(1<<v)==0);seen|=1<<v;
+                    if k>0 {assert!(bounds[k-1]<=c);}
+                    for j in 0..k {if bounds[j]==c {assert!(!adjacent(&graph,v,order[j]));}}
+                }
+                assert_eq!(seen,subset);
+                moves+=search.stats.repair_moves;
+            }}
+        }
+        assert!(moves>0);
+    }
 }
