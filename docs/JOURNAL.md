@@ -869,3 +869,7 @@ main121統合後metadataだけを6cd2a0963fとしてcherry-pickし、Journal競�
 
 遅延構築は不採用。105f9f28b1/1ef2f93be87fa2fe、334テスト・両LP216/864点・混合200・1200列挙/親proof1028/改竄8224/GMP1200・188対376出力/128点有効。主解188同値、下界3改善1悪化171同値13比較不能、有限175→175、前後182time/1opt/5numeric。改善3問は構築対象外、悪化sp98arは342非binary係数で対象。16,133ファイル382,411,209bytes→5束58,548,737bytes全SHA、ELF2保持、remote6aa4f1c519。コードを入れずarchive/結果/仮説だけをRHS branchへ引継ぎ。main122統合後208ファイル1,509,329bytes archiveとconfig322a...receiptも保存。初回metadata importはexperiments親dir不足で停止し、作成して修正。main27791c8fa5/8b579cacb175412d、最終240未起動、総合優位・新記録未達成。
 RHS候補9b884c5d9667c934は既定有効の実験版でmain未採用。先行867版の全55193RHS/337テスト、200生成MILP400出力の厳密opt/dual/infと290GMP（前131/後159）、436RHS全有効、最適7→103。新9bで再検証中。新default pilotとoracleは内部CPU45で一部重複したので性能比較に使わず、別CPUでdumpなし測定する。補助main122連続境界丸め2例は既存guardがnumeric/dualNoneへ撤回し安全。独立GMPが省略RHS構文を拒否したため、元MPSは保持し、明示ゼロRHS追加モデルとFraction全モデル同値を照合して2点GMP成功、初回失敗も保存。
+
+保存結果: 17,936ファイル446,906,359bytes→5束66,006,789bytes、全payload SHA256検証成功。ELF4個は実体を保持してSHA再照合。停止中Cargo debug cache 1,520,055,016bytesだけを別途削除し、source/ELF/snapshot/全証拠は保持した。
+
+RHS候補9b884c5d9667c934の全検証完了、188主解188同値、下界3改善1悪化171同値13比較不能、数値終了5→4、全376出力/128点GMP・公式有効。適用rdのみ55193回、0pivot/numeric→10秒time、別CPU44/dumpなし10949pivot、主解/下界なし。生成200で最適7→103/inf6正しい判定、全400出力誤り0/290GMP/436行証拠、全55193実行証拠/10改ざん、337Rust、1200列挙/実親1028/改ざん8224/GMP1200すべて有効。native10秒全4solver点なし、SCIP100/GLPK100.0000000000004の下界、Rust/HSなし。Rust1出力構造検査有効、実際のtyped global proofは0。速度優位とせず、保守的な行変換による求解範囲拡大として採用。次はPR/直前usageコメント/主作業木再buildと元点検査/未起動240 snapshot更新。総合優位・新記録未達成。
