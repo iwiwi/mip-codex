@@ -48,3 +48,11 @@ CPU46/16GiB/1thread、HiGHS1.16.0は−280/LB−1111（306.7299885749817秒）�
 凍結CLI35849e98ea20f9b65ac21dbd74ce98b50996eb75be9ab37a3015cf96b027f3c8、origin31c6ba077。OFF明示0/ON flag unset。353Rust/4ignored、1200全列挙/GMP/proof・7410改ざん拒否、12large/GMP/proof成功。large主解は6組同じ、upper2同値/1改善/3悪化（case2は2554→2548、case3は2581→2583、case4は2668→2679、case5は2732→2734）。全12実heap、component全列挙で安全なboundを確認。
 
 defaultの先行9controlsは全GMP/strict proof valid。cod105両−12 root最適、S3両−16最適/6,042,153nodes、5000pair ON−2500 root最適。z26/60秒は−1154/LB−1578→−1178/LB−1578（主解24改善/dual同じ）、CDC/60秒は−279/LB−434→−279/LB−431（主解同じ/dual3改善）。初期源の異なる値も保持し、厳密な同値再現とはしない。default188/376fresh監査と4longは進行中、main128は未変更。
+
+## defaultONの188問完了と未発動路再確認
+
+376fresh strict proof全成功、129可行点は全GMP/公式valid。新予算実発動0。primal187同値/1悪化、dual172同値/2改善/1悪化/13比較不能、finite各175、両status182time_limit/2optimal/4numerical_error。shift1/未解決10秒geomean9.724145948/9.724143354。
+
+変化はfast0507 dual166.079437576→165.969633434（悪化）、seymour1 dual394.843673972→394.907034726、sp97ar dual595791964.398→596742367.117、graph20-20-1rand primal0→点なし（dual両−37）。全件binary_graph=Noneで機能未発動。追加CPU44交互3pairsのgraph20は全6出力点なし/LB−37、strict proof6valid、存在点0なのでGMP成功0（未検証点が残っているという意味ではない）。元188の可行点coverage損失は削除/置換しない。
+
+defaultのz26/300秒も完了し−1178/LB−1578→−1188/LB−1575、2点GMP/proof valid。初期源OFF−1181との差も保持。defaultCDC300秒OFF−279/LB−434まで完了、ONは測定中。
