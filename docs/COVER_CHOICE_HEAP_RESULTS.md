@@ -14,3 +14,11 @@
 比が1未満ならheapの方が遅い。cod105は約5倍遅く、全モデル一律適用は棄却。今後の本体候補は大規模・疎な構造をメモリ/operation見積りで自動判定し、密な小グラフでは旧scanを保持する。目的値・問題名では選択しない。S7の利得は約13%に留まる。z26は約3.6倍だが、まだprivate固定work結果でありmainの時間/成績には帰属しない。
 
 次はz26共通seedからCPU47同一、交互順3ペア・各60秒・100M反復上限で品質を比較。既知解・目標/停止値は与えず、全点を元MPS GMPで検査する。
+
+## 固定時間と長時間継続
+
+同じ自作1190点seed・同CPU47・60秒を交互順3pairsで実行。3回ともscan−1190/heap−1193、全6出力元GMP valid。weighted反復はscan約2.4M/heap約11.6–11.8M。親seedと初期0.5秒が同じ目的値でも時間依存カウンタは一致を要求せず、fixed-workの厳密比較と区別する。
+
+最良自作1193seedからheap300秒singleは−1197（59,281,900反復、最後の改善16,227,263）、reseed2M/roundは24round/46,385,332反復で−1193。両元GMP valid。1197seedから900秒/100M長roundの再始動2回は174,978,267反復で−1197のまま、元GMP valid。公式掲載best−1198に届かず、新記録ではない。すべてprivate componentで、main成績や原問題の最適性とはしない。
+
+本体候補a45/BDDは別枝graph-cover-choice-heap。353Rust/4ignored、1200small/GMP/proof/7410tampers、12large random-core/GMP/proof（実heap6）を確認。本体z26/60秒は両−1154で反復83,966→316,405、300秒では−1160/LB−1578→−1178/LB−1575、両GMP/strict proof valid。本体の変化はこの別ソースの測定であり、private1197を本体へ帰属しない。

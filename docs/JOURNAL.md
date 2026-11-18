@@ -927,3 +927,7 @@ main126/E5は不変。private上限65535例示ビルド、5000pairで解析最�
 ## 2026-11-18 private cover選択heap
 
 同順位heapをprivateコピーだけで作成、6unit testsで約60000更新後の選択/全順位/scoreを線形再計算照合、高頂点4999も検査。4モデル各3fixed100kペア24点は全GMP valid、同じvalues/weighted counters。疎pair約16x、z26約3.6x、S7約1.13x、密cod105約0.20x（遅化5x）。一律heapは棄却、構造判定を必要とする。本体変更なし、固定60秒3ペアを継続。詳細COVER_CHOICE_HEAP_RESULTS.md。
+
+### private heap/忘却/親再結合の閉じた検証記録
+
+固定60秒3pairsは全scan1190/heap1193・6GMP valid。300秒single1197/reseed1193、900秒継続1197のまま、全GMP valid。mean64忘却は300秒で1197同じ、forget402/35.5M反復で原型57.1Mよりthroughput低下、棄却。自作Rust二部matching親再結合は689小グラフ全列挙、9親GMP再検査、unique6/15pairs、最終1197同じでGMP valid、本体導入保留。ここまでの閉じた追加12出力と9親再検査をarchiveへ保存。新記録ではなく、本体ソースa45/BDD測定とは分離。次は自作点の厳密な局所制限モデルを自作Rust solverで解くprimal-only LNSを検討する。
