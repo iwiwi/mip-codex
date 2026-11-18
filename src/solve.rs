@@ -2385,6 +2385,16 @@ fn solve_seeded_warm(
                     .map(|(j, t)| p.shift[j] + t.iter().map(|&(k, s)| s * x[k]).sum::<f64>())
                     .collect();
                 if let Err(error) = model.check(&original, false, 1e-6) {
+                    if let Some(prefix)=std::env::var_os("MIP_ORIGINAL_LP_POINT_DUMP") {
+                        static SERIAL:std::sync::atomic::AtomicUsize=std::sync::atomic::AtomicUsize::new(0);
+                        let serial=SERIAL.fetch_add(1,std::sync::atomic::Ordering::Relaxed);
+                        if serial<32 {
+                            let mut path=prefix;path.push(format!(".{}.{}.json",std::process::id(),serial));
+                            if let Ok(file)=std::fs::OpenOptions::new().write(true).create_new(true).open(path){
+                                let _=serde_json::to_writer(file,&serde_json::json!({"purpose":"original LP point feasibility diagnostic only","error":error,"model_name":model.name,"source_matches":model.decimal_source.as_ref().is_some_and(|s|s.matches(model)),"variables":model.variables.len(),"original_rows":model.rows.len(),"lp_rows":p.row_sources.len(),"node":nodes,"point_bits":original.iter().map(|v|format!("{:016x}",v.to_bits())).collect::<Vec<_>>(),"node_lower":node.lower,"node_upper":node.upper}));
+                            }
+                        }
+                    }
                     if std::env::var_os("MIP_LP_TRACE").is_some() {
                         eprintln!("Original LP check failed: {error}");
                     }
