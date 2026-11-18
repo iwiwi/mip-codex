@@ -33,6 +33,7 @@ struct Builder<'a> {
     graph: &'a Graph,
     conflict: Vec<Vec<u64>>,
     groups: Vec<Vec<usize>>,
+    group_limit:usize,
     seen: HashSet<Vec<usize>>,
     members: usize,
     memory: usize,
@@ -50,7 +51,7 @@ impl Builder<'_> {
         if self.seen.contains(&group) {
             return None;
         }
-        if self.groups.len() >= 20000
+        if self.groups.len() >= self.group_limit
             || (self.members + group.len())
                 .checked_mul(16)?
                 .checked_add((self.groups.len() + 1) * 128)?
@@ -291,6 +292,7 @@ pub(super) fn improve(
         graph,
         conflict,
         groups: vec![],
+        group_limit:20000,
         seen: HashSet::new(),
         members: 0,
         memory,
@@ -331,6 +333,10 @@ pub(super) fn improve(
             }
         }
         builder.enumerate(&mut vec![v], p, x);
+    }
+    if cheap_mode=="3" && builder.groups.len()>=20000 && Instant::now()<construction{
+        builder.group_limit=20000+graph.n;
+        for v in 0..graph.n{if Instant::now()>=construction{break;}builder.grow(vec![v]);}
     }
     let base = builder.groups.clone();
     for group in base {
