@@ -1,0 +1,5 @@
+# 同値の自作親点を保持して再結合する私的仮説
+
+既存の局所探索は改善したbestだけを返すため、同じcardinalityで移動した点を捨てる。privateコピーのimprove_seedだけで、同値点もstrict clique検査後にbestへ保持する。改善回数・stagnation・stale・予算はそのまま、同値を改善として数えない。1秒×最大16回のneutral探索で自作親poolを作り、既存の自作Rust二部matchingでunion再結合する。全親と最終出力を元MPS GMPで検査する。
+
+元のmatching689小グラフ全列挙・既存testsに、最大cardinalityのneutral移動が実行可能性と改善カウンタを保つ検査を追加。本体srcはE5不変。問題名・既知値・外部点・停止値を使わず、private成果を本体性能/新記録と混同しない。
