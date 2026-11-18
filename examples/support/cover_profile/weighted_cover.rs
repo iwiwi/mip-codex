@@ -215,7 +215,7 @@ pub(super) fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:In
     let mut stats = Stats {
         initial: best.len(),
         best: best.len(),
-        iteration_limit: graph.n.saturating_mul(128).min(500000),
+        iteration_limit: std::env::var("MIP_DIAGNOSTIC_COVER_INITIAL").ok().and_then(|v|v.parse::<usize>().ok()).unwrap_or(graph.n.saturating_mul(128).min(500000)).min(100_000_000),
         ..Stats::default()
     };
     let Some(mut state) = State::new(graph, &best, memory, deadline) else {
@@ -225,7 +225,7 @@ pub(super) fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:In
     };
     stats.edges = state.edges.len();
     let mut rng = initial_rng;
-    let extended_limit = graph.n.saturating_mul(1024).min(2_000_000);
+    let extended_limit = std::env::var("MIP_DIAGNOSTIC_COVER_EXTENDED").ok().and_then(|v|v.parse::<usize>().ok()).unwrap_or(graph.n.saturating_mul(1024).min(2_000_000)).min(100_000_000);
     for step in 1..=extended_limit {
         if step > stats.iteration_limit {
             break;
