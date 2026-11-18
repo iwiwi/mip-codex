@@ -964,3 +964,13 @@ large生成6models×2flags=12、全元GMP/strict proofとcomponent全列挙のbe
 longcontrolsは実CPU45だがcopied metadata label44が残った。両条件のaffinity45を訂正receiptへ記録、raw jobを上書きしない。新branch metadata copy時にexperimentsディレクトリ不存在で初回copy/add/commitが失敗したが、source commitは既に成立。ディレクトリ作成後61776ddaで全postmerge証拠を保存。初回停止ログはtool履歴に残り、optimizer結果に影響しない。以後依存shellはset-eを徹底。
 
 CDC探索はprivate60秒single/reseed各−285、own285seed300秒single−290、全3元GMP。main128/HS/SCIP/GLPK60秒比較は−279/−280/−237/点なし、各存在点元GMP、main strict proof valid。公式best−333未達。全元MPS hash・raw出力・比較driver・private源manifestをcdc-packing-evaluationに封入し全payloadSHA検査。三親LNS54近傍479.410495711秒1197不改善1GMP/17親検証SHA再利用はcover-parent-lns-evaluationへ保存。本体へprivate解を移植せず、全体優位/新記録とも未達。
+
+## default ON候補939230/602 の再検証開始
+
+初期515fd/e180は9controls/4long/6S12rechecks、188/376fresh監査128GMP公式、353Rust/1200oracle/7410改ざん/12largeすべて検査成功。z26/300秒−1181/LB−1578→−1188/LB−1575、CDC/300秒−279/LB−434→−285/LB−429で両改善。3pairs S12は両−13だが元188の−13→−12損失を保持。PR129 draft、初期コメント6974148247は直前AIusage付き。原点・証明を弱めず候補だけdefaultONとし、main128を未統合のまま再検証。
+
+新core939230aa1d、defaultFP6021621d57155bb7、凍結CLI35849e98ea20f9b65ac21dbd74ce98b50996eb75be9ab37a3015cf96b027f3c8、origin31c6ba077。353Rust/4ignored、1200oracle/GMP/proof/7410改ざん、12large/GMP/proof成功。large主解6組同値、upper2同値/1改善/3悪化。全source/frozen不変、defaultON側はflag unsetで実行。188/376監査と60/300controls進行中。defaultlongは実affinity45とmetadata45を一致させた。初期longの誤記44は訂正receipt+生OSaffinity[45]の保存あり。
+
+S8 component private prototypeはmain128無改変を10成分MPSに呼び、各最大30秒、計120.320449599秒、6localoptimal/4time。10local点+combined原問題−350点の11GMP/10strictproof valid。主解・速度の利益は確認できず不採用、原問題bound/最適性を主張しない。baseline/元MPS/成分構造とprototypeを別archiveで全SHA保存。
+
+private別枝cover-choice-heap435315では既存heap-profileのまま自作neutral親[0,16,7]を距離で選び、CPU40/47/50・100M反復/900秒guardで再探索。親と全出力を元GMP再検査。問題名/既知値/外部点はoptimizerに入れず、main成績には帰属しない。元720native+1再測定は全終了、自作final240は未起動・Nov19予定、目標未達。
