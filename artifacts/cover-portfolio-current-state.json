@@ -4,12 +4,12 @@
   "main_fingerprint": "8a9ce2724eeea001",
   "current_root": "/home/ubuntu/mip-adaptive-cover-portfolio",
   "branch": "adaptive-cover-portfolio",
-  "head": "9f0c14527df27ce4f9182735e619d971c2f84295",
-  "candidate_fingerprint": "a17fcc51bf8ff4db",
+  "head": "f2c16163e3",
+  "candidate_fingerprint": "3403747faafd1f58",
   "production_changes": true,
   "adopted": false,
-  "default_enabled": false,
-  "phase": "frozen candidate;development18810s flag0/1 and allproof/point audit active",
+  "default_enabled": true,
+  "phase": "final frozen default188 and audits running;finalgraph1200passed;finalmaincontrols running",
   "tests": {
     "passed": 342,
     "ignored": 4
@@ -42,5 +42,59 @@
     "comparequality vsproof time and actualrestarts",
     "adopt onlygenericusefulcorrectimprovement",
     "final240 Nov19 afterbaselinefinished;continue untildeadline"
+  ],
+  "long_main": {
+    "S3_before_seconds": 19.325897261,
+    "S3_after_seconds": 19.371025476,
+    "S3_same_nodes": 6042153,
+    "S7_before_objective": -197,
+    "S7_after_objective": -198,
+    "S7_same_bound": -241,
+    "outputs": 4,
+    "gmp_valid": 4,
+    "graph_proof_valid": 4
+  },
+  "native180": {
+    "highs": [
+      -186,
+      -230
+    ],
+    "scip": [
+      -152,
+      -447.6888496777278
+    ],
+    "glpk": [
+      -21,
+      -356
+    ],
+    "all3_gmp_valid": true
+  },
+  "private_v3": "two own198-seeded100M/300s continuations completed198,all2GMP;not main/newrecord",
+  "official_input_bytes_verified": true,
+  "final_graph": {
+    "models": 200,
+    "outputs": 1200,
+    "failures": 0,
+    "tamper_rejections": 7410
+  },
+  "final_tests": {
+    "passed": 342,
+    "ignored": 4
+  },
+  "initial_188": {
+    "primal_equal": 188,
+    "dual_improved": 2,
+    "dual_worsened": 2,
+    "dual_equal": 171,
+    "dual_incomparable": 13,
+    "restarts": 0,
+    "all376_checks_valid": true,
+    "gmp_points": 128
+  },
+  "space_issue": "first final-test build ENOSPC;failedlog preserved;63284 historical trackedfiles/1943967712B matched retainedGitblobs then sparse-excluded only3 dirs;baseline config unchanged;retry342passed",
+  "primary_sparse_excluded": [
+    "artifacts/safe-gmi-research-evaluation",
+    "artifacts/aggregate-three-evaluation",
+    "artifacts/row-ray-bound-evaluation"
   ]
 }
