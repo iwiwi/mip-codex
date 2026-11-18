@@ -169,7 +169,7 @@ impl Default for Limits {
             objective_backtrack: true,
             objective_dive_repeat: true,
             feasibility_pump: true,
-            pump_limited_rounding:false,
+            pump_limited_rounding:true,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 4,
