@@ -38,6 +38,13 @@ impl<'a> Repair<'a> {
             stats: Stats::default(),
         }
     }
+    pub(crate) fn initial_weights(&self) -> Vec<f64> { self.weights.clone() }
+    pub(crate) fn into_incidence(self) -> Vec<Vec<(usize, f64)>> { self.incidence }
+    pub(crate) fn from_cached(model: &'a Model, incidence: Vec<Vec<(usize, f64)>>, weights: Vec<f64>) -> Self {
+        assert_eq!(incidence.len(), model.variables.len());
+        assert_eq!(weights.len(), model.rows.len());
+        Self { model, incidence, weights, stats: Stats::default() }
+    }
     fn violation(&self, i: usize, activity: f64) -> f64 {
         let row = &self.model.rows[i];
         row.lower

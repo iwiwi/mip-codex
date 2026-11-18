@@ -27,13 +27,18 @@ fn inner(model:&Model,point:&[f64],lower:&[Option<f64>],upper:&[Option<f64>],dea
  let initial_improvements=stats.improvements;
  let mut best=point.to_vec();let mut value=sign*model.objective(&best);let budget=100_000_000usize;
  let base_step=step;let growth=std::env::var("MIP_DIAGNOSTIC_TARGET_GROWTH").is_ok_and(|v|v=="1");
- for trial in 0..16{
+ let reuse=std::env::var("MIP_DIAGNOSTIC_CACHE").is_ok_and(|v|v=="1");
+ let retry=std::env::var("MIP_DIAGNOSTIC_RETRY").is_ok_and(|v|v=="1");
+ let trials=std::env::var("MIP_DIAGNOSTIC_TRIALS").ok().and_then(|v|v.parse::<usize>().ok()).unwrap_or(16).min(128);
+ let mut cached:Option<Vec<Vec<(usize,f64)>>>=None;let mut initial_weights:Option<Vec<f64>>=None;
+ for trial in 0..trials{
   if Instant::now()>=deadline||stats.work>=budget{break;}
   stats.target_steps.push(step);let target=(value-step-sign*model.offset)/scale;if !target.is_finite(){break;}
   let row=work.rows.last_mut().unwrap();row.upper=Some(target);row.upper_enclosure=Some([target,target]);
-  let phase=Instant::now();let mut repair=Repair::new(&work);stats.index_seconds+=phase.elapsed().as_secs_f64();let phase=Instant::now();let candidate=if incremental{repair.search_adaptive_incremental(&best,lower,upper,deadline,budget.saturating_sub(stats.work),trial)}else{repair.search_adaptive(&best,lower,upper,deadline,budget.saturating_sub(stats.work),trial)};stats.search_seconds+=phase.elapsed().as_secs_f64();
+  let phase=Instant::now();let mut repair=if reuse { if let Some(index)=cached.take(){Repair::from_cached(&work,index,initial_weights.as_ref().unwrap().clone())}else{let r=Repair::new(&work);initial_weights=Some(r.initial_weights());r} }else{Repair::new(&work)};stats.index_seconds+=phase.elapsed().as_secs_f64();let phase=Instant::now();let candidate=if incremental{repair.search_adaptive_incremental(&best,lower,upper,deadline,budget.saturating_sub(stats.work),trial as u64)}else{repair.search_adaptive(&best,lower,upper,deadline,budget.saturating_sub(stats.work),trial as u64)};stats.search_seconds+=phase.elapsed().as_secs_f64();
   stats.trials+=1;stats.moves+=repair.stats.moves;stats.work=stats.work.saturating_add(repair.stats.work);stats.penalty_updates+=repair.stats.penalty_updates;
-  let Some(x)=candidate else{if growth&&step>base_step{step=(step*0.5).max(base_step);continue;}break;};
+  if reuse{cached=Some(repair.into_incidence());}
+  let Some(x)=candidate else{if retry{continue;}if growth&&step>base_step{step=(step*0.5).max(base_step);continue;}break;};
   let phase=Instant::now();let valid=original.candidate_check(&x)&&original.objective_reliable(&x,model.objective(&x));stats.check_seconds+=phase.elapsed().as_secs_f64();if !valid{break;}
   stats.candidates+=1;let next=sign*model.objective(&x);
   if !next.is_finite()||next>=value-4e-8*(1.+value.abs().max(next.abs())){break;}
