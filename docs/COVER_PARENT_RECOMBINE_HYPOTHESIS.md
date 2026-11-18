@@ -1,0 +1,5 @@
+# 自作親点のunionを自作Rust二部matchingで再結合
+
+本体srcはE5不変。private strict Graphを新しいsupportコピーへ隔離し、自作Rust親点だけを入力する。2つの独立集合の共通点はunionの全点と両立、対称差の競合グラフは二部グラフ。自作augmenting-path最大matchingと交互路からunion最大独立集合を構成し、元グラフでgreedy追加を行う。目的値/問題名/外部解を埋め込まない。union最適値から元問題の双対・最適性・実行不能は一切返さず、最終best主解だけを出力する。
+
+左右各0..3頂点の全二部グラフでmatching経由の独立集合数を全列挙と比較する。全親点は元MPS GMPで再検査し、全内部候補のstrict Graph/Model.check0、最終出力の元MPS GMPを検査する。自作z26候補poolから改善があるか調べ、改善しても本体へ移して同条件で検証するまで本体成績とはしない。
