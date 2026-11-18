@@ -11,3 +11,7 @@
 mainへの将来統合には初期点なしでの品質も必要なので、同じ凍結ELFでseedなし60秒/100Mstepの4設定もCPU43/45/49/52で測定する。登録時点でseeded pd1は100Mstepsで1198不改善、他3seeded結果は未完了。新しい入力点や目標値は与えない。全4出力GMP/公式検査を行い、seeded測定とは別の品質として報告する。
 
 4設定の100Mstep seededは全1198のまま、101.671223768/140.693012472/149.082632761/175.060531017秒でstep_limit。seedなし60秒はpd1/5/10/20で1186/1126/1130/1129。全8点fresh GMP公式valid、seeded親4点fresh GMP、改善/新記録なし。pd1はseedなしで比較的良いが、mainと同時間の統合比較は未実施のため採用しない。全結果と停止理由を保持する。
+
+次は初段weighted15秒（初期点なし）から得た同じ自作点をweighted15秒とvertex pd1 15秒へ分岐する段階診断。z26/CDCの両方で比較し、各branchの最適化総時間は初段+継続の30秒、全solver同時間成績とは主張しない。CPU40/47、16GiB/1thread、全6点GMP公式、固定100Mstep cap/targetなし。点は全て自作Rustで、外国solver点は使わず、利益と損失を全保持してから本体への適否を判断する。
+
+段階診断全6点fresh GMP公式valid。z26は初段−1181からweighted/vertexとも−1184、CDCは初段−279からweighted−284/vertex−290。元の同じ初段点を使い双方継続15秒、全solver同時間成績ではない。これを根拠に別branch graph-vertex-portfolioで同じmain主解枠を二分する候補を実装し、OFF/ONの全solver対照へ進む。private既存sourceは無変更。
