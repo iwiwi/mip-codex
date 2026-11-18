@@ -10,3 +10,8 @@ MIPLIB公式ページ https://miplib.zib.de/instance_details_sorrell7.html を20
 
 
 初期12実行は全12点GMP合格、sorrell3は全て-16、sorrell7は2秒-195/10秒-197で方式差なし。singleの10秒設定は200万上限でcomponent6.38287秒で停止、reseedは6回の探索を行って10秒を消費しても-197。次は同じ60秒でcontinuous（初期/延長2000万）とreseed（各200万）をCPU44/45で比較。privateコピーだけの反復上限envを追加し、既定は旧値のまま。ソース1d54b84845、production FP8a不変。Python driverの初回はelse直後の空白不足をpy_compileで検出し修正、初期ソースを保存してから実行。
+
+
+最終private16実行は全点GMP合格。60秒continuousは2000万反復/58.20549秒で-198、最後の改善は18,135,623反復。reseedは最初200万で197、次の671,906反復で198。12秒controlはcontinuous197/reseed198、両点GMP合格。公式原MPSを別途read-only取得し、gzip SHA11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45および展開bytesがローカルと完全一致。公開点は読んでいない。
+
+メイン候補は別のclean main124 worktree adaptive-cover-portfolio/core9f0c14527d/FP a17fcc51bf8ff4dbに小さく移し、private3-moduleコピーはmainへ入れない。初期実装は既定無効。無条件再始動を採らず、改善後のみ継続・失敗で停止・全体5%枠・最大8再始動・初期seed最大0.6秒。342 Rust/4ignore、graph200モデル1200出力GMP/全列挙/厳密証明と7410改ざん拒否合格。実CLIの188/長時間/nativeを測定中で採用未判断。
