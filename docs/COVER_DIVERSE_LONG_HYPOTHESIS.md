@@ -23,3 +23,5 @@ third_party/miplib-checker/bin/solchecker data/raw/exploratory/z26.mps.gz soluti
 1198同値親17点を使う既存Rust triple-parent LNSも完了: 600秒guard、最大60試行、各10秒/2Mnodes、CPU49/16GiB/1thread。実績54試行543.968161119秒、1198→1198、改善0。最終点fresh元GMP valid。親17点の検査はpoint/input/checker SHA同一確認後の再利用でfreshではない。原問題bound/最適性/新記録の主張なし。同条件再試行は優先しない。
 
 次の私的検査は既存凍結profileをreseed modeで使用する。100M反復単roundでは3親とも不改善だったが、同profileはround indexで乱数初期状態を変更できる。元条件のsingle反復ではなく、同じ汎用距離選択[0,15,7]から各1800秒/round100M/max32を試し、最初の既知軌跡を含む全roundの結果を保持する。CPU40/47/50、16GiB/1thread、全group1920秒watchdog。親/出力は元GMP fresh検査、目標・停止値なし、他solverや掲載解は使わない。結果のmain帰属も原問題bound主張もせず、改善が出たら本体の汎用restart規則として独立検証する。
+
+1800秒reseed3本も終了。各4round、348268285/347519391/352915165反復、1800.004358276/1800.004491922/1800.004437537秒、全1198のまま改善0。出力3点と親3点fresh元GMP valid。単なる反復上限延長と乱数変更で1198を超える根拠は得られなかった。同条件反復を優先せず、異なる頂点penaltyの局所探索を検討する。
