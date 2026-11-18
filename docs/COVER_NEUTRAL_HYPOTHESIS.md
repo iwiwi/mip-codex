@@ -3,3 +3,5 @@
 既存の局所探索は改善したbestだけを返すため、同じcardinalityで移動した点を捨てる。privateコピーのimprove_seedだけで、同値点もstrict clique検査後にbestへ保持する。改善回数・stagnation・stale・予算はそのまま、同値を改善として数えない。1秒×最大16回のneutral探索で自作親poolを作り、既存の自作Rust二部matchingでunion再結合する。全親と最終出力を元MPS GMPで検査する。
 
 元のmatching689小グラフ全列挙・既存testsに、最大cardinalityのneutral移動が実行可能性と改善カウンタを保つ検査を追加。本体srcはE5不変。問題名・既知値・外部点・停止値を使わず、private成果を本体性能/新記録と混同しない。
+
+結果: example8tests成功。z26は自作1197seedから17unique parents、再結合も1197、24.483070秒。sorrell7は自作198seedから17unique parents、再結合も198、13.963120秒。全36出力を元MPS GMP/公式で新規検査しvalid、各入力seedも再検査。多様性は増えたが品質改善なし、本体導入は保留。次の3親制限探索ではこの親poolをhash一致と元入力/検査器SHA一致で参照する。

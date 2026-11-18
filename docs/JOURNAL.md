@@ -931,3 +931,7 @@ main126/E5は不変。private上限65535例示ビルド、5000pairで解析最�
 ### private heap/忘却/親再結合の閉じた検証記録
 
 固定60秒3pairsは全scan1190/heap1193・6GMP valid。300秒single1197/reseed1193、900秒継続1197のまま、全GMP valid。mean64忘却は300秒で1197同じ、forget402/35.5M反復で原型57.1Mよりthroughput低下、棄却。自作Rust二部matching親再結合は689小グラフ全列挙、9親GMP再検査、unique6/15pairs、最終1197同じでGMP valid、本体導入保留。ここまでの閉じた追加12出力と9親再検査をarchiveへ保存。新記録ではなく、本体ソースa45/BDD測定とは分離。次は自作点の厳密な局所制限モデルを自作Rust solverで解くprimal-only LNSを検討する。
+
+### 自作制限探索とneutral親poolの不改善
+
+LNSv1は8tests、400small model検査、200近傍/224.935秒、1197維持、元GMP valid。本体導入保留。neutral変更は8tests、z26/S7とも17異なる同値親を作り、二部再結合後も1197/198、全36出力GMP/公式valid。多様化は確認したが改善なしで保留。次の3親制限探索9testsは原問題へboundsを渡さず、元/制限の出力点をGMP検査する実験として実行中。
