@@ -19,7 +19,7 @@ mcsched60秒のOFF/既定ONは両266672/LB193774.75370663218、両点GMP/proof v
 
 4archiveの全8227 payloadと除外2ELFを元の物理保存先でSHA再検証。小規模profile名の誤記、60秒driverのoptimizer開始前path失敗も保持・訂正。holdout52を判断に使わず、正式240問は未起動です。
 """
-p=Path('artifacts/pump-limited-pr-final-body.md');p.write_text(body);run(['gh','pr','edit','130','--repo','iwiwi/mip-codex','--title','pump補助LPの打切り点を元問題の可行主解として回収','--body-file',str(p)])
+p=Path('artifacts/pump-limited-pr-final-body.md');p.write_text(body);q=Path('artifacts/pump-limited-pr-final-payload.json');q.write_text(json.dumps(dict(title='pump補助LPの打切り点を元問題の可行主解として回収',body=body)));run(['gh','api','--method','PATCH','repos/iwiwi/mip-codex/pulls/130','--input',str(q)])
 comment='最終検証を完了し、既定ONで採用します。\n\n'+body
 usage=subprocess.check_output(['python3','scripts/ai_usage.py'],text=True);Path('artifacts/pump-limited-adoption-ai-usage.json').write_text(usage);p=Path('artifacts/pump-limited-adoption-comment.md');p.write_text(comment+'\nその時点のAI資源量:\n```json\n'+usage+'```\n');out=run(['gh','pr','comment','130','--repo','iwiwi/mip-codex','--body-file',str(p)]);Path('artifacts/pump-limited-adoption-comment.log').write_text(out);print(out,flush=True)
 v=json.loads(run(['gh','pr','view','130','--repo','iwiwi/mip-codex','--json','headRefOid,isDraft,state']));assert v['state']=='OPEN'and v['headRefOid']==head
