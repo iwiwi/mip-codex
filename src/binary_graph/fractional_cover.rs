@@ -1,7 +1,7 @@
 //! Candidate fractional clique covers, certified only by exact integer coverage.
 use super::{Graph, adjacent, clear, first};
 use std::{
-    collections::{BinaryHeap, HashSet},
+    collections::{BinaryHeap, HashMap, HashSet},
     time::Instant,
 };
 #[derive(Debug, serde::Serialize)]
@@ -15,6 +15,8 @@ pub struct Certificate {
 #[derive(Debug, Default, serde::Serialize)]
 pub struct Stats {
     pub generated: usize,
+    pub input_groups: usize,
+    pub input_upper: Option<usize>,
     pub enumeration_calls: usize,
     pub enumeration_partial: bool,
     pub iterations: usize,
@@ -33,7 +35,7 @@ struct Builder<'a> {
     graph: &'a Graph,
     conflict: Vec<Vec<u64>>,
     groups: Vec<Vec<usize>>,
-    seen: HashSet<Vec<usize>>,
+    seen: HashMap<Vec<usize>,usize>,
     members: usize,
     memory: usize,
     deadline: Instant,
@@ -47,8 +49,8 @@ impl Builder<'_> {
         if group.is_empty() {
             return None;
         }
-        if self.seen.contains(&group) {
-            return None;
+        if let Some(&id)=self.seen.get(&group) {
+            return Some(id);
         }
         if self.groups.len() >= 20000
             || (self.members + group.len())
@@ -61,7 +63,7 @@ impl Builder<'_> {
         }
         let id = self.groups.len();
         self.members += group.len();
-        self.seen.insert(group.clone());
+        self.seen.insert(group.clone(),id);
         self.groups.push(group);
         Some(id)
     }
@@ -265,6 +267,7 @@ pub(super) fn improve(
     memory: usize,
     deadline: Instant,
     incumbent: usize,
+    input: Option<&crate::model::Model>,
 ) -> Outcome {
     let started = Instant::now();
     let mut out = Outcome::default();
@@ -286,7 +289,7 @@ pub(super) fn improve(
         graph,
         conflict,
         groups: vec![],
-        seen: HashSet::new(),
+        seen: HashMap::new(),
         members: 0,
         memory,
         deadline: construction,
@@ -307,6 +310,23 @@ pub(super) fn improve(
             base_count += 1;
         }
     }
+    let mut input_ids=HashSet::new();
+    if let Some(model)=input {
+        let mut inverse=vec![0;graph.n];
+        for (v,&original)in graph.order.iter().enumerate(){inverse[original]=v;}
+        for row in &model.rows {
+            if Instant::now()>=construction {builder.partial=true;break;}
+            // Pair rows cannot strengthen the larger clique pool. Recognition
+            // already checked every row; repeat its exact guard for input seeds.
+            if row.coefficients.len()<=2 {continue;}
+            let Some(vertices)=super::row_vertices(model,row)else{continue;};
+            if vertices.len()<3 {continue;}
+            if let Some(id)=builder.add(vertices.into_iter().map(|v|inverse[v]).collect()) {
+                input_ids.insert(id);
+            }
+        }
+    }
+    out.stats.input_groups=input_ids.len();
     for v in 0..graph.n {
         if Instant::now() >= construction {
             builder.partial = true;
@@ -359,6 +379,14 @@ pub(super) fn improve(
     for c in &mut counts[..base_count] {
         *c = 1;
     }
+    if !input_ids.is_empty() {
+        let mut input_counts=vec![0u32;groups.len()];
+        for id in input_ids {input_counts[id]=1;}
+        if let Some(candidate)=certificate(graph,&groups,&input_counts) {
+            out.stats.input_upper=Some(candidate.upper);
+            if candidate.upper<base_count {counts=input_counts;}
+        }
+    }
     let mut coverage = vec![0u32; graph.n];
     for (group, &w) in groups.iter().zip(&counts) {
         for &v in group {
@@ -374,7 +402,7 @@ pub(super) fn improve(
         histogram[c as usize] += 1;
     }
     let mut minimum = *coverage.iter().min().unwrap() as usize;
-    let mut total = base_count as u64;
+    let mut total = counts.iter().map(|&v|v as u64).sum::<u64>();
     let mut best_upper = (total / minimum as u64) as usize;
     let mut best = counts.clone();
     let mut prices = vec![1f64; graph.n];
@@ -526,7 +554,7 @@ mod tests {
                 graph: &graph,
                 conflict,
                 groups: vec![],
-                seen: HashSet::new(),
+                seen: HashMap::new(),
                 members: 0,
                 memory: 1 << 20,
                 deadline: Instant::now() + std::time::Duration::from_secs(1),
@@ -538,7 +566,7 @@ mod tests {
             for group in &groups {
                 let maximal = (0..n)
                     .all(|v| group.contains(&v) || group.iter().any(|&u| adjacent(&graph, u, v)));
-                assert_eq!(builder.seen.contains(group), maximal);
+                assert_eq!(builder.seen.contains_key(group), maximal);
             }
             let cert = certificate(&graph, &groups, &counts).unwrap();
             let order = vec![1, 3, 0, 2, 4];

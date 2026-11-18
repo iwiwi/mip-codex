@@ -63,6 +63,15 @@ def verify(model_path,result,exact):
   for group in groups.values():
    assert all((a,b)in edges for a,b in itertools.combinations(group,2))
  else:assert root_upper==n
+ spectral=stats.get('spectral_bound')or{}
+ spectral_certificate=spectral.get('certificate')
+ spectral_upper=None
+ if spectral_certificate:
+  from verify_cayley_spectral import verify as verify_spectral
+  conflict=[0]*n
+  for a,b in edges:conflict[a]|=1<<b;conflict[b]|=1<<a
+  spectral_proof=verify_spectral(model_path,spectral_certificate,(names,conflict));spectral_upper=spectral_proof['upper']
+  assert spectral['stats']['lp_solves']==1 and spectral['stats']['validation_failures']==0
  fractional=stats.get('fractional_cover')
  certificate=fractional.get('certificate')if fractional else None
  coverage=[0]*n;weighted_groups=[]
@@ -78,8 +87,8 @@ def verify(model_path,result,exact):
   total=sum(counts);minimum=min(coverage)
   assert minimum>0 and certificate['total']==total and certificate['minimum']==minimum
   assert type(certificate['upper'])is int and certificate['upper']==total//minimum
-  assert root_upper==min(coloring_upper,certificate['upper'])
- else:assert root_upper==coloring_upper
+  assert root_upper==min(coloring_upper,certificate['upper'],spectral_upper if spectral_upper is not None else n)
+ else:assert root_upper==min(coloring_upper,spectral_upper if spectral_upper is not None else n)
  def fractional_prefix(prefix):
   if not prefix:return 0
   chosen=set(prefix)
@@ -105,6 +114,7 @@ def verify(model_path,result,exact):
    prefix=root_order[:n-completed]
    prefix_bound=min(len({c[j]for j in prefix})for c in candidates)
    if certificate:prefix_bound=min(prefix_bound,fractional_prefix(prefix))
+   if spectral_upper is not None:prefix_bound=min(prefix_bound,spectral_upper)
    assert remaining>=prefix_bound
   else:
    rank={j:k for k,j in enumerate(stats['order'])}
@@ -118,11 +128,14 @@ def verify(model_path,result,exact):
  assert all(not(a in chosen and b in chosen)for a,b in edges)
  if complete:assert result['status']=='optimal'
  else:assert result['status']in ['node_limit','time_limit']
- assert result['lp_solves']==0
+ spectral_stats=spectral.get('stats')or{}
+ assert result['lp_solves']==spectral_stats.get('lp_solves',0)
+ if result['lp_solves']:
+  assert result['lp_pivots']==spectral_stats['lp_pivots'] and result['lp_refactors']==spectral_stats['lp_refactors']
  exact_bound=offset+coeff[0]*upper;reported=Fraction(result['dual_bound'])
  assert reported>=exact_bound if maximize else reported<=exact_bound
  return dict(valid=True,checker_sha256=sha256(Path(__file__)),vertices=n,conflict_edges=len(edges),root_coloring_valid=True,remaining_coloring_valid=True,completed_root_branches=completed,
              root_upper=root_upper,upper=upper,best=best,
-             fractional_cover_valid=bool(certificate),
-             final_bound_source='root coloring/fractional cover/trivial cardinality'if upper==root_upper else'internal completed branches and remaining-prefix coloring; not independently replayed',
+             fractional_cover_valid=bool(certificate),spectral_bound_valid=bool(spectral_certificate),
+             final_bound_source='root coloring/fractional cover/integer spectrum/trivial cardinality'if upper==root_upper else'internal completed branches and remaining-prefix coloring; not independently replayed',
              independent_optimality=best==root_upper)

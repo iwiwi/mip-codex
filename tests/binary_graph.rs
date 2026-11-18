@@ -195,3 +195,53 @@ fn negative_lower_rows_have_the_same_conflict_meaning() {
     assert_eq!(r.status, "optimal");
     assert_eq!(r.objective, Some(1.));
 }
+
+#[test]
+fn input_row_cover_certifies_the_odd_cycle_root_without_search() {
+    let n=7;
+    let mut lines=vec!["NAME input_cover".to_string(),"ROWS".into()," N obj".into()];
+    for i in 0..n {lines.push(format!(" L r{i}"));}
+    lines.push("COLUMNS".into());
+    for v in 0..n {
+        lines.push(format!(" x{v} obj -1"));
+        for i in 0..n {if (0..3).any(|k|(i+k)%n==v) {lines.push(format!(" x{v} r{i} 1"));}}
+    }
+    lines.push("RHS".into());
+    for i in 0..n {lines.push(format!(" rhs r{i} 1"));}
+    lines.push("BOUNDS".into());
+    for v in 0..n {lines.push(format!(" BV b x{v}"));}
+    lines.push("ENDATA".into());
+    let model=mps::parse(Cursor::new(lines.join("\n")+"\n")).unwrap();
+    let result=solve(&model,&Limits{seconds:5.,nodes:0,graph_input_cover:true,..Limits::default()});
+    let graph=result.binary_graph.unwrap();
+    let cover=graph.fractional_cover.unwrap();
+    assert_eq!(cover.stats.input_groups,7);
+    assert_eq!(cover.stats.input_upper,Some(2));
+    assert_eq!(cover.certificate.unwrap().upper,2);
+    assert_eq!(result.objective,Some(-2.));
+    assert_eq!(result.dual_bound,Some(-2.));
+    assert_eq!(result.status,"optimal");
+    assert_eq!(graph.nodes,0);
+}
+
+#[test]
+fn integer_spectrum_certifies_a_packing_optimum_without_search_in_both_senses() {
+    let n=16usize;
+    let edges:Vec<_>=(0..n).flat_map(|a|(a+1..n).filter_map(move|b|((a^b).count_ones()<=2).then_some((a,b)))).collect();
+    let optimum=(0usize..1<<n).filter(|&mask|edges.iter().all(|&(a,b)|mask&(1<<a)==0||mask&(1<<b)==0)).map(|m|m.count_ones()).max().unwrap();
+    assert_eq!(optimum,2);
+    for maximize in [false,true] {
+        let model=model(n,&edges,maximize);
+        let result=solve(&model,&Limits{seconds:2.,nodes:0,graph_spectral_bound:true,..Limits::default()});
+        assert_eq!(result.status,"optimal");
+        assert_eq!(result.objective,Some(if maximize{13.}else{1.}));
+        assert_eq!(result.dual_bound,result.objective);
+        assert_eq!(result.nodes,0);
+        assert_eq!(result.lp_solves,1);
+        let graph=result.binary_graph.as_ref().unwrap();
+        let spectral=graph.spectral_bound.as_ref().unwrap();
+        assert_eq!(spectral.certificate.as_ref().unwrap().upper,2);
+        assert_eq!(spectral.stats.validation_failures,0);
+        assert_eq!(result.lp_pivots,Some(spectral.stats.lp_pivots));
+    }
+}
