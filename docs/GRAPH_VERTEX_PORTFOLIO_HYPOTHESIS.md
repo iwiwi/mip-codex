@@ -13,3 +13,5 @@ conflict数<=65534、steps<=100M、cycles/penalty増分<=100M+1なので64bit計
 旧privateの5テスト（200小graph×4pdの全列挙上界、増分状態、singleton/cycle guard等）を継承し、memory gateとGraphの補集合隣接生成（63/64/65/127/128/129境界も含む）を追加する。初回はtestの整数型推論でcompile停止、logを保存しusize明示で修正した。現在関連7テスト成功、全367検査とbuildを実行中。
 
 次は同一凍結CLIでvertex0/1をz26/CDC各60秒、large random12出力/独立core列挙、小型1200出力/7410改ざん拒否で検査。全点元MPS GMP/公式、全proofを保存する。利益があれば188問・300秒対照へ進む。長roundの採用判定とは混ぜず、main132統合後はRust/Cargo/buildの一致を確認して履歴を合わせる。holdout52は調整に使わない。数学的最適性/新記録/main達成はまだない。
+
+初期622b629e78/FP a7f019a617fb33e8、CLId31034d868a411814d5db50f072182c28ad0abd97056edf35a9f8ad6c2059869を凍結。全367 Rust/4ignored、1200小出力と7410改ざん拒否、12大規模出力GMP/proof/独立core boundが成功。大規模vertex実行6/heap12/long12。9controlsはCPU40、現在実行中。sourceをこれ以上変更せず、初期整数型compile失敗もlog保存。
