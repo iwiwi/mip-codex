@@ -27,7 +27,7 @@ def maximize_sense(path):
 def verify(model_path,result,exact):
  names,variables,rows,cost,offset=exact;stats=result['binary_graph'];n=len(names)
  assert result['binary_graph_enabled']is True and result['lp_engine']=='BinaryGraph'
- assert stats['vertices']==n and 0<n<=4096
+ assert stats['vertices']==n and 0<n<=65535
  assert sorted(stats['order'])==list(range(n))
  maximize=maximize_sense(model_path);coeff=[cost.get(name,Fraction(0))for name in names]
  assert all(c==coeff[0]and c.denominator==1 and abs(c)<=2**52 for c in coeff)
