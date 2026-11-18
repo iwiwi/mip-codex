@@ -16,3 +16,6 @@ third_party/miplib-checker/bin/solchecker data/raw/exploratory/z26.mps.gz soluti
 ```
 
 より厳しい絶対GMP判定は保存result.jsonを `MIP_ABSOLUTE_CHECKER=.../solchecker-absolute .venv/bin/python scripts/benchmark_validate.py MODEL RESULT_JSON OFFICIAL_CHECKER OUTPUT_DIR` へ渡して再現する。OUTPUT_DIRは先に作成する。raw結果・双方の検証ログ/JSONとsource/親/入力SHAを全保持。次はこの自作1198から同値親生成を行い、全点再検査後に汎用的な距離選択で長探索する。既知値の停止判定は加えない。
+
+
+1198点からの次段も終了。無改変neutral profileの16round×1秒と自作matchingは17unique親/combined1198、25.102720010秒、全18出力fresh GMP/公式valid、入力seedもfresh GMP。距離で選んだ[0,15,7]からsingle100M/900秒guardは全−1198、513.185839536/505.378974254/504.854400997秒、全3GMP/3親fresh GMP。改善なし・新記録なし。元点と同じvaluesかどうかもsummaryに記録。source変更はなく、これ以上同条件を反復するより本体の長round上限を構造gate付きで検証することを優先する。
