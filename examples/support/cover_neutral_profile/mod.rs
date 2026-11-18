@@ -1218,3 +1218,29 @@ pub fn diagnostic_diverse(model:&Model,seconds:f64,parent:&[f64],output:&std::pa
         assert!(strict_clique(&graph,&best));assert_eq!(best.len(),2);assert_eq!(stats.best,2);assert_eq!(stats.last_improvement_iteration,0);assert!(stats.neutral_swaps>0);assert_eq!(stats.validation_failures,0);
     }
 }
+
+// Exact feasibility of a two-out/three-in move; this is only a primal diagnostic.
+fn two_remove_move(graph:&Graph,seed:&[usize],deadline:Instant,max_work:usize)->(Option<Vec<usize>>,usize,bool){
+ assert!(strict_clique(graph,seed));let k=seed.len();if k<2{return(None,0,true);}
+ let mut selected=vec![false;graph.n];for &v in seed{selected[v]=true;}
+ let mut zero=Vec::new();let mut single=vec![Vec::new();k];let mut double=std::collections::HashMap::<(usize,usize),Vec<usize>>::new();let mut work=0;
+ for v in 0..graph.n{
+  if Instant::now()>=deadline{return(None,work,false);}if selected[v]{continue;}let mut blockers=Vec::new();
+  for(i,&u)in seed.iter().enumerate(){work+=1;if work>max_work{return(None,work,false);}if !adjacent(graph,v,u){blockers.push(i);if blockers.len()>2{break;}}}
+  match blockers.as_slice(){[]=>zero.push(v),&[i]=>single[i].push(v),&[i,j]=>double.entry((i,j)).or_default().push(v),_=>{}}
+ }
+ for i in 0..k{for j in i+1..k{
+  if Instant::now()>=deadline{return(None,work,false);}let mut free=zero.clone();free.extend_from_slice(&single[i]);free.extend_from_slice(&single[j]);if let Some(v)=double.get(&(i,j)){free.extend_from_slice(v);}
+  for a in 0..free.len(){if Instant::now()>=deadline{return(None,work,false);}for b in a+1..free.len(){work+=1;if work>max_work||work%1024==0&&Instant::now()>=deadline{return(None,work,false);}if !adjacent(graph,free[a],free[b]){continue;}for c in b+1..free.len(){work+=1;if work>max_work||work%1024==0&&Instant::now()>=deadline{return(None,work,false);}if adjacent(graph,free[a],free[c])&&adjacent(graph,free[b],free[c]){let mut next:Vec<_>=seed.iter().enumerate().filter_map(|(p,&v)|(p!=i&&p!=j).then_some(v)).collect();next.extend([free[a],free[b],free[c]]);assert!(strict_clique(graph,&next));assert_eq!(next.len(),seed.len()+1);return(Some(next),work,false);}}}}
+ }}(None,work,true)
+}
+pub fn diagnostic_two_remove(model:&Model,seconds:f64,parent:&[f64])->serde_json::Value{
+ let start=Instant::now();let deadline=start+std::time::Duration::from_secs_f64(seconds);let graph=recognize(model,512*1024*1024,deadline).expect("strict packing graph");assert!(model.check(parent,true,0.).is_ok());assert!(parent.iter().all(|&x|x==0.||x==1.));let mut best:Vec<_>=(0..graph.n).filter(|&v|parent[graph.order[v]]==1.).collect();assert!(strict_clique(&graph,&best));let initial=best.len();let mut records=vec![];
+ while Instant::now()<deadline{let(next,work,complete)=two_remove_move(&graph,&best,deadline,100_000_000);records.push(serde_json::json!({"before":best.len(),"work":work,"neighborhood_complete":complete,"improved":next.is_some()}));match next{Some(v)=>best=v,None=>break,}}
+ let mut point=vec![0.;model.variables.len()];for &v in &best{point[graph.order[v]]=1.;}assert!(model.check(&point,true,0.).is_ok());let values:std::collections::BTreeMap<_,_>=model.variables.iter().zip(point.iter()).map(|(v,&x)|(v.name.clone(),x)).collect();serde_json::json!({"status":"primal_candidate","objective":model.objective(&point),"dual_bound":null,"values":values,"initial":initial,"best":best.len(),"records":records,"seconds":start.elapsed().as_secs_f64(),"purpose":"two-out three-in primal diagnostic; no global bound or optimality"})
+}
+#[cfg(test)]mod two_remove_tests{
+ use super::*;
+ #[test]fn exhaustive_small_neighborhood_existence_and_feasibility(){let mut rng=19u64;for n in 2usize..=9{for _ in 0..80{let mut g=Graph{n,words:1,compatible:vec![vec![0];n],order:(0..n).collect()};for a in 0..n{for b in a+1..n{rng^=rng<<13;rng^=rng>>7;rng^=rng<<17;if rng&1!=0{g.compatible[a][0]|=1<<b;g.compatible[b][0]|=1<<a;}}}let seed:Vec<_>=(0..n).fold(Vec::new(),|mut s,v|{if s.iter().all(|&u|adjacent(&g,u,v)){s.push(v);}s});let mut exists=false;for i in 0..seed.len(){for j in i+1..seed.len(){let keep:Vec<_>=seed.iter().enumerate().filter_map(|(p,&v)|(p!=i&&p!=j).then_some(v)).collect();for a in 0..n{for b in a+1..n{for c in b+1..n{if [a,b,c].iter().any(|v|seed.contains(v)){continue;}let mut x=keep.clone();x.extend([a,b,c]);exists|=strict_clique(&g,&x);}}}}}let(next,_,complete)=two_remove_move(&g,&seed,Instant::now()+std::time::Duration::from_secs(2),1_000_000);assert_eq!(next.is_some(),exists);if let Some(x)=next{assert!(strict_clique(&g,&x));assert_eq!(x.len(),seed.len()+1);}else{assert!(complete);}}}}
+ #[test]fn expired_or_work_limited_keeps_parent(){let g=Graph{n:5,words:1,compatible:vec![vec![2],vec![1],vec![24],vec![20],vec![12]],order:(0..5).collect()};let seed=[0,1];assert_eq!(two_remove_move(&g,&seed,Instant::now(),100).0,None);assert!(!two_remove_move(&g,&seed,Instant::now()+std::time::Duration::from_secs(1),0).2);let(x,_,_)=two_remove_move(&g,&seed,Instant::now()+std::time::Duration::from_secs(1),100);assert_eq!(x.unwrap(),vec![2,3,4]);}
+}
