@@ -1,0 +1,28 @@
+//! Private mathematical profile; no production solver path changes.
+use mip_codex::{binary_graph, lp::Outcome, mps, revised};
+use serde_json::json;
+use std::{collections::BTreeSet,time::{Duration,Instant}};
+fn fwht(a:&mut[i64]) {let mut step=1;while step<a.len(){for start in (0..a.len()).step_by(step*2){for i in start..start+step{let(x,y)=(a[i],a[i+step]);a[i]=x.checked_add(y).unwrap();a[i+step]=x.checked_sub(y).unwrap();}}step*=2;}}
+fn combinations(bits:usize,left:usize,start:usize,mask:usize,out:&mut Vec<usize>){if left==0{out.push(mask);return;}for bit in start..bits{if bits-bit<left{break;}combinations(bits,left-1,bit+1,mask|(1<<bit),out);}}
+fn run(path:&str,seconds:f64,mode:&str,signed:bool)->serde_json::Value {
+ let model=mps::read(path).unwrap();let started=Instant::now();let deadline=started+Duration::from_secs_f64(seconds);let n=model.variables.len();
+ let reject=|why:&str|json!({"recognized":false,"reason":why,"component_seconds":started.elapsed().as_secs_f64()});
+ if !n.is_power_of_two()||n<2{return reject("not_power_two");}
+ if binary_graph::solve(&model,16*1024usize.pow(3),deadline,0).is_none(){return reject("not_uniform_packing");}
+ let mut labels:Vec<_>=(0..n).collect();match mode{"binary"=>{},"graded-colex"=>labels.sort_unstable_by_key(|v|(v.count_ones(),*v)),"graded-lex"=>{labels.clear();for k in 0..=n.trailing_zeros()as usize{combinations(n.trailing_zeros()as usize,k,0,0,&mut labels);}},_=>panic!("invalid mapping")};
+ let mut inverse=vec![0;n];for(v,&label)in labels.iter().enumerate(){inverse[label]=v;}
+ let words=n.div_ceil(64);let mut conflict=vec![vec![0u64;words];n];
+ for row in &model.rows {if Instant::now()>=deadline{return reject("construction_deadline");}let negative=row.coefficients.iter().any(|p|p.1<0.)&&row.coefficients.iter().all(|p|p.1<=0.);if if negative{row.lower.is_none()}else{row.upper.is_none()}{continue;}let group:Vec<_>=row.coefficients.iter().filter_map(|&(v,a)|(a!=0.).then_some(v)).collect();for(i,&a)in group.iter().enumerate(){for &b in &group[..i]{conflict[a][b/64]|=1<<(b%64);conflict[b][a/64]|=1<<(a%64);}}}
+ let first=inverse[0];let mask:Vec<_>=(0..n).map(|d|conflict[first][inverse[d]/64]&(1<<(inverse[d]%64))!=0).collect();if mask[0]{return reject("diagonal");}
+ for a in 0..n {if Instant::now()>=deadline{return reject("recognition_deadline");}for b in 0..n{let actual=conflict[a][b/64]&(1<<(b%64))!=0;if actual!=mask[labels[a]^labels[b]]{return reject("not_xor_invariant");}}}
+ let mut shell_values=vec![None;n.trailing_zeros()as usize+1];for(d,&edge)in mask.iter().enumerate(){let k=d.count_ones()as usize;if shell_values[k].is_some_and(|old|old!=edge){return reject("not_hamming_symmetric");}shell_values[k]=Some(edge);}
+ let shells:Vec<_>=shell_values.iter().enumerate().filter_map(|(k,v)|(*v==Some(true)).then_some(k)).collect();if shells.is_empty(){return reject("empty_graph");}
+ let mut spectra=Vec::new();let mut multiplicities=Vec::new();for &k in &shells{let mut a:Vec<i64>=(0..n).map(|d|i64::from(d.count_ones()as usize==k)).collect();fwht(&mut a);multiplicities.push(a[0]);spectra.push(a);}
+ let rows:BTreeSet<Vec<i64>>=(1..n).map(|s|spectra.iter().map(|a|a[s]).collect()).collect();let rows:Vec<_>=rows.into_iter().collect();let multiplier=if signed{2.}else{1.};
+ let problem=revised::Problem{columns:(0..shells.len()).map(|j|rows.iter().enumerate().filter_map(|(i,row)|(row[j]!=0).then_some((i,-multiplier*row[j]as f64))).collect()).collect(),rhs:rows.iter().map(|row|1.-if signed{row.iter().sum::<i64>()as f64}else{0.}).collect(),costs:multiplicities.iter().map(|&v|-multiplier*v as f64).collect(),upper:vec![1.;shells.len()],equality:vec![false;rows.len()],slack_upper:vec![f64::INFINITY;rows.len()]};
+ let answer=revised::minimize(&problem,10000,Some(deadline));let x=match &answer.outcome{Outcome::Optimal{x,..}=>Some(x.clone()),_=>answer.limited_point.clone()};let Some(x)=x else{return reject("no_lp_point");};if x.len()!=shells.len()||x.iter().any(|v|!v.is_finite()){return reject("invalid_lp_point");}
+ let scale=1i64<<20;let shell_weights:Vec<i64>=x.iter().map(|v|((multiplier*v.clamp(0.,1.)-if signed{1.}else{0.})*scale as f64).round()as i64).collect();let mut weights=vec![0i64;n];for(d,&edge)in mask.iter().enumerate(){if edge{let j=shells.iter().position(|&k|k==d.count_ones()as usize).unwrap();weights[d]=shell_weights[j];}}
+ let mut eigenvalues=weights.clone();fwht(&mut eigenvalues);let degree=eigenvalues[0];let minimum=*eigenvalues.iter().min().unwrap();if minimum>=0||degree<=minimum{return reject("trivial_spectrum");}let upper=(n as i128*(-minimum as i128)/(degree as i128-minimum as i128))as usize;
+ json!({"recognized":true,"vertices":n,"mapping":mode,"signed":signed,"vertex_labels":labels,"weights":weights,"degree":degree,"minimum_eigenvalue":minimum,"upper":upper,"shells":shells,"shell_weights":shell_weights,"lp_rows":rows.len(),"lp_pivots":answer.stats.pivots,"lp_outcome":format!("{:?}",answer.outcome),"component_seconds":started.elapsed().as_secs_f64(),"base_source_directory":mip_codex::BUILD_SOURCE_DIRECTORY,"base_source_fingerprint":mip_codex::BUILD_SOURCE_FINGERPRINT,"purpose":"bound-only private profile; integer weighted adjacency spectrum; no primal/optimality claim"})
+}
+fn main(){let a:Vec<_>=std::env::args().collect();assert_eq!(a.len(),6);let r=run(&a[1],a[2].parse().unwrap(),&a[3],match a[4].as_str(){"positive"=>false,"signed"=>true,_=>panic!("invalid weights")});std::fs::write(&a[5],serde_json::to_vec_pretty(&r).unwrap()).unwrap();println!("{}",json!({"recognized":r["recognized"],"upper":r["upper"],"reason":r["reason"],"seconds":r["component_seconds"]}));}
