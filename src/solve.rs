@@ -75,6 +75,7 @@ pub struct Limits {
     pub objective_dive_repeat: bool,
     pub feasibility_pump: bool,
     pub pump_limited_rounding:bool,
+    pub pump_terminal_repair:bool,
     pub primal_probe: bool,
     pub cover_cuts: bool,
     pub cover_rounds: usize,
@@ -170,6 +171,7 @@ impl Default for Limits {
             objective_dive_repeat: true,
             feasibility_pump: true,
             pump_limited_rounding:true,
+            pump_terminal_repair:true,
             primal_probe: true,
             cover_cuts: true,
             cover_rounds: 4,
@@ -773,6 +775,11 @@ fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,
 }
 #[derive(Default, Debug, Serialize)]
 pub struct PumpStats {
+    pub terminal_repair_calls:usize,
+    pub terminal_repair_candidates:usize,
+    pub terminal_repair_moves:usize,
+    pub terminal_repair_work:usize,
+    pub terminal_repair_seconds:f64,
     pub limited_points:usize,
     pub limited_candidates:usize,
     pub limited_rejected:usize,
@@ -787,13 +794,31 @@ pub struct PumpStats {
     pub seconds: f64,
 }
 // 局所LPの打切り点は可行点の種としてだけ扱い、境界や最適性は引き継がない。
-fn pump_limited_candidate(model:&Model,standard:&Standard,point:&[f64],checker:&heuristic::Repair<'_>)->Option<Vec<f64>> {
+fn pump_limited_map(model:&Model,standard:&Standard,point:&[f64])->Option<Vec<f64>> {
     if standard.terms.len()!=model.variables.len() || standard.shift.len()!=model.variables.len()
         || point.iter().any(|v|!v.is_finite())
         || standard.terms.iter().flatten().any(|&(k,_)|k>=point.len()) {return None;}
-    let mut rounded:Vec<_>=standard.terms.iter().enumerate().map(|(j,t)|standard.shift[j]+t.iter().map(|&(k,a)|a*point[k]).sum::<f64>()).collect();
+    let mapped:Vec<_>=standard.terms.iter().enumerate().map(|(j,t)|standard.shift[j]+t.iter().map(|&(k,a)|a*point[k]).sum::<f64>()).collect();
+    mapped.iter().all(|v|v.is_finite()).then_some(mapped)
+}
+fn pump_limited_candidate(model:&Model,standard:&Standard,point:&[f64],checker:&heuristic::Repair<'_>)->Option<Vec<f64>> {
+    let mut rounded=pump_limited_map(model,standard,point)?;
     for(j,v)in model.variables.iter().enumerate(){if v.integer{rounded[j]=rounded[j].round();}}
-    if rounded.iter().all(|v|v.is_finite()) && checker.candidate_check(&rounded){Some(rounded)}else{None}
+    if checker.candidate_check(&rounded){Some(rounded)}else{None}
+}
+// 主解だけの短い修復。補助LPの証明情報は一切使用しない。
+fn pump_terminal_candidate(model:&Model,root:&Node,standard:&Standard,point:&[f64],global_deadline:Instant,checker:&mut heuristic::Repair<'_>,stats:&mut PumpStats)->Option<Vec<f64>> {
+    let now=Instant::now();let remaining=global_deadline.saturating_duration_since(now);
+    if remaining.is_zero(){return None;}
+    let mapped=pump_limited_map(model,standard,point)?;
+    let now=Instant::now();let window=global_deadline.saturating_duration_since(now).div_f64(100.).min(std::time::Duration::from_millis(100));
+    if window.is_zero(){return None;}
+    let deadline=now.checked_add(window)?.min(global_deadline);let before=checker.stats.clone();stats.terminal_repair_calls+=1;
+    let candidate=checker.search_adaptive_incremental(&mapped,&root.lower,&root.upper,deadline,500_000,0x7c399ba3495e16d1);
+    stats.terminal_repair_moves+=checker.stats.moves-before.moves;stats.terminal_repair_work+=checker.stats.work-before.work;stats.terminal_repair_seconds+=now.elapsed().as_secs_f64();
+    if Instant::now()>=global_deadline{return None;}
+    if candidate.is_some(){stats.terminal_repair_candidates+=1;}
+    candidate
 }
 fn binary_pump(
     model: &Model,
@@ -834,7 +859,7 @@ fn binary_pump_with_global_deadline(
     }
     let mut problem = standard.sparse.as_ref()?.clone();
     stats.calls += 1;
-    let checker = heuristic::Repair::new(model);
+    let mut checker = heuristic::Repair::new(model);
     let mut current = point.to_vec();
     let mut warm = root.warm.clone();
     let mut history = std::collections::VecDeque::<Vec<bool>>::new();
@@ -949,6 +974,11 @@ fn binary_pump_with_global_deadline(
                             stats.limited_points+=1;
                             if let Some(candidate)=pump_limited_candidate(model,standard,&point,&checker){
                                 stats.limited_candidates+=1;stats.candidates+=1;return Some(candidate);
+                            }
+                            if limits.pump_terminal_repair {
+                                if let Some(candidate)=pump_terminal_candidate(model,root,standard,&point,global_deadline,&mut checker,stats){
+                                    stats.limited_candidates+=1;stats.candidates+=1;return Some(candidate);
+                                }
                             }
                             stats.limited_rejected+=1;
                         }
@@ -3753,6 +3783,26 @@ mod pump_tests {
         assert!(pump_limited_candidate(&m,&p,&vec![f64::NAN;n],&checker).is_none());
         let x=vec![0.;n];let good=pump_limited_candidate(&m,&p,&x,&checker).unwrap();assert!(m.check(&good,true,1e-7).is_ok());
         assert!(pump_limited_candidate(&m,&p,&vec![1.;n],&checker).is_none());
+    }
+    #[test]
+    fn terminal_repair_recovers_rejected_rounding_without_changing_parent_lp() {
+        let(m,node,p,_)=prepare(FRACTIONAL);let mut point=vec![0.;p.sparse.as_ref().unwrap().columns.len()];
+        for j in 0..m.variables.len(){let &(k,a)=p.terms[j].iter().find(|&&(_,a)|a>0.).unwrap();point[k]=(0.7-p.shift[j])/a;}
+        let mut checker=heuristic::Repair::new(&m);assert!(pump_limited_candidate(&m,&p,&point,&checker).is_none());let mut stats=PumpStats::default();
+        let x=pump_terminal_candidate(&m,&node,&p,&point,Instant::now()+std::time::Duration::from_secs(2),&mut checker,&mut stats).unwrap();
+        assert!(checker.candidate_check(&x));assert_eq!(stats.terminal_repair_calls,1);assert_eq!(stats.terminal_repair_candidates,1);assert!(stats.terminal_repair_moves>0);
+        let parent=revised::minimize_warm(p.sparse.as_ref().unwrap(),1000,None,node.warm.as_deref());assert!(matches!(parent.outcome,lp::Outcome::Optimal{objective,..}if objective == -1.5));
+    }
+    #[test]
+    fn terminal_repair_respects_node_bounds() {
+        let(m,mut node,p,_)=prepare(FRACTIONAL);node.lower[0]=Some(1.);node.upper[1]=Some(0.);let point=vec![0.7;p.sparse.as_ref().unwrap().columns.len()];let mut checker=heuristic::Repair::new(&m);let mut stats=PumpStats::default();
+        let x=pump_terminal_candidate(&m,&node,&p,&point,Instant::now()+std::time::Duration::from_secs(2),&mut checker,&mut stats).unwrap();assert_eq!(x,vec![1.,0.]);assert!(checker.candidate_check(&x));
+    }
+    #[test]
+    fn terminal_repair_rejects_invalid_points_and_expired_deadlines() {
+        let(m,node,p,_)=prepare(FRACTIONAL);let mut checker=heuristic::Repair::new(&m);let mut stats=PumpStats::default();let future=Instant::now()+std::time::Duration::from_secs(2);
+        assert!(pump_terminal_candidate(&m,&node,&p,&[],future,&mut checker,&mut stats).is_none());assert!(pump_terminal_candidate(&m,&node,&p,&vec![f64::NAN;p.sparse.as_ref().unwrap().columns.len()],future,&mut checker,&mut stats).is_none());
+        assert!(pump_terminal_candidate(&m,&node,&p,&vec![0.;p.sparse.as_ref().unwrap().columns.len()],Instant::now()-std::time::Duration::from_secs(1),&mut checker,&mut stats).is_none());assert_eq!(stats.terminal_repair_calls,0);
     }
     #[test]
     fn pump_projects_and_perturbs_without_changing_parent_lp() {

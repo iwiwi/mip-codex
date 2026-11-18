@@ -51,6 +51,7 @@ fn run() -> Result<(), String> {
             };
         }
         if let Ok(v)=std::env::var("MIP_PUMP_LIMITED_ROUNDING"){limits.pump_limited_rounding=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_PUMP_LIMITED_ROUNDING must be 0 or 1".into())};}
+        if let Ok(v)=std::env::var("MIP_PUMP_TERMINAL_REPAIR"){limits.pump_terminal_repair=match v.as_str(){"0"=>false,"1"=>true,_=>return Err("MIP_PUMP_TERMINAL_REPAIR must be 0 or 1".into())};}
         if let Ok(value) = std::env::var("MIP_FEASIBILITY_PUMP") {
             limits.feasibility_pump = match value.as_str() {
                 "0" => false,
