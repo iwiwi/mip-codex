@@ -481,6 +481,23 @@ pub fn solve_with_portfolio(
     fractional: bool,
     portfolio:bool,
 ) -> Option<Answer> {
+    solve_with_input_cover(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,false)
+}
+pub fn solve_with_input_cover(
+    model: &Model,
+    memory: usize,
+    deadline: Instant,
+    limit: usize,
+    local: bool,
+    stronger_root: bool,
+    preserve_order: bool,
+    diversify: bool,
+    adaptive: bool,
+    cover: bool,
+    fractional: bool,
+    portfolio:bool,
+    input_cover:bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline)?;
@@ -619,6 +636,7 @@ pub fn solve_with_portfolio(
             memory / 4,
             end,
             search.best.len(),
+            input_cover.then_some(model),
         );
         if let Some((order, bounds)) = root.as_mut() {
             let original_order: Vec<_> = order.iter().map(|&v| graph.order[v]).collect();
