@@ -552,6 +552,14 @@ pub fn solve_with_primal_budget(
     adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
     input_cover: bool, spectral: bool, large: bool, heap: bool, primal_budget: bool,
 ) -> Option<Answer> {
+    solve_with_rounds(model,memory,deadline,limit,local,stronger_root,preserve_order,diversify,adaptive,cover,fractional,portfolio,input_cover,spectral,large,heap,primal_budget,false)
+}
+pub fn solve_with_rounds(
+    model: &Model, memory: usize, deadline: Instant, limit: usize,
+    local: bool, stronger_root: bool, preserve_order: bool, diversify: bool,
+    adaptive: bool, cover: bool, fractional: bool, portfolio: bool,
+    input_cover: bool, spectral: bool, large: bool, heap: bool, primal_budget: bool, long_rounds: bool,
+) -> Option<Answer> {
     let portfolio=portfolio&&adaptive&&cover;
     let started = Instant::now();
     let graph = recognize(model, memory, deadline, large)?;
@@ -690,7 +698,7 @@ pub fn solve_with_primal_budget(
         search.best = seed;
         search.stats.local = Some(stats);
         if cover && Instant::now() < local_deadline {
-            let (seed, stats)=weighted_cover::selected(&graph,&search.best,memory/2,local_deadline,portfolio,heap);
+            let (seed, stats)=weighted_cover::selected_with_rounds(&graph,&search.best,memory/2,local_deadline,portfolio,heap,long_rounds);
             search.best = seed;
             search.stats.cover_local = Some(stats);
         }
