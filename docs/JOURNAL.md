@@ -980,3 +980,15 @@ private別枝cover-choice-heap435315では既存heap-profileのまま自作neutr
 既存heap-profile667でown neutral parent[0,16,7]からsingle100M反復/900秒guardの3探索が終了。−1197/−1198/−1197、component512.914195894/499.669962036/516.526172217秒。改善はparent16から40,959,147反復目、100M時点で1198。3親fresh GMP/3出力GMP、best追加strict/公式もvalid。追加監査初回は出力directory未作成で書込失敗、元GMP結果は既にvalid、失敗ログ保存後directory作成し検査だけ再実行成功。公式ページNov18再確認でbest−1198。新記録ではなくmain再現もまだ。SOLと再検証手順、全3出力の閉じたarchiveを保存。親の由来を復元できるよう、元の37点LNS/neutral archiveもこの枝へコピー。今後のsolverに既知点を埋め込まない。
 
 自作1198から既存neutral-profileを無改変で再利用し、16round×1秒の同値親生成+matching、その全18出力のfresh GMP/公式検査を私的枝で進行中。新Rust source・native点は使わない。現在の配分PR129/602は全く別sourceとして評価を継続する。
+
+## 2026-11-18 main129後と長round初期50fe/2065
+
+main1293a774/602、primaryCLI14ca、全4元GMP/proof成功。z26/60秒−1181/LB−1575（60.038169229秒）、cod/pair root最適、depth512safe。新create-only17594c699b0c484d809689cd919dad26076f57f181d516194e9fa71fff8ddae1は240×3600秒/16GiB/1thread/cores8..15/swap0/pids512、113snapshot/147libs全SHA、新旧cgroups空、旧9e5obsolete。統合後コメント6975039961はfreshAIusage付き。正式自作finalは全未起動・Nov19予定。
+
+current default/private全計測終端後、旧target専用debug build/incrementalの19,240,941,584B logicalを整理し、実空き2,123,747,328→20,471,410,688B。debug CLI/examplesと全release ELFは前後SHA保持、Git内57 frozen ELF manifestsの削除cache参照0、retained symlinkから削除先参照0。元native config39551/results6acfと旧final9e5config不変。全ログ/凍結ELF/入力/点は保持。incominguntrackedと異なるACTIVE_RESEARCHも/tmpへSHA付き保存し、差のある元記録をpostarchiveへ含めた。primary tracked mainはclean、ローカル最新はACTIVE_RESEARCH_LOCAL.json。
+
+長round候補50fe54699c/FP20652d2ec83d5fc4/CLI322213c542d484e57b0971f3517ebdc218c1f5d2bf36510f7bcd64d2c0178da2、defaultOFF。353Rust/4ignored、1200oracle/GMP/proof/7410tamper、12large/GMP/proof(actual長mode6)成功。z26/60秒−1178/LB−1578→−1183/LB−1578、両検査成功。9controls/4long、188screen/audits進行中。初期500K未改善制限は保ち、改善後100M、再始動最低100Mを実heap/64bitだけ適用。全scalar整数範囲を独立整数計算した。Rust sourceはfreeze後不変。
+
+z26 outside240の1時間研究比較も開始。自身samefrozen0/1はCPU46で順次各3600、nativeHS51/SCIP52/GLPK53は各3600並列、16GiB/1thread、3660processgroup watchdog。正式240と異なり、他solverの点/情報をRustへ渡さない。開始/PID/exit/log/各点GMPと自身strictproofを保存。まだ結果なし。モデル/資源は固定、目標値なし、holdout未使用。
+
+私的1198からのneutral18出力全GMP/公式、入力seed fresh1。次3点longも全1198/3GMP/3親fresh、改善なし。計21点/official18/seedfresh4をarchiveし、本体成果や新記録へ帰属しない。これ以上同条件の私的反復より、現新候補の汎用長roundを検証する。全体優位・新記録目標未達、Nov22 14:59UTCまで継続。

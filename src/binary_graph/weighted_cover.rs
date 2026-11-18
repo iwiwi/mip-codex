@@ -17,6 +17,7 @@ pub struct Stats {
     pub edges: usize,
     pub restarts:usize,
     pub heap_used:bool,
+    pub long_rounds_used:bool,
     pub iteration_limit: usize,
     pub seconds: f64,
     pub stop_reason: &'static str,
@@ -266,6 +267,9 @@ pub(super) fn improve(
     improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,false)
 }
 fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,initial_rng:u64,minimum_iterations:usize,heap:bool)->(Vec<usize>,Stats){
+ improve_seeded_with_rounds(graph,seed,memory,deadline,initial_rng,minimum_iterations,heap,false)
+}
+fn improve_seeded_with_rounds(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,initial_rng:u64,minimum_iterations:usize,heap:bool,long_rounds:bool)->(Vec<usize>,Stats){
     let started = Instant::now();
     let mut best = if strict_clique(graph, seed) {
         seed.to_vec()
@@ -285,9 +289,12 @@ fn improve_seeded(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,initi
     };
     if heap && heap_eligible(graph.n,state.edges.len(),memory) {state.enable_heap();}
     stats.heap_used=state.heap_enabled;
+    // 大規模疎heapで、改善後の状態遷移を長く継続する。64bitでカウンタ範囲を保証する。
+    stats.long_rounds_used=long_rounds && state.heap_enabled && usize::BITS>=64;
+    let extended_limit=if stats.long_rounds_used {100_000_000}else{graph.n.saturating_mul(1024).min(2_000_000)};
+    stats.iteration_limit=graph.n.saturating_mul(128).min(500000).max(minimum_iterations).min(extended_limit);
     stats.edges = state.edges.len();
     let mut rng = initial_rng;
-    let extended_limit = graph.n.saturating_mul(1024).min(2_000_000);
     for step in 1..=extended_limit {
         if step > stats.iteration_limit {
             break;
@@ -558,7 +565,10 @@ pub(super) fn portfolio(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant
  portfolio_selected(graph,seed,memory,deadline,false)
 }
 pub(super) fn selected(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,portfolio:bool,heap:bool)->(Vec<usize>,Stats){
- if portfolio {portfolio_selected(graph,seed,memory,deadline,heap)}else{improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,heap)}
+ selected_with_rounds(graph,seed,memory,deadline,portfolio,heap,false)
+}
+pub(super) fn selected_with_rounds(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,portfolio:bool,heap:bool,long_rounds:bool)->(Vec<usize>,Stats){
+ if portfolio {portfolio_selected_with_rounds(graph,seed,memory,deadline,heap,long_rounds)}else{improve_seeded_with_rounds(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,heap,long_rounds)}
 }
 pub(super) fn heap_eligible(n:usize,edges:usize,memory:usize)->bool {
  let bits=usize::BITS-n.saturating_sub(1).leading_zeros();
@@ -567,14 +577,19 @@ pub(super) fn heap_eligible(n:usize,edges:usize,memory:usize)->bool {
   && 32*(edges as u128)+144*(n as u128)<=memory as u128
 }
 fn portfolio_selected(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,heap:bool)->(Vec<usize>,Stats){
- let began=Instant::now();let(mut best,mut stats)=improve_seeded(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,heap);
+ portfolio_selected_with_rounds(graph,seed,memory,deadline,heap,false)
+}
+fn portfolio_selected_with_rounds(graph:&Graph,seed:&[usize],memory:usize,deadline:Instant,heap:bool,long_rounds:bool)->(Vec<usize>,Stats){
+ let began=Instant::now();let(mut best,mut stats)=improve_seeded_with_rounds(graph,seed,memory,deadline,0xd1b54a32d192ed03,0,heap,long_rounds);
  let mut improved=best.len()>seed.len();
  for round in 1..=8u64{
   if !improved||Instant::now()>=deadline||best.len()==graph.n||stats.validation_failures>0{break;}
   let before=best.len();let offset=stats.iterations;
   let rng=0xd1b54a32d192ed03u64^round.wrapping_mul(0x9e3779b97f4a7c15);
-  let(next,call)=improve_seeded(graph,&best,memory,deadline,rng,graph.n.saturating_mul(1024).min(2_000_000),heap);
+  let minimum=if stats.long_rounds_used {100_000_000}else{graph.n.saturating_mul(1024).min(2_000_000)};
+  let(next,call)=improve_seeded_with_rounds(graph,&best,memory,deadline,rng,minimum,heap,long_rounds);
   stats.heap_used|=call.heap_used;
+  stats.long_rounds_used|=call.long_rounds_used;
   stats.restarts+=1;
   stats.iterations=stats.iterations.saturating_add(call.iterations);
   stats.iteration_limit=stats.iteration_limit.saturating_add(call.iteration_limit);
