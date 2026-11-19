@@ -648,7 +648,7 @@ fn sparse_source_rows<'a>(model:&'a Model,selected:Option<&'a [usize]>)->impl Cl
         .chain(model.rows.iter().enumerate().take(if selected.is_none(){model.rows.len()}else{0}))
 }
 fn standard_sparse_selected(model:&Model,node:&Node,limit:usize,track_rows:bool,fixed_columns:bool,selected:Option<&[usize]>)->Relaxation {
-    standard_sparse_selected_pairs(model,node,limit,track_rows,fixed_columns,selected,std::env::var("MIP_RHS_INTERVAL_PAIRS").is_ok_and(|v|v=="1"))
+    standard_sparse_selected_pairs(model,node,limit,track_rows,fixed_columns,selected,std::env::var("MIP_RHS_INTERVAL_PAIRS").map_or(true,|v|v=="1"))
 }
 fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows:bool,fixed_columns:bool,selected:Option<&[usize]>,pairs:bool)->Relaxation {
     let mut shift = Vec::new();
@@ -693,10 +693,10 @@ fn standard_sparse_selected_pairs(model:&Model,node:&Node,limit:usize,track_rows
     let interval_enabled=std::env::var("MIP_RHS_INTERVAL_FALLBACK").map_or(true,|v|v=="1");
     let mut pair_source_valid=None;
     let nonzeros = sources.clone()
-        .map(|(i,r)| r.coefficients.len() as u128 * if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2 } else { 1 })
+        .map(|(_,r)| r.coefficients.len() as u128 * if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2 } else { 1 })
         .sum::<u128>();
     let rows = sources.clone()
-        .map(|(i,r)| if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2u128 } else { 1 })
+        .map(|(_,r)| if split_range(r)||selected.is_some()&&r.lower.zip(r.upper).is_some_and(|(l,u)|l<u) { 2u128 } else { 1 })
         .sum::<u128>();
     let mut estimate = nonzeros * 48 + rows * 2048 + (costs.len() as u128) * 128;
     if estimate > limit as u128 {
