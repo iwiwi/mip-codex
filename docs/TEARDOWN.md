@@ -14,6 +14,8 @@
 | グラフ頂点探索 | `graph-vertex-portfolio@1175a8e6ee2d947f49554d1ca0b963c46c6d9ddf` | 既定無効。300秒でz26が悪化したため未採用 |
 | グラフ近傍の独立診断 | `cover-choice-heap@b2d00ef6f45648c9b833f1d72b5c0a140b1e4805` | 自作z26解−1198と検証資料を保全。公表値との同値 |
 
+旧MIR作業ツリーの未コミット疎LU差分は `retirement/mir-matrix-wip-20261119@f3bda96c401d75b2a605b547d85410bf3d5eeb21` に保全した。撤収時に再検証していない。
+
 残るローカル仮説・却下枝は回収用の `unpublished-history.bundle` と `GIT-REFS.json` で復元する。GitHubへは確認したソース差分とこの文書を通常のpushで保存した。
 
 ## 評価の状態と既知の問題
@@ -36,6 +38,15 @@ Ubuntu 24.04.5 LTS、Linux 7.0.0-1014-aws、aarch64、Neoverse-V2 64論理CPU、
 | HiGHS / SCIP | PyPIの `highspy==1.16.0` と `PySCIPOpt==6.3.0`（同梱SCIP 10.0.2）。NumPy 2.5.4、SciPy 1.18.1。`scripts/requirements-comparison.txt`。当時のネイティブライブラリ実体のSHA256は正式configの `library_sha256` 全147件 |
 | GLPK | [GNU GLPK 5.0 source](https://ftp.gnu.org/gnu/glpk/glpk-5.0.tar.gz)、SHA256 `4a1013eebb50f728fc601bdd833b0b2870333c3b3e5a816eeba921d95bec6f15`。Ubuntuの `libglpk-dev:arm64=5.0-1build2` を比較driverにリンク。driver SHA256 `329ec481ab751fa1b9cb540b5a986fb41b2b0a299d2bb707960cfdbd66ceffd4` |
 | GMP checker | [MIPLIB testscript 1.0.4](https://miplib.zib.de/download.html)、ZIP SHA256 `37b21a7f1ee968aed60675fb070c9286eccc6a953c8bc50120c9246b052b47b9`。ソースと絶対誤差版の改変は `third_party/miplib-checker`。公式実行ファイルSHA256 `df5c3728704d6858560eb36f2395c8220b8df66d4960b1a209656815c9c099e0`、絶対版 `fc29d7831b1cc7894f5c80cd412fee655cb54ef972f125e867aaaaba720bd6b6` |
+
+探索用の4入力はMIPLIBの個別インスタンス配布物。圧縮MPSのSHA256は次の通り。
+
+| 入力 | SHA256 |
+|---|---|
+| [cdc7-4-3-2](https://miplib.zib.de/instance_details_cdc7-4-3-2.html) | `7cb233a7b3df00065ebe43aff1e991ff2884e5defa8cc951b0c568ab25a754f4` |
+| [sorrell7](https://miplib.zib.de/instance_details_sorrell7.html) | `11b427bdaf61e4d7b54268b26bdf37707a446df82e6e7cbcce88751ad1997b45` |
+| [sorrell8](https://miplib.zib.de/instance_details_sorrell8.html) | `f4c2a95d93d72f166c67fd5736006e62681e27661fd07425801e212c28b1eeb5` |
+| [z26](https://miplib.zib.de/instance_details_z26.html) | `63ca4683d1311d5e1390472d5dfb880af2a6100dd11a8a08006d90fa1e27b783` |
 
 比較専用ソルバーには共通時間とスレッド数を渡す。具体的なseed、gap、cuts等の指定は `scripts/comparison_worker.py`、`tools/glpk-benchmark/main.c` と凍結設定・各jobのoptionsを参照。Rustの最適化本体は外部ソルバーを呼ばない。
 
